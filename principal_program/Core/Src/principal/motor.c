@@ -9,8 +9,6 @@ const int SEQUENCE[6][3] = {                             // Commutation right_SE
   { 0, -1,  1}
 };
 
-
-
 /* +struct right or left motor --------------------------------------*/
 MOTOR_PARAMETER motor_right = {
     0.0,                                                 //integral_record   PI積分累積儲存
@@ -58,19 +56,15 @@ MOTOR_PARAMETER motor_left = {
 
 };
 
-
-
 // +setup -----------------------------------------------------------*/
-void motor_setup(const MOTOR_PARAMETER *motor) {
+void motor_tim_setup(const MOTOR_PARAMETER *motor) {
     HAL_TIM_PWM_Start(motor->TIMx[0], motor->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(motor->TIMx[1], motor->TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(motor->TIMx[2], motor->TIM_CHANNEL_x[2]);
 }
 
-
-
 /* +renew motor speed and hall signal -------------------------------*/
-void commutateMotor(const MOTOR_PARAMETER *motor) {
+void commutate_motor(const MOTOR_PARAMETER *motor) {
     for (int i = 0; i < 3; i++) {
         if (SEQUENCE[motor->currentStep][i] == 1) {
             __HAL_TIM_SET_COMPARE(motor->TIMx[i], motor->TIM_CHANNEL_x[i], motor->pwmValue);
@@ -85,10 +79,9 @@ void commutateMotor(const MOTOR_PARAMETER *motor) {
     }
 }
 
-
-
 /* +hall senser and decide clockwise --------------------------------*/
-void updateMotorStep(MOTOR_PARAMETER *motor) {
+void update_motor_step(MOTOR_PARAMETER *motor) {
+    motor->rpm_count++;
     int hallState =
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[0], motor->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[1], motor->Hall_GPIO_Pin_x[1]) << 1) |

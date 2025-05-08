@@ -16,6 +16,6 @@
 extern int setpoint_current;
 
 int PI_Controller(MOTOR_PARAMETER *motor, double measurement);
-void PI_timer_setup(void);
+void PI_tim_setup(void);
 
 #endif

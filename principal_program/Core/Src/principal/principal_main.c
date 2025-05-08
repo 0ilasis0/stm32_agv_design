@@ -4,19 +4,18 @@
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
 /* +Main ------------------------------------------------------------*/
 void MCmain(void) {
-    motor_setup(&motor_right);
-    motor_setup(&motor_left);
+    motor_tim_setup(&motor_right);
+    motor_tim_setup(&motor_left);
     hall_detection_adc_setup();
-    PI_timer_setup();
+    PI_tim_setup();
     vehicle_setup();
+    uart_setup();
 
-    uartInit();
-
-    updateMotorStep(&motor_right);
-    updateMotorStep(&motor_left);
+    update_motor_step(&motor_right);
+    update_motor_step(&motor_left);
     while (1) {
-        commutateMotor(&motor_right);
-        commutateMotor(&motor_left);
+        commutate_motor(&motor_right);
+        commutate_motor(&motor_left);
 
         if(hall_sensor3 > node_hall_critical_value) {
             decide_move_mode();
@@ -33,8 +32,6 @@ void MCmain(void) {
     }
 }
 
-
-
 /* 決定移動MODE ------------------------------------------------------*/
 void decide_move_mode(void) {
     // renew current data to next node
@@ -45,7 +42,7 @@ void decide_move_mode(void) {
     } else if(vehicle_current_data.status == agv_rotate) {
         // 確定motor stop
         if (motor_right.present_speed == min_duty && motor_left.present_speed == min_duty) {
-            Rotate_in_place();
+            rotate_in_place();
         } else {
             setpoint_current = 0;
         }

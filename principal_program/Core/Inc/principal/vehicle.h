@@ -38,7 +38,7 @@ extern VEHICLE_DATA vehicle_current_data;
 extern MAP_DATA map_current_data;
 
 void track_mode(void);
-void Rotate_in_place(void);
+void rotate_in_place(void);
 void vehicle_setup(void);
 void straight_mode(void);
 void pwm_limit(void);

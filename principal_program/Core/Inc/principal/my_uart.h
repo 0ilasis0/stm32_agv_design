@@ -17,7 +17,7 @@ typedef struct {
     uint8_t end;
 } UART_BUFFER;
 
-void uartInit(void);
+void uart_setup(void);
 void HYCodes_UART3_IRQHandler_Before(void);
 void uart_RxCNDTR_reset(UART_HandleTypeDef *huart);
 

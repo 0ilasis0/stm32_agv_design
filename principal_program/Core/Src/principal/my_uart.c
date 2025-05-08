@@ -7,7 +7,7 @@ TrReBuffer transfer_buffer;
 TrReBuffer receive_buffer;
 
 // UART buffer init
-void uartInit(void) {
+void uart_setup(void) {
     memset(uart_buffer_r, 0, sizeof(uart_buffer_r));
     transfer_buffer = tr_re_buffer_new();
     receive_buffer = tr_re_buffer_new();

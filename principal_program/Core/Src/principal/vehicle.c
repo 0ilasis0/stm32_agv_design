@@ -73,15 +73,15 @@ void straight_mode(void) {
 
 uint32_t hall_count_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
 /* AGV原地旋轉功能 --------------------------------------------------*/
-void Rotate_in_place(void) {
+void rotate_in_place(void) {
     setpoint_current = setpoint_rotate;
 
     while (get_rotate_direction() != either){
 
         pwm_limit();
 
-        commutateMotor(&motor_right);
-        commutateMotor(&motor_left);
+        commutate_motor(&motor_right);
+        commutate_motor(&motor_left);
 
 
 
