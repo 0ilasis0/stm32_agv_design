@@ -3,8 +3,6 @@
 
 #include "common.h"
 
-
-
 typedef enum {
     clockwise,
     counter_clockwise,
@@ -32,17 +30,11 @@ typedef struct{
 
 } MOTOR_PARAMETER;
 
-
-
 extern MOTOR_PARAMETER motor_right;
 extern MOTOR_PARAMETER motor_left;
-
-
 
 void motor_setup(MOTOR_PARAMETER Motor_R, MOTOR_PARAMETER Motor_L );
 void updateMotorStep(MOTOR_PARAMETER *motor);
 void commutateMotor(MOTOR_PARAMETER motor);
-
-
 
 #endif
