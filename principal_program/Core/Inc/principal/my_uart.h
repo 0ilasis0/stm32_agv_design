@@ -1,14 +1,11 @@
 #ifndef MY_UART_H
 #define MY_UART_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include <usart.h>
 #include <stm32g431xx.h>
 #include <stm32g4xx_hal_uart.h>
 #include "principal/packet.h"
-
 
 #define UART3_BAUDRATE 115200
 

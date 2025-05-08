@@ -1,8 +1,6 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "vec.h"
 
 #define PACKET_START_CODE  ((uint8_t) '{')

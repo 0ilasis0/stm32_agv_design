@@ -12,12 +12,8 @@
 #include "vec.h"
 #include "my_uart.h"
 
-
-
 void MCmain(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void decide_move_mode(void);
-
-
 
 #endif
