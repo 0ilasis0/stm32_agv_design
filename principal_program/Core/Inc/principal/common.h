@@ -1,3 +1,5 @@
+#ifndef COMMON_H
+#define COMMON_H
 
 #include "gpio.h"
 #include "tim.h"
@@ -6,3 +8,5 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#endif

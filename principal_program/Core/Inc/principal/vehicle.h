@@ -4,14 +4,10 @@
 #include "common.h"
 #include "motor.h"
 
-
-
 #define max_duty  100                                          // PWM 最大占空比
 #define min_duty  0                                            // PWM 最小占空比
 
 #define max_node 10                                            // 能走最大的路徑數
-
-
 
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
@@ -35,14 +31,11 @@ typedef struct {
     int address_id[max_node];
 } MAP_DATA;
 
-
-
 extern const uint32_t track_hall_critical_value;
 extern const uint32_t node_hall_critical_value;
 
 extern VEHICLE_DATA vehicle_current_data;
 extern MAP_DATA map_current_data;
-
 
 void track_mode(void);
 void Rotate_in_place(void);
