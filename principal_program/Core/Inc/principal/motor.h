@@ -33,8 +33,8 @@ typedef struct{
 extern MOTOR_PARAMETER motor_right;
 extern MOTOR_PARAMETER motor_left;
 
-void motor_setup(MOTOR_PARAMETER Motor_R, MOTOR_PARAMETER Motor_L );
+void motor_setup(const MOTOR_PARAMETER *motor);
 void updateMotorStep(MOTOR_PARAMETER *motor);
-void commutateMotor(MOTOR_PARAMETER motor);
+void commutateMotor(const MOTOR_PARAMETER *motor);
 
 #endif

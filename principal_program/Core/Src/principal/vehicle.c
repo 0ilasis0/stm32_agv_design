@@ -80,8 +80,8 @@ void Rotate_in_place(void) {
 
         pwm_limit();
 
-        commutateMotor(motor_right);
-        commutateMotor(motor_left);
+        commutateMotor(&motor_right);
+        commutateMotor(&motor_left);
 
 
 

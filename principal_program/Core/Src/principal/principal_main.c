@@ -4,7 +4,8 @@
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
 /* +Main ------------------------------------------------------------*/
 void MCmain(void) {
-    motor_setup(motor_right, motor_left);
+    motor_setup(&motor_right);
+    motor_setup(&motor_left);
     hall_detection_adc_setup();
     PI_timer_setup();
     vehicle_setup();
@@ -14,8 +15,8 @@ void MCmain(void) {
     updateMotorStep(&motor_right);
     updateMotorStep(&motor_left);
     while (1) {
-        commutateMotor(motor_right);
-        commutateMotor(motor_left);
+        commutateMotor(&motor_right);
+        commutateMotor(&motor_left);
 
         if(hall_sensor3 > node_hall_critical_value) {
             decide_move_mode();
