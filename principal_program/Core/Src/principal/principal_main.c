@@ -1,9 +1,13 @@
 #include "principal/principal_main.h"
-
+#include "principal/motor.h"
+#include "principal/vehicle.h"
+#include "principal/PI_control.h"
+#include "principal/principal_adc.h"
+#include "principal/principal_uart.h"
 
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
 /* +Main ------------------------------------------------------------*/
-void MCmain(void) {
+void principal_main(void) {
     motor_tim_setup(&motor_right);
     motor_tim_setup(&motor_left);
     hall_detection_adc_setup();

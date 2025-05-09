@@ -1,4 +1,7 @@
 #include "principal/principal_it.h"
+#include "principal/base.h"
+#include "principal/vehicle.h"
+#include "principal/PI_control.h"
 
 /* +hall exit count -------------------------------------------------*/
 void principal_EXTI3_IRQHandler(void) {

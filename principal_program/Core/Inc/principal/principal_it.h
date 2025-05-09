@@ -1,8 +1,7 @@
 #ifndef PRINCIPAL_IT_H
 #define PRINCIPAL_IT_H
 
-#include "common.h"
-#include "motor.h"
+#include "principal/motor.h"
 
 void principal_EXTI9_5_IRQHandler(void);
 void principal_EXTI3_IRQHandler(void);

@@ -1,7 +1,9 @@
-#ifndef PACKET_H
-#define PACKET_H
+#ifndef PRINCIPAL_PACKET_H
+#define PRINCIPAL_PACKET_H
 
-#include "vec.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "principal/vec.h"
 
 #define PACKET_START_CODE  ((uint8_t) '{')
 #define PACKET_END_CODE    ((uint8_t) '}')

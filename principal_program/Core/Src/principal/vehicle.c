@@ -1,4 +1,5 @@
-# include "principal/vehicle.h"
+#include "principal/vehicle.h"
+#include "principal/PI_control.h"
 
 // 判斷是否轉灣大小
 const uint32_t track_hall_critical_value = 16*16*16 + 16*16 + 16 + 1;

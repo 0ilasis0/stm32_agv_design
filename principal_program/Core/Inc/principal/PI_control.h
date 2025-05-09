@@ -1,9 +1,7 @@
-#ifndef PI_CONTROL_H
-#define PI_CONTROL_H
+#ifndef PRINCIPAL_PI_CONTROL_H
+#define PRINCIPAL_PI_CONTROL_H
 
-#include "common.h"
-#include <math.h>
-#include "motor.h"
+#include "principal/motor.h"
 
 #define Kp 1.5                                           // 比例增益
 #define Ki 0.8                                           // 積分增益
@@ -15,7 +13,7 @@
 
 extern int setpoint_current;
 
-int PI_Controller(MOTOR_PARAMETER *motor, double measurement);
+void PI_Controller(MOTOR_PARAMETER *motor, double measurement);
 void PI_tim_setup(void);
 
 #endif
