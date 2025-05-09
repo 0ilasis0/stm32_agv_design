@@ -679,11 +679,10 @@ ARM Macro Assembler    Page 11
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=keil-mdk\startup_stm32g431xx.d -okeil-mdk\startup_stm32g431x
-x.o -I.\RTE\_Keil-mdk -IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\C
-MSIS\Core\Include -IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.
-6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include --predefine="__EVAL SETA 1" --pre
-define="__UVISION_VERSION SETA 541" --predefine="STM32G431xx SETA 1" --predefin
-e="_RTE_ SETA 1" --list=startup_stm32g431xx.lst startup_stm32g431xx.s
+x.o -I.\RTE\_Keil-mdk -IC:\Program_HY\Keil_v5\ARM\ARM\CMSIS\6.1.0\CMSIS\Core\In
+clude --predefine="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 542" --pr
+edefine="STM32G431xx SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32g43
+1xx.lst startup_stm32g431xx.s
 
 
 

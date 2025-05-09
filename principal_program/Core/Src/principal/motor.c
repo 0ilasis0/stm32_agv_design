@@ -1,4 +1,5 @@
 #include "principal/motor.h"
+#include "tim.h"
 
 const int SEQUENCE[6][3] = {                             // Commutation right_SEQUENCE for 120 degree control
   { 1, -1,  0},

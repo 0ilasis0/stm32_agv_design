@@ -1,8 +1,8 @@
-#ifndef VEHICLE_H
-#define VEHICLE_H
+#ifndef PRINCIPAL_VEHICLE_H
+#define PRINCIPAL_VEHICLE_H
 
-#include "common.h"
-#include "motor.h"
+#include <stdint.h>
+#include "principal/motor.h"
 
 #define max_duty  100                                          // PWM 最大占空比
 #define min_duty  0                                            // PWM 最小占空比

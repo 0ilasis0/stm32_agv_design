@@ -1,14 +1,10 @@
-#ifndef MY_UART_H
-#define MY_UART_H
+#ifndef PRINCIPAL_UART_H
+#define PRINCIPAL_UART_H
 
-#include <string.h>
-#include <usart.h>
-#include <stm32g431xx.h>
-#include <stm32g4xx_hal_uart.h>
-#include "principal/packet.h"
+#include <stdint.h>
+#include "usart.h"
 
 #define UART3_BAUDRATE 115200
-
 #define UART_TIME_OUT 100
 
 typedef struct {

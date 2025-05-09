@@ -1,7 +1,9 @@
-#ifndef MY_MOTOR_H
-#define MY_MOTOR_H
+#ifndef PRINCIPAL_MOTOR_H
+#define PRINCIPAL_MOTOR_H
 
-#include "common.h"
+#include <stdint.h>
+#include "gpio.h"
+#include "stm32g431xx.h"
 
 typedef enum {
     clockwise,

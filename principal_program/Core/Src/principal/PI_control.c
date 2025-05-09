@@ -1,4 +1,7 @@
 #include "principal/PI_control.h"
+#include <math.h>
+#include "principal/base.h"
+#include "tim.h"
 
 int setpoint_current = setpoint_straight;
 double error_threshold = 0.5;                                          //限制積分累積，避免長時間造成積分風暴
@@ -21,4 +24,3 @@ void PI_Controller(MOTOR_PARAMETER *motor, double measurement) {
 
     // return motor->pwmValue_temp;
 }
-

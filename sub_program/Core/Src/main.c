@@ -119,7 +119,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MCmain();
+  principal_main();
   while (1)
   {
 
