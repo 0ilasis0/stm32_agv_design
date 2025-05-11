@@ -42,6 +42,6 @@ keil-mdk\principal_it.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\principal_it.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\principal_it.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 keil-mdk\principal_it.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-keil-mdk\principal_it.o: ../Core/Inc/principal/base.h
+keil-mdk\principal_it.o: ../Core/Inc/principal/const.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/vehicle.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/PI_control.h

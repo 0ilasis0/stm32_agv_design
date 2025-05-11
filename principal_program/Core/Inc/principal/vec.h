@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define VECU8_MAX_CAPACITY 38
+#define VECU8_MAX_CAPACITY 50
 
 typedef struct {
     uint8_t data[VECU8_MAX_CAPACITY];

@@ -43,5 +43,5 @@ keil-mdk\pi_control.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\pi_control.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 keil-mdk\pi_control.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 keil-mdk\pi_control.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
-keil-mdk\pi_control.o: ../Core/Inc/principal/base.h
+keil-mdk\pi_control.o: ../Core/Inc/principal/const.h
 keil-mdk\pi_control.o: ../Core/Inc/tim.h
