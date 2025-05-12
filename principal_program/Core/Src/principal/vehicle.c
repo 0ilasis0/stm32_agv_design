@@ -32,13 +32,10 @@ VEHICLE_DATA inti_vehicle_data(const MAP_DATA *map_data, int index) {
     return data;
 };
 
-
-
 /* setup -----------------------------------------------------------*/
 void vehicle_setup(void) {
     vehicle_current_data = inti_vehicle_data(&map_current_data, 0);
 
-    // check
     vehicle_current_data.rotate_direction = either;
 }
 

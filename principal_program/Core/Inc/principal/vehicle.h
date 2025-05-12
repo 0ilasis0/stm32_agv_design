@@ -16,8 +16,6 @@ typedef enum {
     agv_next
 } AGV_STATUS;
 
-// ROTATE_STATUS 移到motor.h內了QQ
-
 typedef struct {
     ROTATE_STATUS rotate_direction;
     AGV_STATUS status;

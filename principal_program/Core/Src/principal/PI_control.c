@@ -1,14 +1,10 @@
 #include "principal/PI_control.h"
 #include <math.h>
-<<<<<<< HEAD
-#include "principal/base.h"
-=======
 #include "principal/const.h"
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 #include "tim.h"
 
 int setpoint_current = setpoint_straight;
-double error_threshold = 0.5;                                          //限制積分累積，避免長時間造成積分風暴
+double error_threshold = 0.5;               //限制積分累積，避免長時間造成積分風暴
 
 /* +setup -----------------------------------------------------------*/
 void PI_tim_setup(void){
@@ -25,6 +21,4 @@ void PI_Controller(MOTOR_PARAMETER *motor, double measurement) {
     }
     int output_pwm_Value = Kp * error + Ki * motor->integral_record; // 計算 P I 控制輸出
     motor->pwmValue_temp += output_pwm_Value * PI_feedbacck;
-
-    // return motor->pwmValue_temp;
 }

@@ -1,18 +1,13 @@
 #include "principal/principal_it.h"
-<<<<<<< HEAD
-#include "principal/base.h"
+#include "principal/const.h"
 #include "principal/vehicle.h"
 #include "principal/PI_control.h"
+#include "stm32g4xx_hal_gpio.h"
 
 float temp_time1 = 0;
 float temp_time2 = 0;
 int toggle1 = 1;
 int toggle2 = 0;
-=======
-#include "principal/const.h"
-#include "principal/vehicle.h"
-#include "principal/PI_control.h"
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 
 /* +hall exit count -------------------------------------------------*/
 void principal_EXTI3_IRQHandler(void) {
@@ -25,12 +20,6 @@ void principal_EXTI9_5_IRQHandler(void) {
 
 /* +PI speed control -----------------------------------------------*/
 void principal_TIM1_UP_TIM16_IRQHandler(void) {                //計時到，進行temp_pwm更新
-    // if(motor_right.adc_value >= track_hall_critical_value) {
-    //     motor_right.pwmValue_temp = time_rpm(&motor_right);
-    // }
-    // if(motor_left.adc_value >= track_hall_critical_value) {
-    //     motor_left.pwmValue_temp = time_rpm(&motor_left);
-    // }
     time_rpm(&motor_right);
     time_rpm(&motor_left);
 
@@ -46,14 +35,9 @@ void time_rpm(MOTOR_PARAMETER *motor) {
     float real_speed = motor->rpm_count/6;
     real_speed /= dt;
     motor->present_speed = real_speed;                        // 紀錄當前速度
-
-    // int pwmValue_renew = PI_Controller(motor, real_speed);
-    // return pwmValue_renew;
+    
     PI_Controller(motor, real_speed);
 }
-<<<<<<< HEAD
-
-
 
 /* 測試用PC13按鈕中斷 -----------------------------------------------*/
 void EXTI15_10_IRQHandler_principal_it(void) {
@@ -86,5 +70,3 @@ void principal_EXTI4_IRQHandler(void) {
         }
     }
 }
-=======
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a

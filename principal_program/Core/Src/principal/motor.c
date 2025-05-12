@@ -12,16 +12,16 @@ const int SEQUENCE[6][3] = {                             // Commutation right_SE
 
 /* +struct right or left motor --------------------------------------*/
 MOTOR_PARAMETER motor_right = {
-    0.0,                                                 //integral_record   PI積分累積儲存
-    0,                                                   //rpm_count  計數motor speed
-    0,                                                   //adc_value
-    15,                                                  //pwmValue ; Current PWM value (adjustable)
-    0,                                                   //pwmValue_temp  圈/s
-    0,                                                   //present_speed
-    clockwise,                                   //clockwise counter_clockwise
-    -1,                                                  //currentStep
+    0.0,                                    //integral_record   PI積分累積儲存
+    0,                                      //rpm_count  計數motor speed
+    0,                                      //adc_value
+    15,                                     //pwmValue ; Current PWM value (adjustable)
+    0,                                      //pwmValue_temp  圈/s
+    0,                                      //present_speed
+    clockwise,                              //clockwise counter_clockwise
+    -1,                                     //currentStep
 
-    {GPIOC,      GPIOC,      GPIOC      },                              //Hall sensor pins
+    {GPIOC,      GPIOC,      GPIOC      },  //Hall sensor pins
     {GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 },
 
     //right Pin definitions for the three phases
@@ -35,16 +35,16 @@ MOTOR_PARAMETER motor_right = {
 };
 
 MOTOR_PARAMETER motor_left = {
-    0.0,                                                  //integral_record   PI積分累積儲存
-    0,                                                    //rpm_count  計數motor speed
-    0,                                                    //adc_value
-    15,                                                   //pwmValue ; Current PWM value (adjustable)
-    0,                                                    //pwmValue_temp
-    0,                                                    //present_speed
-    counter_clockwise,                                                    //clockwise ; 1 = clockwise, -1 = counter clockwise
-    -1,                                                   //currentStep
+    0.0,                                    //integral_record   PI積分累積儲存
+    0,                                      //rpm_count  計數motor speed
+    0,                                      //adc_value
+    15,                                     //pwmValue ; Current PWM value (adjustable)
+    0,                                      //pwmValue_temp
+    0,                                      //present_speed
+    counter_clockwise,                      //clockwise ; 1 = clockwise, -1 = counter clockwise
+    -1,                                     //currentStep
 
-    {GPIOC,      GPIOC,      GPIOC      },                               //Hall sensor pins
+    {GPIOC,      GPIOC,      GPIOC      },  //Hall sensor pins
     {GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8 },
 
     //left Pin definitions for the three phases
