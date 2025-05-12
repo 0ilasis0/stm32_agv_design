@@ -1,11 +1,8 @@
 keil-mdk\principal_it.o: ..\Core\Src\principal\principal_it.c
 keil-mdk\principal_it.o: ../Core/Inc/principal/principal_it.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/motor.h
-<<<<<<< HEAD
 keil-mdk\principal_it.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-=======
 keil-mdk\principal_it.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 keil-mdk\principal_it.o: ../Core/Inc/gpio.h
 keil-mdk\principal_it.o: ../Core/Inc/main.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
