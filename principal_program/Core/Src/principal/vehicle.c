@@ -1,9 +1,6 @@
 #include "principal/vehicle.h"
 #include "principal/PI_control.h"
-<<<<<<< HEAD
 #include "principal/principal_adc.h"
-=======
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 
 // 判斷是否轉灣大小
 const uint32_t track_hall_critical_value = 16*16*16 + 16*16 + 16 + 1;
@@ -54,10 +51,8 @@ void renew_motor_drive(int sepoint) {
     motor_right.pwmValue = motor_right.pwmValue_temp;
     motor_left.pwmValue = motor_left.pwmValue_temp;
 
-<<<<<<< HEAD
     commutate_motor(&motor_right);
     commutate_motor(&motor_left);
-=======
 }
 
 
@@ -93,8 +88,6 @@ void rotate_in_place(void) {
                 break;
         }
     }
-
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 }
 
 

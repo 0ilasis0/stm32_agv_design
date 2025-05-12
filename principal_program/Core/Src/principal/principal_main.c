@@ -5,10 +5,7 @@
 #include "principal/principal_adc.h"
 #include "principal/principal_uart.h"
 
-<<<<<<< HEAD
 /*測試用--------------------------------------*/
-=======
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
 /*測試用--------------------------------------*/
 
@@ -23,17 +20,8 @@ void principal_main(void) {
 
     update_motor_step(&motor_right);
     update_motor_step(&motor_left);
-<<<<<<< HEAD
-
     while (1) {
         if (hall_sensor3 > node_hall_critical_value) {
-=======
-    while (1) {
-        commutate_motor(&motor_right);
-        commutate_motor(&motor_left);
-
-        if(hall_sensor3 > node_hall_critical_value) {
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
             decide_move_mode();
 
         } else {
@@ -57,7 +45,6 @@ void decide_move_mode(void) {
     // renew current data to next node
     vehicle_current_data.status = map_current_data.status[map_current_data.current_count];
 
-<<<<<<< HEAD
     switch(vehicle_current_data.status) {
         case agv_straight:
             renew_motor_drive(setpoint_straight);
@@ -67,7 +54,7 @@ void decide_move_mode(void) {
 
         case agv_rotate:
             // 確定motor stop
-            ensure_notor_stop();
+            ensure_motor_stop();
             rotate_in_place();
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
@@ -75,15 +62,6 @@ void decide_move_mode(void) {
             break;
 
         case agv_end:
-=======
-    if(vehicle_current_data.status == agv_straight) {
-        straight_mode();
-    } else if(vehicle_current_data.status == agv_rotate) {
-        // 確定motor stop
-        if (motor_right.present_speed == min_duty && motor_left.present_speed == min_duty) {
-            rotate_in_place();
-        } else {
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
             setpoint_current = 0;
             break;
     }
@@ -93,7 +71,7 @@ void decide_move_mode(void) {
 
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
 void protect_over_hall(void) {
-    ensure_notor_stop();
+    ensure_motor_stop();
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
     if (setpoint_current == 0 && vehicle_current_data.status == agv_next) {
@@ -110,8 +88,8 @@ void protect_over_hall(void) {
 
 
 /* 直到左右馬達停止才下個動作 -----------------------------------------*/
-void ensure_notor_stop(void) {
-    while(motor_right.present_speed == 0 && motor_left.present_speed == 0) {
+void ensure_motor_stop(void) {
+    while(motor_right.present_speed != 0 && motor_left.present_speed != 0) {
         setpoint_current = 0;
     }
 }
