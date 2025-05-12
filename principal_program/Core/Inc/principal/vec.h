@@ -1,8 +1,6 @@
-#ifndef VEC_H
-#define VEC_H
+#ifndef PRINCIPAL_VEC_H
+#define PRINCIPAL_VEC_H
 
-#include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -10,12 +8,12 @@
 
 typedef struct {
     uint8_t data[VECU8_MAX_CAPACITY];
-    size_t  length;
+    uint8_t  length;
 } VecU8;
 
 VecU8 vec_u8_new(void);
 bool vec_u8_push(VecU8 *vec_u8, uint8_t byte);
-bool vec_u8_extend_inner(VecU8 *vec_u8, const uint8_t *src, size_t src_len);
+bool vec_u8_extend_inner(VecU8 *vec_u8, const uint8_t *src, uint8_t src_len);
 #define vec_u8_extend(vec_u8, src) \
     vec_u8_extend_inner(vec_u8, src, sizeof(src))
 VecU8 u32_to_u8(uint32_t value);

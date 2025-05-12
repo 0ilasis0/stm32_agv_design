@@ -1,4 +1,7 @@
-#include "principal/my_uart.h"
+#include "principal/principal_uart.h"
+#include <string.h>
+#include "principal/packet.h"
+#include "usart.h"
 
 bool uart_init = 0;
 uint8_t uart_buffer_r[PACKET_MAX_SIZE];
@@ -6,8 +9,7 @@ uint8_t uart_buffer_r[PACKET_MAX_SIZE];
 TrReBuffer transfer_buffer;
 TrReBuffer receive_buffer;
 
-// UART buffer init
-void uartInit(void) {
+void uart_setup(void) {
     memset(uart_buffer_r, 0, sizeof(uart_buffer_r));
     transfer_buffer = tr_re_buffer_new();
     receive_buffer = tr_re_buffer_new();
@@ -15,7 +17,6 @@ void uartInit(void) {
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_buffer_r, PACKET_MAX_SIZE);
 }
 
-// 可更換fn名稱
 void HYCodes_UART3_IRQHandler_Before(void) {
     if (!__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) return;
     __HAL_UART_CLEAR_IDLEFLAG(&huart3);
@@ -26,7 +27,6 @@ void HYCodes_UART3_IRQHandler_Before(void) {
     HAL_UARTEx_RxEventCallback(&huart3, size);
 }
 
-// 可更換fn名稱
 void uart_RxCNDTR_reset(UART_HandleTypeDef *huart) {
     __HAL_DMA_DISABLE(huart->hdmarx);
     huart->hdmarx->Instance->CNDTR = PACKET_MAX_SIZE;
@@ -34,14 +34,12 @@ void uart_RxCNDTR_reset(UART_HandleTypeDef *huart) {
     __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 }
 
-// 不可更換fn名稱
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
 
     }
 }
 
-// 不可更換fn名稱
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (huart->Instance == USART3) {
         if (!uart_init) {

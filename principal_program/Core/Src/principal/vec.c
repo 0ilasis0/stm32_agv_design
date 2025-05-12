@@ -1,4 +1,5 @@
 #include "principal/vec.h"
+#include <string.h>
 
 VecU8 vec_u8_new(void) {
     VecU8 vec_u8;
@@ -12,7 +13,7 @@ bool vec_u8_push(VecU8 *vec_u8, uint8_t byte) {
     return true;
 }
 
-bool vec_u8_extend_inner(VecU8 *vec_u8, const uint8_t *src, size_t src_len) {
+bool vec_u8_extend_inner(VecU8 *vec_u8, const uint8_t *src, uint8_t src_len) {
     if (vec_u8->length + src_len > VECU8_MAX_CAPACITY) return false;
     memcpy(vec_u8->data + vec_u8->length, src, src_len);
     vec_u8->length += src_len;

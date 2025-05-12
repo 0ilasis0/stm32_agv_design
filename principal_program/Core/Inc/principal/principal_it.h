@@ -1,18 +1,18 @@
 #ifndef PRINCIPAL_IT_H
 #define PRINCIPAL_IT_H
 
-#include "common.h"
-#include "motor.h"
+#include "principal/motor.h"
 
+/*測試用--------------------------------------*/
+extern uint32_t hall_sensor3;
+/*測試用--------------------------------------*/
 
 void principal_EXTI9_5_IRQHandler(void);
 void principal_EXTI3_IRQHandler(void);
-void r_exit_rpm_count(void);
-void l_exit_rpm_count(void);
+void principal_EXTI4_IRQHandler(void);
+void EXTI15_10_IRQHandler_principal_it(void);
 
-void TIM1_UP_TIM16_IRQHandler_use(void);
-int time_rpm(MOTOR_PARAMETER *motor);
-
-
+void principal_TIM1_UP_TIM16_IRQHandler(void);
+void time_rpm(MOTOR_PARAMETER *motor);
 
 #endif

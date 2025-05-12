@@ -1,7 +1,9 @@
-#ifndef MY_MOTOR_H
-#define MY_MOTOR_H
+#ifndef PRINCIPAL_MOTOR_H
+#define PRINCIPAL_MOTOR_H
 
-#include "common.h"
+#include <stdint.h>
+#include "gpio.h"
+#include "stm32g431xx.h"
 
 typedef enum {
     clockwise,
@@ -33,8 +35,8 @@ typedef struct{
 extern MOTOR_PARAMETER motor_right;
 extern MOTOR_PARAMETER motor_left;
 
-void motor_setup(const MOTOR_PARAMETER *motor);
-void updateMotorStep(MOTOR_PARAMETER *motor);
-void commutateMotor(const MOTOR_PARAMETER *motor);
+void motor_tim_setup(const MOTOR_PARAMETER *motor);
+void update_motor_step(MOTOR_PARAMETER *motor);
+void commutate_motor(const MOTOR_PARAMETER *motor);
 
 #endif
