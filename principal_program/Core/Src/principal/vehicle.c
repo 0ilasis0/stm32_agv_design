@@ -152,3 +152,5 @@ void renew_vehicle_current_direction (int renew_direction) {
         vehicle_current_data.direction += renew_direction;
     }
 }
+
+
