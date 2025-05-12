@@ -144,6 +144,7 @@ void rotate_control_direction (ROTATE_STATUS right_motor_rotate, ROTATE_STATUS l
 
 
 
+
 /* 更新車子方向資料 ---------------------------------------------------*/
 void renew_vehicle_current_direction (int renew_direction) {
     if (hall_count_direction == node_hall_critical_value && HAL_GetTick() - previous_time >= 500) {
