@@ -1,10 +1,14 @@
 keil-mdk\principal_adc.o: ..\Core\Src\principal\principal_adc.c
 keil-mdk\principal_adc.o: ../Core/Inc/principal/principal_adc.h
 <<<<<<< HEAD
+<<<<<<< HEAD
 keil-mdk\principal_adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 =======
 keil-mdk\principal_adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 >>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+=======
+keil-mdk\principal_adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+>>>>>>> origin/git_push
 keil-mdk\principal_adc.o: ../Core/Inc/principal/motor.h
 keil-mdk\principal_adc.o: ../Core/Inc/gpio.h
 keil-mdk\principal_adc.o: ../Core/Inc/main.h
@@ -22,7 +26,7 @@ keil-mdk\principal_adc.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\principal_adc.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\principal_adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\principal_adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\principal_adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\principal_adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\principal_adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\principal_adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\principal_adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -46,8 +50,12 @@ keil-mdk\principal_adc.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\principal_adc.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\principal_adc.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 <<<<<<< HEAD
+<<<<<<< HEAD
 keil-mdk\principal_adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 =======
 keil-mdk\principal_adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 >>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+=======
+keil-mdk\principal_adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+>>>>>>> origin/git_push
 keil-mdk\principal_adc.o: ../Core/Inc/adc.h

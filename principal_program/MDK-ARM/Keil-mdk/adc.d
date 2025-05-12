@@ -8,7 +8,7 @@ keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g4xx.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Include/core_cm4.h
-keil-mdk\adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+keil-mdk\adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Include/cmsis_version.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -16,7 +16,7 @@ keil-mdk\adc.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\adc.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\adc.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -40,7 +40,11 @@ keil-mdk\adc.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\adc.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\adc.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 <<<<<<< HEAD
+<<<<<<< HEAD
 keil-mdk\adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 =======
 keil-mdk\adc.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 >>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+=======
+keil-mdk\adc.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+>>>>>>> origin/git_push

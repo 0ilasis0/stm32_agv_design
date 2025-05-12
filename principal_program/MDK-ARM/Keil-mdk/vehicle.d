@@ -1,10 +1,14 @@
 keil-mdk\vehicle.o: ..\Core\Src\principal\vehicle.c
 keil-mdk\vehicle.o: ../Core/Inc/principal/vehicle.h
 <<<<<<< HEAD
+<<<<<<< HEAD
 keil-mdk\vehicle.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 =======
 keil-mdk\vehicle.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 >>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+=======
+keil-mdk\vehicle.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+>>>>>>> origin/git_push
 keil-mdk\vehicle.o: ../Core/Inc/principal/motor.h
 keil-mdk\vehicle.o: ../Core/Inc/gpio.h
 keil-mdk\vehicle.o: ../Core/Inc/main.h
@@ -22,7 +26,7 @@ keil-mdk\vehicle.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\vehicle.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\vehicle.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\vehicle.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\vehicle.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\vehicle.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\vehicle.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\vehicle.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\vehicle.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -46,6 +50,7 @@ keil-mdk\vehicle.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\vehicle.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\vehicle.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 <<<<<<< HEAD
+<<<<<<< HEAD
 keil-mdk\vehicle.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 keil-mdk\vehicle.o: ../Core/Inc/principal/PI_control.h
 keil-mdk\vehicle.o: ../Core/Inc/principal/principal_adc.h
@@ -53,3 +58,8 @@ keil-mdk\vehicle.o: ../Core/Inc/principal/principal_adc.h
 keil-mdk\vehicle.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 keil-mdk\vehicle.o: ../Core/Inc/principal/PI_control.h
 >>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+=======
+keil-mdk\vehicle.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+keil-mdk\vehicle.o: ../Core/Inc/principal/PI_control.h
+keil-mdk\vehicle.o: ../Core/Inc/principal/principal_adc.h
+>>>>>>> origin/git_push
