@@ -12,7 +12,8 @@
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
     agv_rotate,                                     // 原地旋轉mode
-    agv_end                                         // 直行mode
+    agv_end,                                        // 直行mode
+    agv_next
 } AGV_STATUS;
 
 // ROTATE_STATUS 移到motor.h內了QQ
@@ -33,17 +34,20 @@ typedef struct {
 
 extern const uint32_t track_hall_critical_value;
 extern const uint32_t node_hall_critical_value;
-
+/*測試用--------------------------------------*/
+extern uint32_t hall_count_direction;
+/*測試用--------------------------------------*/
 extern VEHICLE_DATA vehicle_current_data;
 extern MAP_DATA map_current_data;
 
 void track_mode(void);
 void rotate_in_place(void);
 void vehicle_setup(void);
-void straight_mode(void);
+void renew_motor_drive(int sepoint);
 void pwm_limit(void);
 ROTATE_STATUS get_rotate_direction(void);
 void rotate_control_direction (ROTATE_STATUS rotate_mode_right, ROTATE_STATUS rotate_mode_left);
 void renew_vehicle_current_direction (int renew_direction);
+void over_hall_fall_back(void);
 
 #endif
