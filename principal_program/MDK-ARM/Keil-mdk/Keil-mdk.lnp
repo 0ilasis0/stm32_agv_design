@@ -6,7 +6,10 @@
 "keil-mdk\principal_adc.o"
 "keil-mdk\principal_it.o"
 "keil-mdk\principal_main.o"
+<<<<<<< HEAD
 "keil-mdk\principal_uart.o"
+=======
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 "keil-mdk\vec.o"
 "keil-mdk\vehicle.o"
 "keil-mdk\main.o"
@@ -17,6 +20,10 @@
 "keil-mdk\usart.o"
 "keil-mdk\stm32g4xx_it.o"
 "keil-mdk\stm32g4xx_hal_msp.o"
+<<<<<<< HEAD
+=======
+"keil-mdk\principal_uart.o"
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 "keil-mdk\stm32g4xx_nucleo.o"
 "keil-mdk\stm32g4xx_hal_adc.o"
 "keil-mdk\stm32g4xx_hal_adc_ex.o"

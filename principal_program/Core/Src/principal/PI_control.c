@@ -1,6 +1,10 @@
 #include "principal/PI_control.h"
 #include <math.h>
+<<<<<<< HEAD
 #include "principal/base.h"
+=======
+#include "principal/const.h"
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 #include "tim.h"
 
 int setpoint_current = setpoint_straight;

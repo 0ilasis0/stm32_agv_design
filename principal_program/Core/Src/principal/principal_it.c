@@ -1,4 +1,5 @@
 #include "principal/principal_it.h"
+<<<<<<< HEAD
 #include "principal/base.h"
 #include "principal/vehicle.h"
 #include "principal/PI_control.h"
@@ -7,6 +8,11 @@ float temp_time1 = 0;
 float temp_time2 = 0;
 int toggle1 = 1;
 int toggle2 = 0;
+=======
+#include "principal/const.h"
+#include "principal/vehicle.h"
+#include "principal/PI_control.h"
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 
 /* +hall exit count -------------------------------------------------*/
 void principal_EXTI3_IRQHandler(void) {
@@ -45,6 +51,7 @@ void time_rpm(MOTOR_PARAMETER *motor) {
     // return pwmValue_renew;
     PI_Controller(motor, real_speed);
 }
+<<<<<<< HEAD
 
 
 
@@ -79,3 +86,5 @@ void principal_EXTI4_IRQHandler(void) {
         }
     }
 }
+=======
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a

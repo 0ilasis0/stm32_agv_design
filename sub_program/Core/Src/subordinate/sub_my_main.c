@@ -14,7 +14,7 @@ EchoState echo_state = ECHO_WAIT_RISE;              //設定超音波目前狀�
 
 
 /* +Main -----------------------------------------------------------------------*/
-void MCmain(void) {
+void principal_main(void) {
     HAL_TIM_Base_Start(&htim1);
     __HAL_TIM_SET_COUNTER(&htim1, 0);
 

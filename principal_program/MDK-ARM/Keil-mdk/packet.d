@@ -1,5 +1,5 @@
 keil-mdk\packet.o: ..\Core\Src\principal\packet.c
 keil-mdk\packet.o: ../Core/Inc/principal/packet.h
-keil-mdk\packet.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-keil-mdk\packet.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+keil-mdk\packet.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+keil-mdk\packet.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 keil-mdk\packet.o: ../Core/Inc/principal/vec.h

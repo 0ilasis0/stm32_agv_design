@@ -23,7 +23,10 @@ bool packet_error(const UartPacket *packet) {
 }
 
 UartPacket uart_packet_pack(const VecU8 *vec_u8) {
-    if (vec_u8->length < 2 || vec_u8->data[0] != PACKET_START_CODE || vec_u8->data[vec_u8->length - 1] != PACKET_END_CODE) {
+    if (
+        (vec_u8->length < 2 || vec_u8->data[0] != PACKET_START_CODE) ||
+        (vec_u8->data[vec_u8->length - 1] != PACKET_END_CODE)
+    ) {
         return uart_packet_new_error();
     }
     VecU8 data_vec = vec_u8_new();

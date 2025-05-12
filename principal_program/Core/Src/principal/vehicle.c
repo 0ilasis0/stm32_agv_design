@@ -1,6 +1,9 @@
 #include "principal/vehicle.h"
 #include "principal/PI_control.h"
+<<<<<<< HEAD
 #include "principal/principal_adc.h"
+=======
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 
 // 判斷是否轉灣大小
 const uint32_t track_hall_critical_value = 16*16*16 + 16*16 + 16 + 1;
@@ -51,8 +54,47 @@ void renew_motor_drive(int sepoint) {
     motor_right.pwmValue = motor_right.pwmValue_temp;
     motor_left.pwmValue = motor_left.pwmValue_temp;
 
+<<<<<<< HEAD
     commutate_motor(&motor_right);
     commutate_motor(&motor_left);
+=======
+}
+
+
+
+uint32_t hall_count_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
+/* AGV原地旋轉功能 --------------------------------------------------*/
+void rotate_in_place(void) {
+    setpoint_current = setpoint_rotate;
+
+    while (get_rotate_direction() != either){
+
+        pwm_limit();
+
+        commutate_motor(&motor_right);
+        commutate_motor(&motor_left);
+
+
+
+        switch (get_rotate_direction()) {
+            case clockwise:                         // 順時針旋轉的動作
+                rotate_control_direction(counter_clockwise, clockwise);
+                renew_vehicle_current_direction(1);
+                break;
+
+            case counter_clockwise:                 // 逆時針旋轉的動作
+                rotate_control_direction(clockwise, counter_clockwise);
+                renew_vehicle_current_direction(-1);
+                break;
+
+            case either:                            //結束旋轉
+                vehicle_current_data.direction = map_current_data.direction[map_current_data.current_count];
+                vehicle_current_data.status = agv_end;
+                break;
+        }
+    }
+
+>>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 }
 
 
