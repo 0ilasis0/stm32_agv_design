@@ -45,3 +45,4 @@ keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06
 keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
 keil-mdk\pi_control.o: ../Core/Inc/principal/const.h
 keil-mdk\pi_control.o: ../Core/Inc/tim.h
+keil-mdk\pi_control.o: ../Core/Inc/principal/principal_tim.h

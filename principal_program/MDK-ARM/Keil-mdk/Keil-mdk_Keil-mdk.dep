@@ -1,8 +1,8 @@
 Dependencies for Project 'Keil-mdk', Target 'Keil-mdk': (DO NOT MODIFY !)
 CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARM_Compiler_5.06u7
-F (startup_stm32g431xx.s)(0x682305EB)(--cpu Cortex-M4.fp.sp --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include--pd "__UVISION_VERSION SETA 541" --pd "STM32G431xx SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32g431xx.lst --xref -o keil-mdk\startup_stm32g431xx.o --depend keil-mdk\startup_stm32g431xx.d)
+F (startup_stm32g431xx.s)(0x68231A86)(--cpu Cortex-M4.fp.sp --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include--pd "__UVISION_VERSION SETA 541" --pd "STM32G431xx SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32g431xx.lst --xref -o keil-mdk\startup_stm32g431xx.o --depend keil-mdk\startup_stm32g431xx.d)
 F (..\Core\Src\principal\motor.c)(0x6822D2DF)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\motor.o --omf_browse keil-mdk\motor.crf --depend keil-mdk\motor.d)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
@@ -43,7 +43,8 @@ I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h)(0x671348EA)
 I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h)(0x671348EA)
 I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
-I (../Core/Inc/tim.h)(0x68203805)
+I (../Core/Inc/tim.h)(0x68231A4A)
+I (../Core/Inc/principal/principal_tim.h)(0x68231A5F)
 F (..\Core\Src\principal\packet.c)(0x6821893B)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\packet.o --omf_browse keil-mdk\packet.crf --depend keil-mdk\packet.d)
 I (../Core/Inc/principal/packet.h)(0x6821893B)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
@@ -51,7 +52,7 @@ I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdbool.h
 I (../Core/Inc/principal/vec.h)(0x6821893B)
 F (..\Core\Src\principal\PI_control.c)(0x6822D2DF)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\pi_control.o --omf_browse keil-mdk\pi_control.crf --depend keil-mdk\pi_control.d)
 I (../Core/Inc/principal/PI_control.h)(0x6821A9C8)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
@@ -94,11 +95,12 @@ I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\math.h)(0x5E8E3CC2)
 I (../Core/Inc/principal/const.h)(0x682304C3)
-I (../Core/Inc/tim.h)(0x68203805)
+I (../Core/Inc/tim.h)(0x68231A4A)
+I (../Core/Inc/principal/principal_tim.h)(0x68231A5F)
 F (..\Core\Src\principal\principal_adc.c)(0x6822D2DF)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\principal_adc.o --omf_browse keil-mdk\principal_adc.crf --depend keil-mdk\principal_adc.d)
 I (../Core/Inc/principal/principal_adc.h)(0x6822D5C8)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x67134906)
@@ -141,7 +143,7 @@ I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(
 I (../Core/Inc/adc.h)(0x68203804)
 F (..\Core\Src\principal\principal_it.c)(0x68230596)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\principal_it.o --omf_browse keil-mdk\principal_it.crf --depend keil-mdk\principal_it.d)
 I (../Core/Inc/principal/principal_it.h)(0x6822D2DF)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
@@ -188,7 +190,7 @@ I (../Core/Inc/principal/PI_control.h)(0x6821A9C8)
 F (..\Core\Src\principal\principal_main.c)(0x682304FC)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\principal_main.o --omf_browse keil-mdk\principal_main.crf --depend keil-mdk\principal_main.d)
 I (../Core/Inc/principal/principal_main.h)(0x6821A9DF)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x67134906)
@@ -279,17 +281,17 @@ I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\string.h)
 I (../Core/Inc/principal/packet.h)(0x6821893B)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdbool.h)(0x5E8E3CC2)
 I (../Core/Inc/principal/vec.h)(0x6821893B)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (../Core/Inc/gpio.h)(0x68203803)
 F (..\Core\Src\principal\vec.c)(0x681E41D7)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\vec.o --omf_browse keil-mdk\vec.crf --depend keil-mdk\vec.d)
 I (../Core/Inc/principal/vec.h)(0x6821893B)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdbool.h)(0x5E8E3CC2)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\string.h)(0x5E8E3CC2)
-F (..\Core\Src\principal\vehicle.c)(0x6822D37C)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\vehicle.o --omf_browse keil-mdk\vehicle.crf --depend keil-mdk\vehicle.d)
+F (..\Core\Src\principal\vehicle.c)(0x68231B65)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\vehicle.o --omf_browse keil-mdk\vehicle.crf --depend keil-mdk\vehicle.d)
 I (../Core/Inc/principal/vehicle.h)(0x6822D2DF)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdint.h)(0x5E8E3CC2)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/main.h)(0x68203983)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x67134906)
@@ -373,7 +375,8 @@ I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
 I (../Core/Inc/adc.h)(0x68203804)
 I (../Core/Inc/dma.h)(0x68203804)
-I (../Core/Inc/tim.h)(0x68203805)
+I (../Core/Inc/tim.h)(0x68231A4A)
+I (../Core/Inc/principal/principal_tim.h)(0x68231A5F)
 I (../Core/Inc/usart.h)(0x68203805)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/principal/principal_main.h)(0x6821A9DF)
@@ -500,8 +503,8 @@ I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h)(0x671348EA)
 I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h)(0x671348EA)
 I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
-F (../Core/Src/tim.c)(0x682305EA)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\tim.o --omf_browse keil-mdk\tim.crf --depend keil-mdk\tim.d)
-I (../Core/Inc/tim.h)(0x68203805)
+F (../Core/Src/tim.c)(0x68231A83)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\tim.o --omf_browse keil-mdk\tim.crf --depend keil-mdk\tim.d)
+I (../Core/Inc/tim.h)(0x68231A4A)
 I (../Core/Inc/main.h)(0x68203983)
 I (../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h)(0x67134906)
 I (../Core/Inc/stm32g4xx_hal_conf.h)(0x68203806)
@@ -541,6 +544,7 @@ I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h)(0x671348EA)
 I (../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h)(0x671348EA)
 I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
+I (../Core/Inc/principal/principal_tim.h)(0x68231A5F)
 F (../Core/Src/usart.c)(0x68203805)(--c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Keil-mdk-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include-IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include-D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx-o keil-mdk\usart.o --omf_browse keil-mdk\usart.crf --depend keil-mdk\usart.d)
 I (../Core/Inc/usart.h)(0x68203805)
 I (../Core/Inc/main.h)(0x68203983)
@@ -624,7 +628,7 @@ I (../Core/Inc/stm32g4xx_nucleo_conf.h)(0x68203805)
 I (C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\include\stdio.h)(0x5E8E3CC2)
 I (../Core/Inc/stm32g4xx_it.h)(0x682305EA)
 I (../Core/Inc/principal/principal_it.h)(0x6822D2DF)
-I (../Core/Inc/principal/motor.h)(0x681E41D7)
+I (../Core/Inc/principal/motor.h)(0x68231B12)
 I (../Core/Inc/gpio.h)(0x68203803)
 I (../Core/Inc/principal/principal_uart.h)(0x681E41D7)
 I (../Core/Inc/usart.h)(0x68203805)

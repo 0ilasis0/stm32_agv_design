@@ -19,7 +19,7 @@ typedef struct{
     uint32_t pwmValue_temp;
     float present_speed;
     ROTATE_STATUS rotate_direction;
-    uint8_t currentStep;
+    int currentStep;
 
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];

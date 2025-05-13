@@ -42,6 +42,7 @@ keil-mdk\main.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin
 keil-mdk\main.o: ../Core/Inc/adc.h
 keil-mdk\main.o: ../Core/Inc/dma.h
 keil-mdk\main.o: ../Core/Inc/tim.h
+keil-mdk\main.o: ../Core/Inc/principal/principal_tim.h
 keil-mdk\main.o: ../Core/Inc/usart.h
 keil-mdk\main.o: ../Core/Inc/gpio.h
 keil-mdk\main.o: ../Core/Inc/principal/principal_main.h

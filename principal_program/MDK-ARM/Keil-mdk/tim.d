@@ -40,3 +40,4 @@ keil-mdk\tim.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\tim.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\tim.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
 keil-mdk\tim.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+keil-mdk\tim.o: ../Core/Inc/principal/principal_tim.h

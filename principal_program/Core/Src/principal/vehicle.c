@@ -57,12 +57,10 @@ void renew_motor_drive(int sepoint) {
 
 
 
-/* 限制PWM最大最小值 -------------------------------------------------*/
+/* 限制PWM最大值 -------------------------------------------------*/
 void pwm_limit(void) {
     if (motor_right.pwmValue_temp > max_duty) motor_right.pwmValue_temp = max_duty;
-    if (motor_right.pwmValue_temp < min_duty) motor_right.pwmValue_temp = min_duty;
     if (motor_left.pwmValue_temp  > max_duty) motor_left.pwmValue_temp  = max_duty;
-    if (motor_left.pwmValue_temp  < min_duty) motor_left.pwmValue_temp  = min_duty;
 }
 
 
