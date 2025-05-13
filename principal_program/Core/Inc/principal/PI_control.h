@@ -12,6 +12,9 @@
 #define setpoint_rotate   20                             // 原地旋轉速度目標
 #define setpoint_fall_back 10                            // 倒退速度目標
 
+#define max_duty  100                                          // PWM 最大占空比
+#define min_duty  0                                            // PWM 最小占空比
+
 extern int setpoint_current;
 
 void PI_Controller(MOTOR_PARAMETER *motor, double measurement);

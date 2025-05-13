@@ -19,6 +19,15 @@ void PI_Controller(MOTOR_PARAMETER *motor, double measurement) {
     if (fabs(error) > error_threshold) {                             // 積分項累積
         motor->integral_record += error * dt;
     }
-    int output_pwm_Value = Kp * error + Ki * motor->integral_record; // 計算 P I 控制輸出
-    motor->pwmValue_temp += output_pwm_Value * PI_feedbacck;
+
+    // 計算 P I 控制輸出
+    int output_pwm_Value = (Kp * error + Ki * motor->integral_record) * PI_feedbacck;
+
+    // 限制PWM最大值
+    uint32_t pwmValue_temp = motor->pwmValue + output_pwm_Value;
+    if (pwmValue_temp > max_duty) {
+        motor->pwmValue = max_duty;
+    } else {
+        motor->pwmValue += output_pwm_Value;
+    }
 }

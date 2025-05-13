@@ -16,7 +16,7 @@ MOTOR_PARAMETER motor_right = {
     0,                                      //rpm_count  計數motor speed
     0,                                      //adc_value
     15,                                     //pwmValue ; Current PWM value (adjustable)
-    0,                                      //pwmValue_temp  圈/s
+    0,                                      //speed_sepoint  圈/s
     0,                                      //present_speed
     clockwise,                              //clockwise counter_clockwise
     -1,                                     //currentStep
@@ -39,7 +39,7 @@ MOTOR_PARAMETER motor_left = {
     0,                                      //rpm_count  計數motor speed
     0,                                      //adc_value
     15,                                     //pwmValue ; Current PWM value (adjustable)
-    0,                                      //pwmValue_temp
+    0,                                      //speed_sepoint
     0,                                      //present_speed
     counter_clockwise,                      //clockwise ; 1 = clockwise, -1 = counter clockwise
     -1,                                     //currentStep

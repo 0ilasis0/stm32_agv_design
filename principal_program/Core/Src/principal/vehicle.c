@@ -42,25 +42,9 @@ void vehicle_setup(void) {
 
 
 /* AGV更新馬達驅動 --------------------------------------------------*/
-void renew_motor_drive(int sepoint) {
-    setpoint_current = sepoint;
-
-    pwm_limit();                // 限制 PWM 占空比範圍
-
-    motor_right.pwmValue = motor_right.pwmValue_temp;
-    motor_left.pwmValue = motor_left.pwmValue_temp;
-
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left);
-}
-
-
-
-
-/* 限制PWM最大值 -------------------------------------------------*/
-void pwm_limit(void) {
-    if (motor_right.pwmValue_temp > max_duty) motor_right.pwmValue_temp = max_duty;
-    if (motor_left.pwmValue_temp  > max_duty) motor_left.pwmValue_temp  = max_duty;
+void renew_motor_drive(MOTOR_PARAMETER *motor, uint16_t sepoint) {
+    motor->speed_sepoint = sepoint;
+    commutate_motor(motor);
 }
 
 
@@ -71,20 +55,18 @@ void track_mode(void) {
     adc_renew();
 
     if(motor_right.adc_value >= track_hall_critical_value) {
-        motor_left.pwmValue = motor_left.pwmValue_temp;
-        motor_right.pwmValue = min_duty;
+        renew_motor_drive(&motor_left, setpoint_straight);
+        renew_motor_drive(&motor_right, 0);
 
     } else if(motor_left.adc_value >= track_hall_critical_value) {
-        motor_right.pwmValue = motor_right.pwmValue_temp;
-        motor_left.pwmValue = min_duty;
+        renew_motor_drive(&motor_left, 0);
+        renew_motor_drive(&motor_right, setpoint_straight);
 
     } else {
-        motor_right.pwmValue = motor_right.pwmValue_temp;
-        motor_left.pwmValue = motor_left.pwmValue_temp;
+        renew_motor_drive(&motor_left, setpoint_straight);
+        renew_motor_drive(&motor_right, setpoint_straight);
 
     }
-
-    renew_motor_drive(setpoint_straight);
 }
 
 
@@ -110,12 +92,14 @@ void rotate_in_place(void) {
                 break;
         }
 
-        renew_motor_drive(setpoint_rotate);
+        renew_motor_drive(&motor_right, setpoint_rotate);
+        renew_motor_drive(&motor_left , setpoint_rotate);
     }
 
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_count_direction >= node_hall_critical_value ) {
-        renew_motor_drive(setpoint_straight);
+        renew_motor_drive(&motor_right, setpoint_straight);
+        renew_motor_drive(&motor_left , setpoint_straight);
     }
 }
 
@@ -127,7 +111,8 @@ void over_hall_fall_back(void) {
     rotate_control_direction(clockwise, counter_clockwise);
 
     while(hall_count_direction >= node_hall_critical_value ) {
-        renew_motor_drive(setpoint_fall_back);
+        renew_motor_drive(&motor_right, setpoint_fall_back);
+        renew_motor_drive(&motor_left , setpoint_fall_back);
     }
 
     // 更改為前進方向
@@ -158,9 +143,6 @@ ROTATE_STATUS get_rotate_direction(void) {
 void rotate_control_direction (ROTATE_STATUS left_motor_rotate, ROTATE_STATUS right_motor_rotate) {
     motor_right.rotate_direction = right_motor_rotate;
     motor_left.rotate_direction = left_motor_rotate;
-
-    motor_right.pwmValue = motor_right.pwmValue_temp;
-    motor_left.pwmValue = motor_left.pwmValue_temp;
 }
 
 

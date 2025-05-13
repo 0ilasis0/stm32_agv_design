@@ -52,7 +52,8 @@ void decide_move_mode(void) {
 
     switch(vehicle_current_data.status) {
         case agv_straight:
-            renew_motor_drive(setpoint_straight);
+            renew_motor_drive(&motor_left, setpoint_straight);
+            renew_motor_drive(&motor_right, setpoint_straight);
             // 改為agv_next，直到離開HALL，使else之後能renew status
             vehicle_current_data.status = agv_next;
             break;
