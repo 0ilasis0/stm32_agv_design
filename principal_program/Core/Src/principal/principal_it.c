@@ -22,9 +22,6 @@ void principal_EXTI9_5_IRQHandler(void) {
 void principal_TIM1_UP_TIM16_IRQHandler(void) {                //計時到，進行temp_pwm更新
     time_rpm(&motor_right);
     time_rpm(&motor_left);
-
-    motor_left.rpm_count = 0;                           //將rpm計速器歸零
-    motor_right.rpm_count = 0;
 }
 
 void time_rpm(MOTOR_PARAMETER *motor) {
@@ -35,8 +32,10 @@ void time_rpm(MOTOR_PARAMETER *motor) {
     float real_speed = motor->rpm_count/6;
     real_speed /= dt;
     motor->present_speed = real_speed;                        // 紀錄當前速度
-    
+
     PI_Controller(motor, real_speed);
+
+    motor->rpm_count = 0;                           //將rpm計速器歸零
 }
 
 /* 測試用PC13按鈕中斷 -----------------------------------------------*/
