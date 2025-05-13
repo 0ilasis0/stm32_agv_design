@@ -1,7 +1,7 @@
 keil-mdk\principal_it.o: ..\Core\Src\principal\principal_it.c
 keil-mdk\principal_it.o: ../Core/Inc/principal/principal_it.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/motor.h
-keil-mdk\principal_it.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+keil-mdk\principal_it.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 keil-mdk\principal_it.o: ../Core/Inc/gpio.h
 keil-mdk\principal_it.o: ../Core/Inc/main.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
@@ -18,7 +18,7 @@ keil-mdk\principal_it.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\principal_it.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\principal_it.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\principal_it.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -41,7 +41,7 @@ keil-mdk\principal_it.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_
 keil-mdk\principal_it.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\principal_it.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\principal_it.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
-keil-mdk\principal_it.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+keil-mdk\principal_it.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/const.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/vehicle.h
 keil-mdk\principal_it.o: ../Core/Inc/principal/PI_control.h
