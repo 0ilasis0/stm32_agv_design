@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Keil-mdk\Keil-mdk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Keil-mdk\Keil-mdk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue May 13 18:39:49 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue May 13 20:47:44 2025
 <BR><P>
 <H3>Maximum Stack Usage =        616 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1259,13 +1259,13 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_TxCpltCallback
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
+<LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
+<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_WakeupCallback
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_TxFifoEmptyCallback
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxFifoFullCallback
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
-<LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
-<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
 </UL>
 <BR>[Called By]<UL><LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_IRQHandler
 </UL>
@@ -1546,10 +1546,10 @@ Global Symbols
 <P><STRONG><a name="[e9]"></a>UART_SetConfig</STRONG> (Thumb, 582 bytes, Stack size 24 bytes, stm32g4xx_hal_uart.o(i.UART_SetConfig))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = UART_SetConfig &rArr; __aeabi_uldivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
+<BR>[Calls]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
+<LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK2Freq
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK1Freq
-<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
 </UL>
@@ -1592,18 +1592,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PI_Controller
 </UL>
 
-<P><STRONG><a name="[116]"></a>adc_renew</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, principal_adc.o(i.adc_renew))
-<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = adc_renew
-</UL>
-<BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;principal_main
-</UL>
-
 <P><STRONG><a name="[10d]"></a>commutate_motor</STRONG> (Thumb, 282 bytes, Stack size 24 bytes, motor.o(i.commutate_motor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = commutate_motor
 </UL>
 <BR>[Calls]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 </UL>
-<BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;principal_main
+<BR>[Called By]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;renew_motor_drive
 </UL>
 
 <P><STRONG><a name="[d5]"></a>float_to_u8</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, vec.o(i.float_to_u8))
@@ -1696,14 +1690,21 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vehicle_setup
 <LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_setup
+<LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;renew_motor_drive
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hall_detection_adc_setup
-<LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;adc_renew
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PI_tim_setup
 <LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_motor_step
 <LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;motor_tim_setup
-<LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;commutate_motor
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+</UL>
+
+<P><STRONG><a name="[116]"></a>renew_motor_drive</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, vehicle.o(i.renew_motor_drive))
+<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = renew_motor_drive &rArr; commutate_motor
+</UL>
+<BR>[Calls]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;commutate_motor
+</UL>
+<BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;principal_main
 </UL>
 
 <P><STRONG><a name="[113]"></a>time_rpm</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, principal_it.o(i.time_rpm))

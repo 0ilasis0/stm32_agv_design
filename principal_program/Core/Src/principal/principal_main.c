@@ -21,10 +21,11 @@ void principal_main(void) {
     update_motor_step(&motor_right);
     update_motor_step(&motor_left);
     while (1) {
-        commutate_motor(&motor_right);
-        commutate_motor(&motor_left);
-        adc_renew();
-        // renew_motor_drive();
+        renew_motor_drive(&motor_left, setpoint_straight);
+        renew_motor_drive(&motor_right, setpoint_straight);
+        // track_mode();
+        // rotate_in_place();
+        // over_hall_fall_back();
 
         // if (hall_sensor3 > node_hall_critical_value) {
         //     decide_move_mode();
