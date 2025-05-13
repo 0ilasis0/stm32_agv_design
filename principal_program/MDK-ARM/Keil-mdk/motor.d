@@ -1,14 +1,6 @@
 keil-mdk\motor.o: ..\Core\Src\principal\motor.c
 keil-mdk\motor.o: ../Core/Inc/principal/motor.h
-<<<<<<< HEAD
-<<<<<<< HEAD
 keil-mdk\motor.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-=======
-keil-mdk\motor.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
-=======
-keil-mdk\motor.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
->>>>>>> origin/git_push
 keil-mdk\motor.o: ../Core/Inc/gpio.h
 keil-mdk\motor.o: ../Core/Inc/main.h
 keil-mdk\motor.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
@@ -48,13 +40,5 @@ keil-mdk\motor.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
 keil-mdk\motor.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\motor.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\motor.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
-<<<<<<< HEAD
-<<<<<<< HEAD
 keil-mdk\motor.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-=======
-keil-mdk\motor.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
-=======
-keil-mdk\motor.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
->>>>>>> origin/git_push
 keil-mdk\motor.o: ../Core/Inc/tim.h

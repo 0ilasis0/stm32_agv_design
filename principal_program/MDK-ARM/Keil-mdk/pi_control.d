@@ -2,10 +2,6 @@ keil-mdk\pi_control.o: ..\Core\Src\principal\PI_control.c
 keil-mdk\pi_control.o: ../Core/Inc/principal/PI_control.h
 keil-mdk\pi_control.o: ../Core/Inc/principal/motor.h
 keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-<<<<<<< HEAD
-keil-mdk\pi_control.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-=======
->>>>>>> origin/git_push
 keil-mdk\pi_control.o: ../Core/Inc/gpio.h
 keil-mdk\pi_control.o: ../Core/Inc/main.h
 keil-mdk\pi_control.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
@@ -45,18 +41,7 @@ keil-mdk\pi_control.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex
 keil-mdk\pi_control.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\pi_control.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\pi_control.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
-<<<<<<< HEAD
-<<<<<<< HEAD
 keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
-keil-mdk\pi_control.o: ../Core/Inc/principal/base.h
-=======
-keil-mdk\pi_control.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-keil-mdk\pi_control.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
-=======
-keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-keil-mdk\pi_control.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
->>>>>>> origin/git_push
 keil-mdk\pi_control.o: ../Core/Inc/principal/const.h
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
 keil-mdk\pi_control.o: ../Core/Inc/tim.h

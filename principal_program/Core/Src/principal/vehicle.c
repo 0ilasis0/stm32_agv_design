@@ -32,14 +32,16 @@ VEHICLE_DATA inti_vehicle_data(const MAP_DATA *map_data, int index) {
     return data;
 };
 
+
+
 /* setup -----------------------------------------------------------*/
 void vehicle_setup(void) {
     vehicle_current_data = inti_vehicle_data(&map_current_data, 0);
-
-    vehicle_current_data.rotate_direction = either;
 }
 
-// check
+
+
+/* AGV更新馬達驅動 --------------------------------------------------*/
 void renew_motor_drive(int sepoint) {
     setpoint_current = sepoint;
 
@@ -54,89 +56,13 @@ void renew_motor_drive(int sepoint) {
 
 
 
+
 /* 限制PWM最大最小值 -------------------------------------------------*/
 void pwm_limit(void) {
     if (motor_right.pwmValue_temp > max_duty) motor_right.pwmValue_temp = max_duty;
     if (motor_right.pwmValue_temp < min_duty) motor_right.pwmValue_temp = min_duty;
     if (motor_left.pwmValue_temp  > max_duty) motor_left.pwmValue_temp  = max_duty;
     if (motor_left.pwmValue_temp  < min_duty) motor_left.pwmValue_temp  = min_duty;
-}
-
-/* AGV一般循跡功能 --------------------------------------------------*/
-void track_mode(void) {
-
-    adc_renew();
-
-    if(motor_right.adc_value>=track_hall_critical_value) {
-        motor_right.pwmValue = motor_right.pwmValue_temp;
-        motor_left.pwmValue = min_duty;
-    } else if(motor_left.adc_value>=track_hall_critical_value) {
-        motor_left.pwmValue = motor_left.pwmValue_temp;
-        motor_right.pwmValue = min_duty;
-    } else {
-        motor_right.pwmValue = motor_right.pwmValue_temp;
-        motor_left.pwmValue = motor_left.pwmValue_temp;
-    }
-
-    renew_motor_drive(setpoint_straight);
-}
-
-//check delete
-/* AGV無視HALL直走 --------------------------------------------------*/
-void straight_mode(void) {
-    setpoint_current = setpoint_straight;
-
-    pwm_limit();
-
-    motor_right.pwmValue = motor_right.pwmValue_temp;
-    motor_left.pwmValue = motor_left.pwmValue_temp;
-}
-
-
-/* AGV原地旋轉功能 --------------------------------------------------*/
-void rotate_in_place(void) {
-    previous_time = HAL_GetTick();
-
-    while (get_rotate_direction() != either){
-        switch (get_rotate_direction()) {
-            case clockwise:                         // 順時針旋轉的動作
-                rotate_control_direction(counter_clockwise, counter_clockwise);
-                renew_vehicle_current_direction(1);
-                break;
-
-            case counter_clockwise:                 // 逆時針旋轉的動作
-                rotate_control_direction(clockwise, clockwise);
-                renew_vehicle_current_direction(-1);
-                break;
-
-            case either:                            //結束旋轉
-                rotate_control_direction(counter_clockwise, clockwise);
-                break;
-        }
-
-        renew_motor_drive(setpoint_rotate);
-    }
-
-    //check
-    // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(hall_count_direction >= node_hall_critical_value ) {
-        renew_motor_drive(setpoint_straight);
-    }
-}
-
-
-
-/* AGV倒退 ----------------------------------------------------------*/
-void over_hall_fall_back(void) {
-    // 更改為倒退方向
-    rotate_control_direction(clockwise, counter_clockwise);
-
-    while(hall_count_direction >= node_hall_critical_value ) {
-        renew_motor_drive(setpoint_fall_back);
-    }
-
-    // 更改為前進方向
-    rotate_control_direction(counter_clockwise, clockwise);
 }
 
 

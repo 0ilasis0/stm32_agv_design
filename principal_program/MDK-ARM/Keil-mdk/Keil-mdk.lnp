@@ -1,17 +1,5 @@
 --cpu=Cortex-M4.fp.sp
 "keil-mdk\startup_stm32g431xx.o"
-"keil-mdk\motor.o"
-"keil-mdk\packet.o"
-"keil-mdk\pi_control.o"
-"keil-mdk\principal_adc.o"
-"keil-mdk\principal_it.o"
-"keil-mdk\principal_main.o"
-<<<<<<< HEAD
-"keil-mdk\principal_uart.o"
-=======
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
-"keil-mdk\vec.o"
-"keil-mdk\vehicle.o"
 "keil-mdk\main.o"
 "keil-mdk\gpio.o"
 "keil-mdk\adc.o"
@@ -20,10 +8,15 @@
 "keil-mdk\usart.o"
 "keil-mdk\stm32g4xx_it.o"
 "keil-mdk\stm32g4xx_hal_msp.o"
-<<<<<<< HEAD
-=======
+"keil-mdk\motor.o"
+"keil-mdk\packet.o"
+"keil-mdk\pi_control.o"
+"keil-mdk\principal_adc.o"
+"keil-mdk\principal_it.o"
+"keil-mdk\principal_main.o"
 "keil-mdk\principal_uart.o"
->>>>>>> c07caf725bb0cf636f62ad409c4eeb6e91d34c0a
+"keil-mdk\vec.o"
+"keil-mdk\vehicle.o"
 "keil-mdk\stm32g4xx_nucleo.o"
 "keil-mdk\stm32g4xx_hal_adc.o"
 "keil-mdk\stm32g4xx_hal_adc_ex.o"
