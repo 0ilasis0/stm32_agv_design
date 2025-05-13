@@ -45,3 +45,5 @@ keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_
 keil-mdk\principal_uart.o: ../Core/Inc/principal/packet.h
 keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 keil-mdk\principal_uart.o: ../Core/Inc/principal/vec.h
+keil-mdk\principal_uart.o: ../Core/Inc/principal/motor.h
+keil-mdk\principal_uart.o: ../Core/Inc/gpio.h

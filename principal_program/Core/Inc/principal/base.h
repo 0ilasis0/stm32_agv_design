@@ -1,7 +1,0 @@
-#ifndef PRINCIPAL_BASE_H
-#define PRINCIPAL_BASE_H
-
-#define ADC_DISABLE 0
-#define PI_CONTROL_DISABLE 0
-
-#endif

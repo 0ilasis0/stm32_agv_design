@@ -2,6 +2,7 @@
 #include <string.h>
 #include "principal/packet.h"
 #include "usart.h"
+#include "principal/motor.h"
 
 bool uart_init = 0;
 uint8_t uart_buffer_r[PACKET_MAX_SIZE];
@@ -52,7 +53,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         UartPacket re_packet = uart_packet_pack(&re_vec_u8);
         tr_re_buffer_push(&receive_buffer, &re_packet);
 
-        VecU8 new_vec = float_to_u8(12);// motor_right.present_speed
+        VecU8 new_vec = float_to_u8(motor_right.adc_value);// motor_right.present_speed
         UartPacket new_packet = uart_packet_new(&new_vec);
         tr_re_buffer_push(&transfer_buffer, &new_packet);
 

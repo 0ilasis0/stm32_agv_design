@@ -21,22 +21,27 @@ void principal_main(void) {
     update_motor_step(&motor_right);
     update_motor_step(&motor_left);
     while (1) {
-        if (hall_sensor3 > node_hall_critical_value) {
-            decide_move_mode();
+        commutate_motor(&motor_right);
+        commutate_motor(&motor_left);
+        adc_renew();
+        // renew_motor_drive();
 
-        } else {
-            protect_over_hall();
+        // if (hall_sensor3 > node_hall_critical_value) {
+        //     decide_move_mode();
 
-            if (vehicle_current_data.status == agv_next) {
-                map_current_data.current_count++ ;
-                vehicle_current_data.status = map_current_data.status[map_current_data.current_count];
-                vehicle_current_data.address_id = map_current_data.address_id[map_current_data.current_count];
+        // } else {
+        //     protect_over_hall();
 
-            } else {
-                track_mode();
+        //     if (vehicle_current_data.status == agv_next) {
+        //         map_current_data.current_count++ ;
+        //         vehicle_current_data.status = map_current_data.status[map_current_data.current_count];
+        //         vehicle_current_data.address_id = map_current_data.address_id[map_current_data.current_count];
 
-            }
-        }
+        //     } else {
+        //         track_mode();
+
+        //     }
+        // }
     }
 }
 
