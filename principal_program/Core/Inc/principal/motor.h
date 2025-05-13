@@ -13,7 +13,7 @@ typedef enum {
 
 typedef struct{
     double integral_record;
-    uint16_t rpm_count;
+    uint16_t step_count;
     uint32_t adc_value;
     uint32_t pwmValue;
     uint32_t speed_sepoint;

@@ -82,7 +82,7 @@ void commutate_motor(const MOTOR_PARAMETER *motor) {
 
 /* +hall senser and decide clockwise --------------------------------*/
 void update_motor_step(MOTOR_PARAMETER *motor) {
-    motor->rpm_count++;
+    motor->step_count++;
     int hallState =
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[0], motor->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[1], motor->Hall_GPIO_Pin_x[1]) << 1) |

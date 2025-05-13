@@ -9,6 +9,8 @@ float temp_time2 = 0;
 int toggle1 = 1;
 int toggle2 = 0;
 
+
+
 /* +hall exit count -------------------------------------------------*/
 void principal_EXTI3_IRQHandler(void) {
     update_motor_step(&motor_right);
@@ -18,25 +20,29 @@ void principal_EXTI9_5_IRQHandler(void) {
     update_motor_step(&motor_left);
 }
 
+
+
 /* +PI speed control -----------------------------------------------*/
 void principal_TIM1_UP_TIM16_IRQHandler(void) {                //計時到，進行temp_pwm更新
-    time_rpm(&motor_right);
-    time_rpm(&motor_left);
+    speed_calculate(&motor_right);
+    speed_calculate(&motor_left);
 }
 
-void time_rpm(MOTOR_PARAMETER *motor) {
+void speed_calculate(MOTOR_PARAMETER *motor) {
     if(motor->adc_value < track_hall_critical_value && !ADC_DISABLE) {
         return;
     }
 
-    float real_speed = motor->rpm_count/6;
+    float real_speed = motor->step_count/6;
     real_speed /= dt;
     motor->present_speed = real_speed;                        // 紀錄當前速度
 
     PI_Controller(motor, real_speed);
 
-    motor->rpm_count = 0;                           //將rpm計速器歸零
+    motor->step_count = 0;                           //將rpm計速器歸零
 }
+
+
 
 /* 測試用PC13按鈕中斷 -----------------------------------------------*/
 void EXTI15_10_IRQHandler_principal_it(void) {
@@ -53,6 +59,8 @@ void EXTI15_10_IRQHandler_principal_it(void) {
         }
     }
 }
+
+
 
 //為上下緣觸發 PC4
 void principal_EXTI4_IRQHandler(void) {

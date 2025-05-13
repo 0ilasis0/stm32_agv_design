@@ -17,6 +17,10 @@
 
 extern int setpoint_current;
 
+/*測試用--------------------------------------*/
+extern uint32_t hall_sensor3;
+/*測試用--------------------------------------*/
+
 void PI_Controller(MOTOR_PARAMETER *motor, double measurement);
 void PI_tim_setup(void);
 

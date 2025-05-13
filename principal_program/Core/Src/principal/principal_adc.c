@@ -5,10 +5,14 @@
 
 uint16_t ADC_Values[10] = {0};                                 // adc儲存位置
 
+
+
 /* +setup -----------------------------------------------------------*/
 void hall_detection_adc_setup(void) {
     HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, 10);
 }
+
+
 
 // renew adc senser
 void adc_renew(void) {

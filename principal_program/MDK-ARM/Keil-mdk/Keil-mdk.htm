@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Keil-mdk\Keil-mdk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Keil-mdk\Keil-mdk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue May 13 20:47:44 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue May 13 21:43:35 2025
 <BR><P>
 <H3>Maximum Stack Usage =        616 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1454,7 +1454,7 @@ Global Symbols
 <LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_rpm
+<BR>[Called By]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;speed_calculate
 </UL>
 
 <P><STRONG><a name="[ff]"></a>PI_tim_setup</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, pi_control.o(i.PI_tim_setup))
@@ -1489,7 +1489,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g431xx.o(.text)
 </UL>
 <P><STRONG><a name="[26]"></a>TIM1_UP_TIM16_IRQHandler</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32g4xx_it.o(i.TIM1_UP_TIM16_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = TIM1_UP_TIM16_IRQHandler &rArr; principal_TIM1_UP_TIM16_IRQHandler &rArr; time_rpm &rArr; PI_Controller &rArr; __aeabi_dmul
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = TIM1_UP_TIM16_IRQHandler &rArr; principal_TIM1_UP_TIM16_IRQHandler &rArr; speed_calculate &rArr; PI_Controller &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;principal_TIM1_UP_TIM16_IRQHandler
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IRQHandler
@@ -1678,9 +1678,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[104]"></a>principal_TIM1_UP_TIM16_IRQHandler</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, principal_it.o(i.principal_TIM1_UP_TIM16_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = principal_TIM1_UP_TIM16_IRQHandler &rArr; time_rpm &rArr; PI_Controller &rArr; __aeabi_dmul
+<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = principal_TIM1_UP_TIM16_IRQHandler &rArr; speed_calculate &rArr; PI_Controller &rArr; __aeabi_dmul
 </UL>
-<BR>[Calls]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_rpm
+<BR>[Calls]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;speed_calculate
 </UL>
 <BR>[Called By]<UL><LI><a href="#[26]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM1_UP_TIM16_IRQHandler
 </UL>
@@ -1707,8 +1707,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;principal_main
 </UL>
 
-<P><STRONG><a name="[113]"></a>time_rpm</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, principal_it.o(i.time_rpm))
-<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = time_rpm &rArr; PI_Controller &rArr; __aeabi_dmul
+<P><STRONG><a name="[113]"></a>speed_calculate</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, principal_it.o(i.speed_calculate))
+<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = speed_calculate &rArr; PI_Controller &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PI_Controller
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
@@ -1946,7 +1946,7 @@ Global Symbols
 <P><STRONG><a name="[117]"></a>__aeabi_f2d</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, f2d.o(x$fpl$f2d))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __aeabi_f2d
 </UL>
-<BR>[Called By]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_rpm
+<BR>[Called By]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;speed_calculate
 </UL>
 
 <P><STRONG><a name="[12a]"></a>_f2d</STRONG> (Thumb, 86 bytes, Stack size 16 bytes, f2d.o(x$fpl$f2d), UNUSED)

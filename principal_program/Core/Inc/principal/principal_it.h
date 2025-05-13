@@ -3,10 +3,6 @@
 
 #include "principal/motor.h"
 
-/*測試用--------------------------------------*/
-extern uint32_t hall_sensor3;
-/*測試用--------------------------------------*/
-
 void principal_EXTI9_5_IRQHandler(void);
 void principal_EXTI3_IRQHandler(void);
 void principal_EXTI4_IRQHandler(void);
@@ -15,6 +11,6 @@ void principal_EXTI9_5_IRQHandler(void);
 void principal_EXTI3_IRQHandler(void);
 
 void principal_TIM1_UP_TIM16_IRQHandler(void);
-void time_rpm(MOTOR_PARAMETER *motor);
+void speed_calculate(MOTOR_PARAMETER *motor);
 
 #endif
