@@ -1,6 +1,0 @@
---c99 -c --cpu Cortex-M4.fp.sp -D__EVAL -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/BSP/STM32G4xx_Nucleo -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include
--I.\RTE\_Keil-mdk
--IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include
--IC:\Users\User\AppData\Local\Arm\Packs\Keil\STM32G4xx_DFP\1.6.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include
--D__UVISION_VERSION="541" -DSTM32G431xx -D_RTE_ -DUSE_NUCLEO_64 -DUSE_HAL_DRIVER -DSTM32G431xx
--o keil-mdk\vehicle.o --omf_browse keil-mdk\vehicle.crf --depend keil-mdk\vehicle.d "..\Core\Src\principal\vehicle.c"

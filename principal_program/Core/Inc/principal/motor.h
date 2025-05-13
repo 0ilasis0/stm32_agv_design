@@ -13,13 +13,13 @@ typedef enum {
 
 typedef struct{
     double integral_record;
-    int rpm_count;
+    uint16_t rpm_count;
     uint32_t adc_value;
-    int pwmValue;
-    int pwmValue_temp;
+    uint32_t pwmValue;
+    uint32_t pwmValue_temp;
     float present_speed;
     ROTATE_STATUS rotate_direction;
-    int currentStep;
+    uint8_t currentStep;
 
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];
