@@ -78,7 +78,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         // Construct new speed packet and push to transfer ring buffer
         VecU8 new_vec = vec_u8_new();
         vec_u8_push(&new_vec, 0x20);
-        VecU8 speed = float_to_u8(motor_right.present_speed);
+        VecU8 speed = u32_to_u8(motor_right.adc_value);
         vec_u8_extend_inner(&new_vec, speed.data, speed.length);
         UartPacket new_packet = uart_packet_new(&new_vec);
         tr_re_buffer_push(&transfer_buffer, &new_packet);

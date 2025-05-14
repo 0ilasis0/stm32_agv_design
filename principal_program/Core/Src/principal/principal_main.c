@@ -11,8 +11,10 @@ uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
 
 /* +Main ------------------------------------------------------------*/
 void principal_main(void) {
+    motor_init();
     motor_tim_setup(&motor_right);
     motor_tim_setup(&motor_left);
+
     hall_detection_adc_setup();
     PI_tim_setup();
     vehicle_setup();
@@ -20,10 +22,14 @@ void principal_main(void) {
 
     update_motor_step(&motor_right);
     update_motor_step(&motor_left);
+
+/*測試用--------------------------------------*/
+    map_current_data.current_count++ ;
+/*測試用--------------------------------------*/
+
     while (1) {
-        renew_motor_drive(&motor_left, setpoint_straight);
-        renew_motor_drive(&motor_right, setpoint_straight);
-        // track_mode();
+        track_mode();
+        // test_no_load_speed();
         // rotate_in_place();
         // over_hall_fall_back();
 
@@ -69,7 +75,8 @@ void decide_move_mode(void) {
             break;
 
         case agv_end:
-            setpoint_current = 0;
+            motor_right.speed_sepoint = 0;
+            motor_left.speed_sepoint  = 0;
             break;
     }
 }
@@ -81,7 +88,10 @@ void protect_over_hall(void) {
     ensure_motor_stop();
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (setpoint_current == 0 && vehicle_current_data.status == agv_next) {
+    if (motor_right.speed_sepoint == 0 &&
+        motor_left.speed_sepoint == 0 &&
+        vehicle_current_data.status == agv_next
+     ) {
         over_hall_fall_back();
         rotate_in_place();
 
@@ -89,14 +99,5 @@ void protect_over_hall(void) {
     } else if (vehicle_current_data.status == agv_end){
         over_hall_fall_back();
 
-    }
-}
-
-
-
-/* 直到左右馬達停止才下個動作 -----------------------------------------*/
-void ensure_motor_stop(void) {
-    while(motor_right.present_speed != 0 && motor_left.present_speed != 0) {
-        setpoint_current = 0;
     }
 }

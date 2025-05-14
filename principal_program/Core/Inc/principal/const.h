@@ -1,7 +1,0 @@
-#ifndef PRINCIPAL_CONST_H
-#define PRINCIPAL_CONST_H
-
-#define ADC_DISABLE 1
-#define PI_CONTROL_DISABLE 0
-
-#endif

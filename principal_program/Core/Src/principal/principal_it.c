@@ -1,11 +1,11 @@
 #include "principal/principal_it.h"
-#include "principal/const.h"
+#include "principal/const_and_error.h"
 #include "principal/vehicle.h"
 #include "principal/PI_control.h"
 #include "stm32g4xx_hal_gpio.h"
 
-float temp_time1 = 0;
-float temp_time2 = 0;
+uint32_t temp_time1 = 0;
+uint32_t temp_time2 = 0;
 int toggle1 = 1;
 int toggle2 = 0;
 

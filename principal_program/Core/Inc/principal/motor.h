@@ -5,6 +5,8 @@
 #include "gpio.h"
 #include "stm32g431xx.h"
 
+extern uint8_t max_speed;
+
 typedef enum {
     clockwise,
     counter_clockwise,
@@ -12,14 +14,14 @@ typedef enum {
 } ROTATE_STATUS;
 
 typedef struct{
+    uint8_t speed_sepoint;
+    ROTATE_STATUS rotate_direction;
     double integral_record;
     uint16_t step_count;
-    uint32_t adc_value;
-    uint32_t pwmValue;
-    uint32_t speed_sepoint;
+    uint16_t adc_value;
+    uint8_t duty_value;
     float present_speed;
-    ROTATE_STATUS rotate_direction;
-    int currentStep;
+    uint8_t currentStep;
 
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];
@@ -35,6 +37,7 @@ typedef struct{
 extern MOTOR_PARAMETER motor_right;
 extern MOTOR_PARAMETER motor_left;
 
+void motor_init(void);
 void motor_tim_setup(const MOTOR_PARAMETER *motor);
 void update_motor_step(MOTOR_PARAMETER *motor);
 void commutate_motor(const MOTOR_PARAMETER *motor);

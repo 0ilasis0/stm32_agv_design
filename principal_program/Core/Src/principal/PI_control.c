@@ -1,10 +1,9 @@
 #include "principal/PI_control.h"
 #include <math.h>
-#include "principal/const.h"
+#include "principal/const_and_error.h"
 #include "tim.h"
 
-int setpoint_current = setpoint_straight;
-double error_threshold = 0.5;               //限制積分累積，避免長時間造成積分風暴
+double error_threshold = 0.7;               //限制積分累積，避免長時間造成積分風暴
 
 /* +setup -----------------------------------------------------------*/
 void PI_tim_setup(void){
@@ -12,10 +11,13 @@ void PI_tim_setup(void){
 }
 
 /* +PI speed control ------------------------------------------------*/
-void PI_Controller(MOTOR_PARAMETER *motor, double measurement) {
-    if (PI_CONTROL_DISABLE) return;
+void PI_Controller(MOTOR_PARAMETER *motor, float measurement) {
+    if (!PI_CONTROL_DISABLE) return;
 
-    double error = setpoint_current - measurement;                   // 計算誤差
+    int setpoint = max_speed / 100 * motor->speed_sepoint;
+
+    // 計算誤差
+    float error = setpoint - measurement;
     if (fabs(error) > error_threshold) {                             // 積分項累積
         motor->integral_record += error * dt;
     }
@@ -24,10 +26,10 @@ void PI_Controller(MOTOR_PARAMETER *motor, double measurement) {
     int output_pwm_Value = (Kp * error + Ki * motor->integral_record) * PI_feedbacck;
 
     // 限制PWM最大值
-    uint32_t pwmValue_temp = motor->pwmValue + output_pwm_Value;
+    uint32_t pwmValue_temp = motor->duty_value + output_pwm_Value;
     if (pwmValue_temp > max_duty) {
-        motor->pwmValue = max_duty;
+        motor->duty_value = max_duty;
     } else {
-        motor->pwmValue += output_pwm_Value;
+        motor->duty_value += output_pwm_Value;
     }
 }

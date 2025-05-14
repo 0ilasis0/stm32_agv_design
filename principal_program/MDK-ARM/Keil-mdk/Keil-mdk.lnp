@@ -17,6 +17,7 @@
 "keil-mdk\usart.o"
 "keil-mdk\stm32g4xx_it.o"
 "keil-mdk\stm32g4xx_hal_msp.o"
+"keil-mdk\const_and_error.o"
 "keil-mdk\stm32g4xx_nucleo.o"
 "keil-mdk\stm32g4xx_hal_adc.o"
 "keil-mdk\stm32g4xx_hal_adc_ex.o"

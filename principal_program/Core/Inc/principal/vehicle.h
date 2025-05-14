@@ -1,10 +1,10 @@
 #ifndef PRINCIPAL_VEHICLE_H
 #define PRINCIPAL_VEHICLE_H
 
-#include <stdint.h>
 #include "principal/motor.h"
+#include "principal/const_and_error.h"
 
-#define max_node 10                                            // 能走最大的路徑數
+#define max_node 10                                 // 能走最大的路徑數
 
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
@@ -41,7 +41,11 @@ void vehicle_setup(void);
 void renew_motor_drive(MOTOR_PARAMETER *motor, uint16_t sepoint);
 ROTATE_STATUS get_rotate_direction(void);
 void rotate_control_direction (ROTATE_STATUS rotate_mode_right, ROTATE_STATUS rotate_mode_left);
-void renew_vehicle_current_direction (int renew_direction);
+void renew_vehicle_current_direction (int renew_direction, uint32_t *previous_time);
 void over_hall_fall_back(void);
+void ensure_motor_stop(void);
+void test_no_load_speed(void);
+void change_duty(uint8_t right_duty, uint8_t left_duty);
+void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif);
 
 #endif
