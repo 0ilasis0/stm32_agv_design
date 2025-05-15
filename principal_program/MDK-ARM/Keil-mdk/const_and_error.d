@@ -1,7 +1,7 @@
 keil-mdk\const_and_error.o: ..\Core\Src\principal\const_and_error.c
 keil-mdk\const_and_error.o: ../Core/Inc/principal/const_and_error.h
-keil-mdk\const_and_error.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
-keil-mdk\const_and_error.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+keil-mdk\const_and_error.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+keil-mdk\const_and_error.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\const_and_error.o: ../Core/Inc/stm32g4xx_hal_conf.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc.h
@@ -16,7 +16,7 @@ keil-mdk\const_and_error.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\const_and_error.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\const_and_error.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\const_and_error.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\const_and_error.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h

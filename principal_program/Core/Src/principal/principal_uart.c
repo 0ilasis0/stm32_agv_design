@@ -23,6 +23,7 @@ void uart_setup(void) {
     memset(uart_buffer_r, 0, sizeof(uart_buffer_r));
     transfer_buffer = tr_re_buffer_new();
     receive_buffer = tr_re_buffer_new();
+    // Rx:PB11(r18) Tx:PB9(r5)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_buffer_r, PACKET_MAX_SIZE);
 }

@@ -1,6 +1,6 @@
 keil-mdk\principal_uart.o: ..\Core\Src\principal\principal_uart.c
 keil-mdk\principal_uart.o: ../Core/Inc/principal/principal_uart.h
-keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+keil-mdk\principal_uart.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 keil-mdk\principal_uart.o: ../Core/Inc/usart.h
 keil-mdk\principal_uart.o: ../Core/Inc/main.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
@@ -17,7 +17,7 @@ keil-mdk\principal_uart.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 keil-mdk\principal_uart.o: ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+keil-mdk\principal_uart.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc_ex.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h
 keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio_ex.h
@@ -40,10 +40,10 @@ keil-mdk\principal_uart.o: ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uar
 keil-mdk\principal_uart.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h
 keil-mdk\principal_uart.o: ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h
 keil-mdk\principal_uart.o: ../Core/Inc/stm32g4xx_nucleo_conf.h
-keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+keil-mdk\principal_uart.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+keil-mdk\principal_uart.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
 keil-mdk\principal_uart.o: ../Core/Inc/principal/packet.h
-keil-mdk\principal_uart.o: C:\Users\User\AppData\Local\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+keil-mdk\principal_uart.o: C:\Program_HY\Keil_v5\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 keil-mdk\principal_uart.o: ../Core/Inc/principal/vec.h
 keil-mdk\principal_uart.o: ../Core/Inc/principal/motor.h
 keil-mdk\principal_uart.o: ../Core/Inc/gpio.h
