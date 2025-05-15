@@ -1,4 +1,6 @@
 /MDK-ARM/*
-!/Application/MDK-ARM/*.uvprojx
+!/MDK-ARM/*.uvprotx
+!/MDK-ARM/*.uvprojx
+!/MDK-ARM/startup_stm32g431xx.s
 
 .vscode
