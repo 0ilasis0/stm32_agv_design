@@ -1,7 +1,8 @@
 #include "principal/motor.h"
 #include "tim.h"
 
-const int SEQUENCE[6][3] = {                             // Commutation right_SEQUENCE for 120 degree control
+// Commutation right_SEQUENCE for 120 degree control
+const int SEQUENCE[6][3] = {
   { 1, -1,  0},
   { 1,  0, -1},
   { 0,  1, -1},
@@ -10,11 +11,15 @@ const int SEQUENCE[6][3] = {                             // Commutation right_SE
   { 0, -1,  1}
 };
 
-uint8_t max_speed = 0;
-
-/* +struct right or left motor --------------------------------------*/
 MOTOR_PARAMETER motor_right;
 MOTOR_PARAMETER motor_left;
+uint8_t max_speed = 0;
+
+/**
+  * 初始化 Motor 參數結構並回傳
+  * 
+  * Initialized MOTOR_PARAMETER structure and return motor parameters
+  */
 MOTOR_PARAMETER motor_new(
     // range 1~100
     uint8_t speed_sepoint,
@@ -31,8 +36,8 @@ MOTOR_PARAMETER motor_new(
     GPIO_TypeDef* Hall_GPIOx[3],
     uint16_t Hall_GPIO_Pin_x[3],
 
-    GPIO_TypeDef* M_GPIOx[6],
-    uint16_t M_GPIO_Pin_x[6],
+    GPIO_TypeDef* M_GPIOx[3],
+    uint16_t M_GPIO_Pin_x[3],
 
     TIM_HandleTypeDef* TIMx[3],
     uint32_t TIM_CHANNEL_x[3]
@@ -55,7 +60,7 @@ MOTOR_PARAMETER motor_new(
         motor.TIM_CHANNEL_x[i] = TIM_CHANNEL_x[i];
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 3; i++) {
         motor.M_GPIOx[i] = M_GPIOx[i];
         motor.M_GPIO_Pin_x[i] = M_GPIO_Pin_x[i];
     }
@@ -63,103 +68,100 @@ MOTOR_PARAMETER motor_new(
     return motor;
 }
 
+/**
+  * 設定並初始化左右馬達參數
+  * 
+  * Motor Initialization for both motors
+  */
 void motor_init(void) {
-    // RIGHT MOTOR pins
-    GPIO_TypeDef* Hall_GPIOx_right[3] = {GPIOC, GPIOC, GPIOC};
-    uint16_t Hall_GPIO_Pin_x_right[3] = {GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 };
-
-    GPIO_TypeDef* M_GPIOx_right[6] = {GPIOA, GPIOA, GPIOB, GPIOB, GPIOB, GPIOB};
-    uint16_t M_GPIO_Pin_x_right[6] = {GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_10, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15};
-
-    TIM_HandleTypeDef* TIMx_right[3] = {&htim2, &htim2, &htim2};
-    uint32_t TIM_CHANNEL_x_right[3] = {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3};
-
     motor_right = motor_new(
-        30,                                     //speed_sepoint  圈/s
-        clockwise,                              //clockwise counter_clockwise
-        0.0,                                    //integral_record   PI積分累積儲存
-        0,                                      //rpm_count  計數motor speed
-        0,                                      //adc_value
-        15,                                     //duty_value ; Current PWM value (adjustable)
-        0,                                      //present_speed
-        7,                                      //currentStep
+        30,                 // speed_sepoint  圈/s
+        clockwise,          // clockwise counter_clockwise
+        0.0,                // integral_record   PI積分累積儲存
+        0,                  // rpm_count  計數motor speed
+        0,                  // adc_value
+        15,                 // duty_value ; Current PWM value (adjustable)
+        0,                  // present_speed
+        7,                  // currentStep
 
-        Hall_GPIOx_right,                       //Hall sensor pins
-        Hall_GPIO_Pin_x_right,
+        // Hall sensor pins
+        (GPIO_TypeDef* [])  {GPIOC,      GPIOC,      GPIOC      },
+        (uint16_t [])       {GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 },
 
-        M_GPIOx_right,                          //right Pin definitions for the three phases
-        M_GPIO_Pin_x_right,
-        //AH BH CH AL BL CL
-
-        TIMx_right,
-        TIM_CHANNEL_x_right
+        // AL BL CL > right Pin definitions for the three phases
+        (GPIO_TypeDef* [])  {GPIOB,       GPIOB,       GPIOB      },
+        (uint16_t [])       {GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15},
+        // AH:A0(L28) BH:A1(L30) CH:B10(R25)
+        (TIM_HandleTypeDef* []) {&htim2,        &htim2,        &htim2       },
+        (uint32_t [])           {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3}
     );
-
-    // LEFT MOTOR pins
-    GPIO_TypeDef* Hall_GPIOx_left[3] = {GPIOC, GPIOC, GPIOC};
-    uint16_t Hall_GPIO_Pin_x_left[3] = {GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8};
-
-    GPIO_TypeDef* M_GPIOx_left[6] = {GPIOA, GPIOA, GPIOB, GPIOC, GPIOC, GPIOC};
-    uint16_t M_GPIO_Pin_x_left[6] = {GPIO_PIN_6, GPIO_PIN_4, GPIO_PIN_0, GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12};
-
-    TIM_HandleTypeDef* TIMx_left[3] = {&htim3, &htim3, &htim3};
-    uint32_t TIM_CHANNEL_x_left[3] = {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3};
-
     motor_left = motor_new(
-        30,                                     //speed_sepoint
-        counter_clockwise,                      //clockwise counter_clockwise
-        0.0,                                    //integral_record   PI積分累積儲存
-        0,                                      //rpm_count  計數motor speed
-        0,                                      //adc_value
-        15,                                     //duty_value ; Current PWM value (adjustable)
-        0,                                      //present_speed
-        7,                                      //currentStep
+        30,                 // speed_sepoint
+        counter_clockwise,  // clockwise counter_clockwise
+        0.0,                // integral_record   PI積分累積儲存
+        0,                  // rpm_count  計數motor speed
+        0,                  // adc_value
+        15,                 // duty_value ; Current PWM value (adjustable)
+        0,                  // present_speed
+        7,                  // currentStep
 
-        Hall_GPIOx_left,                        //Hall sensor pins
-        Hall_GPIO_Pin_x_left,
+        // Hall sensor pins
+        (GPIO_TypeDef* [])  {GPIOC,      GPIOC,      GPIOC     },
+        (uint16_t [])       {GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8},
 
-        //left Pin definitions for the three phases
-        M_GPIOx_left,
-        M_GPIO_Pin_x_left,
-        //AH BH CH AL BL CL
+        // AL BL CL > left Pin definitions for the three phases
+        (GPIO_TypeDef* [])  {GPIOC,       GPIOC,       GPIOC      },
+        (uint16_t [])       {GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12},
 
-        TIMx_left,
-        TIM_CHANNEL_x_left
+        // AH:A6(R13) BH:A4(L32) CH:B0(L34)
+        (TIM_HandleTypeDef* []) {&htim3,        &htim3,        &htim3       },
+        (uint32_t [])           {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3}
     );
 }
 
-
-// +setup -----------------------------------------------------------*/
+/**
+  * 啟動指定馬達之 PWM 定時器
+  * 
+  * Start PWM timers for specified motor channels
+  */
 void motor_tim_setup(const MOTOR_PARAMETER *motor) {
     HAL_TIM_PWM_Start(motor->TIMx[0], motor->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(motor->TIMx[1], motor->TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(motor->TIMx[2], motor->TIM_CHANNEL_x[2]);
 }
 
-/* +renew motor speed and hall signal -------------------------------*/
+/**
+  * 執行馬達換相控制
+  * 
+  * Execute motor commutation based on current step sequence
+  */
 void commutate_motor(const MOTOR_PARAMETER *motor) {
     for (int i = 0; i < 3; i++) {
         if (SEQUENCE[motor->currentStep][i] == 1) {
             __HAL_TIM_SET_COMPARE(motor->TIMx[i], motor->TIM_CHANNEL_x[i], motor->duty_value);
-            HAL_GPIO_WritePin(motor->M_GPIOx[i + 3], motor->M_GPIO_Pin_x[i + 3],  GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(motor->M_GPIOx[i], motor->M_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         } else if (SEQUENCE[motor->currentStep][i] == -1) {
             __HAL_TIM_SET_COMPARE(motor->TIMx[i], motor->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(motor->M_GPIOx[i + 3], motor->M_GPIO_Pin_x[i + 3],  GPIO_PIN_SET);
+            HAL_GPIO_WritePin(motor->M_GPIOx[i], motor->M_GPIO_Pin_x[i],  GPIO_PIN_SET);
         } else {
             __HAL_TIM_SET_COMPARE(motor->TIMx[i], motor->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(motor->M_GPIOx[i + 3], motor->M_GPIO_Pin_x[i + 3],  GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(motor->M_GPIOx[i], motor->M_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
     }
 }
 
-/* +hall senser and decide clockwise --------------------------------*/
+/**
+  * 更新馬達轉速步數並依據霍爾感測器讀值決定下一換相步驟
+  * 
+  * Update motor step count and determine next step from Hall sensor readings
+  */
 void update_motor_step(MOTOR_PARAMETER *motor) {
     motor->step_count++;
     int hallState =
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[0], motor->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[1], motor->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[2], motor->Hall_GPIO_Pin_x[2])     );
-    if (motor->rotate_direction == counter_clockwise) {          //逆
+    if (motor->rotate_direction == counter_clockwise) {
         switch(hallState) {
             case 2: motor->currentStep = 0; break;
             case 3: motor->currentStep = 1; break;
@@ -168,7 +170,7 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
             case 4: motor->currentStep = 4; break;
             case 6: motor->currentStep = 5; break;
         }
-    } else if(motor->rotate_direction == clockwise) {           //順
+    } else if(motor->rotate_direction == clockwise) {
         switch(hallState) {
             case 5: motor->currentStep = 0; break;
             case 4: motor->currentStep = 1; break;
@@ -179,4 +181,3 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
         }
     }
 }
-

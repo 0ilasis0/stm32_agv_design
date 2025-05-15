@@ -1,1 +1,4 @@
+/MDK-ARM/*
+!/Application/MDK-ARM/*.uvprojx
+
 .vscode
