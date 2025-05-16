@@ -9,42 +9,58 @@ uint32_t temp_time2 = 0;
 int toggle1 = 1;
 int toggle2 = 0;
 
-
-
-/* +hall exit count -------------------------------------------------*/
+/**
+  * 處理右側馬達霍爾感測 EXTI 中斷
+  * 
+  * Handle EXTI interrupt for right motor Hall sensor
+  */
 void principal_EXTI3_IRQHandler(void) {
     update_motor_step(&motor_right);
 }
 
+/**
+  * 處理左側馬達霍爾感測 EXTI 中斷
+  * 
+  * Handle EXTI interrupt for left motor Hall sensor
+  */
 void principal_EXTI9_5_IRQHandler(void) {
     update_motor_step(&motor_left);
 }
 
-
-
-/* +PI speed control -----------------------------------------------*/
-void principal_TIM1_UP_TIM16_IRQHandler(void) {                //計時到，進行temp_pwm更新
+/**
+  * TIM1 更新或 TIM16 中斷服務函式，用於呼叫速度計算
+  * 
+  * TIM1 update or TIM16 interrupt handler to invoke speed calculation
+  */
+void principal_TIM1_UP_TIM16_IRQHandler(void) {
     speed_calculate(&motor_right);
     speed_calculate(&motor_left);
 }
 
+/**
+  * 基於霍爾感測與時間計算即時速度並執行 PI 控制
+  * 
+  * Calculate actual speed from Hall counts and delta time, then perform PI control
+  */
 void speed_calculate(MOTOR_PARAMETER *motor) {
-    if(motor->adc_value < track_hall_critical_value && !ADC_DISABLE) {
+    if (motor->adc_value < track_hall_critical_value && !ADC_DISABLE) {
         return;
     }
 
-    float real_speed = motor->step_count/6;
+    float real_speed = motor->step_count / 6;
     real_speed /= dt;
-    motor->present_speed = real_speed;                        // 紀錄當前速度
+    motor->present_speed = real_speed;
 
     PI_Controller(motor, real_speed);
 
-    motor->step_count = 0;                           //將rpm計速器歸零
+    motor->step_count = 0;
 }
 
-
-
-/* 測試用PC13按鈕中斷 -----------------------------------------------*/
+/**
+  * PC13 按鈕中斷，用於測試 (上下緣觸發)，切換 hall_sensor3
+  * 
+  * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor3
+  */
 void EXTI15_10_IRQHandler_principal_it(void) {
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
@@ -54,15 +70,17 @@ void EXTI15_10_IRQHandler_principal_it(void) {
             hall_sensor3 = 0;
             toggle1 = 0;
         } else {
-            hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
+            hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 + 1;
             toggle1 = 1;
         }
     }
 }
 
-
-
-//為上下緣觸發 PC4
+/**
+  * PC4 EXTI 中斷服務函式，用於測試，切換 hall_count_direction
+  * 
+  * EXTI interrupt handler for PC4 test, toggle hall_count_direction
+  */
 void principal_EXTI4_IRQHandler(void) {
     if (HAL_GetTick() - temp_time2 >= 300) {
         temp_time2 = HAL_GetTick();
@@ -72,7 +90,7 @@ void principal_EXTI4_IRQHandler(void) {
             hall_count_direction = 0;
             toggle2 = 0;
         } else {
-            hall_count_direction = 16*16*16 + 16*16 + 16 + 1 +1;
+            hall_count_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
             toggle2 = 1;
         }
     }

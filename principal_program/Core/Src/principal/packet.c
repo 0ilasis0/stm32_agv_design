@@ -1,5 +1,10 @@
 #include "principal/packet.h"
 
+/**
+  * 生成一個新的UART封包，包含起始碼與結束碼
+  * 
+  * Create a new UART packet with start and end codes
+  */
 UartPacket uart_packet_new(VecU8 *data) {
     UartPacket packet;
     packet.start = PACKET_START_CODE;
@@ -9,19 +14,34 @@ UartPacket uart_packet_new(VecU8 *data) {
     return packet;
 }
 
+/**
+  * 生成一個錯誤封包，用於表示封包解析失敗
+  * 
+  * Create an error packet to indicate packet parsing failure
+  */
 UartPacket uart_packet_new_error(void) {
     UartPacket packet;
     packet.start = 0;
     return packet;
 }
 
+/**
+  * 檢查封包是否為錯誤封包
+  * 
+  * Check if the packet is an error packet
+  */
 bool packet_error(const UartPacket *packet) {
     if (packet->start == 0) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
+/**
+  * 根據原始資料向量打包成UART封包，並移除起始與結束碼後重新封裝
+  * 
+  * Pack raw data vector into UART packet, stripping start and end codes before repacking
+  */
 UartPacket uart_packet_pack(const VecU8 *vec_u8) {
     if (
         (vec_u8->length < 2 || vec_u8->data[0] != PACKET_START_CODE) ||
@@ -34,6 +54,11 @@ UartPacket uart_packet_pack(const VecU8 *vec_u8) {
     return uart_packet_new(&data_vec);
 }
 
+/**
+  * 解包UART封包，將封包前後碼與資料合併為一個字節向量
+  * 
+  * Unpack UART packet into a byte vector including start, data, and end codes
+  */
 VecU8 uart_packet_unpack(const UartPacket *packet) {
     VecU8 vec_u8 = vec_u8_new();
     vec_u8_push(&vec_u8, packet->start);
@@ -42,6 +67,11 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
     return vec_u8;
 }
 
+/**
+  * 建立傳輸/接收環形緩衝區，初始化頭指標與計數
+  * 
+  * Create a transmit/receive ring buffer, initialize head and count
+  */
 TrReBuffer tr_re_buffer_new(void) {
     TrReBuffer tr_re_buffer;
     tr_re_buffer.head = 0;
@@ -49,6 +79,11 @@ TrReBuffer tr_re_buffer_new(void) {
     return tr_re_buffer;
 }
 
+/**
+  * 將封包推入環形緩衝區，若已滿則返回false
+  * 
+  * Push a packet into the ring buffer; return false if buffer is full
+  */
 bool tr_re_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
     if (tr_re_buffer->count >= TR_RE_BUFFER_CAP) return false;
     uint8_t tail = (tr_re_buffer->head + tr_re_buffer->count) % TR_RE_BUFFER_CAP;
@@ -57,6 +92,11 @@ bool tr_re_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
     return true;
 }
 
+/**
+  * 從環形緩衝區彈出一個封包，若為空則返回錯誤封包
+  * 
+  * Pop a packet from the ring buffer; return an error packet if empty
+  */
 UartPacket tr_re_buffer_pop(TrReBuffer *tr_re_buffer) {
     if (tr_re_buffer->count == 0) return uart_packet_new_error();
     uint8_t head = tr_re_buffer->head;
