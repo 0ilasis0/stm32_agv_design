@@ -1,9 +1,6 @@
 #include "principal/const_and_error.h"
 #include "stm32g4xx_hal.h"
 
-bool ADC_DISABLE = 1;
-bool PI_CONTROL_DISABLE = 1;
-
 ERROR_TIMEOUT error_timeout = {
     0,
     0,

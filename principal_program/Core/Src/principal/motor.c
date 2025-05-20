@@ -13,11 +13,10 @@ const int SEQUENCE[6][3] = {
 
 MOTOR_PARAMETER motor_right;
 MOTOR_PARAMETER motor_left;
-uint8_t max_speed = 0;
 
 /**
   * 初始化 Motor 參數結構並回傳
-  * 
+  *
   * Initialized MOTOR_PARAMETER structure and return motor parameters
   */
 MOTOR_PARAMETER motor_new(
@@ -70,10 +69,10 @@ MOTOR_PARAMETER motor_new(
 
 /**
   * 設定並初始化左右馬達參數
-  * 
+  *
   * Motor Initialization for both motors
   */
-void motor_init(void) {
+void motor_setup(void) {
     motor_right = motor_new(
         30,                 // speed_sepoint  圈/s
         clockwise,          // clockwise counter_clockwise
@@ -117,11 +116,14 @@ void motor_init(void) {
         (TIM_HandleTypeDef* []) {&htim3,        &htim3,        &htim3       },
         (uint32_t [])           {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3}
     );
+
+    motor_tim_setup(&motor_right);
+    motor_tim_setup(&motor_left);
 }
 
 /**
   * 啟動指定馬達之 PWM 定時器
-  * 
+  *
   * Start PWM timers for specified motor channels
   */
 void motor_tim_setup(const MOTOR_PARAMETER *motor) {
@@ -132,7 +134,7 @@ void motor_tim_setup(const MOTOR_PARAMETER *motor) {
 
 /**
   * 執行馬達換相控制
-  * 
+  *
   * Execute motor commutation based on current step sequence
   */
 void commutate_motor(const MOTOR_PARAMETER *motor) {
@@ -152,11 +154,10 @@ void commutate_motor(const MOTOR_PARAMETER *motor) {
 
 /**
   * 更新馬達轉速步數並依據霍爾感測器讀值決定下一換相步驟
-  * 
+  *
   * Update motor step count and determine next step from Hall sensor readings
   */
 void update_motor_step(MOTOR_PARAMETER *motor) {
-    motor->step_count++;
     int hallState =
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[0], motor->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[1], motor->Hall_GPIO_Pin_x[1]) << 1) |
@@ -179,5 +180,16 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
             case 3: motor->currentStep = 4; break;
             case 1: motor->currentStep = 5; break;
         }
+    }
+}
+
+void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
+    // 限制PWM最大值&&最小值
+    if (value > 100) {
+        motor->duty_value = 100;
+    } else if(value < 0) {
+        motor->duty_value = 0;
+    } else {
+        motor->duty_value = value;
     }
 }

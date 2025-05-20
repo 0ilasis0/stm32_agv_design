@@ -4,32 +4,27 @@
 #include "tim.h"
 
 double error_threshold = 0.7;               //限制積分累積，避免長時間造成積分風暴
+uint16_t max_speed = 100;
 
 /* +setup -----------------------------------------------------------*/
 void PI_tim_setup(void){
     HAL_TIM_Base_Start_IT(&htim1);
 }
 
+int PI_Controller_max_speed = 0;
 /* +PI speed control ------------------------------------------------*/
-void PI_Controller(MOTOR_PARAMETER *motor, float measurement) {
-    if (!PI_CONTROL_DISABLE) return;
-
-    int setpoint = max_speed / 100 * motor->speed_sepoint;
+void PI_Controller(MOTOR_PARAMETER *motor) {
+    int setpoint = max_speed * motor->speed_sepoint / 100;
+    PI_Controller_max_speed = max_speed;
 
     // 計算誤差
-    float error = setpoint - measurement;
+    float error = setpoint - motor->present_speed;
     if (fabs(error) > error_threshold) {                             // 積分項累積
         motor->integral_record += error * dt;
     }
 
     // 計算 P I 控制輸出
-    int output_pwm_Value = (Kp * error + Ki * motor->integral_record) * PI_feedbacck;
+    int16_t output_pwm_Value = (Kp * error + Ki * motor->integral_record) * PI_feedbacck;
 
-    // 限制PWM最大值
-    uint32_t pwmValue_temp = motor->duty_value + output_pwm_Value;
-    if (pwmValue_temp > max_duty) {
-        motor->duty_value = max_duty;
-    } else {
-        motor->duty_value += output_pwm_Value;
-    }
+    set_motor_duty(motor, motor->duty_value + output_pwm_Value);
 }

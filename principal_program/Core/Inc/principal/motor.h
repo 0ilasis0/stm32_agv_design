@@ -5,8 +5,6 @@
 #include "gpio.h"
 #include "stm32g431xx.h"
 
-extern uint8_t max_speed;
-
 typedef enum {
     clockwise,
     counter_clockwise,
@@ -58,9 +56,10 @@ MOTOR_PARAMETER motor_new(
     TIM_HandleTypeDef* TIMx[3],
     uint32_t TIM_CHANNEL_x[3]
 );
-void motor_init(void);
+void motor_setup(void);
 void motor_tim_setup(const MOTOR_PARAMETER *motor);
 void update_motor_step(MOTOR_PARAMETER *motor);
 void commutate_motor(const MOTOR_PARAMETER *motor);
+void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value);
 
 #endif

@@ -14,6 +14,9 @@ const uint32_t node_hall_critical_value = 16*16*16 + 16*16 + 16 + 1;
 
 /*測試用--------------------------------------*/
 uint32_t hall_count_direction = 0;
+uint32_t text_previous_time_fall_back_dif = 0;
+uint32_t text_return_start_time = 0;
+
 /*測試用--------------------------------------*/
 
 AGV_STATUS agv_current_status = agv_straight;
@@ -66,7 +69,7 @@ void track_mode(void) {
         renew_motor_drive(&motor_right, setpoint_straight);
 
     } else {
-        renew_motor_drive(&motor_left, setpoint_straight);
+        renew_motor_drive(&motor_left,  setpoint_straight);
         renew_motor_drive(&motor_right, setpoint_straight);
 
     }
@@ -168,11 +171,13 @@ void renew_vehicle_current_direction (int renew_direction, uint32_t *previous_ti
 
 /* 直到左右馬達停止才下個動作 -----------------------------------------*/
 void ensure_motor_stop(void) {
-    uint32_t error_start = HAL_GetTick();
+    motor_right.speed_sepoint = 0;
+    motor_left.speed_sepoint  = 0;
 
+    uint32_t error_start = HAL_GetTick();
     while(motor_right.present_speed != 0 || motor_left.present_speed != 0) {
-        motor_right.speed_sepoint = 0;
-        motor_left.speed_sepoint  = 0;
+        speed_calculate(&motor_right);
+        speed_calculate(&motor_left );
         timeout_error(error_start, &error_timeout.ensure_motor_stop);
     }
 }
@@ -180,55 +185,59 @@ void ensure_motor_stop(void) {
 /**
   * @brief 測試空載速度
   */
+int text_max_speed = 0;
 void test_no_load_speed(void) {
-    HAL_TIM_Base_Stop_IT(&htim1);
-    PI_CONTROL_DISABLE = 0;
-
     bool next = 0;
-    uint32_t  previous_time_it = HAL_GetTick();
-    uint32_t  previous_time_fall_back_dif = HAL_GetTick();
 
-    uint32_t error_start = HAL_GetTick();
+    uint32_t previous_time_it = HAL_GetTick()
+            ,previous_time_fall_back_dif = previous_time_it;
+
+    // 確定正轉
+    rotate_control_direction(counter_clockwise, clockwise);
+
+    set_motor_duty(&motor_left,  100);
+    set_motor_duty(&motor_right, 100);
+    commutate_motor(&motor_right);
+    commutate_motor(&motor_left );
+
     // 僅使用右邊測試空載轉速
-    while (fabs(motor_right.present_speed - max_speed) > 2 || HAL_GetTick() - previous_time_fall_back_dif <= 100) {
-        change_duty(100, 100);
+    while (fabs(motor_right.present_speed - max_speed) > 2 || HAL_GetTick() - previous_time_fall_back_dif <= 1000) {
         timeout_error(previous_time_fall_back_dif, &error_timeout.test_no_load_speed);
 
-        if(HAL_GetTick() - previous_time_it > 300 && next == 0) {
+        if(HAL_GetTick() - previous_time_it > 1000 && next == 0) {
             //更新motor當前速度
-            principal_TIM1_UP_TIM16_IRQHandler();
+            speed_calculate(&motor_right);
+            speed_calculate(&motor_left);
             previous_time_it = HAL_GetTick();
             next = 1;
 
-        } else if(HAL_GetTick() - previous_time_it > 300 && next == 1) {
-            max_speed = motor_right.present_speed;
-            principal_TIM1_UP_TIM16_IRQHandler();
+        } else if(HAL_GetTick() - previous_time_it > 1000 && next == 1) {
+            if(max_speed < motor_right.present_speed) {
+                max_speed = motor_right.present_speed;
+            }
+            speed_calculate(&motor_right);
+            speed_calculate(&motor_left);
             previous_time_it = HAL_GetTick();
             next = 0;
 
         }
     }
+    text_max_speed = max_speed;
 
     previous_time_fall_back_dif = HAL_GetTick() - previous_time_fall_back_dif;
 
-    change_duty(0, 0);
+    set_motor_duty(&motor_left,  0);
+    set_motor_duty(&motor_right, 0);
+    commutate_motor(&motor_right);
+    commutate_motor(&motor_left );
+
 
     ensure_motor_stop();
+    /*text*/
+    HAL_Delay(2000);
+    /*text*/
     over_hall_fall_back_time_based(previous_time_fall_back_dif);
     ensure_motor_stop();
-
-    HAL_TIM_Base_Start_IT(&htim1);
-    PI_CONTROL_DISABLE = 1;
-}
-
-/**
-  * @brief 改變duty值並更新到馬達
-  */
-void change_duty(uint8_t right_duty, uint8_t left_duty) {
-    motor_right.duty_value = right_duty;
-    motor_left.duty_value = left_duty;
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left);
 }
 
 /**
@@ -238,12 +247,22 @@ void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif) {
     rotate_control_direction(clockwise, counter_clockwise);
 
     uint32_t return_start_time = HAL_GetTick();
+    text_previous_time_fall_back_dif = previous_time_fall_back_dif;
+    text_return_start_time = return_start_time;
+    set_motor_duty(&motor_left,  100);
+    set_motor_duty(&motor_right, 100);
+    commutate_motor(&motor_right);
+    commutate_motor(&motor_left );
+
     while(HAL_GetTick() - return_start_time <= previous_time_fall_back_dif) {
-        change_duty(100, 100);
         timeout_error(return_start_time, &error_timeout.over_hall_fall_back_time_based);
     }
 
-    change_duty(0, 0);
+    set_motor_duty(&motor_left,  0);
+    set_motor_duty(&motor_right, 0);
+    commutate_motor(&motor_right);
+    commutate_motor(&motor_left );
+
 
     rotate_control_direction(counter_clockwise, clockwise);
 }

@@ -4,10 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define error_timeout_time_limit 10 * 1000
-
-extern bool ADC_DISABLE;
-extern bool PI_CONTROL_DISABLE;
+#define error_timeout_time_limit 10 * 1500
 
 typedef struct {
     bool ensure_motor_stop;

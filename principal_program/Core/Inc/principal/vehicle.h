@@ -45,7 +45,6 @@ void renew_vehicle_current_direction (int renew_direction, uint32_t *previous_ti
 void over_hall_fall_back(void);
 void ensure_motor_stop(void);
 void test_no_load_speed(void);
-void change_duty(uint8_t right_duty, uint8_t left_duty);
 void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif);
 
 #endif
