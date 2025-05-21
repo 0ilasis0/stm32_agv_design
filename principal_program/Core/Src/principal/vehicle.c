@@ -45,32 +45,22 @@ void vehicle_setup(void) {
     vehicle_current_data = vehicle_data_new(&map_current_data, 0);
 }
 
-
-
-/* AGV更新馬達驅動 --------------------------------------------------*/
-void renew_motor_drive(MOTOR_PARAMETER *motor, uint16_t sepoint) {
-    motor->speed_sepoint = sepoint;
-    commutate_motor(motor);
-}
-
-
-
 /* AGV一般循跡功能 --------------------------------------------------*/
 void track_mode(void) {
 
     adc_renew();
 
     if(motor_right.adc_value >= track_hall_critical_value) {
-        renew_motor_drive(&motor_left, setpoint_straight);
-        renew_motor_drive(&motor_right, 0);
+        motor_left.speed_sepoint = setpoint_straight;
+        motor_right.speed_sepoint = 0;
 
     } else if(motor_left.adc_value >= track_hall_critical_value) {
-        renew_motor_drive(&motor_left, 0);
-        renew_motor_drive(&motor_right, setpoint_straight);
+        motor_left.speed_sepoint = 0;
+        motor_right.speed_sepoint = setpoint_straight;
 
     } else {
-        renew_motor_drive(&motor_left,  setpoint_straight);
-        renew_motor_drive(&motor_right, setpoint_straight);
+        motor_left.speed_sepoint = setpoint_straight;
+        motor_right.speed_sepoint = setpoint_straight;
 
     }
 }
@@ -99,16 +89,16 @@ void rotate_in_place(void) {
                 break;
         }
 
-        renew_motor_drive(&motor_right, setpoint_rotate);
-        renew_motor_drive(&motor_left , setpoint_rotate);
+        motor_left.speed_sepoint = setpoint_rotate;
+        motor_right.speed_sepoint = setpoint_rotate;
         timeout_error(error_start, &error_timeout.rotate_in_place);
     }
 
     error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_count_direction >= node_hall_critical_value ) {
-        renew_motor_drive(&motor_right, setpoint_straight);
-        renew_motor_drive(&motor_left , setpoint_straight);
+        motor_left.speed_sepoint = setpoint_straight;
+        motor_right.speed_sepoint = setpoint_straight;
         timeout_error(error_start, &error_timeout.rotate_in_place_hall);
     }
 }
@@ -122,8 +112,8 @@ void over_hall_fall_back(void) {
 
     uint32_t error_start = HAL_GetTick();
     while(hall_count_direction >= node_hall_critical_value) {
-        renew_motor_drive(&motor_right, setpoint_fall_back);
-        renew_motor_drive(&motor_left , setpoint_fall_back);
+        motor_left.speed_sepoint = setpoint_fall_back;
+        motor_right.speed_sepoint = setpoint_fall_back;
         timeout_error(error_start, &error_timeout.over_hall_fall_back);
     }
 
@@ -185,8 +175,10 @@ void ensure_motor_stop(void) {
 /**
   * @brief 測試空載速度
   */
-int text_max_speed = 0;
+ uint32_t text_previous_time_fall_back_dif;
 void test_no_load_speed(void) {
+    PI_enable = 0;
+
     bool next = 0;
 
     uint32_t previous_time_it = HAL_GetTick()
@@ -197,21 +189,22 @@ void test_no_load_speed(void) {
 
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left );
+
+    // 因為會用到測速
+    uint16_t time = dt * 1000;
 
     // 僅使用右邊測試空載轉速
-    while (fabs(motor_right.present_speed - max_speed) > 2 || HAL_GetTick() - previous_time_fall_back_dif <= 1000) {
+    while (fabs(motor_right.present_speed - max_speed) > 1 || HAL_GetTick() - previous_time_fall_back_dif <= time) {
         timeout_error(previous_time_fall_back_dif, &error_timeout.test_no_load_speed);
 
-        if(HAL_GetTick() - previous_time_it > 1000 && next == 0) {
+        if(HAL_GetTick() - previous_time_it > time && next == 0) {
             //更新motor當前速度
             speed_calculate(&motor_right);
             speed_calculate(&motor_left);
             previous_time_it = HAL_GetTick();
             next = 1;
 
-        } else if(HAL_GetTick() - previous_time_it > 1000 && next == 1) {
+        } else if(HAL_GetTick() - previous_time_it > time && next == 1) {
             if(max_speed < motor_right.present_speed) {
                 max_speed = motor_right.present_speed;
             }
@@ -222,22 +215,21 @@ void test_no_load_speed(void) {
 
         }
     }
-    text_max_speed = max_speed;
 
     previous_time_fall_back_dif = HAL_GetTick() - previous_time_fall_back_dif;
-
+    text_previous_time_fall_back_dif = previous_time_fall_back_dif;
     set_motor_duty(&motor_left,  0);
     set_motor_duty(&motor_right, 0);
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left );
 
 
     ensure_motor_stop();
-    /*text*/
-    HAL_Delay(2000);
-    /*text*/
+
+    HAL_Delay(1000);
+
     over_hall_fall_back_time_based(previous_time_fall_back_dif);
     ensure_motor_stop();
+
+    PI_enable = 1;
 }
 
 /**
@@ -251,8 +243,6 @@ void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif) {
     text_return_start_time = return_start_time;
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left );
 
     while(HAL_GetTick() - return_start_time <= previous_time_fall_back_dif) {
         timeout_error(return_start_time, &error_timeout.over_hall_fall_back_time_based);
@@ -260,9 +250,6 @@ void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif) {
 
     set_motor_duty(&motor_left,  0);
     set_motor_duty(&motor_right, 0);
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left );
-
 
     rotate_control_direction(counter_clockwise, clockwise);
 }

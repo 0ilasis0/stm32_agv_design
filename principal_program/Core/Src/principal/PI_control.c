@@ -14,6 +14,8 @@ void PI_tim_setup(void){
 int PI_Controller_max_speed = 0;
 /* +PI speed control ------------------------------------------------*/
 void PI_Controller(MOTOR_PARAMETER *motor) {
+    if (!PI_enable) return;
+
     int setpoint = max_speed * motor->speed_sepoint / 100;
     PI_Controller_max_speed = max_speed;
 

@@ -11,6 +11,6 @@ void principal_EXTI9_5_IRQHandler(void);
 void principal_EXTI3_IRQHandler(void);
 
 void principal_TIM1_UP_TIM16_IRQHandler(void);
-void speed_calculate(MOTOR_PARAMETER *motor);
+void principal_TIM2_IRQHandler(void);
 
 #endif

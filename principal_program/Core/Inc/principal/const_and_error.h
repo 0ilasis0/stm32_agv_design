@@ -6,6 +6,8 @@
 
 #define error_timeout_time_limit 10 * 1500
 
+extern bool PI_enable;
+
 typedef struct {
     bool ensure_motor_stop;
     bool test_no_load_speed;

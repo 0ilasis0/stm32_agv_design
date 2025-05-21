@@ -6,6 +6,7 @@
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
+uint8_t tim2_tick   = 0;
 int toggle1 = 1;
 int toggle2 = 0;
 
@@ -41,16 +42,13 @@ void principal_TIM1_UP_TIM16_IRQHandler(void) {
     PI_Controller(&motor_left);
 }
 
-/**
-  * 基於霍爾感測與時間計算即時速度
-  *
-  * Calculate actual speed from Hall counts and delta time
-  */
-void speed_calculate(MOTOR_PARAMETER *motor) {
-    float real_speed = motor->step_count / 6;
-    real_speed /= dt;
-    motor->present_speed = real_speed;
-    motor->step_count = 0;
+void principal_TIM2_IRQHandler(void) {
+    tim2_tick++;
+    if (tim2_tick >= 100) {
+        tim2_tick = 0;
+        update_motor_step(&motor_right);
+        update_motor_step(&motor_left );
+    }
 }
 
 /**

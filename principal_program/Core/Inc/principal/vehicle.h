@@ -38,7 +38,6 @@ extern MAP_DATA map_current_data;
 void track_mode(void);
 void rotate_in_place(void);
 void vehicle_setup(void);
-void renew_motor_drive(MOTOR_PARAMETER *motor, uint16_t sepoint);
 ROTATE_STATUS get_rotate_direction(void);
 void rotate_control_direction (ROTATE_STATUS rotate_mode_right, ROTATE_STATUS rotate_mode_left);
 void renew_vehicle_current_direction (int renew_direction, uint32_t *previous_time);

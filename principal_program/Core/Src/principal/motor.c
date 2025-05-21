@@ -1,4 +1,5 @@
 #include "principal/motor.h"
+#include "principal/PI_control.h"
 #include "tim.h"
 
 // Commutation right_SEQUENCE for 120 degree control
@@ -119,6 +120,9 @@ void motor_setup(void) {
 
     motor_tim_setup(&motor_right);
     motor_tim_setup(&motor_left);
+
+    update_motor_step(&motor_right);
+    update_motor_step(&motor_left);
 }
 
 /**
@@ -130,6 +134,7 @@ void motor_tim_setup(const MOTOR_PARAMETER *motor) {
     HAL_TIM_PWM_Start(motor->TIMx[0], motor->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(motor->TIMx[1], motor->TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(motor->TIMx[2], motor->TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start_IT(motor->TIMx[0]);
 }
 
 /**
@@ -181,6 +186,8 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
             case 1: motor->currentStep = 5; break;
         }
     }
+
+    commutate_motor(motor);
 }
 
 void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
@@ -192,4 +199,16 @@ void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
     } else {
         motor->duty_value = value;
     }
+}
+
+/**
+  * 基於霍爾感測與時間計算即時速度
+  *
+  * Calculate actual speed from Hall counts and delta time
+  */
+void speed_calculate(MOTOR_PARAMETER *motor) {
+    float real_speed = motor->step_count / 6;
+    real_speed /= dt;
+    motor->present_speed = real_speed;
+    motor->step_count = 0;
 }

@@ -15,26 +15,19 @@ void principal_main(void) {
     uart_setup();
     motor_setup();
 
-    update_motor_step(&motor_right);
-    update_motor_step(&motor_left);
-    // test_no_load_speed();
+    test_no_load_speed();
 
     hall_detection_adc_setup();
     PI_tim_setup();
     vehicle_setup();
 
-
 /*測試用--------------------------------------*/
     map_current_data.current_count++ ;
 /*測試用--------------------------------------*/
-    commutate_motor(&motor_right);
-    commutate_motor(&motor_left );
     while (1) {
         // track_mode();
-
         // rotate_in_place();
         // over_hall_fall_back();
-
     /*    if (hall_sensor3 > node_hall_critical_value) {
             decide_move_mode();
 
@@ -61,8 +54,8 @@ void decide_move_mode(void) {
 
     switch(vehicle_current_data.status) {
         case agv_straight:
-            renew_motor_drive(&motor_left, setpoint_straight);
-            renew_motor_drive(&motor_right, setpoint_straight);
+            motor_left.speed_sepoint = setpoint_straight;
+            motor_right.speed_sepoint = setpoint_straight;
             // 改為agv_next，直到離開HALL，使else之後能renew status
             vehicle_current_data.status = agv_next;
             break;
