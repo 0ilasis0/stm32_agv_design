@@ -1,7 +1,7 @@
-#include "principal/principal_it.h"
-#include "principal/const_and_error.h"
-#include "principal/vehicle.h"
-#include "principal/PI_control.h"
+#include "user/user_it.h"
+#include "user/const_and_error.h"
+#include "user/vehicle.h"
+#include "user/PI_control.h"
 #include "stm32g4xx_hal_gpio.h"
 
 uint32_t temp_time1 = 0;
@@ -15,7 +15,7 @@ int toggle2 = 0;
   *
   * Handle EXTI interrupt for right motor Hall sensor
   */
-void principal_EXTI3_IRQHandler(void) {
+void user_EXTI3_IRQHandler(void) {
     motor_right.step_count++;
     update_motor_step(&motor_right);
 }
@@ -25,7 +25,7 @@ void principal_EXTI3_IRQHandler(void) {
   *
   * Handle EXTI interrupt for left motor Hall sensor
   */
-void principal_EXTI9_5_IRQHandler(void) {
+void user_EXTI9_5_IRQHandler(void) {
     motor_left.step_count++;
     update_motor_step(&motor_left);
 }
@@ -35,14 +35,14 @@ void principal_EXTI9_5_IRQHandler(void) {
   *
   * TIM1 update or TIM16 interrupt handler to invoke speed calculation
   */
-void principal_TIM1_UP_TIM16_IRQHandler(void) {
+void user_TIM1_UP_TIM16_IRQHandler(void) {
     speed_calculate(&motor_right);
     speed_calculate(&motor_left);
     PI_Controller(&motor_right);
     PI_Controller(&motor_left);
 }
 
-void principal_TIM2_IRQHandler(void) {
+void user_TIM2_IRQHandler(void) {
     tim2_tick++;
     if (tim2_tick >= 100) {
         tim2_tick = 0;
@@ -56,7 +56,7 @@ void principal_TIM2_IRQHandler(void) {
   *
   * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor3
   */
-void EXTI15_10_IRQHandler_principal_it(void) {
+void EXTI15_10_IRQHandler_user_it(void) {
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
@@ -76,7 +76,7 @@ void EXTI15_10_IRQHandler_principal_it(void) {
   *
   * EXTI interrupt handler for PC4 test, toggle hall_count_direction
   */
-void principal_EXTI4_IRQHandler(void) {
+void user_EXTI4_IRQHandler(void) {
     if (HAL_GetTick() - temp_time2 >= 300) {
         temp_time2 = HAL_GetTick();
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);

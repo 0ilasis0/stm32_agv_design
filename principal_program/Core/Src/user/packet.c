@@ -1,4 +1,4 @@
-#include "principal/packet.h"
+#include "user/packet.h"
 
 /**
   * 生成一個新的UART封包，包含起始碼與結束碼

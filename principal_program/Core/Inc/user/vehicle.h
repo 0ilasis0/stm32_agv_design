@@ -1,8 +1,8 @@
-#ifndef PRINCIPAL_VEHICLE_H
-#define PRINCIPAL_VEHICLE_H
+#ifndef USER_VEHICLE_H
+#define USER_VEHICLE_H
 
-#include "principal/motor.h"
-#include "principal/const_and_error.h"
+#include "user/motor.h"
+#include "user/const_and_error.h"
 
 #define max_node 10                                 // 能走最大的路徑數
 

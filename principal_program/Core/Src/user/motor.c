@@ -1,5 +1,5 @@
-#include "principal/motor.h"
-#include "principal/PI_control.h"
+#include "user/motor.h"
+#include "user/PI_control.h"
 #include "tim.h"
 
 // Commutation right_SEQUENCE for 120 degree control

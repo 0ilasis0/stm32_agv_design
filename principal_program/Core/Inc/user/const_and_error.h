@@ -1,5 +1,5 @@
-#ifndef PRINCIPAL_CONST_H
-#define PRINCIPAL_CONST_H
+#ifndef USER_CONST_H
+#define USER_CONST_H
 
 #include <stdbool.h>
 #include <stdint.h>

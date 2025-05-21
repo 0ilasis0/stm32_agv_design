@@ -1,5 +1,5 @@
-#ifndef PRINCIPAL_VEC_H
-#define PRINCIPAL_VEC_H
+#ifndef USER_VEC_H
+#define USER_VEC_H
 
 #include <stdint.h>
 #include <stdbool.h>

@@ -1,5 +1,5 @@
-#ifndef PRINCIPAL_TIM_H
-#define PRINCIPAL_TIM_H
+#ifndef USER_TIM_H
+#define USER_TIM_H
 
 #define tim1_prescalar 17000
 #define tim2_prescalar 170

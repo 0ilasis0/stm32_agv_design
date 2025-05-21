@@ -1,7 +1,7 @@
-#ifndef PRINCIPAL_PI_CONTROL_H
-#define PRINCIPAL_PI_CONTROL_H
+#ifndef USER_PI_CONTROL_H
+#define USER_PI_CONTROL_H
 
-#include "principal/motor.h"
+#include "user/motor.h"
 
 #define Kp 1.5f                                                // 比例增益
 #define Ki 0.8f                                                // 積分增益

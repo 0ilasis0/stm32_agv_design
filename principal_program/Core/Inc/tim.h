@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "principal/principal_tim.h"
+#include "user/user_tim.h"
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim1;

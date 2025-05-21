@@ -37,7 +37,7 @@ typedef enum {
 
 
 /* +subprogram -----------------------------------------------------------------*/
-void principal_main(void);
+void user_main(void);
 void HCSR04_Trigger(void);
 void HCSR04_PollEcho(void);
 void usart3_receive_action(void);
@@ -48,7 +48,7 @@ void usart3_transmit_action(void);
 
 
 /* +bsae_program ----------------------------------------------------------------*/
-void principal_main(void);
+void user_main(void);
 void sub_my_main_ItButtonPC13(void);
 void sub_my_main_ItTim2(void);
 void sub_my_main_ItTim1(void);

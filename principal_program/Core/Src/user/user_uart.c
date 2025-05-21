@@ -1,8 +1,8 @@
-#include "principal/principal_uart.h"
+#include "user/user_uart.h"
 #include <string.h>
-#include "principal/packet.h"
+#include "user/packet.h"
 #include "usart.h"
-#include "principal/motor.h"
+#include "user/motor.h"
 
 /**
   * UART 初始化標誌

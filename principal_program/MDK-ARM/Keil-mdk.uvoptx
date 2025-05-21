@@ -352,7 +352,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\const_and_error.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\const_and_error.c</PathWithFileName>
       <FilenameWithoutPath>const_and_error.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -364,7 +364,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\motor.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\motor.c</PathWithFileName>
       <FilenameWithoutPath>motor.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -376,7 +376,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\packet.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\packet.c</PathWithFileName>
       <FilenameWithoutPath>packet.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -388,7 +388,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\PI_control.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\PI_control.c</PathWithFileName>
       <FilenameWithoutPath>PI_control.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -400,8 +400,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\principal_adc.c</PathWithFileName>
-      <FilenameWithoutPath>principal_adc.c</FilenameWithoutPath>
+      <PathWithFileName>..\Core\Src\user\user_adc.c</PathWithFileName>
+      <FilenameWithoutPath>user_adc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -412,8 +412,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\principal_it.c</PathWithFileName>
-      <FilenameWithoutPath>principal_it.c</FilenameWithoutPath>
+      <PathWithFileName>..\Core\Src\user\user_it.c</PathWithFileName>
+      <FilenameWithoutPath>user_it.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -424,8 +424,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\principal_main.c</PathWithFileName>
-      <FilenameWithoutPath>principal_main.c</FilenameWithoutPath>
+      <PathWithFileName>..\Core\Src\user\user_main.c</PathWithFileName>
+      <FilenameWithoutPath>user_main.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -436,8 +436,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\principal_uart.c</PathWithFileName>
-      <FilenameWithoutPath>principal_uart.c</FilenameWithoutPath>
+      <PathWithFileName>..\Core\Src\user\user_uart.c</PathWithFileName>
+      <FilenameWithoutPath>user_uart.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -448,7 +448,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\vec.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\vec.c</PathWithFileName>
       <FilenameWithoutPath>vec.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -460,7 +460,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Core\Src\principal\vehicle.c</PathWithFileName>
+      <PathWithFileName>..\Core\Src\user\vehicle.c</PathWithFileName>
       <FilenameWithoutPath>vehicle.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

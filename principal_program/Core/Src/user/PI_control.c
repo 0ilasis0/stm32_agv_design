@@ -1,6 +1,6 @@
-#include "principal/PI_control.h"
+#include "user/PI_control.h"
 #include <math.h>
-#include "principal/const_and_error.h"
+#include "user/const_and_error.h"
 #include "tim.h"
 
 double error_threshold = 0.7;               //限制積分累積，避免長時間造成積分風暴

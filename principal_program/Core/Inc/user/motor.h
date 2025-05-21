@@ -1,5 +1,5 @@
-#ifndef PRINCIPAL_MOTOR_H
-#define PRINCIPAL_MOTOR_H
+#ifndef USER_MOTOR_H
+#define USER_MOTOR_H
 
 #include <stdint.h>
 #include "gpio.h"

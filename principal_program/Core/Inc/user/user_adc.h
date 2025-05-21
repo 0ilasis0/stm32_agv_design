@@ -1,5 +1,5 @@
-#ifndef PRINCIPAL_ADC_H
-#define PRINCIPAL_ADC_H
+#ifndef USER_ADC_H
+#define USER_ADC_H
 
 void adc_renew(void);
 void hall_detection_adc_setup(void);

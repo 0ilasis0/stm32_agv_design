@@ -1,9 +1,9 @@
-#include "principal/principal_main.h"
-#include "principal/motor.h"
-#include "principal/vehicle.h"
-#include "principal/PI_control.h"
-#include "principal/principal_adc.h"
-#include "principal/principal_uart.h"
+#include "user/user_main.h"
+#include "user/motor.h"
+#include "user/vehicle.h"
+#include "user/PI_control.h"
+#include "user/user_adc.h"
+#include "user/user_uart.h"
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
@@ -11,7 +11,7 @@ uint32_t text = 0;
 /*測試用--------------------------------------*/
 
 /* +Main ------------------------------------------------------------*/
-void principal_main(void) {
+void user_main(void) {
     uart_setup();
     motor_setup();
 
