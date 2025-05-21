@@ -5,6 +5,7 @@
 
 double error_threshold = 0.7;               //限制積分累積，避免長時間造成積分風暴
 uint16_t max_speed = 100;
+float dt = 170 * 1000 * 1000 / tim1_prescalar / tim1_ARR;
 
 /* +setup -----------------------------------------------------------*/
 void PI_tim_setup(void){
