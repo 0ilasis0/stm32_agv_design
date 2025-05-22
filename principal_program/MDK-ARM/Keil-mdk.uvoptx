@@ -158,27 +158,27 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tim2_tick</ItemText>
+          <ItemText>transfer_buffer</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>packet_test</ItemText>
+          <ItemText>receive_buffer</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>transfer_buffer</ItemText>
+          <ItemText>hytestc</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>receive_buffer</ItemText>
+          <ItemText>data_send_tri</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hytestc</ItemText>
+          <ItemText>tim2_tick</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

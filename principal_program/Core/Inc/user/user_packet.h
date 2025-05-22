@@ -18,6 +18,7 @@ typedef struct {
 } UartPacket;
 UartPacket uart_packet_new(VecU8 *data);
 bool packet_error(const UartPacket *packet);
+VecU8 uart_packet_get_vec(const UartPacket *packet);
 UartPacket uart_packet_pack(const VecU8 *vec_u8);
 void uart_packet_add_data(UartPacket *packet, const VecU8 *vec_u8);
 VecU8 uart_packet_unpack(const UartPacket *packet);
@@ -26,7 +27,7 @@ VecU8 uart_packet_unpack(const UartPacket *packet);
 typedef struct {
     UartPacket  packet[TR_RE_BUFFER_CAP];
     uint8_t     head;
-    uint8_t     count;
+    uint8_t     length;
 } TrReBuffer;
 extern TrReBuffer transfer_buffer;
 extern TrReBuffer receive_buffer;

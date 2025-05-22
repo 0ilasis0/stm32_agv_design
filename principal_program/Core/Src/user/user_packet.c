@@ -16,7 +16,7 @@ TrReBuffer receive_buffer = {0};
 UartPacket uart_packet_new(VecU8 *data) {
     UartPacket packet;
     packet.start = PACKET_START_CODE;
-    packet.data_vec_u8 = vec_u8_new();
+    packet.data_vec_u8 = (VecU8){0};
     vec_u8_push(&packet.data_vec_u8, data->data, data->length);
     packet.end = PACKET_END_CODE;
     return packet;
@@ -45,6 +45,12 @@ bool packet_error(const UartPacket *packet) {
     return false;
 }
 
+VecU8 uart_packet_get_vec(const UartPacket *packet) {
+    VecU8 vec_u8 = {0};
+    vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
+    return vec_u8;
+}
+
 /**
   * 根據原始資料向量打包成UART封包，並移除起始與結束碼後重新封裝
   * 
@@ -57,7 +63,7 @@ UartPacket uart_packet_pack(const VecU8 *vec_u8) {
     ) {
         return uart_packet_new_error();
     }
-    VecU8 data_vec = vec_u8_new();
+    VecU8 data_vec = {0};
     vec_u8_push(&data_vec, vec_u8->data + 1, vec_u8->length - 2);
     return uart_packet_new(&data_vec);
 }
@@ -72,7 +78,7 @@ void uart_packet_add_data(UartPacket *packet, const VecU8 *vec_u8) {
   * Unpack UART packet into a byte vector including start, data, and end codes
   */
 VecU8 uart_packet_unpack(const UartPacket *packet) {
-    VecU8 vec_u8 = vec_u8_new();
+    VecU8 vec_u8 = {0};
     vec_u8_push(&vec_u8, &packet->start, 1);
     vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
     vec_u8_push(&vec_u8, &packet->end, 1);
@@ -87,7 +93,7 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
 TrReBuffer trRe_buffer_new(void) {
     TrReBuffer tr_re_buffer;
     tr_re_buffer.head = 0;
-    tr_re_buffer.count = 0;
+    tr_re_buffer.length = 0;
     return tr_re_buffer;
 }
 
@@ -97,24 +103,23 @@ TrReBuffer trRe_buffer_new(void) {
   * Push a packet into the ring buffer; return false if buffer is full
   */
 bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
-    if (tr_re_buffer->count >= TR_RE_BUFFER_CAP) return false;
-    uint8_t tail = (tr_re_buffer->head + tr_re_buffer->count) % TR_RE_BUFFER_CAP;
+    if (tr_re_buffer->length >= TR_RE_BUFFER_CAP) return false;
+    uint8_t tail = (tr_re_buffer->head + tr_re_buffer->length) % TR_RE_BUFFER_CAP;
     tr_re_buffer->packet[tail] = *packet;
-    tr_re_buffer->count++;
+    tr_re_buffer->length++;
     return true;
 }
 
 /**
-  * 從環形緩衝區彈出一個封包，若為空則返回錯誤封包
+  * 從環形緩衝區彈出一個封包
   * 
-  * Pop a packet from the ring buffer; return an error packet if empty
+  * Pop a packet from the ring buffer
   */
 UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer) {
     return tr_re_buffer->packet[tr_re_buffer->head];
 }
-
 void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer) {
-    if (tr_re_buffer->count == 0) return;
+    if (tr_re_buffer->length == 0) return;
     tr_re_buffer->head = (tr_re_buffer->head + 1) % TR_RE_BUFFER_CAP;
-    tr_re_buffer->count--;
+    tr_re_buffer->length--;
 }

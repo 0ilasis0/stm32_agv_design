@@ -43,18 +43,18 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
     PI_Controller(&motor_left);
 }
 
-int hytestc = 0;
-// 100us
+// 0.1ms
 void user_TIM2_IRQHandler(void) {
     tim2_tick++;
+    // 10ms
     if (tim2_tick % 100 == 0) {
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
+        hyrecvtest();
     }
     // 1s
     if (tim2_tick % 10000 == 0) {
-        hytestc++;
-        hytest();
+        hysendtest();
     }
     // 60s
     if (tim2_tick >= 600000) {
