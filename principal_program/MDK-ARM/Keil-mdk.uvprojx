@@ -445,9 +445,9 @@
               <FilePath>..\Core\Src\user\motor.c</FilePath>
             </File>
             <File>
-              <FileName>packet.c</FileName>
+              <FileName>user_packet.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\packet.c</FilePath>
+              <FilePath>..\Core\Src\user\user_packet.c</FilePath>
             </File>
             <File>
               <FileName>PI_control.c</FileName>
@@ -475,9 +475,9 @@
               <FilePath>..\Core\Src\user\user_uart.c</FilePath>
             </File>
             <File>
-              <FileName>vec.c</FileName>
+              <FileName>user_vec.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\vec.c</FilePath>
+              <FilePath>..\Core\Src\user\user_vec.c</FilePath>
             </File>
             <File>
               <FileName>vehicle.c</FileName>

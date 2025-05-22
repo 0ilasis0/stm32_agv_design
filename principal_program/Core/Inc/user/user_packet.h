@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "user/vec.h"
+#include "user/user_vec.h"
 
 #define PACKET_START_CODE  ((uint8_t) '{')
 #define PACKET_END_CODE    ((uint8_t) '}')
@@ -13,12 +13,13 @@
 
 typedef struct {
     uint8_t     start;
-    VecU8       data;
+    VecU8       data_vec_u8;
     uint8_t     end;
 } UartPacket;
 UartPacket uart_packet_new(VecU8 *data);
 bool packet_error(const UartPacket *packet);
 UartPacket uart_packet_pack(const VecU8 *vec_u8);
+void uart_packet_add_data(UartPacket *packet, const VecU8 *vec_u8);
 VecU8 uart_packet_unpack(const UartPacket *packet);
 
 #define TR_RE_BUFFER_CAP 5
@@ -27,8 +28,11 @@ typedef struct {
     uint8_t     head;
     uint8_t     count;
 } TrReBuffer;
-TrReBuffer tr_re_buffer_new(void);
-bool tr_re_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet);
-UartPacket tr_re_buffer_pop(TrReBuffer *tr_re_buffer);
+extern TrReBuffer transfer_buffer;
+extern TrReBuffer receive_buffer;
+TrReBuffer trRe_buffer_new(void);
+bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet);
+UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer);
+void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer);
 
 #endif

@@ -1,4 +1,12 @@
-#include "user/packet.h"
+#include "user/user_packet.h"
+
+/**
+  * 傳輸和接收循環緩衝區
+  * 
+  * Transmission and reception ring buffers
+  */
+TrReBuffer transfer_buffer = {0};
+TrReBuffer receive_buffer = {0};
 
 /**
   * 生成一個新的UART封包，包含起始碼與結束碼
@@ -8,8 +16,8 @@
 UartPacket uart_packet_new(VecU8 *data) {
     UartPacket packet;
     packet.start = PACKET_START_CODE;
-    packet.data = vec_u8_new();
-    vec_u8_extend_inner(&packet.data, data->data, data->length);
+    packet.data_vec_u8 = vec_u8_new();
+    vec_u8_push(&packet.data_vec_u8, data->data, data->length);
     packet.end = PACKET_END_CODE;
     return packet;
 }
@@ -50,8 +58,12 @@ UartPacket uart_packet_pack(const VecU8 *vec_u8) {
         return uart_packet_new_error();
     }
     VecU8 data_vec = vec_u8_new();
-    vec_u8_extend_inner(&data_vec, vec_u8->data + 1, vec_u8->length - 2);
+    vec_u8_push(&data_vec, vec_u8->data + 1, vec_u8->length - 2);
     return uart_packet_new(&data_vec);
+}
+
+void uart_packet_add_data(UartPacket *packet, const VecU8 *vec_u8) {
+    vec_u8_push(&packet->data_vec_u8, vec_u8->data, vec_u8->length);
 }
 
 /**
@@ -61,9 +73,9 @@ UartPacket uart_packet_pack(const VecU8 *vec_u8) {
   */
 VecU8 uart_packet_unpack(const UartPacket *packet) {
     VecU8 vec_u8 = vec_u8_new();
-    vec_u8_push(&vec_u8, packet->start);
-    vec_u8_extend_inner(&vec_u8, packet->data.data, packet->data.length);
-    vec_u8_push(&vec_u8, packet->end);
+    vec_u8_push(&vec_u8, &packet->start, 1);
+    vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
+    vec_u8_push(&vec_u8, &packet->end, 1);
     return vec_u8;
 }
 
@@ -72,7 +84,7 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
   * 
   * Create a transmit/receive ring buffer, initialize head and count
   */
-TrReBuffer tr_re_buffer_new(void) {
+TrReBuffer trRe_buffer_new(void) {
     TrReBuffer tr_re_buffer;
     tr_re_buffer.head = 0;
     tr_re_buffer.count = 0;
@@ -84,7 +96,7 @@ TrReBuffer tr_re_buffer_new(void) {
   * 
   * Push a packet into the ring buffer; return false if buffer is full
   */
-bool tr_re_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
+bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
     if (tr_re_buffer->count >= TR_RE_BUFFER_CAP) return false;
     uint8_t tail = (tr_re_buffer->head + tr_re_buffer->count) % TR_RE_BUFFER_CAP;
     tr_re_buffer->packet[tail] = *packet;
@@ -97,10 +109,12 @@ bool tr_re_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
   * 
   * Pop a packet from the ring buffer; return an error packet if empty
   */
-UartPacket tr_re_buffer_pop(TrReBuffer *tr_re_buffer) {
-    if (tr_re_buffer->count == 0) return uart_packet_new_error();
-    uint8_t head = tr_re_buffer->head;
+UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer) {
+    return tr_re_buffer->packet[tr_re_buffer->head];
+}
+
+void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer) {
+    if (tr_re_buffer->count == 0) return;
     tr_re_buffer->head = (tr_re_buffer->head + 1) % TR_RE_BUFFER_CAP;
     tr_re_buffer->count--;
-    return tr_re_buffer->packet[head];
 }

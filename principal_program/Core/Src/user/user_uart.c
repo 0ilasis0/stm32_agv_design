@@ -1,6 +1,6 @@
 #include "user/user_uart.h"
 #include <string.h>
-#include "user/packet.h"
+#include "user/user_packet.h"
 #include "usart.h"
 #include "user/motor.h"
 
@@ -16,28 +16,35 @@ bool uart_init = 0;
   * 
   * Receive buffer of size PACKET_MAX_SIZE
   */
-uint8_t uart_buffer_r[PACKET_MAX_SIZE];
-
-/**
-  * 傳輸和接收循環緩衝區
-  * 
-  * Transmission and reception ring buffers
-  */
-TrReBuffer transfer_buffer;
-TrReBuffer receive_buffer;
+uint8_t uart_receive_buffer[PACKET_MAX_SIZE];
 
 /**
   * 設置 UART，清零緩衝區並啟用 DMA 到空閒中斷接收
   * 
   * Configure UART by clearing buffer and enabling DMA reception on IDLE interrupt
   */
+UartPacket packet_test = {0};
+float f32_test = 2;
+uint16_t u16_test = 2;
 void uart_setup(void) {
-    memset(uart_buffer_r, 0, sizeof(uart_buffer_r));
-    transfer_buffer = tr_re_buffer_new();
-    receive_buffer = tr_re_buffer_new();
+    memset(uart_receive_buffer, 0, sizeof(uart_receive_buffer));
+    // transfer_buffer = trRe_buffer_new();
+    // receive_buffer = trRe_buffer_new();
     // Rx:PB11(R18) Tx:PB9(R5)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_buffer_r, PACKET_MAX_SIZE);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_receive_buffer, PACKET_MAX_SIZE);
+
+    VecU8 new_vec = vec_u8_new();
+    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
+    vec_u8_push(&new_vec, &(uint8_t){0x05}, 1);
+    vec_u8_push_u16(&new_vec, u16_test);
+    u16_test++;
+    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
+    vec_u8_push(&new_vec, &(uint8_t){0x00}, 1);
+    vec_u8_push_float(&new_vec, f32_test);
+    f32_test++;
+    packet_test = uart_packet_new(&new_vec);
 }
 
 /**
@@ -76,7 +83,26 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
         // 可在此處添加傳輸完成處理
         // Transmission complete handling can be added here
+        trRe_buffer_pop_secondHalf(&transfer_buffer);
     }
+}
+
+void rspdw(UartPacket* packet) {
+    VecU8 new_vec = vec_u8_new();
+    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
+    vec_u8_push(&new_vec, &(uint8_t){0x00}, 1);
+    vec_u8_push_float(&new_vec, f32_test);
+    f32_test++;
+    uart_packet_add_data(packet, &new_vec);
+}
+
+void radcw(UartPacket* packet) {
+    VecU8 new_vec = vec_u8_new();
+    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
+    vec_u8_push(&new_vec, &(uint8_t){0x05}, 1);
+    vec_u8_push_u16(&new_vec, u16_test);
+    u16_test++;
+    uart_packet_add_data(packet, &new_vec);
 }
 
 /**
@@ -86,35 +112,32 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
   */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (huart->Instance == USART3) {
-        // 初次初始化階段，不處理數據
-        // During initial setup phase: do not process data
         if (!uart_init) {
             uart_init = true;
             return;
         }
-
         VecU8 re_vec_u8 = vec_u8_new();
-        vec_u8_extend_inner(&re_vec_u8, uart_buffer_r, Size);
-        memset(uart_buffer_r, 0, PACKET_MAX_SIZE);
+        vec_u8_push(&re_vec_u8, uart_receive_buffer, Size);
+        memset(uart_receive_buffer, 0, PACKET_MAX_SIZE);
         UartPacket re_packet = uart_packet_pack(&re_vec_u8);
-        tr_re_buffer_push(&receive_buffer, &re_packet);
+        trRe_buffer_push(&receive_buffer, &re_packet);
 
-        // 構建新的速度數據包並推送到傳輸緩衝
-        // Construct new speed packet and push to transfer buffer
-        VecU8 new_vec = vec_u8_new();
-        vec_u8_push(&new_vec, 0x20);
-        VecU8 speed = u32_to_u8(motor_right.adc_value);
-        vec_u8_extend_inner(&new_vec, speed.data, speed.length);
-        UartPacket new_packet = uart_packet_new(&new_vec);
-        tr_re_buffer_push(&transfer_buffer, &new_packet);
+        {
+            VecU8 new_vec = vec_u8_new();
+            vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+            UartPacket new_packet = uart_packet_new(&new_vec);
+            rspdw(&new_packet);
+            radcw(&new_packet);
+            trRe_buffer_push(&transfer_buffer, &new_packet);
+        }
 
-        // 從傳輸緩衝中彈出並傳送
-        // Pop packet from transfer buffer and transmit
-        UartPacket tr_packet = tr_re_buffer_pop(&transfer_buffer);
-        VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
-        HAL_UART_Transmit_DMA(huart, tr_vec_u8.data, tr_vec_u8.length);
+        if (transfer_buffer.count != 0) {
+            UartPacket tr_packet = trRe_buffer_pop_firstHalf(&transfer_buffer);
+            VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
+            HAL_UART_Transmit_DMA(huart, tr_vec_u8.data, tr_vec_u8.length);
+        }
 
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_buffer_r, PACKET_MAX_SIZE);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_receive_buffer, PACKET_MAX_SIZE);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     }
 }
