@@ -122,22 +122,22 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         UartPacket re_packet = uart_packet_pack(&re_vec_u8);
         trRe_buffer_push(&receive_buffer, &re_packet);
 
-        {
-            VecU8 new_vec = vec_u8_new();
-            vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
-            UartPacket new_packet = uart_packet_new(&new_vec);
-            rspdw(&new_packet);
-            radcw(&new_packet);
-            trRe_buffer_push(&transfer_buffer, &new_packet);
-        }
-
-        if (transfer_buffer.count != 0) {
-            UartPacket tr_packet = trRe_buffer_pop_firstHalf(&transfer_buffer);
-            VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
-            HAL_UART_Transmit_DMA(huart, tr_vec_u8.data, tr_vec_u8.length);
-        }
-
         HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_receive_buffer, PACKET_MAX_SIZE);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
+    }
+}
+
+void hytest(void) {
+    VecU8 new_vec = vec_u8_new();
+    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+    UartPacket new_packet = uart_packet_new(&new_vec);
+    rspdw(&new_packet);
+    radcw(&new_packet);
+    trRe_buffer_push(&transfer_buffer, &new_packet);
+
+    if (transfer_buffer.count != 0) {
+        UartPacket tr_packet = trRe_buffer_pop_firstHalf(&transfer_buffer);
+        VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
+        HAL_UART_Transmit_DMA(&huart3, tr_vec_u8.data, tr_vec_u8.length);
     }
 }

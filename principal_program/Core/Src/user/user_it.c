@@ -2,11 +2,12 @@
 #include "user/const_and_error.h"
 #include "user/vehicle.h"
 #include "user/PI_control.h"
+#include "user/user_uart.h"
 #include "stm32g4xx_hal_gpio.h"
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
-uint8_t tim2_tick   = 0;
+uint32_t tim2_tick   = 0;
 int toggle1 = 1;
 int toggle2 = 0;
 
@@ -42,12 +43,22 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
     PI_Controller(&motor_left);
 }
 
+int hytestc = 0;
+// 100us
 void user_TIM2_IRQHandler(void) {
     tim2_tick++;
-    if (tim2_tick >= 100) {
-        tim2_tick = 0;
+    if (tim2_tick % 100 == 0) {
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
+    }
+    // 1s
+    if (tim2_tick % 10000 == 0) {
+        hytestc++;
+        hytest();
+    }
+    // 60s
+    if (tim2_tick >= 600000) {
+        tim2_tick = 0;
     }
 }
 

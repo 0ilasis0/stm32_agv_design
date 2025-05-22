@@ -16,5 +16,6 @@ typedef struct {
 void uart_setup(void);
 void HYCodes_UART3_IRQHandler_Before(void);
 void uart_RxCNDTR_reset(UART_HandleTypeDef *huart);
+void hytest(void);
 
 #endif
