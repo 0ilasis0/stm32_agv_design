@@ -168,15 +168,10 @@
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hytestc</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
           <ItemText>data_send_tri</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>tim2_tick</ItemText>
         </Ww>

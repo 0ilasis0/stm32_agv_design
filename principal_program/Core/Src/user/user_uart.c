@@ -3,6 +3,7 @@
 #include "user/user_packet.h"
 #include "usart.h"
 #include "user/motor.h"
+#include "user/mcu_cmd.h"
 
 /**
   * UART 初始化標誌
@@ -123,16 +124,24 @@ void hysendtest(void) {
     HAL_UART_Transmit_DMA(&huart3, tr_vec_u8.data, tr_vec_u8.length);
 }
 
-#define CODE_DATA_TRRE 0x10
-#define RIGHT_SPEED_START ((uint8_t[]){0x01, 0x00, 0x02})
 void hyrecvtest2(VecU8 *vec_u8) {
+    VecU8 new_vec = {0};
+    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+    UartPacket new_packet = uart_packet_new(&new_vec);
     while (1) {
-        if (vec_u8_starts_with_s(vec_u8, RIGHT_SPEED_START)) {
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_STOP)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
+            data_send_tri.right_speed = false;
+        }
+        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
+            rspdw(&new_packet);
+        }
+        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
             data_send_tri.right_speed = true;
-            uint8_t size = sizeof(RIGHT_SPEED_START);
-            vec_u8->head += size;
-            vec_u8->length -= size;
-        } else {
+        }
+        else {
             break;
         }
     }
@@ -147,7 +156,7 @@ void hyrecvtest(void) {
         VecU8 re_vec_u8 = uart_packet_get_vec(&re_packet);
         re_vec_u8.head = 1;
         switch (re_vec_u8.data[0]) {
-            case CODE_DATA_TRRE:
+            case CMD_CODE_DATA_TRRE:
                 hyrecvtest2(&re_vec_u8);
                 break;
             default:
