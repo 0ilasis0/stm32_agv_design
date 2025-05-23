@@ -5,6 +5,7 @@
 #include "user/const_and_error.h"
 
 #define max_node 10                                 // 能走最大的路徑數
+#define no_data 999
 
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
@@ -22,7 +23,6 @@ typedef struct {
 
 typedef struct {
     int current_count;
-    AGV_STATUS status[max_node];
     int direction[max_node];
     int address_id[max_node];
 } MAP_DATA;

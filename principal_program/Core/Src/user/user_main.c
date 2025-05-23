@@ -1,6 +1,5 @@
 #include "user/user_main.h"
 #include "user/motor.h"
-#include "user/vehicle.h"
 #include "user/PI_control.h"
 #include "user/user_adc.h"
 #include "user/user_uart.h"
@@ -36,7 +35,7 @@ void user_main(void) {
 
             if (vehicle_current_data.status == agv_next) {
                 map_current_data.current_count++ ;
-                vehicle_current_data.status = map_current_data.status[map_current_data.current_count];
+                vehicle_current_data.status = decide_vehicle_status();
                 vehicle_current_data.address_id = map_current_data.address_id[map_current_data.current_count];
 
             } else {
@@ -50,7 +49,7 @@ void user_main(void) {
 /* 決定移動MODE ------------------------------------------------------*/
 void decide_move_mode(void) {
     // renew current data to next node
-    vehicle_current_data.status = map_current_data.status[map_current_data.current_count];
+    vehicle_current_data.status = decide_vehicle_status();
 
     switch(vehicle_current_data.status) {
         case agv_straight:
@@ -76,7 +75,21 @@ void decide_move_mode(void) {
     }
 }
 
+/*
+ * 決定agv當前狀態
+ */
+AGV_STATUS decide_vehicle_status(void) {
+    if (vehicle_current_data.direction == map_current_data.direction[map_current_data.current_count]) {
+        return agv_straight;
 
+    } else if (map_current_data.direction[map_current_data.current_count] == no_data){
+        return agv_end;
+
+    } else {
+        return agv_rotate;
+
+    }
+}
 
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
 void protect_over_hall(void) {
