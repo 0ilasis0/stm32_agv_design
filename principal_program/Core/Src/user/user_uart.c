@@ -12,6 +12,8 @@
   */
 bool uart_init = 0;
 
+TrReFlags tr_re_flags = {0};
+
 /**
   * 接收緩衝區，大小為 PACKET_MAX_SIZE
   * 
@@ -19,15 +21,13 @@ bool uart_init = 0;
   */
 uint8_t uart_receive_buffer[PACKET_MAX_SIZE];
 
-DataSendTrigger data_send_tri = {0};
-
 /**
   * 設置 UART，清零緩衝區並啟用 DMA 到空閒中斷接收
   * 
   * Configure UART by clearing buffer and enabling DMA reception on IDLE interrupt
   */
-float f32_test = 2;
-uint16_t u16_test = 2;
+float f32_test = 1;
+uint16_t u16_test = 1;
 void uart_setup(void) {
     memset(uart_receive_buffer, 0, sizeof(uart_receive_buffer));
     // Rx:PB11(R18) Tx:PB9(R5)
@@ -63,23 +63,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     }
 }
 
-void rspdw(UartPacket* packet) {
-    VecU8 new_vec = {0};
-    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
-    vec_u8_push(&new_vec, &(uint8_t){0x00}, 1);
-    vec_u8_push_float(&new_vec, motor_right.present_speed);
-    f32_test++;
-    uart_packet_add_data(packet, &new_vec);
-}
-void radcw(UartPacket* packet) {
-    VecU8 new_vec = {0};
-    vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
-    vec_u8_push(&new_vec, &(uint8_t){0x05}, 1);
-    vec_u8_push_u16(&new_vec, motor_right.adc_value);
-    u16_test++;
-    uart_packet_add_data(packet, &new_vec);
-}
-
 /**
   * UART 空閒接收事件回調函式，處理接收與傳輸環緩衝
   * 
@@ -102,78 +85,110 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     }
 }
 
-void hysendtest(void) {
-    VecU8 new_vec = {0};
-    bool tri = false;
-    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
-    UartPacket new_packet = uart_packet_new(&new_vec);
-    if (data_send_tri.right_speed) {
-        rspdw(&new_packet);
-        tri = true;
-    }
-    if (data_send_tri.right_adc) {
-        radcw(&new_packet);
-        tri = true;
-    }
-    if (tri) {
-        trRe_buffer_push(&transfer_buffer, &new_packet);
-    };
+void uart_packet_send(void) {
     if (transfer_buffer.length == 0) return;
     UartPacket tr_packet = trRe_buffer_pop_firstHalf(&transfer_buffer);
     VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
     HAL_UART_Transmit_DMA(&huart3, tr_vec_u8.data, tr_vec_u8.length);
 }
 
-UartPacket testpkt = {0};
-void hyrecvtest2(VecU8 *vec_u8) {
+void rspdw(VecU8* vec_u8) {
+    vec_u8_push(&vec_u8, &(uint8_t){0x01}, 1);
+    vec_u8_push(&vec_u8, &(uint8_t){0x00}, 1);
+    vec_u8_push_float(&vec_u8, motor_right.present_speed);
+    f32_test++;
+}
+void radcw(VecU8* vec_u8) {
+    vec_u8_push(&vec_u8, &(uint8_t){0x01}, 1);
+    vec_u8_push(&vec_u8, &(uint8_t){0x05}, 1);
+    vec_u8_push_u16(&vec_u8, motor_right.adc_value);
+    u16_test++;
+}
+
+void tr_packet_proccess(void) {
+    tr_re_flags.need_tr_proc = false;
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
     UartPacket new_packet = uart_packet_new(&new_vec);
-    while (1) {
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_STOP)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
-            data_send_tri.right_speed = false;
-        }
-        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
-            rspdw(&new_packet);
-        }
-        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
-            data_send_tri.right_speed = true;
-        } else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_STOP)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
-            data_send_tri.right_adc = false;
-        }
-        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_ONCE)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
-            radcw(&new_packet);
-        }
-        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_START)) {
-            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_START));
-            data_send_tri.right_adc = true;
-        }
-        else {
-            break;
-        }
+    bool new_vec_wri_flag = false;
+    if (tr_re_flags.right_speed) {
+        new_vec_wri_flag = true;
+        rspdw(&new_packet);
     }
-    trRe_buffer_push(&transfer_buffer, &new_packet);
+    if (tr_re_flags.right_adc) {
+        new_vec_wri_flag = true;
+        radcw(&new_packet);
+    }
+    if (new_vec_wri_flag) {
+        trRe_buffer_push(&transfer_buffer, &new_packet);
+    };
 }
 
-void hyrecvtest(void) {
-    uint16_t i;
-    for (i = 0; i < 10; i++){
+void re_pkt_proc_data_store(VecU8 *vec_u8);
+void re_packet_proccess(uint8_t count) {
+    tr_re_flags.need_re_proc = false;
+    uint8_t i;
+    for (i = 0; i < 5; i++){
         if (receive_buffer.length == 0) return;
         UartPacket re_packet = trRe_buffer_pop_firstHalf(&receive_buffer);
         trRe_buffer_pop_secondHalf(&receive_buffer);
         VecU8 re_vec_u8 = uart_packet_get_vec(&re_packet);
-        re_vec_u8.head = 1;
-        switch (re_vec_u8.data[0]) {
+        uint8_t code = re_vec_u8.data[0];
+        vec_u8_rm_front(&re_vec_u8, 1);
+        switch (code) {
             case CMD_CODE_DATA_TRRE:
-                hyrecvtest2(&re_vec_u8);
+                re_pkt_proc_data_store(&re_vec_u8);
                 break;
             default:
                 break;
         }
+    }
+}
+
+void re_pkt_proc_data_store(VecU8 *vec_u8) {
+    VecU8 new_vec = {0};
+    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+    bool data_proc_flag;
+    bool new_vec_wri_flag = false;
+    while (1) {
+        data_proc_flag = false;
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_STOP)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
+            data_proc_flag = true;
+            tr_re_flags.right_speed = false;
+        }
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
+            data_proc_flag = true;
+            new_vec_wri_flag = true;
+            rspdw(&new_vec);
+        }
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
+            data_proc_flag = true;
+            tr_re_flags.right_speed = true;
+        }
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_STOP)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
+            data_proc_flag = true;
+            tr_re_flags.right_adc = false;
+        }
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_ONCE)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
+            data_proc_flag = true;
+            new_vec_wri_flag = true;
+            radcw(&new_vec);
+        }
+        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_START)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
+            data_proc_flag = true;
+            tr_re_flags.right_adc = true;
+        }
+        if (!data_proc_flag) break;
+    }
+    if (new_vec_wri_flag) {
+        UartPacket new_packet = uart_packet_new(&new_vec);
+        uart_packet_add_data(&new_packet, &vec_u8);
+        trRe_buffer_push(&transfer_buffer, &new_packet);
     }
 }

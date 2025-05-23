@@ -7,9 +7,32 @@
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
-uint32_t tim2_tick   = 0;
+uint32_t user_sys_tick = 0;
 int toggle1 = 1;
 int toggle2 = 0;
+
+// trigger at 1ms
+void user_SysTick_Handler(void) {
+    user_sys_tick++;
+    // 10ms
+    if (user_sys_tick % 10 == 0) {
+        tr_re_flags.need_re_proc = true;
+        update_motor_step(&motor_right);
+        update_motor_step(&motor_left );
+    }
+    // 50ms
+    if (user_sys_tick % 50 == 0) {
+        uart_packet_send();
+    }
+    // 500ms
+    if (user_sys_tick % 500 == 0) {
+        tr_re_flags.need_tr_proc = true;
+    }
+    // 60s
+    if (user_sys_tick >= 60000) {
+        user_sys_tick = 0;
+    }
+}
 
 /**
   * 處理右側馬達霍爾感測 EXTI 中斷
@@ -43,31 +66,12 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
     PI_Controller(&motor_left);
 }
 
-// 0.1ms
-void user_TIM2_IRQHandler(void) {
-    tim2_tick++;
-    // 10ms
-    if (tim2_tick % 100 == 0) {
-        update_motor_step(&motor_right);
-        update_motor_step(&motor_left );
-        hyrecvtest();
-    }
-    // 50ms
-    if (tim2_tick % 500 == 0) {
-        hysendtest();
-    }
-    // 60s
-    if (tim2_tick >= 600000) {
-        tim2_tick = 0;
-    }
-}
-
 /**
   * PC13 按鈕中斷，用於測試 (上下緣觸發)，切換 hall_sensor3
   *
   * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor3
   */
-void EXTI15_10_IRQHandler_user_it(void) {
+void user_EXTI15_10_IRQHandler(void) {
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);

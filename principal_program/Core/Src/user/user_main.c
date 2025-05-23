@@ -26,6 +26,8 @@ void user_main(void) {
     map_current_data.current_count++ ;
 /*測試用--------------------------------------*/
     while (1) {
+        if (tr_re_flags.need_tr_proc) tr_packet_proccess();
+        if (tr_re_flags.need_re_proc) re_packet_proccess(10);
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();

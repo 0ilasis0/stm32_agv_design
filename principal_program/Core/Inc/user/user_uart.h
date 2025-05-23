@@ -9,13 +9,17 @@
 #define UART_TIME_OUT 100
 
 typedef struct {
+    bool need_tr_proc;
+    bool need_re_proc;
     bool right_speed;
     bool right_adc;
-} DataSendTrigger;
+} TrReFlags;
+extern TrReFlags tr_re_flags;
 
 void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
-void hysendtest(void);
-void hyrecvtest(void);
+void uart_packet_send(void);
+void tr_packet_proccess(void);
+void re_packet_proccess(uint8_t count);
 
 #endif

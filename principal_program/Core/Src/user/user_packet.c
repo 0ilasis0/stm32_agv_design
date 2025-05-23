@@ -103,8 +103,8 @@ TrReBuffer trRe_buffer_new(void) {
   * Push a packet into the ring buffer; return false if buffer is full
   */
 bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
-    if (tr_re_buffer->length >= TR_RE_BUFFER_CAP) return false;
-    uint8_t tail = (tr_re_buffer->head + tr_re_buffer->length) % TR_RE_BUFFER_CAP;
+    if (tr_re_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
+    uint8_t tail = (tr_re_buffer->head + tr_re_buffer->length) % TR_RE_PKT_BUFFER_CAP;
     tr_re_buffer->packet[tail] = *packet;
     tr_re_buffer->length++;
     return true;
@@ -120,6 +120,6 @@ UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer) {
 }
 void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer) {
     if (tr_re_buffer->length == 0) return;
-    tr_re_buffer->head = (tr_re_buffer->head + 1) % TR_RE_BUFFER_CAP;
+    tr_re_buffer->head = (tr_re_buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
     tr_re_buffer->length--;
 }

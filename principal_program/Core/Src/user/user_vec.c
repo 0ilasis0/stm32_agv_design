@@ -39,7 +39,7 @@ bool vec_u8_starts_with(const VecU8 *src, const uint8_t *com, uint16_t com_len) 
     return memcmp(src->data+src->head, com, com_len) == 0;
 }
 
-void vec_u8_rm_front_n(VecU8 *vec_u8, uint16_t size) {
+void vec_u8_rm_front(VecU8 *vec_u8, uint16_t size) {
     vec_u8->head += size;
     vec_u8->length -= size;
 }
