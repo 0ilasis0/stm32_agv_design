@@ -3,6 +3,7 @@
 #include "user/PI_control.h"
 #include "user/user_adc.h"
 #include "user/user_uart.h"
+#include "user/packet_proc_mod.h"
 #include "user/map.h"
 
 /*測試用--------------------------------------*/

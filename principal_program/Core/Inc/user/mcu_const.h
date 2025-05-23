@@ -1,5 +1,8 @@
-#ifndef MCU_CMD_H
-#define MCU_CMD_H
+/**
+ * ! Generate by code, do not edit !
+ */
+#ifndef MCU_CONST_H
+#define MCU_CONST_H
 
 #include <stdint.h>
 

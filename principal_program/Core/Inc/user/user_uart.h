@@ -19,7 +19,5 @@ extern TrReFlags tr_re_flags;
 void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
 void uart_packet_send(void);
-void tr_packet_proccess(void);
-void re_packet_proccess(uint8_t count);
 
 #endif

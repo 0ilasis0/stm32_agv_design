@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32G431RBTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32G4xx_DFP.1.6.0</PackID>
+          <PackID>Keil.STM32G4xx_DFP.2.0.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20007FFF) IROM(0x8000000-0x801FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -445,11 +445,6 @@
               <FilePath>..\Core\Src\user\motor.c</FilePath>
             </File>
             <File>
-              <FileName>user_packet.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\user_packet.c</FilePath>
-            </File>
-            <File>
               <FileName>PI_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\PI_control.c</FilePath>
@@ -488,6 +483,16 @@
               <FileName>map.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\map.c</FilePath>
+            </File>
+            <File>
+              <FileName>packet_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\packet_mod.c</FilePath>
+            </File>
+            <File>
+              <FileName>packet_proc_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\packet_proc_mod.c</FilePath>
             </File>
           </Files>
         </Group>
