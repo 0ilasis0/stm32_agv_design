@@ -22,13 +22,6 @@ uint32_t text_return_start_time = 0;
 AGV_STATUS agv_current_status = agv_straight;
 VEHICLE_DATA vehicle_current_data;
 
-//MAP_DATA map_data = {0};//
-MAP_DATA map_current_data = {     //到時候由最段路徑演算法輸入入徑
-    0,                                                         //current_count
-    {1, 7, 3, 3, no_data},                                        //direction
-    {0, 1, 2, 3, 4}                                               //address_id
-};
-
 VEHICLE_DATA vehicle_data_new(const MAP_DATA *map_data, int index) {
     VEHICLE_DATA data;
     data.direction = map_data->direction[index];

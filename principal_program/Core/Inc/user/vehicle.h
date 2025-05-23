@@ -2,10 +2,7 @@
 #define USER_VEHICLE_H
 
 #include "user/motor.h"
-#include "user/const_and_error.h"
-
-#define max_node 10                                 // 能走最大的路徑數
-#define no_data 999
+#include "user/map.h"
 
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
@@ -20,12 +17,6 @@ typedef struct {
     int direction;
     int address_id;
 } VEHICLE_DATA;
-
-typedef struct {
-    int current_count;
-    int direction[max_node];
-    int address_id[max_node];
-} MAP_DATA;
 
 extern const uint32_t track_hall_critical_value;
 extern const uint32_t node_hall_critical_value;

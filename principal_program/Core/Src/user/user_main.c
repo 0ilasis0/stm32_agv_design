@@ -3,6 +3,7 @@
 #include "user/PI_control.h"
 #include "user/user_adc.h"
 #include "user/user_uart.h"
+#include "user/map.h"
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
@@ -19,6 +20,7 @@ void user_main(void) {
     hall_detection_adc_setup();
     PI_tim_setup();
     vehicle_setup();
+    map_setup();
 
 /*測試用--------------------------------------*/
     map_current_data.current_count++ ;
