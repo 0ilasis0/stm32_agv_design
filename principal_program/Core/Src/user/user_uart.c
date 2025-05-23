@@ -140,6 +140,17 @@ void hyrecvtest2(VecU8 *vec_u8) {
         else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
             vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
             data_send_tri.right_speed = true;
+        } else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_STOP)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
+            data_send_tri.right_adc = false;
+        }
+        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_ONCE)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
+            radcw(&new_packet);
+        }
+        else if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_START)) {
+            vec_u8_rm_front_n(vec_u8, sizeof(CMD_RIGHT_ADC_START));
+            data_send_tri.right_adc = true;
         }
         else {
             break;
