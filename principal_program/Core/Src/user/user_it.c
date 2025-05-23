@@ -52,8 +52,8 @@ void user_TIM2_IRQHandler(void) {
         update_motor_step(&motor_left );
         hyrecvtest();
     }
-    // 1s
-    if (tim2_tick % 10000 == 0) {
+    // 50ms
+    if (tim2_tick % 500 == 0) {
         hysendtest();
     }
     // 60s

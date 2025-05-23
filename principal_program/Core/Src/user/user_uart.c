@@ -67,7 +67,7 @@ void rspdw(UartPacket* packet) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
     vec_u8_push(&new_vec, &(uint8_t){0x00}, 1);
-    vec_u8_push_float(&new_vec, f32_test);
+    vec_u8_push_float(&new_vec, motor_right.present_speed);
     f32_test++;
     uart_packet_add_data(packet, &new_vec);
 }
@@ -75,7 +75,7 @@ void radcw(UartPacket* packet) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x01}, 1);
     vec_u8_push(&new_vec, &(uint8_t){0x05}, 1);
-    vec_u8_push_u16(&new_vec, u16_test);
+    vec_u8_push_u16(&new_vec, motor_right.adc_value);
     u16_test++;
     uart_packet_add_data(packet, &new_vec);
 }
@@ -115,15 +115,16 @@ void hysendtest(void) {
         radcw(&new_packet);
         tri = true;
     }
-    if (!tri) return;
-    trRe_buffer_push(&transfer_buffer, &new_packet);
-
+    if (tri) {
+        trRe_buffer_push(&transfer_buffer, &new_packet);
+    };
     if (transfer_buffer.length == 0) return;
     UartPacket tr_packet = trRe_buffer_pop_firstHalf(&transfer_buffer);
     VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
     HAL_UART_Transmit_DMA(&huart3, tr_vec_u8.data, tr_vec_u8.length);
 }
 
+UartPacket testpkt = {0};
 void hyrecvtest2(VecU8 *vec_u8) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
@@ -156,6 +157,7 @@ void hyrecvtest2(VecU8 *vec_u8) {
             break;
         }
     }
+    trRe_buffer_push(&transfer_buffer, &new_packet);
 }
 
 void hyrecvtest(void) {
