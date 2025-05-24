@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void tr_packet_proccess(void);
-void re_packet_proccess(uint8_t count);
+void uart_tr_packet_proccess(void);
+void uart_re_packet_proccess(uint8_t count);
 
 #endif

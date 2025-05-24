@@ -1,4 +1,4 @@
-#include "user/user_vec.h"
+#include "user/vec_mod.h"
 #include <string.h>
 
 void vec_u8_push(VecU8 *vec_u8, const void *src, uint16_t src_len) {
@@ -23,7 +23,7 @@ void vec_u8_push_float(VecU8 *vec_u8, float value) {
     vec_u8_push(vec_u8, &u32, sizeof(u32));
 }
 
-uint16_t swap16(uint16_t value) {
+uint16_t swap16(const uint16_t value) {
     return ((value & 0x00FFU) << 8)
          | ((value & 0xFF00U) >> 8);
 }

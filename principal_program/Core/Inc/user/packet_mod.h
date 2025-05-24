@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "user/user_vec.h"
+#include "user/vec_mod.h"
 
 #define PACKET_START_CODE  ((uint8_t) '{')
 #define PACKET_END_CODE    ((uint8_t) '}')

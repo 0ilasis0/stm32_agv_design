@@ -20,7 +20,7 @@ void radcw(VecU8* vec_u8) {
     u16_test++;
 }
 
-void tr_packet_proccess(void) {
+void uart_tr_packet_proccess(void) {
     tr_re_flags.need_tr_proc = false;
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
@@ -39,8 +39,8 @@ void tr_packet_proccess(void) {
     };
 }
 
-void re_pkt_proc_data_store(VecU8 *vec_u8);
-void re_packet_proccess(uint8_t count) {
+void uart_re_pkt_proc_data_store(VecU8 *vec_u8);
+void uart_re_packet_proccess(uint8_t count) {
     tr_re_flags.need_re_proc = false;
     uint8_t i;
     for (i = 0; i < 5; i++){
@@ -52,7 +52,7 @@ void re_packet_proccess(uint8_t count) {
         vec_u8_rm_front(&re_vec_u8, 1);
         switch (code) {
             case CMD_CODE_DATA_TRRE:
-                re_pkt_proc_data_store(&re_vec_u8);
+                uart_re_pkt_proc_data_store(&re_vec_u8);
                 break;
             default:
                 break;
@@ -60,7 +60,7 @@ void re_packet_proccess(uint8_t count) {
     }
 }
 
-void re_pkt_proc_data_store(VecU8 *vec_u8) {
+void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
     bool data_proc_flag;

@@ -470,11 +470,6 @@
               <FilePath>..\Core\Src\user\user_uart.c</FilePath>
             </File>
             <File>
-              <FileName>user_vec.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\user_vec.c</FilePath>
-            </File>
-            <File>
               <FileName>vehicle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\vehicle.c</FilePath>
@@ -493,6 +488,11 @@
               <FileName>packet_proc_mod.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\packet_proc_mod.c</FilePath>
+            </File>
+            <File>
+              <FileName>vec_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\vec_mod.c</FilePath>
             </File>
           </Files>
         </Group>
