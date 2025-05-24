@@ -5,11 +5,12 @@
 #include "gpio.h"
 #include "stm32g431xx.h"
 
-typedef enum {
+typedef uint8_t ROTATE_STATUS;
+enum {
     clockwise,
     counter_clockwise,
     either
-} ROTATE_STATUS;
+};
 
 typedef struct{
     uint8_t speed_sepoint;

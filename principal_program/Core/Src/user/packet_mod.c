@@ -91,10 +91,10 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
   * Create a transmit/receive ring buffer, initialize head and count
   */
 TrReBuffer trRe_buffer_new(void) {
-    TrReBuffer tr_re_buffer;
-    tr_re_buffer.head = 0;
-    tr_re_buffer.length = 0;
-    return tr_re_buffer;
+    TrReBuffer transceive_buffer;
+    transceive_buffer.head = 0;
+    transceive_buffer.length = 0;
+    return transceive_buffer;
 }
 
 /**
@@ -102,11 +102,11 @@ TrReBuffer trRe_buffer_new(void) {
   * 
   * Push a packet into the ring buffer; return false if buffer is full
   */
-bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
-    if (tr_re_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
-    uint8_t tail = (tr_re_buffer->head + tr_re_buffer->length) % TR_RE_PKT_BUFFER_CAP;
-    tr_re_buffer->packet[tail] = *packet;
-    tr_re_buffer->length++;
+bool trRe_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet) {
+    if (transceive_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
+    uint8_t tail = (transceive_buffer->head + transceive_buffer->length) % TR_RE_PKT_BUFFER_CAP;
+    transceive_buffer->packet[tail] = *packet;
+    transceive_buffer->length++;
     return true;
 }
 
@@ -115,11 +115,11 @@ bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet) {
   * 
   * Pop a packet from the ring buffer
   */
-UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer) {
-    return tr_re_buffer->packet[tr_re_buffer->head];
+UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer) {
+    return transceive_buffer->packet[transceive_buffer->head];
 }
-void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer) {
-    if (tr_re_buffer->length == 0) return;
-    tr_re_buffer->head = (tr_re_buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
-    tr_re_buffer->length--;
+void trRe_buffer_pop_secondHalf(TrReBuffer *transceive_buffer) {
+    if (transceive_buffer->length == 0) return;
+    transceive_buffer->head = (transceive_buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
+    transceive_buffer->length--;
 }

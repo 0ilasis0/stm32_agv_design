@@ -9,6 +9,9 @@ void vec_u8_push(VecU8 *vec_u8, const void *src, uint16_t src_len) {
     vec_u8->length += src_len;
     return;
 }
+void vec_u8_push_u8(VecU8 *vec_u8, uint8_t value) {
+    vec_u8_push(vec_u8, &value, 1);
+}
 
 uint32_t swap32(uint32_t value) {
     return ((value & 0x000000FFU) << 24)

@@ -16,6 +16,7 @@ typedef struct {
     vec_u8_starts_with((src), (com), sizeof(com))
 
 void vec_u8_push(VecU8 *vec_u8, const void *src, uint16_t src_len);
+void vec_u8_push_u8(VecU8 *vec_u8, uint8_t value);
 void vec_u8_push_float(VecU8 *vec_u8, float value);
 void vec_u8_push_u16(VecU8 *vec_u8, uint16_t value);
 bool vec_u8_starts_with(const VecU8 *src, const uint8_t *com, uint16_t com_len);

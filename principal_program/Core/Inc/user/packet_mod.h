@@ -33,8 +33,8 @@ typedef struct {
 extern TrReBuffer transfer_buffer;
 extern TrReBuffer receive_buffer;
 TrReBuffer trRe_buffer_new(void);
-bool trRe_buffer_push(TrReBuffer *tr_re_buffer, const UartPacket *packet);
-UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *tr_re_buffer);
-void trRe_buffer_pop_secondHalf(TrReBuffer *tr_re_buffer);
+bool trRe_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet);
+UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer);
+void trRe_buffer_pop_secondHalf(TrReBuffer *transceive_buffer);
 
 #endif

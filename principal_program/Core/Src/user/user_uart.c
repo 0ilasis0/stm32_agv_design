@@ -10,7 +10,7 @@
   */
 bool uart_init = 0;
 
-TrReFlags tr_re_flags = {0};
+TrReFlags transceive_flags = {0};
 
 /**
   * 接收緩衝區，大小為 PACKET_MAX_SIZE

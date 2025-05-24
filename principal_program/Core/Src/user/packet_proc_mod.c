@@ -11,25 +11,27 @@ void rspdw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x00}, 1);
     vec_u8_push_float(vec_u8, motor_right.present_speed);
-    f32_test++;
+    // vec_u8_push_float(vec_u8, f32_test);
+    // f32_test++;
 }
 void radcw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x05}, 1);
     vec_u8_push_u16(vec_u8, motor_right.adc_value);
-    u16_test++;
+    // vec_u8_push_u16(vec_u8, u16_test);
+    // u16_test++;
 }
 
 void uart_tr_packet_proccess(void) {
-    tr_re_flags.need_tr_proc = false;
+    transceive_flags.need_tr_proc = false;
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
     bool new_vec_wri_flag = false;
-    if (tr_re_flags.right_speed) {
+    if (transceive_flags.right_speed) {
         new_vec_wri_flag = true;
         rspdw(&new_vec);
     }
-    if (tr_re_flags.right_adc) {
+    if (transceive_flags.right_adc) {
         new_vec_wri_flag = true;
         radcw(&new_vec);
     }
@@ -41,7 +43,7 @@ void uart_tr_packet_proccess(void) {
 
 void uart_re_pkt_proc_data_store(VecU8 *vec_u8);
 void uart_re_packet_proccess(uint8_t count) {
-    tr_re_flags.need_re_proc = false;
+    transceive_flags.need_re_proc = false;
     uint8_t i;
     for (i = 0; i < 5; i++){
         if (receive_buffer.length == 0) return;
@@ -70,7 +72,7 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_STOP)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
             data_proc_flag = true;
-            tr_re_flags.right_speed = false;
+            transceive_flags.right_speed = false;
         }
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
@@ -81,12 +83,12 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
             data_proc_flag = true;
-            tr_re_flags.right_speed = true;
+            transceive_flags.right_speed = true;
         }
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_STOP)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
             data_proc_flag = true;
-            tr_re_flags.right_adc = false;
+            transceive_flags.right_adc = false;
         }
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_ONCE)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
@@ -97,7 +99,7 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_START)) {
             vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
             data_proc_flag = true;
-            tr_re_flags.right_adc = true;
+            transceive_flags.right_adc = true;
         }
         if (!data_proc_flag) break;
     }
@@ -106,4 +108,15 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         uart_packet_add_data(&new_packet, vec_u8);
         trRe_buffer_push(&transfer_buffer, &new_packet);
     }
+}
+
+void traf_buf_set(VecU8* vec_u8) {
+    vec_u8_push_u16(vec_u8, motor_left.adc_value);
+    vec_u8_push_u8(vec_u8, motor_left.speed_sepoint);
+    vec_u8_push_float(vec_u8, motor_left.present_speed);
+    vec_u8_push_u8(vec_u8, motor_left.rotate_direction);
+    vec_u8_push_u16(vec_u8, motor_right.adc_value);
+    vec_u8_push_u8(vec_u8, motor_right.speed_sepoint);
+    vec_u8_push_float(vec_u8, motor_right.present_speed);
+    vec_u8_push_u8(vec_u8, motor_right.rotate_direction);
 }

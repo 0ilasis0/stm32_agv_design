@@ -3,6 +3,7 @@
 #include "user/vehicle.h"
 #include "user/PI_control.h"
 #include "user/user_uart.h"
+#include "user/packet_proc_mod.h"
 #include "stm32g4xx_hal_gpio.h"
 
 uint32_t temp_time1 = 0;
@@ -16,17 +17,21 @@ void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        tr_re_flags.need_re_proc = true;
+        transceive_flags.need_re_proc = true;
+        uart_re_packet_proccess(10);
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
     }
     // 50ms
     if (user_sys_tick % 50 == 0) {
+        uart_tr_packet_proccess();
         uart_packet_send();
     }
     // 500ms
     if (user_sys_tick % 500 == 0) {
-        tr_re_flags.need_tr_proc = true;
+        transceive_flags.need_tr_proc = true;
+    }
+    if (user_sys_tick % 1000 == 0) {
     }
     // 60s
     if (user_sys_tick >= 60000) {

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "usart.h"
+#include "user/motor.h"
 
 #define UART3_BAUDRATE 115200
 #define UART_TIME_OUT 100
@@ -14,7 +15,7 @@ typedef struct {
     bool right_speed;
     bool right_adc;
 } TrReFlags;
-extern TrReFlags tr_re_flags;
+extern TrReFlags transceive_flags;
 
 void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
