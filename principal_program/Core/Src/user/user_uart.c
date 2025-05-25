@@ -3,11 +3,6 @@
 #include "usart.h"
 #include "user/packet_mod.h"
 
-/**
-  * UART 初始化標誌
-  * 
-  * UART initialization flag
-  */
 bool uart_init = 0;
 
 TrReFlags transceive_flags = {0};
