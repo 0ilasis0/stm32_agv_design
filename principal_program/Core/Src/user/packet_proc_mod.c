@@ -10,7 +10,7 @@ uint16_t u16_test = 1;
 void rspdw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x00}, 1);
-    vec_u8_push_float(vec_u8, motor_right.present_speed);
+    vec_u8_push_float(vec_u8, motor_right.speed_present);
     // vec_u8_push_float(vec_u8, f32_test);
     // f32_test++;
 }
@@ -113,10 +113,10 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
 void traf_buf_set(VecU8* vec_u8) {
     vec_u8_push_u16(vec_u8, motor_left.adc_value);
     vec_u8_push_u8(vec_u8, motor_left.speed_sepoint);
-    vec_u8_push_float(vec_u8, motor_left.present_speed);
+    vec_u8_push_float(vec_u8, motor_left.speed_present);
     vec_u8_push_u8(vec_u8, motor_left.rotate_direction);
     vec_u8_push_u16(vec_u8, motor_right.adc_value);
     vec_u8_push_u8(vec_u8, motor_right.speed_sepoint);
-    vec_u8_push_float(vec_u8, motor_right.present_speed);
+    vec_u8_push_float(vec_u8, motor_right.speed_present);
     vec_u8_push_u8(vec_u8, motor_right.rotate_direction);
 }

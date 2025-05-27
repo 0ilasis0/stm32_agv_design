@@ -8,20 +8,22 @@
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
-uint32_t text = 0;
+uint32_t text;
+const float oyo = 0.5;
+int pipi = 5;
 /*測試用--------------------------------------*/
 
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
     uart_setup();
     motor_setup();
-
+    text = 0;
     test_no_load_speed();
 
     hall_detection_adc_setup();
     PI_tim_setup();
     vehicle_setup();
-    map_setup();
+    // map_setup();
 
 /*測試用--------------------------------------*/
     map_current_data.current_count++ ;

@@ -156,7 +156,7 @@ void ensure_motor_stop(void) {
     motor_left.speed_sepoint  = 0;
 
     uint32_t error_start = HAL_GetTick();
-    while(motor_right.present_speed != 0 || motor_left.present_speed != 0) {
+    while(motor_right.speed_present != 0 || motor_left.speed_present != 0) {
         speed_calculate(&motor_right);
         speed_calculate(&motor_left );
         timeout_error(error_start, &error_timeout.ensure_motor_stop);
@@ -168,8 +168,6 @@ void ensure_motor_stop(void) {
   */
  uint32_t text_previous_time_fall_back_dif;
 void test_no_load_speed(void) {
-    PI_enable = 0;
-
     bool next = 0;
 
     uint32_t previous_time_it = HAL_GetTick()
@@ -185,7 +183,7 @@ void test_no_load_speed(void) {
     uint16_t time = dt * 1000;
 
     // 僅使用右邊測試空載轉速
-    while (fabs(motor_right.present_speed - max_speed) > 1 || HAL_GetTick() - previous_time_fall_back_dif <= time) {
+    while (fabs(motor_right.speed_present - max_speed) > 2 || HAL_GetTick() - previous_time_fall_back_dif <= time) {
         timeout_error(previous_time_fall_back_dif, &error_timeout.test_no_load_speed);
 
         if(HAL_GetTick() - previous_time_it > time && next == 0) {
@@ -196,8 +194,8 @@ void test_no_load_speed(void) {
             next = 1;
 
         } else if(HAL_GetTick() - previous_time_it > time && next == 1) {
-            if(max_speed < motor_right.present_speed) {
-                max_speed = motor_right.present_speed;
+            if(max_speed < motor_right.speed_present) {
+                max_speed = motor_right.speed_present;
             }
             speed_calculate(&motor_right);
             speed_calculate(&motor_left);
@@ -219,8 +217,6 @@ void test_no_load_speed(void) {
 
     over_hall_fall_back_time_based(previous_time_fall_back_dif);
     ensure_motor_stop();
-
-    PI_enable = 1;
 }
 
 /**

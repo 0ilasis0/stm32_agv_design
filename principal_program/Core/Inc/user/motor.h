@@ -15,11 +15,11 @@ enum {
 typedef struct{
     uint8_t speed_sepoint;
     ROTATE_STATUS rotate_direction;
-    double integral_record;
+    float integral_record;
     uint16_t step_count;
     uint16_t adc_value;
     uint8_t duty_value;
-    float present_speed;
+    float speed_present;
     uint8_t currentStep;
 
     GPIO_TypeDef* Hall_GPIOx[3];
@@ -40,12 +40,12 @@ MOTOR_PARAMETER motor_new(
     uint8_t speed_sepoint,
     ROTATE_STATUS rotate_direction,
 
-    double integral_record,
+    float integral_record,
     uint16_t step_count,
     uint16_t adc_value,
     // range 1~100
     uint8_t duty_value,
-    float present_speed,
+    float speed_present,
     uint8_t currentStep,
 
     GPIO_TypeDef* Hall_GPIOx[3],

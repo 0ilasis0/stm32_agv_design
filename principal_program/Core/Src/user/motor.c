@@ -25,12 +25,12 @@ MOTOR_PARAMETER motor_new(
     uint8_t speed_sepoint,
     ROTATE_STATUS rotate_direction,
 
-    double integral_record,
+    float integral_record,
     uint16_t step_count,
     uint16_t adc_value,
     // range 1~100
     uint8_t duty_value,
-    float present_speed,
+    float speed_present,
     uint8_t currentStep,
 
     GPIO_TypeDef* Hall_GPIOx[3],
@@ -50,7 +50,7 @@ MOTOR_PARAMETER motor_new(
     motor.step_count = step_count;
     motor.adc_value = adc_value;
     motor.duty_value = duty_value;
-    motor.present_speed = present_speed;
+    motor.speed_present = speed_present;
     motor.currentStep = currentStep;
 
     for (int i = 0; i < 3; i++) {
@@ -81,7 +81,7 @@ void motor_setup(void) {
         0,                  // rpm_count  計數motor speed
         0,                  // adc_value
         15,                 // duty_value ; Current PWM value (adjustable)
-        0,                  // present_speed
+        0,                  // speed_present
         7,                  // currentStep
 
         // Hall sensor pins
@@ -102,7 +102,7 @@ void motor_setup(void) {
         0,                  // rpm_count  計數motor speed
         0,                  // adc_value
         15,                 // duty_value ; Current PWM value (adjustable)
-        0,                  // present_speed
+        0,                  // speed_present
         7,                  // currentStep
 
         // Hall sensor pins
@@ -209,6 +209,6 @@ void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
 void speed_calculate(MOTOR_PARAMETER *motor) {
     float real_speed = motor->step_count / 6;
     real_speed /= dt;
-    motor->present_speed = real_speed;
+    motor->speed_present = real_speed;
     motor->step_count = 0;
 }
