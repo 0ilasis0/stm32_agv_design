@@ -190,15 +190,18 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
     commutate_motor(motor);
 }
 
-void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
+bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
     // 限制PWM最大值&&最小值
     if (value > 100) {
         motor->duty_value = 100;
-    } else if(value < 0) {
-        motor->duty_value = 0;
-    } else {
-        motor->duty_value = value;
+        return false;
     }
+    if (value < 0) {
+        motor->duty_value = 0;
+        return false;
+    }
+    motor->duty_value = value;
+    return true;
 }
 
 /**
@@ -208,7 +211,7 @@ void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
   */
 void speed_calculate(MOTOR_PARAMETER *motor) {
     float real_speed = motor->step_count / 6;
-    real_speed /= dt;
+    real_speed /= 0.1f;
     motor->speed_present = real_speed;
     motor->step_count = 0;
 }

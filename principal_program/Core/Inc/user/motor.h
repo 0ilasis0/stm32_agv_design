@@ -2,6 +2,7 @@
 #define USER_MOTOR_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "gpio.h"
 #include "stm32g431xx.h"
 
@@ -61,7 +62,7 @@ void motor_setup(void);
 void motor_tim_setup(const MOTOR_PARAMETER *motor);
 void update_motor_step(MOTOR_PARAMETER *motor);
 void commutate_motor(const MOTOR_PARAMETER *motor);
-void set_motor_duty(MOTOR_PARAMETER *motor, int16_t value);
+bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value);
 void speed_calculate(MOTOR_PARAMETER *motor);
 
 #endif

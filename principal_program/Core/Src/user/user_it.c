@@ -22,13 +22,16 @@ void user_SysTick_Handler(void) {
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
     }
-    // 50ms
     if (user_sys_tick % 50 == 0) {
         uart_tr_packet_proccess();
         uart_packet_send();
     }
-    // 500ms
+    if (user_sys_tick % 100 == 0) {
+        speed_calculate(&motor_right);
+        speed_calculate(&motor_left);
+    }
     if (user_sys_tick % 500 == 0) {
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
         transceive_flags.need_tr_proc = true;
     }
     if (user_sys_tick % 1000 == 0) {
@@ -65,8 +68,6 @@ void user_EXTI9_5_IRQHandler(void) {
   * TIM1 update or TIM16 interrupt handler to invoke speed calculation
   */
 void user_TIM1_UP_TIM16_IRQHandler(void) {
-    speed_calculate(&motor_right);
-    speed_calculate(&motor_left);
     PI_Controller(&motor_right);
     PI_Controller(&motor_left);
 }
@@ -79,7 +80,6 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
 void user_EXTI15_10_IRQHandler(void) {
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
         if (toggle1 == 1) {
             hall_sensor3 = 0;

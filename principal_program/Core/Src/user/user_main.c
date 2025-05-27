@@ -8,30 +8,31 @@
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
-uint32_t text;
-const float oyo = 0.5;
-int pipi = 5;
+uint32_t text = 0;
 /*測試用--------------------------------------*/
 
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
     uart_setup();
     motor_setup();
-    text = 0;
-    test_no_load_speed();
+
+    test_no_load_speed(1000);
 
     hall_detection_adc_setup();
     PI_tim_setup();
     vehicle_setup();
-    // map_setup();
+    map_setup();
 
 /*測試用--------------------------------------*/
+    // motor_speed_setpoint_set(&motor_right, setpoint_straight);
     map_current_data.current_count++ ;
 /*測試用--------------------------------------*/
+
     while (1) {
         if (transceive_flags.need_tr_proc) uart_tr_packet_proccess();
         if (transceive_flags.need_re_proc) uart_re_packet_proccess(10);
-        // track_mode();
+
+        track_mode();
         // rotate_in_place();
         // over_hall_fall_back();
     /*    if (hall_sensor3 > node_hall_critical_value) {

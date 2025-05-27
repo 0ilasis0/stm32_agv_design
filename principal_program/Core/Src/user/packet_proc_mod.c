@@ -14,6 +14,7 @@ void rspdw(VecU8* vec_u8) {
     // vec_u8_push_float(vec_u8, f32_test);
     // f32_test++;
 }
+
 void radcw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x05}, 1);

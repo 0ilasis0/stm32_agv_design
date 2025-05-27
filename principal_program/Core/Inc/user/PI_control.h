@@ -3,9 +3,9 @@
 
 #include "user/motor.h"
 
-#define Kp 0.5f                                                // 比例增益
-#define Ki 1.5f                                                // 積分增益
-#define PI_feedbacck 0.2f                                      // PI feedbacck 增益值
+#define Kp 2.0f                                                // 比例增益
+#define Ki 0.5f                                                // 積分增益
+#define PI_feedbacck 0.4f                                      // PI feedbacck 增益值
 
 #define setpoint_straight  30                                  // 循跡速度目標
 #define setpoint_rotate    20                                  // 原地旋轉速度目標
