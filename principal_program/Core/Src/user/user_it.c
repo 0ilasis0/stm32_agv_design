@@ -29,7 +29,6 @@ void user_SysTick_Handler(void) {
         speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
         // transceive_flags.need_tr_proc = true;
         uart_tr_packet_proccess();
         uart_packet_send();

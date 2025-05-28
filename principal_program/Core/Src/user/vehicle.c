@@ -206,14 +206,16 @@ void ensure_motor_stop(void) {
     }
 }
 
+uint32_t text_time = 0;
 /**
   * @brief 測試空載情況下的馬達最大速度
   * 僅使用右邊測試空載轉速
   */
  uint32_t text_previous_time_fall_back_dif;
 void test_no_load_speed(uint16_t mile_sec) {
+    PI_enable = 0;
     // 確定正轉
-    motor_motion_control(motion_forward);
+    motor_motion_control(motion_backward);
 
     uint32_t previous_time = HAL_GetTick()
             ,previous_time_dif = previous_time;
@@ -227,6 +229,7 @@ void test_no_load_speed(uint16_t mile_sec) {
         if(max_speed < motor_right.speed_present) {
                 max_speed = motor_right.speed_present;
                 previous_time = HAL_GetTick();
+                text_time = previous_time;
         }
 
         timeout_error(previous_time_dif, &error_timeout.test_no_load_speed);
@@ -236,11 +239,11 @@ void test_no_load_speed(uint16_t mile_sec) {
     set_motor_duty(&motor_right, 0);
     previous_time_dif = HAL_GetTick() - previous_time_dif;
 
-    motor_motion_control(motion_backward);
+    motor_motion_control(motion_forward);
     ensure_motor_stop();
-    previous_time = HAL_GetTick();
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
+    previous_time = HAL_GetTick();
     while(HAL_GetTick() - previous_time <= previous_time_dif) {
         timeout_error(previous_time, &error_timeout.over_hall_fall_back_time_based);
     }
@@ -248,4 +251,5 @@ void test_no_load_speed(uint16_t mile_sec) {
     set_motor_duty(&motor_right, 0);
     ensure_motor_stop();
     motor_motion_control(motion_forward);
+    PI_enable = 1;
 }

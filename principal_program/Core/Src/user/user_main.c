@@ -31,9 +31,8 @@ void user_main(void) {
     while (1) {
         if (transceive_flags.need_tr_proc) uart_tr_packet_proccess();
         if (transceive_flags.need_re_proc) uart_re_packet_proccess(10);
-
-        track_mode();
-        // rotate_in_place();
+        // track_mode();
+        rotate_in_place();
         // over_hall_fall_back();
     /*    if (hall_sensor3 > node_hall_critical_value) {
             decide_move_mode();

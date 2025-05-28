@@ -210,7 +210,7 @@ bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
   * Calculate actual speed from Hall counts and delta time
   */
 void speed_calculate(MOTOR_PARAMETER *motor) {
-    float real_speed = motor->step_count / 6;
+    float real_speed = (float)motor->step_count / 6;
     real_speed /= 0.1f;
     motor->speed_present = real_speed;
     motor->step_count = 0;

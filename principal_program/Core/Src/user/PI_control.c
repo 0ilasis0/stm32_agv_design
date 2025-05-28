@@ -1,10 +1,11 @@
 #include "user/PI_control.h"
 #include <math.h>
 #include "user/const_and_error.h"
+#include "user/user_it.h"
 #include "tim.h"
 
-uint16_t max_speed = 0;
-const float dt = (float)170 * 1000 * 1000 / tim1_prescalar / tim1_ARR;
+float max_speed = 0.0;
+const float dt = 0.5;
 
 /* +setup -----------------------------------------------------------*/
 void PI_tim_setup(void){
