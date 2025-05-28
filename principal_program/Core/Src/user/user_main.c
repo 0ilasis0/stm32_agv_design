@@ -20,8 +20,8 @@ void user_main(void) {
 
     hall_detection_adc_setup();
     PI_tim_setup();
-    vehicle_setup();
-    map_setup();
+    // vehicle_setup();
+    // map_setup();
 
 /*測試用--------------------------------------*/
     // motor_speed_setpoint_set(&motor_right, setpoint_straight);
@@ -32,7 +32,8 @@ void user_main(void) {
         if (transceive_flags.need_tr_proc) uart_tr_packet_proccess();
         if (transceive_flags.need_re_proc) uart_re_packet_proccess(10);
         // track_mode();
-        rotate_in_place();
+        text=1;
+        // rotate_in_place();
         // over_hall_fall_back();
     /*    if (hall_sensor3 > node_hall_critical_value) {
             decide_move_mode();

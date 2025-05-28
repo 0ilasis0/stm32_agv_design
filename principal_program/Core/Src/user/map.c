@@ -25,8 +25,8 @@ MAP_DATA map_current_data = {
 
 void map_setup(void) {
 
-    int text_from = get_index_by_id(15);
-    int text_to = get_index_by_id(78);
+    int text_from = get_index_by_id(78);
+    int text_to = get_index_by_id(14);
 
     map_init();
     floyd_warshall();
