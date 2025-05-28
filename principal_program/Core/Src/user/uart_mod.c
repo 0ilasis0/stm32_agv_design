@@ -107,6 +107,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
  * @return void
  */
 void uart_transmit(void) {
+    if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) {
+        return;
+    }
     UartPacket packet;
     if (!transceive_buffer_pop_firstHalf(&transfer_buffer, &packet)) {
         return;
