@@ -90,7 +90,7 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
   * 
   * Create a transmit/receive ring buffer, initialize head and count
   */
-TrReBuffer trRe_buffer_new(void) {
+TrReBuffer trce_buffer_new(void) {
     TrReBuffer transceive_buffer;
     transceive_buffer.head = 0;
     transceive_buffer.length = 0;
@@ -102,7 +102,7 @@ TrReBuffer trRe_buffer_new(void) {
   * 
   * Push a packet into the ring buffer; return false if buffer is full
   */
-bool trRe_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet) {
+bool trce_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet) {
     if (transceive_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
     uint8_t tail = (transceive_buffer->head + transceive_buffer->length) % TR_RE_PKT_BUFFER_CAP;
     transceive_buffer->packet[tail] = *packet;
@@ -115,10 +115,11 @@ bool trRe_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet) {
   * 
   * Pop a packet from the ring buffer
   */
-UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer) {
+UartPacket trce_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer) {
     return transceive_buffer->packet[transceive_buffer->head];
 }
-void trRe_buffer_pop_secondHalf(TrReBuffer *transceive_buffer) {
+
+void trce_buffer_pop_secondHalf(TrReBuffer *transceive_buffer) {
     if (transceive_buffer->length == 0) return;
     transceive_buffer->head = (transceive_buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
     transceive_buffer->length--;

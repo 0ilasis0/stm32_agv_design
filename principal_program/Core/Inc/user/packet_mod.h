@@ -11,7 +11,7 @@
 #define PACKET_MAX_SIZE VECU8_MAX_CAPACITY
 #define PACKET_DATA_MAX_SIZE (VECU8_MAX_CAPACITY - 2)
 
-#define TR_RE_PKT_BUFFER_CAP 10
+#define TR_RE_PKT_BUFFER_CAP 5
 
 typedef struct {
     uint8_t     start;
@@ -32,9 +32,9 @@ typedef struct {
 } TrReBuffer;
 extern TrReBuffer transfer_buffer;
 extern TrReBuffer receive_buffer;
-TrReBuffer trRe_buffer_new(void);
-bool trRe_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet);
-UartPacket trRe_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer);
-void trRe_buffer_pop_secondHalf(TrReBuffer *transceive_buffer);
+TrReBuffer trce_buffer_new(void);
+bool trce_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet);
+UartPacket trce_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer);
+void trce_buffer_pop_secondHalf(TrReBuffer *transceive_buffer);
 
 #endif

@@ -38,29 +38,36 @@ void uart_tr_packet_proccess(void) {
     }
     if (new_vec_wri_flag) {
         UartPacket new_packet = uart_packet_new(&new_vec);
-        trRe_buffer_push(&transfer_buffer, &new_packet);
+        trce_buffer_push(&transfer_buffer, &new_packet);
     };
 }
 
+
+uint8_t hytest[6] = {0};
 void uart_re_pkt_proc_data_store(VecU8 *vec_u8);
 void uart_re_packet_proccess(uint8_t count) {
     transceive_flags.need_re_proc = false;
     uint8_t i;
     for (i = 0; i < 5; i++){
-        if (receive_buffer.length == 0) return;
-        UartPacket re_packet = trRe_buffer_pop_firstHalf(&receive_buffer);
-        trRe_buffer_pop_secondHalf(&receive_buffer);
+        if (receive_buffer.length == 0) break;
+        UartPacket re_packet = trce_buffer_pop_firstHalf(&receive_buffer);
+        trce_buffer_pop_secondHalf(&receive_buffer);
+        hytest[0] = receive_buffer.head;
+        hytest[1] = receive_buffer.length;
         VecU8 re_vec_u8 = uart_packet_get_vec(&re_packet);
         uint8_t code = re_vec_u8.data[0];
         vec_u8_rm_front(&re_vec_u8, 1);
+        hytest[2] = receive_buffer.head;
+        hytest[3] = receive_buffer.length;
         switch (code) {
             case CMD_CODE_DATA_TRRE:
                 uart_re_pkt_proc_data_store(&re_vec_u8);
-                break;
             default:
                 break;
         }
     }
+    hytest[4] = receive_buffer.head;
+    hytest[5] = receive_buffer.length;
 }
 
 void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
@@ -107,7 +114,7 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     if (new_vec_wri_flag) {
         UartPacket new_packet = uart_packet_new(&new_vec);
         uart_packet_add_data(&new_packet, vec_u8);
-        trRe_buffer_push(&transfer_buffer, &new_packet);
+        trce_buffer_push(&transfer_buffer, &new_packet);
     }
 }
 

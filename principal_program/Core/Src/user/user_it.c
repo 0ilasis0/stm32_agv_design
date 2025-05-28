@@ -17,14 +17,12 @@ void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        transceive_flags.need_re_proc = true;
-        uart_re_packet_proccess(10);
+        // transceive_flags.need_re_proc = true;
+        uart_re_packet_proccess(5);
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
     }
     if (user_sys_tick % 50 == 0) {
-        uart_tr_packet_proccess();
-        uart_packet_send();
     }
     if (user_sys_tick % 100 == 0) {
         speed_calculate(&motor_right);
@@ -32,7 +30,9 @@ void user_SysTick_Handler(void) {
     }
     if (user_sys_tick % 500 == 0) {
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-        transceive_flags.need_tr_proc = true;
+        // transceive_flags.need_tr_proc = true;
+        uart_tr_packet_proccess();
+        uart_packet_send();
     }
     if (user_sys_tick % 1000 == 0) {
     }
