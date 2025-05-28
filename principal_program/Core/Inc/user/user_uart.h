@@ -10,15 +10,16 @@
 #define UART_TIME_OUT 100
 
 typedef struct {
-    bool need_tr_proc;
-    bool need_re_proc;
+    bool uart_transmit;
+    bool uart_transmit_pkt_proc;
+    bool uart_receive_pkt_proc;
     bool right_speed;
     bool right_adc;
-} TrReFlags;
-extern TrReFlags transceive_flags;
+} TrceFlags;
+extern TrceFlags transceive_flags;
 
 void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
-void uart_packet_send(void);
+void uart_packet_send(bool *flag);
 
 #endif

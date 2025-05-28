@@ -1,14 +1,6 @@
 #include "user/packet_mod.h"
 
 /**
-  * 傳輸和接收循環緩衝區
-  * 
-  * Transmission and reception ring buffers
-  */
-TrReBuffer transfer_buffer = {0};
-TrReBuffer receive_buffer = {0};
-
-/**
   * 生成一個新的UART封包，包含起始碼與結束碼
   * 
   * Create a new UART packet with start and end codes
@@ -83,44 +75,4 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
     vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
     vec_u8_push(&vec_u8, &packet->end, 1);
     return vec_u8;
-}
-
-/**
-  * 建立傳輸/接收環形緩衝區，初始化頭指標與計數
-  * 
-  * Create a transmit/receive ring buffer, initialize head and count
-  */
-TrReBuffer trce_buffer_new(void) {
-    TrReBuffer transceive_buffer;
-    transceive_buffer.head = 0;
-    transceive_buffer.length = 0;
-    return transceive_buffer;
-}
-
-/**
-  * 將封包推入環形緩衝區，若已滿則返回false
-  * 
-  * Push a packet into the ring buffer; return false if buffer is full
-  */
-bool trce_buffer_push(TrReBuffer *transceive_buffer, const UartPacket *packet) {
-    if (transceive_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
-    uint8_t tail = (transceive_buffer->head + transceive_buffer->length) % TR_RE_PKT_BUFFER_CAP;
-    transceive_buffer->packet[tail] = *packet;
-    transceive_buffer->length++;
-    return true;
-}
-
-/**
-  * 從環形緩衝區彈出一個封包
-  * 
-  * Pop a packet from the ring buffer
-  */
-UartPacket trce_buffer_pop_firstHalf(const TrReBuffer *transceive_buffer) {
-    return transceive_buffer->packet[transceive_buffer->head];
-}
-
-void trce_buffer_pop_secondHalf(TrReBuffer *transceive_buffer) {
-    if (transceive_buffer->length == 0) return;
-    transceive_buffer->head = (transceive_buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
-    transceive_buffer->length--;
 }

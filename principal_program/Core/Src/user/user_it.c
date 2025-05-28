@@ -17,21 +17,22 @@ void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        // transceive_flags.need_re_proc = true;
-        uart_re_packet_proccess(5);
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
     }
     if (user_sys_tick % 50 == 0) {
+        transceive_flags.uart_receive_pkt_proc = true;
+        transceive_flags.uart_transmit = true;
+        // uart_receive_pkt_proc(5);
+        // uart_packet_send();
     }
     if (user_sys_tick % 100 == 0) {
         speed_calculate(&motor_right);
         speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
-        // transceive_flags.need_tr_proc = true;
-        uart_tr_packet_proccess();
-        uart_packet_send();
+        transceive_flags.uart_transmit_pkt_proc = true;
+        // uart_transmit_pkt_proc();
     }
     if (user_sys_tick % 1000 == 0) {
     }
