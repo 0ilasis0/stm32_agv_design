@@ -15,11 +15,11 @@ typedef struct {
     bool uart_receive_pkt_proc;
     bool right_speed;
     bool right_adc;
-} TrceFlags;
-extern TrceFlags transceive_flags;
+} TransceiveFlags;
+extern TransceiveFlags transceive_flags;
 
 void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
-void uart_packet_send(bool *flag);
+void uart_transmit(void);
 
 #endif

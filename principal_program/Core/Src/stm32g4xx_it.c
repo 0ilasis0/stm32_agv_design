@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "user/user_it.h"
-#include "user/user_uart.h"
+#include "user/uart_mod.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

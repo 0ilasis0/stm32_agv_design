@@ -1,69 +1,18 @@
-#include "user/packet_proc_mod.h"
-#include "user/user_uart.h"
+#include "user/uart_packet_proc_mod.h"
+#include "user/uart_mod.h"
 #include "user/motor.h"
 #include "user/mcu_const.h"
 
-/**
-  * 傳輸和接收循環緩衝區
-  * 
-  * Transmission and reception ring buffers
-  */
-TransceiveBuffer transfer_buffer = {0};
-TransceiveBuffer receive_buffer = {0};
-
-/**
-  * 建立傳輸/接收環形緩衝區，初始化頭指標與計數
-  * 
-  * Create a transmit/receive ring buffer, initialize head and count
-  */
-TransceiveBuffer transceive_buffer_new(void) {
-    TransceiveBuffer transceive_buffer;
-    transceive_buffer.head = 0;
-    transceive_buffer.length = 0;
-    return transceive_buffer;
-}
-
-/**
-  * 將封包推入環形緩衝區，若已滿則返回false
-  * 
-  * Push a packet into the ring buffer; return false if buffer is full
-  */
-bool transceive_buffer_push(TransceiveBuffer *transceive_buffer, const UartPacket *packet) {
-    if (transceive_buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
-    uint8_t tail = (transceive_buffer->head + transceive_buffer->length) % TR_RE_PKT_BUFFER_CAP;
-    transceive_buffer->packet[tail] = *packet;
-    transceive_buffer->length++;
-    return true;
-}
-
-/**
-  * 從環形緩衝區彈出一個封包資料
-  * 
-  * Pop a packet from the ring buffer
-  */
-bool transceive_buffer_pop(TransceiveBuffer *buffer, UartPacket *packet) {
-    transceive_buffer_pop_firstHalf(buffer, packet);
-    return transceive_buffer_pop_secondHalf(buffer);
-}
-
-bool transceive_buffer_pop_firstHalf(const TransceiveBuffer *buffer, UartPacket *packet) {
-    if (buffer->length == 0) return 0;
-    *packet = buffer->packet[buffer->head];
-    return 1;
-}
-
-bool transceive_buffer_pop_secondHalf(TransceiveBuffer *buffer) {
-    if (buffer->length == 0) return 0;
-    if (--buffer->length == 0) {
-        buffer->head = 0;
-    } else {
-        buffer->head = (buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
-    }
-    return 1;
-}
-
 float f32_test = 1;
 uint16_t u16_test = 1;
+
+/**
+ * @brief 將右側馬達當前速度回應至資料向量
+ *        Push current right motor speed response into byte vector
+ *
+ * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive response data)
+ * @return void
+ */
 void rspdw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x00}, 1);
@@ -71,6 +20,14 @@ void rspdw(VecU8* vec_u8) {
     // vec_u8_push_float(vec_u8, f32_test);
     // f32_test++;
 }
+
+/**
+ * @brief 將右側馬達 ADC 值回應至資料向量
+ *        Push right motor ADC value response into byte vector
+ *
+ * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive ADC data)
+ * @return void
+ */
 void radcw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
     vec_u8_push(vec_u8, &(uint8_t){0x05}, 1);
@@ -79,9 +36,15 @@ void radcw(VecU8* vec_u8) {
     // u16_test++;
 }
 
-void uart_transmit_pkt_proc(bool *flag) {
-    if (flag == NULL || !*flag) return;
-    *flag = false;
+/**
+ * @brief 組合並傳輸封包至傳輸緩衝區
+ *        Assemble and transmit packet into transfer buffer
+ *
+ * @note 根據 transceive_flags 決定回應內容
+ *
+ * @return void
+ */
+void uart_transmit_pkt_proc(void) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
     bool new_vec_wri_flag = false;
@@ -101,16 +64,21 @@ void uart_transmit_pkt_proc(bool *flag) {
 
 void uart_re_pkt_proc_data_store(VecU8 *vec_u8);
 
-void uart_receive_pkt_proc(bool *flag, uint8_t count) {
-    if (flag == NULL || !*flag) return;
-    *flag = false;
+/**
+ * @brief 從接收緩衝區反覆讀取封包並處理
+ *        Pop packets from receive buffer and process them
+ *
+ * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
+ * @return void
+ */
+void uart_receive_pkt_proc(uint8_t count) {
     uint8_t i;
     for (i = 0; i < 5; i++){
         UartPacket packet;
         if (!transceive_buffer_pop(&receive_buffer, &packet)) {
             break;
         }
-        VecU8 re_vec_u8 = uart_packet_get_vec(&packet);
+        VecU8 re_vec_u8 = uart_packet_get_data(&packet);
         uint8_t code = re_vec_u8.data[0];
         vec_u8_rm_front(&re_vec_u8, 1);
         switch (code) {
@@ -123,6 +91,13 @@ void uart_receive_pkt_proc(bool *flag, uint8_t count) {
     }
 }
 
+/**
+ * @brief 處理接收命令並存儲/回應資料
+ *        Process received commands and store or respond data
+ *
+ * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
+ * @return void
+ */
 void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     VecU8 new_vec = {0};
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
@@ -171,6 +146,13 @@ void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     }
 }
 
+/**
+ * @brief 填充狀態至資料向量
+ *        Populate status into byte vector
+ *
+ * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive motor data)
+ * @return void
+ */
 void transmit_buf_set(VecU8* vec_u8) {
     vec_u8_push_u16(vec_u8, motor_left.adc_value);
     vec_u8_push_u8(vec_u8, motor_left.speed_sepoint);

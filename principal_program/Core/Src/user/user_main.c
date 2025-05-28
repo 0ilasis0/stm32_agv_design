@@ -2,8 +2,8 @@
 #include "user/motor.h"
 #include "user/PI_control.h"
 #include "user/user_adc.h"
-#include "user/user_uart.h"
-#include "user/packet_proc_mod.h"
+#include "user/uart_mod.h"
+#include "user/uart_packet_proc_mod.h"
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
@@ -29,9 +29,18 @@ void user_main(void) {
 /*測試用--------------------------------------*/
 
     while (1) {
-        uart_packet_send(&transceive_flags.uart_transmit);
-        uart_transmit_pkt_proc(&transceive_flags.uart_transmit_pkt_proc);
-        uart_receive_pkt_proc(&transceive_flags.uart_receive_pkt_proc, 5);
+        if (transceive_flags.uart_transmit) {
+            transceive_flags.uart_transmit = false;
+            uart_transmit();
+        }
+        if (transceive_flags.uart_transmit_pkt_proc) {
+            transceive_flags.uart_transmit_pkt_proc = false;
+            uart_transmit_pkt_proc();
+        }
+        if (transceive_flags.uart_receive_pkt_proc) {
+            transceive_flags.uart_receive_pkt_proc = false;
+            uart_receive_pkt_proc(5);
+        }
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();
@@ -51,6 +60,7 @@ void user_main(void) {
 
             }
         }*/
+        // HAL_Delay(1);
     }
 }
 
