@@ -14,8 +14,9 @@ typedef enum {
 typedef struct {
     ROTATE_STATUS rotate_direction;
     AGV_STATUS status;
-    int direction;
-    int address_id;
+    int8_t direction;
+    uint16_t address_id;
+    uint8_t cross_magnatic_amount;
 } VEHICLE_DATA;
 
 typedef enum {

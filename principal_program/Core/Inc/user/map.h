@@ -16,9 +16,9 @@ typedef struct {
 } LOCATION;
 
 typedef struct {
-    int current_count;
-    int direction[max_node];
-    int address_id[max_node];
+    uint8_t current_count;
+    int8_t direction[max_node];
+    uint16_t address_id[max_node];
 } MAP_DATA;
 
 extern MAP_DATA map_current_data;

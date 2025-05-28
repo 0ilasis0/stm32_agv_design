@@ -253,3 +253,24 @@ void test_no_load_speed(uint16_t mile_sec) {
     motor_motion_control(motion_forward);
     PI_enable = 1;
 }
+
+/*
+void cross_magnetic_calculate(void) {
+    uint8_t current_count = 0;
+
+    while (map_current_data.direction[current_count] != no_data && current_count < max_node) {
+        int index = get_index_by_id(map_current_data.address_id[current_count]);
+        if (index == -1) break;
+
+        uint8_t count = 0;
+        for (int i = 0; i < 8; i++) {
+            if (locations_t[index].connect[i].distance > 0) {
+                count++;
+            }
+        }
+
+        map_current_data.cross_magnetic_count[current_count] = count;
+        current_count++;
+    }
+}
+*/
