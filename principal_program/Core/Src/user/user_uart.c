@@ -1,11 +1,11 @@
 #include "user/user_uart.h"
 #include <string.h>
 #include "usart.h"
-#include "user/packet_mod.h"
+#include "user/packet_proc_mod.h"
 
 bool uart_init = 0;
 
-TrReFlags transceive_flags = {0};
+TrceFlags transceive_flags = {0};
 
 /**
   * 接收緩衝區，大小為 PACKET_MAX_SIZE
@@ -50,7 +50,7 @@ void USER_UART3_IRQHandler_Before(void) {
   */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
-        trce_buffer_pop_secondHalf(&transfer_buffer);
+        transceive_buffer_pop_secondHalf(&transfer_buffer);
     }
 }
 
@@ -69,16 +69,21 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         vec_u8_push(&re_vec_u8, uart_receive_buffer, Size);
         memset(uart_receive_buffer, 0, PACKET_MAX_SIZE);
         UartPacket re_packet = uart_packet_pack(&re_vec_u8);
-        trce_buffer_push(&receive_buffer, &re_packet);
+        transceive_buffer_push(&receive_buffer, &re_packet);
 
         HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_receive_buffer, PACKET_MAX_SIZE);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     }
 }
 
-void uart_packet_send(void) {
-    if (transfer_buffer.length == 0) return;
-    UartPacket tr_packet = trce_buffer_pop_firstHalf(&transfer_buffer);
-    VecU8 tr_vec_u8 = uart_packet_unpack(&tr_packet);
+void uart_packet_send(bool *flag) {
+    if (flag == NULL || !*flag) return;
+    *flag = false;
+
+    UartPacket packet;
+    if (!transceive_buffer_pop_firstHalf(&transfer_buffer, &packet)) {
+        return;
+    }
+    VecU8 tr_vec_u8 = uart_packet_unpack(&packet);
     HAL_UART_Transmit_DMA(&huart3, tr_vec_u8.data, tr_vec_u8.length);
 }
