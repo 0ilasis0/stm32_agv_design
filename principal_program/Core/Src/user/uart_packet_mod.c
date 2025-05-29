@@ -102,6 +102,12 @@ UartTrcvBuf uart_trcv_buffer_new(void) {
     return transceive_buffer;
 }
 
+bool uart_trcv_buffer_get_front(UartTrcvBuf *buffer, UartPacket *packet) {
+    if (buffer->length == 0) return 0;
+    if (packet != NULL) *packet = buffer->packet[buffer->head];
+    return 1;
+}
+
 /**
  * @brief 將封包推入環形緩衝區，若已滿則返回 false
  *        Push a packet into the ring buffer; return false if buffer is full
@@ -127,33 +133,8 @@ bool uart_trcv_buffer_push(UartTrcvBuf *buffer, const UartPacket *packet) {
  * @return bool 是否彈出成功 (true if pop successful, false if buffer empty)
  */
 bool uart_trcv_buffer_pop(UartTrcvBuf *buffer, UartPacket *packet) {
-    uart_trcv_buffer_pop_firstHalf(buffer, packet);
-    return uart_trcv_buffer_pop_secondHalf(buffer);
-}
-
-/**
- * @brief 環形緩衝區彈出第一階段：讀取隊首封包但不移動頭指標
- *        Ring buffer pop first half: read head packet without moving head index
- *
- * @param buffer 指向環形緩衝區的指標 (input ring buffer)
- * @param packet 輸出參數，接收讀取的封包 (output packet)
- * @return bool 是否讀取成功 (true if read successful, false if buffer empty)
- */
-bool uart_trcv_buffer_pop_firstHalf(const UartTrcvBuf *buffer, UartPacket *packet) {
     if (buffer->length == 0) return 0;
-    *packet = buffer->packet[buffer->head];
-    return 1;
-}
-
-/**
- * @brief 環形緩衝區彈出第二階段：移動頭指標並更新長度
- *        Ring buffer pop second half: advance head index and decrement length
- *
- * @param buffer 指向環形緩衝區的指標 (input/output ring buffer)
- * @return bool 是否更新成功 (true if update successful, false if buffer empty)
- */
-bool uart_trcv_buffer_pop_secondHalf(UartTrcvBuf *buffer) {
-    if (buffer->length == 0) return 0;
+    if (packet != NULL) *packet = buffer->packet[buffer->head];
     if (--buffer->length == 0) {
         buffer->head = 0;
     } else {

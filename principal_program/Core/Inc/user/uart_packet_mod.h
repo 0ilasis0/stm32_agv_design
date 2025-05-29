@@ -1,6 +1,7 @@
 #ifndef USER_PACKET_H
 #define USER_PACKET_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "user/vec_mod.h"
@@ -33,8 +34,7 @@ extern UartTrcvBuf uart_transmit_buffer;
 extern UartTrcvBuf uart_receive_buffer;
 UartTrcvBuf uart_trcv_buffer_new(void);
 bool uart_trcv_buffer_push(UartTrcvBuf *transceive_buffer, const UartPacket *packet);
+bool uart_trcv_buffer_get_front(UartTrcvBuf *buffer, UartPacket *packet);
 bool uart_trcv_buffer_pop(UartTrcvBuf *buffer, UartPacket *packet);
-bool uart_trcv_buffer_pop_firstHalf(const UartTrcvBuf *buffer, UartPacket *packet);
-bool uart_trcv_buffer_pop_secondHalf(UartTrcvBuf *transceive_buffer);
 
 #endif
