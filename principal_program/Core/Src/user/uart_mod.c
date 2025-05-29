@@ -9,7 +9,7 @@
  *
  * @details 用於跳過第一次 DMA IDLE 中斷 (Used to skip the first DMA IDLE interrupt)
  */
-bool uart_init = 0;
+static bool uart_init = 0;
 
 /**
  * @brief 傳輸/接收操作旗標
@@ -26,7 +26,7 @@ TransceiveFlags transceive_flags = {0};
  * @details 大小為 PACKET_MAX_SIZE，用於儲存 DMA 接收的原始資料
  *          Size is PACKET_MAX_SIZE; used to store raw data received by DMA
  */
-uint8_t uart_receive_buffer[PACKET_MAX_SIZE];
+static uint8_t uart_dma_recv_buffer[PACKET_MAX_SIZE] = {0};
 
 /**
  * @brief 設置 UART，清零接收緩衝並啟用 DMA 接收於 IDLE 中斷
@@ -35,10 +35,9 @@ uint8_t uart_receive_buffer[PACKET_MAX_SIZE];
  * @return void
  */
 void uart_setup(void) {
-    memset(uart_receive_buffer, 0, sizeof(uart_receive_buffer));
     // Rx:PB11(R18) Tx:PB9(R5)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_receive_buffer, PACKET_MAX_SIZE);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_recv_buffer, PACKET_MAX_SIZE);
 }
 
 /**
@@ -68,7 +67,7 @@ void USER_UART3_IRQHandler_Before(void) {
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
-        transceive_buffer_pop_secondHalf(&transfer_buffer);
+        uart_trcv_buffer_pop_secondHalf(&uart_transmit_buffer);
     }
 }
 
@@ -86,16 +85,17 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
             uart_init = true;
             return;
         }
-        VecU8 re_vec_u8 = {0};
-        vec_u8_push(&re_vec_u8, uart_receive_buffer, Size);
-        memset(uart_receive_buffer, 0, PACKET_MAX_SIZE);
+        
+        VecU8 re_vec_u8 = vec_u8_new();
+        vec_u8_push(&re_vec_u8, uart_dma_recv_buffer, Size);
+        memset(uart_dma_recv_buffer, 0, PACKET_MAX_SIZE);
         UartPacket re_packet;
         if (!uart_packet_pack(&re_vec_u8, &re_packet)) {
             return;
         }
-        transceive_buffer_push(&receive_buffer, &re_packet);
+        uart_trcv_buffer_push(&uart_receive_buffer, &re_packet);
 
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_receive_buffer, PACKET_MAX_SIZE);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_recv_buffer, PACKET_MAX_SIZE);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     }
 }
@@ -111,7 +111,7 @@ void uart_transmit(void) {
         return;
     }
     UartPacket packet;
-    if (!transceive_buffer_pop_firstHalf(&transfer_buffer, &packet)) {
+    if (!uart_trcv_buffer_pop_firstHalf(&uart_transmit_buffer, &packet)) {
         return;
     }
     VecU8 tr_vec_u8 = uart_packet_unpack(&packet);

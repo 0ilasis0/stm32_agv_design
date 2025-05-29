@@ -14,8 +14,7 @@ uint16_t u16_test = 1;
  * @return void
  */
 void rspdw(VecU8* vec_u8) {
-    vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
-    vec_u8_push(vec_u8, &(uint8_t){0x00}, 1);
+    vec_u8_push_const(vec_u8, CMD_RIGHT_SPEED_STORE);
     vec_u8_push_float(vec_u8, motor_right.speed_present);
     // vec_u8_push_float(vec_u8, f32_test);
     // f32_test++;
@@ -29,8 +28,7 @@ void rspdw(VecU8* vec_u8) {
  * @return void
  */
 void radcw(VecU8* vec_u8) {
-    vec_u8_push(vec_u8, &(uint8_t){0x01}, 1);
-    vec_u8_push(vec_u8, &(uint8_t){0x05}, 1);
+    vec_u8_push_const(vec_u8, CMD_RIGHT_ADC_STORE);
     vec_u8_push_u16(vec_u8, motor_right.adc_value);
     // vec_u8_push_u16(vec_u8, u16_test);
     // u16_test++;
@@ -45,7 +43,7 @@ void radcw(VecU8* vec_u8) {
  * @return void
  */
 void uart_transmit_pkt_proc(void) {
-    VecU8 new_vec = {0};
+    VecU8 new_vec = vec_u8_new();
     vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
     bool new_vec_wri_flag = false;
     if (transceive_flags.right_speed) {
@@ -58,11 +56,64 @@ void uart_transmit_pkt_proc(void) {
     }
     if (new_vec_wri_flag) {
         UartPacket new_packet = uart_packet_new(&new_vec);
-        transceive_buffer_push(&transfer_buffer, &new_packet);
+        uart_trcv_buffer_push(&uart_transmit_buffer, &new_packet);
     };
 }
 
-void uart_re_pkt_proc_data_store(VecU8 *vec_u8);
+/**
+ * @brief 處理接收命令並存儲/回應資料
+ *        Process received commands and store or respond data
+ *
+ * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
+ * @return void
+ */
+static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
+    VecU8 new_vec = vec_u8_new();
+    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
+    bool data_proc_flag;
+    bool new_vec_wri_flag = false;
+    while (1) {
+        data_proc_flag = false;
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_SPEED_STOP)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
+            data_proc_flag = true;
+            transceive_flags.right_speed = false;
+        }
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
+            data_proc_flag = true;
+            new_vec_wri_flag = true;
+            rspdw(&new_vec);
+        }
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_SPEED_START)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
+            data_proc_flag = true;
+            transceive_flags.right_speed = true;
+        }
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_ADC_STOP)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
+            data_proc_flag = true;
+            transceive_flags.right_adc = false;
+        }
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_ADC_ONCE)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
+            data_proc_flag = true;
+            new_vec_wri_flag = true;
+            radcw(&new_vec);
+        }
+        if (vec_u8_starts_with_const(vec_u8, CMD_RIGHT_ADC_START)) {
+            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
+            data_proc_flag = true;
+            transceive_flags.right_adc = true;
+        }
+        if (!data_proc_flag) break;
+    }
+    if (new_vec_wri_flag) {
+        UartPacket new_packet = uart_packet_new(&new_vec);
+        uart_packet_add_data(&new_packet, vec_u8);
+        uart_trcv_buffer_push(&uart_transmit_buffer, &new_packet);
+    }
+}
 
 /**
  * @brief 從接收緩衝區反覆讀取封包並處理
@@ -75,7 +126,7 @@ void uart_receive_pkt_proc(uint8_t count) {
     uint8_t i;
     for (i = 0; i < 5; i++){
         UartPacket packet;
-        if (!transceive_buffer_pop(&receive_buffer, &packet)) {
+        if (!uart_trcv_buffer_pop(&uart_receive_buffer, &packet)) {
             break;
         }
         VecU8 re_vec_u8 = uart_packet_get_data(&packet);
@@ -88,61 +139,6 @@ void uart_receive_pkt_proc(uint8_t count) {
             default:
                 break;
         }
-    }
-}
-
-/**
- * @brief 處理接收命令並存儲/回應資料
- *        Process received commands and store or respond data
- *
- * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
- * @return void
- */
-void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
-    VecU8 new_vec = {0};
-    vec_u8_push(&new_vec, &(uint8_t){0x10}, 1);
-    bool data_proc_flag;
-    bool new_vec_wri_flag = false;
-    while (1) {
-        data_proc_flag = false;
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_STOP)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
-            data_proc_flag = true;
-            transceive_flags.right_speed = false;
-        }
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_ONCE)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
-            data_proc_flag = true;
-            new_vec_wri_flag = true;
-            rspdw(&new_vec);
-        }
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_SPEED_START)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
-            data_proc_flag = true;
-            transceive_flags.right_speed = true;
-        }
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_STOP)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
-            data_proc_flag = true;
-            transceive_flags.right_adc = false;
-        }
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_ONCE)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
-            data_proc_flag = true;
-            new_vec_wri_flag = true;
-            radcw(&new_vec);
-        }
-        if (vec_u8_starts_with_s(vec_u8, CMD_RIGHT_ADC_START)) {
-            vec_u8_rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
-            data_proc_flag = true;
-            transceive_flags.right_adc = true;
-        }
-        if (!data_proc_flag) break;
-    }
-    if (new_vec_wri_flag) {
-        UartPacket new_packet = uart_packet_new(&new_vec);
-        uart_packet_add_data(&new_packet, vec_u8);
-        transceive_buffer_push(&transfer_buffer, &new_packet);
     }
 }
 

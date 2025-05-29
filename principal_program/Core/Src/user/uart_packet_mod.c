@@ -10,7 +10,7 @@
 UartPacket uart_packet_new(const VecU8 *data) {
     UartPacket packet;
     packet.start = PACKET_START_CODE;
-    packet.data_vec_u8 = (VecU8){0};
+    packet.data_vec_u8 = vec_u8_new();
     vec_u8_push(&packet.data_vec_u8, data->data, data->length);
     packet.end = PACKET_END_CODE;
     return packet;
@@ -25,7 +25,7 @@ UartPacket uart_packet_new(const VecU8 *data) {
  * @return bool 是否封包成功 (true if pack successful, false otherwise)
  */
 VecU8 uart_packet_get_data(const UartPacket *packet) {
-    VecU8 vec_u8 = {0};
+    VecU8 vec_u8 = vec_u8_new();
     vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
     return vec_u8;
 }
@@ -56,7 +56,7 @@ bool uart_packet_pack(const VecU8 *vec_u8, UartPacket *packet) {
     ) {
         return 0;
     }
-    VecU8 data_vec = {0};
+    VecU8 data_vec = vec_u8_new();
     vec_u8_push(&data_vec, vec_u8->data + 1, vec_u8->length - 2);
     *packet = uart_packet_new(&data_vec);
     return 1;
@@ -70,7 +70,7 @@ bool uart_packet_pack(const VecU8 *vec_u8, UartPacket *packet) {
  * @return VecU8 包含完整封包的資料向量 (vector containing full packet bytes)
  */
 VecU8 uart_packet_unpack(const UartPacket *packet) {
-    VecU8 vec_u8 = {0};
+    VecU8 vec_u8 = vec_u8_new();
     vec_u8_push(&vec_u8, &packet->start, 1);
     vec_u8_push(&vec_u8, packet->data_vec_u8.data, packet->data_vec_u8.length);
     vec_u8_push(&vec_u8, &packet->end, 1);
@@ -81,22 +81,22 @@ VecU8 uart_packet_unpack(const UartPacket *packet) {
  * @brief 全域傳輸緩衝區
  *        Global transmit ring buffer
  */
-TransceiveBuffer transfer_buffer = {0};
+UartTrcvBuf uart_transmit_buffer = {0};
 
 /**
  * @brief 全域接收緩衝區
  *        Global receive ring buffer
  */
-TransceiveBuffer receive_buffer = {0};
+UartTrcvBuf uart_receive_buffer = {0};
 
 /**
  * @brief 建立傳輸/接收環形緩衝區，初始化頭指標與計數
  *        Create a transmit/receive ring buffer, initialize head index and length
  *
- * @return TransceiveBuffer 初始化後的環形緩衝區 (initialized ring buffer)
+ * @return UartTrcvBuf 初始化後的環形緩衝區 (initialized ring buffer)
  */
-TransceiveBuffer transceive_buffer_new(void) {
-    TransceiveBuffer transceive_buffer;
+UartTrcvBuf uart_trcv_buffer_new(void) {
+    UartTrcvBuf transceive_buffer;
     transceive_buffer.head = 0;
     transceive_buffer.length = 0;
     return transceive_buffer;
@@ -110,9 +110,9 @@ TransceiveBuffer transceive_buffer_new(void) {
  * @param packet 要推入緩衝區的 UART 封包 (input UART packet)
  * @return bool 是否推入成功 (true if push successful, false if buffer full)
  */
-bool transceive_buffer_push(TransceiveBuffer *buffer, const UartPacket *packet) {
-    if (buffer->length >= TR_RE_PKT_BUFFER_CAP) return false;
-    uint8_t tail = (buffer->head + buffer->length) % TR_RE_PKT_BUFFER_CAP;
+bool uart_trcv_buffer_push(UartTrcvBuf *buffer, const UartPacket *packet) {
+    if (buffer->length >= UART_TRCV_BUF_CAP) return false;
+    uint8_t tail = (buffer->head + buffer->length) % UART_TRCV_BUF_CAP;
     buffer->packet[tail] = *packet;
     buffer->length++;
     return true;
@@ -126,9 +126,9 @@ bool transceive_buffer_push(TransceiveBuffer *buffer, const UartPacket *packet) 
  * @param packet 輸出參數，接收彈出的 UART 封包 (output popped UART packet)
  * @return bool 是否彈出成功 (true if pop successful, false if buffer empty)
  */
-bool transceive_buffer_pop(TransceiveBuffer *buffer, UartPacket *packet) {
-    transceive_buffer_pop_firstHalf(buffer, packet);
-    return transceive_buffer_pop_secondHalf(buffer);
+bool uart_trcv_buffer_pop(UartTrcvBuf *buffer, UartPacket *packet) {
+    uart_trcv_buffer_pop_firstHalf(buffer, packet);
+    return uart_trcv_buffer_pop_secondHalf(buffer);
 }
 
 /**
@@ -139,7 +139,7 @@ bool transceive_buffer_pop(TransceiveBuffer *buffer, UartPacket *packet) {
  * @param packet 輸出參數，接收讀取的封包 (output packet)
  * @return bool 是否讀取成功 (true if read successful, false if buffer empty)
  */
-bool transceive_buffer_pop_firstHalf(const TransceiveBuffer *buffer, UartPacket *packet) {
+bool uart_trcv_buffer_pop_firstHalf(const UartTrcvBuf *buffer, UartPacket *packet) {
     if (buffer->length == 0) return 0;
     *packet = buffer->packet[buffer->head];
     return 1;
@@ -152,12 +152,12 @@ bool transceive_buffer_pop_firstHalf(const TransceiveBuffer *buffer, UartPacket 
  * @param buffer 指向環形緩衝區的指標 (input/output ring buffer)
  * @return bool 是否更新成功 (true if update successful, false if buffer empty)
  */
-bool transceive_buffer_pop_secondHalf(TransceiveBuffer *buffer) {
+bool uart_trcv_buffer_pop_secondHalf(UartTrcvBuf *buffer) {
     if (buffer->length == 0) return 0;
     if (--buffer->length == 0) {
         buffer->head = 0;
     } else {
-        buffer->head = (buffer->head + 1) % TR_RE_PKT_BUFFER_CAP;
+        buffer->head = (buffer->head + 1) % UART_TRCV_BUF_CAP;
     }
     return 1;
 }

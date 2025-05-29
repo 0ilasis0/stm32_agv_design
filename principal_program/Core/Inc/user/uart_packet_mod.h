@@ -18,23 +18,23 @@ typedef struct {
 } UartPacket;
 UartPacket uart_packet_new(const VecU8 *data);
 VecU8 uart_packet_get_data(const UartPacket *packet);
-bool uart_packet_pack(const VecU8 *vec_u8, UartPacket *packet);
 void uart_packet_add_data(UartPacket *packet, const VecU8 *vec_u8);
+bool uart_packet_pack(const VecU8 *vec_u8, UartPacket *packet);
 VecU8 uart_packet_unpack(const UartPacket *packet);
 
-#define TR_RE_PKT_BUFFER_CAP 5
+#define UART_TRCV_BUF_CAP 5
 
 typedef struct {
-    UartPacket  packet[TR_RE_PKT_BUFFER_CAP];
+    UartPacket  packet[UART_TRCV_BUF_CAP];
     uint8_t     head;
     uint8_t     length;
-} TransceiveBuffer;
-extern TransceiveBuffer transfer_buffer;
-extern TransceiveBuffer receive_buffer;
-TransceiveBuffer transceive_buffer_new(void);
-bool transceive_buffer_push(TransceiveBuffer *transceive_buffer, const UartPacket *packet);
-bool transceive_buffer_pop(TransceiveBuffer *buffer, UartPacket *packet);
-bool transceive_buffer_pop_firstHalf(const TransceiveBuffer *buffer, UartPacket *packet);
-bool transceive_buffer_pop_secondHalf(TransceiveBuffer *transceive_buffer);
+} UartTrcvBuf;
+extern UartTrcvBuf uart_transmit_buffer;
+extern UartTrcvBuf uart_receive_buffer;
+UartTrcvBuf uart_trcv_buffer_new(void);
+bool uart_trcv_buffer_push(UartTrcvBuf *transceive_buffer, const UartPacket *packet);
+bool uart_trcv_buffer_pop(UartTrcvBuf *buffer, UartPacket *packet);
+bool uart_trcv_buffer_pop_firstHalf(const UartTrcvBuf *buffer, UartPacket *packet);
+bool uart_trcv_buffer_pop_secondHalf(UartTrcvBuf *transceive_buffer);
 
 #endif
