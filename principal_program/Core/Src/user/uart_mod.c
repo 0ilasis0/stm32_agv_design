@@ -67,7 +67,7 @@ void USER_UART3_IRQHandler_Before(void) {
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
-        uart_trcv_buffer_pop(&uart_transmit_buffer, NULL);
+        uart_trsm_buf.pop(&uart_trsm_buf, NULL);
     }
 }
 
@@ -87,13 +87,13 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         }
 
         VecU8 vec_u8 = vec_u8_new();
-        vec_u8_push(&vec_u8, uart_dma_recv_buffer, Size);
+        vec_u8.push(&vec_u8, uart_dma_recv_buffer, Size);
         memset(uart_dma_recv_buffer, 0, PACKET_MAX_SIZE);
-        UartPacket packet;
-        if (!uart_packet_pack(&vec_u8, &packet)) {
+        UartPacket packet = uart_packet_new();;
+        if (!packet.pack(&packet, &vec_u8)) {
             return;
         }
-        uart_trcv_buffer_push(&uart_receive_buffer, &packet);
+        uart_recv_buf.push(&uart_recv_buf, &packet);
 
         HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_recv_buffer, PACKET_MAX_SIZE);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
@@ -110,10 +110,10 @@ void uart_transmit(void) {
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) {
         return;
     }
-    UartPacket packet;
-    if (!uart_trcv_buffer_get_front(&uart_transmit_buffer, &packet)) {
+    UartPacket packet = uart_packet_new();
+    if (!uart_trsm_buf.get_front(&uart_trsm_buf, &packet)) {
         return;
     }
-    VecU8 vec_u8 = uart_packet_unpack(&packet);
-    HAL_UART_Transmit_DMA(&huart3, vec_u8.data, vec_u8.length);
+    VecU8 vec_u8 = packet.get_data(&packet);
+    HAL_UART_Transmit_DMA(&huart3, vec_u8.data, vec_u8.len);
 }
