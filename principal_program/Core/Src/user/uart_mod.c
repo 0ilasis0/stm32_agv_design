@@ -67,6 +67,7 @@ void USER_UART3_IRQHandler_Before(void) {
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
+        UartPacket packet = uart_packet_new();;
         uart_trsm_buf.pop(&uart_trsm_buf, NULL);
     }
 }

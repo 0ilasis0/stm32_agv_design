@@ -1,5 +1,7 @@
 #include "user/uart_packet_mod.h"
 
+// ----------------------------------------------------------------------------------------------------
+
 /**
  * @brief 向現有 UART 封包中新增資料
  *        Add data to existing UART packet
@@ -36,8 +38,9 @@ static VecU8 pkt_get_data(const UartPacket *self) {
  */
 static bool pkt_pack(UartPacket *self, const VecU8 *vec_u8) {
     if (
-        (vec_u8->len < 2 || vec_u8->data[0] != PACKET_START_CODE) ||
-        (vec_u8->data[vec_u8->len - 1] != PACKET_END_CODE)
+        (vec_u8->len < 2) ||
+        (vec_u8->data[vec_u8->head] != PACKET_START_CODE) ||
+        (vec_u8->data[vec_u8->head + vec_u8->len - 1] != PACKET_END_CODE)
     ) {
         return 0;
     }
@@ -100,7 +103,7 @@ static bool trcv_buffer_push(UartTrcvBuf *self, const UartPacket *pkt) {
 
 static bool trcv_buffer_get_front(const UartTrcvBuf *self, UartPacket *pkt) {
     if (self->length == 0) return 0;
-    if (self != NULL) *pkt = self->packet[self->head];
+    *pkt = self->packet[self->head];
     return 1;
 }
 
@@ -114,7 +117,7 @@ static bool trcv_buffer_get_front(const UartTrcvBuf *self, UartPacket *pkt) {
  */
 static bool trcv_buffer_pop(UartTrcvBuf *self, UartPacket *pkt) {
     if (self->length == 0) return 0;
-    if (self != NULL) *pkt = self->packet[self->head];
+    if (pkt != NULL) *pkt = self->packet[self->head];
     if (--self->length == 0) {
         self->head = 0;
     } else {
@@ -155,3 +158,5 @@ void uart_trcv_buf_init(void) {
     uart_trsm_buf   = uart_trcv_buf_new();
     uart_recv_buf   = uart_trcv_buf_new();
 }
+
+// ----------------------------------------------------------------------------------------------------

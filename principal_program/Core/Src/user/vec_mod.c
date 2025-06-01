@@ -11,11 +11,19 @@
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-static bool bytes_push(VecU8 *self, const void *src, uint16_t src_len) {
+static bool vec_u8_push(VecU8 *self, const void *src, uint16_t src_len) {
     if (self->len + src_len > VECU8_MAX_CAPACITY) {
         return 0;
     }
-    memcpy(self->data + self->len, src, src_len);
+    uint16_t tail = (self->head + self->len) % VECU8_MAX_CAPACITY;
+    if (tail + src_len <= VECU8_MAX_CAPACITY) {
+        memcpy(self->data + tail, src, src_len);
+    } else {
+        uint16_t first_part = VECU8_MAX_CAPACITY - tail;
+        uint16_t second_part = src_len - first_part;
+        memcpy(self->data + tail, src, first_part);
+        memcpy(self->data, (const uint8_t *)src + first_part, second_part);
+    }
     self->len += src_len;
     return 1;
 }
@@ -28,8 +36,8 @@ static bool bytes_push(VecU8 *self, const void *src, uint16_t src_len) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-static inline bool bytes_push_byte(VecU8 *self, uint8_t value) {
-    return bytes_push(self, &value, 1);
+static inline bool vec_u8_push_byte(VecU8 *self, uint8_t value) {
+    return vec_u8_push(self, &value, 1);
 }
 
 /**
@@ -52,9 +60,9 @@ static inline uint16_t swap16(const uint16_t value) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-static inline bool bytes_push_u16(VecU8 *self, uint16_t value) {
+static inline bool vec_u8_push_u16(VecU8 *self, uint16_t value) {
     uint16_t u16 = swap16(value);
-    return bytes_push(self, &u16, sizeof(u16));
+    return vec_u8_push(self, &u16, sizeof(u16));
 }
 
 /**
@@ -79,12 +87,12 @@ static inline uint32_t swap32(uint32_t value) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-static bool bytes_push_f32(VecU8 *self, float value) {
+static bool vec_u8_push_f32(VecU8 *self, float value) {
     uint32_t u32;
     uint8_t u32_len = sizeof(u32);
     memcpy(&u32, &value, u32_len);
     u32 = swap32(u32);
-    return bytes_push(self, &u32, u32_len);
+    return vec_u8_push(self, &u32, u32_len);
 }
 /**
  * @brief 檢查 VecU8 起始位置是否以指定序列開頭
@@ -96,11 +104,19 @@ static bool bytes_push_f32(VecU8 *self, float value) {
  * @return true 若開頭吻合 (true if starts with sequence)
  * @return false 否則 (false otherwise)
  */
-static bool bytes_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pre_len) {
+static bool vec_u8_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pre_len) {
     if (self->len < pre_len) {
-        return false;
+        return 0;
     }
-    return memcmp(self->data+self->head, pre, pre_len) == 0;
+    if (self->head + pre_len <= VECU8_MAX_CAPACITY) {
+        return memcmp(self->data + self->head, pre, pre_len) == 0;
+    }
+    uint16_t first_part  = VECU8_MAX_CAPACITY - self->head;
+    uint16_t second_part = pre_len - first_part;
+    if (memcmp(self->data + self->head, pre, first_part) != 0) {
+        return 0;
+    }
+    return memcmp(self->data, pre + first_part, second_part) == 0;
 }
 
 /**
@@ -111,9 +127,14 @@ static bool bytes_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pr
  * @param size 要移除的位元組數 (number of bytes to remove)
  * @return true 始終回傳 true (always returns true)
  */
-static bool bytes_rm_front(VecU8 *self, uint16_t size) {
-    self->head += size;
-    self->len -= size;
+static bool vec_u8_rm_front(VecU8 *self, uint16_t size) {
+    if (self->len > size) {
+        self->head = (self->head + size) % VECU8_MAX_CAPACITY;
+        self->len -= size;
+    } else {
+        self->head = 0;
+        self->len  = 0;
+    }
     return 1;
 }
 
@@ -125,11 +146,11 @@ static bool bytes_rm_front(VecU8 *self, uint16_t size) {
  */
 VecU8 vec_u8_new(void) {
     VecU8 vec = {0};
-    vec.push         = bytes_push;
-    vec.push_byte    = bytes_push_byte;
-    vec.push_u16     = bytes_push_u16;
-    vec.push_f32     = bytes_push_f32;
-    vec.start_with   = bytes_starts_with;
-    vec.rm_front     = bytes_rm_front;
+    vec.push         = vec_u8_push;
+    vec.push_byte    = vec_u8_push_byte;
+    vec.push_u16     = vec_u8_push_u16;
+    vec.push_f32     = vec_u8_push_f32;
+    vec.start_with   = vec_u8_starts_with;
+    vec.rm_front     = vec_u8_rm_front;
     return vec;
 }

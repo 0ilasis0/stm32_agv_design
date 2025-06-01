@@ -13,6 +13,7 @@ uint32_t text = 0;
 
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
+    uart_trcv_buf_init();
     uart_setup();
     motor_setup();
 
@@ -31,7 +32,7 @@ void user_main(void) {
     while (1) {
         if (transceive_flags.uart_transmit) {
             transceive_flags.uart_transmit = false;
-            uart_transmit();
+            // uart_transmit();
         }
         if (transceive_flags.uart_transmit_pkt_proc) {
             transceive_flags.uart_transmit_pkt_proc = false;

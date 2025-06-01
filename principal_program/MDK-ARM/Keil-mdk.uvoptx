@@ -173,17 +173,27 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>transfer_buffer</ItemText>
+          <ItemText>uart_trsm_buf</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>receive_buffer</ItemText>
+          <ItemText>uart_recv_buf</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
           <ItemText>user_sys_tick,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>transceive_flags</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>hytestc</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

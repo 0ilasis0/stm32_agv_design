@@ -22,9 +22,7 @@ void user_SysTick_Handler(void) {
     }
     if (user_sys_tick % 50 == 0) {
         transceive_flags.uart_transmit = true;
-        // uart_transmit();
         transceive_flags.uart_receive_pkt_proc = true;
-        // uart_receive_pkt_proc(5);
     }
     if (user_sys_tick % 100 == 0) {
         speed_calculate(&motor_right);
@@ -32,7 +30,6 @@ void user_SysTick_Handler(void) {
     }
     if (user_sys_tick % 500 == 0) {
         transceive_flags.uart_transmit_pkt_proc = true;
-        // uart_transmit_pkt_proc();
     }
     if (user_sys_tick % 1000 == 0) {
     }

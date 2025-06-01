@@ -53,6 +53,9 @@ void uart_transmit_pkt_proc(void) {
         new_vec_wri_flag = true;
         radcw(&vec_u8);
     }
+    // rspdw(&vec_u8);
+    // radcw(&vec_u8);
+    // new_vec_wri_flag = true;
     if (new_vec_wri_flag) {
         UartPacket packet = uart_packet_new();
         packet.add_data(&packet, &vec_u8);
@@ -67,47 +70,47 @@ void uart_transmit_pkt_proc(void) {
  * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
  * @return void
  */
+int hytestc[5] = {0};
 static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     VecU8 new_vec = vec_u8_new();
     new_vec.push_byte(&new_vec, CMD_CODE_DATA_TRRE);
     bool data_proc_flag;
     bool new_vec_wri_flag = false;
-    while (1) {
+    do {
         data_proc_flag = false;
         if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
             data_proc_flag = true;
             transceive_flags.right_speed = false;
         }
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
+        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
             data_proc_flag = true;
             new_vec_wri_flag = true;
             rspdw(&new_vec);
         }
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
+        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
             data_proc_flag = true;
             transceive_flags.right_speed = true;
         }
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
+        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
             data_proc_flag = true;
             transceive_flags.right_adc = false;
         }
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
+        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
             data_proc_flag = true;
             new_vec_wri_flag = true;
             radcw(&new_vec);
         }
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
+        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
             vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
             data_proc_flag = true;
             transceive_flags.right_adc = true;
         }
-        if (!data_proc_flag) break;
-    }
+    } while (data_proc_flag);
     if (new_vec_wri_flag) {
         UartPacket new_packet = uart_packet_new();
         new_packet.add_data(&new_packet, &new_vec);
@@ -135,27 +138,12 @@ void uart_receive_pkt_proc(uint8_t count) {
         switch (code) {
             case CMD_CODE_DATA_TRRE:
                 uart_re_pkt_proc_data_store(&re_vec_u8);
+                hytestc[0] = 88;
+                hytestc[2] = hytestc[1];
                 break;
             default:
                 break;
         }
     }
-}
-
-/**
- * @brief 填充狀態至資料向量
- *        Populate status into byte vector
- *
- * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive motor data)
- * @return void
- */
-void transmit_buf_set(VecU8* vec_u8) {
-    // vec_u8_push_u16(vec_u8, motor_left.adc_value);
-    // vec_u8_push_u8(vec_u8, motor_left.speed_sepoint);
-    // vec_u8_push_float(vec_u8, motor_left.speed_present);
-    // vec_u8_push_u8(vec_u8, motor_left.rotate_direction);
-    // vec_u8_push_u16(vec_u8, motor_right.adc_value);
-    // vec_u8_push_u8(vec_u8, motor_right.speed_sepoint);
-    // vec_u8_push_float(vec_u8, motor_right.speed_present);
-    // vec_u8_push_u8(vec_u8, motor_right.rotate_direction);
+    hytestc[1]++;
 }

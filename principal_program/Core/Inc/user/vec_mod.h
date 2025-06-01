@@ -7,13 +7,6 @@
 #define VECU8_MAX_CAPACITY  255
 
 typedef struct VecU8 VecU8;
-typedef bool (*U8PushFn)        (      VecU8 *v_u8, const void     *src,  uint16_t src_len);
-typedef bool (*U8PushU8Fn)      (      VecU8 *v_u8,       uint8_t  value);
-typedef bool (*U8PushU16Fn)     (      VecU8 *v_u8,       uint16_t value);
-typedef bool (*U8PushFloatFn)   (      VecU8 *v_u8,       float    value);
-typedef bool (*U8StartWithFn)   (const VecU8 *v_u8, const uint8_t  *com,  uint16_t com_len);
-typedef bool (*U8RmFrontFn)     (      VecU8 *v_u8,       uint16_t size);
-typedef bool (*U8DrainFn)       (      VecU8 *v_u8,       uint16_t start, uint16_t end);
 typedef struct VecU8 {
     uint8_t         data[VECU8_MAX_CAPACITY];
     uint16_t        head;
@@ -28,7 +21,7 @@ typedef struct VecU8 {
      * @return true 成功推入 (successfully pushed)
      * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
      */
-    U8PushFn        push;
+    bool (*push)(VecU8 *self, const void *src, uint16_t src_len);
     /**
      * @brief 將單一位元組推入 VecU8
      *        Pushes a single byte into VecU8
@@ -38,7 +31,7 @@ typedef struct VecU8 {
      * @return true 成功推入 (successfully pushed)
      * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
      */
-    U8PushU8Fn      push_byte;
+    bool (*push_byte)(VecU8 *self, uint8_t value);
     /**
      * @brief 將 uint16_t 轉換為大端序並推入 VecU8
      *        Converts a 16-bit unsigned integer to big-endian and pushes into VecU8
@@ -48,7 +41,7 @@ typedef struct VecU8 {
      * @return true 成功推入 (successfully pushed)
      * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
      */
-    U8PushU16Fn     push_u16;
+    bool (*push_u16)(VecU8 *self, uint16_t value);
     /**
      * @brief 將 float 轉換為 IEEE-754 大端序並推入 VecU8
      *        Converts a float to IEEE-754 big-endian representation and pushes into VecU8
@@ -58,7 +51,7 @@ typedef struct VecU8 {
      * @return true 成功推入 (successfully pushed)
      * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
      */
-    U8PushFloatFn   push_f32;
+    bool (*push_f32)(VecU8 *self, float value);
     /**
      * @brief 檢查 VecU8 起始位置是否以指定序列開頭
      *        Checks if VecU8 starts with a specified sequence of bytes
@@ -69,7 +62,7 @@ typedef struct VecU8 {
      * @return true 若開頭吻合 (true if starts with sequence)
      * @return false 否則 (false otherwise)
      */
-    U8StartWithFn   start_with;
+    bool (*start_with)(const VecU8 *self, const uint8_t *com, uint16_t com_len);
     /**
      * @brief 將 VecU8 起始處前移指定大小 (移除前方資料)
      *        Advances the start of VecU8 by specified size (removes front data)
@@ -78,7 +71,7 @@ typedef struct VecU8 {
      * @param size 要移除的位元組數 (number of bytes to remove)
      * @return true 始終回傳 true (always returns true)
      */
-    U8RmFrontFn     rm_front;
+    bool (*rm_front)(VecU8 *self, uint16_t size);
 } VecU8;
 VecU8 vec_u8_new(void);
 
