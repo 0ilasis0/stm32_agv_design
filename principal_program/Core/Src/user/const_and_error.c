@@ -14,6 +14,7 @@ ERROR_TIMEOUT error_timeout = {
     0,
     0,
     0,
+    0,
 };
 
 ERROR_DATA error_data = {

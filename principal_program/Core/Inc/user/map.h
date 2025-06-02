@@ -37,7 +37,7 @@ typedef struct {
 } MAP_DATA;
 
 extern MAP_DATA map_data;
-extern LOCATION locations_t;
+extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void map_init(void);

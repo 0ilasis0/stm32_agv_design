@@ -70,8 +70,6 @@ void rotate_in_place(void) {
             break;
     }
 
-        // timeout_error(error_start, &error_timeout.rotate_in_place);
-
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_sensor_node >= hall_node_value ) {
@@ -217,13 +215,20 @@ void motor_motion_control(MOTIONCOMMAND mode){
     }
 }
 
+/**
+  * @brief 設定馬達旋轉方向（rotate_direction）
+  */
 void veh_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction){
     motor->rotate_direction = direction;
 }
 
+/**
+  * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
+  */
 uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode) {
     uint8_t count = 0;
 
+    // 取得目前節點（node）在 locations_t 中的索引值
     int current_id = get_index_by_id(map_data.address_id[map_data.current_count]);
     int from_dir = map_data.direction[map_data.current_count - 1];
     int to_dir   = map_data.direction[map_data.current_count];
@@ -253,11 +258,19 @@ void renew_vehicle_rotation_status (uint8_t count_until_zero) {
     motor_left.speed_sepoint = setpoint_rotate;
     motor_right.speed_sepoint = setpoint_rotate;
 
-    uint32_t previous_time = HAL_GetTick();
+    //邊緣觸發判斷
+    bool triggered = false;
+
+    uint32_t time_out = HAL_GetTick();
     while (count_until_zero != 0){
-        if (hall_sensor_direction >= hall_direction_value && HAL_GetTick() - previous_time >= 500) {
-            previous_time = HAL_GetTick();          //renew time 為了不立刻重讀
+        if (hall_sensor_direction >= hall_direction_value  && !triggered) {
             count_until_zero --;
+            triggered = true;
         }
+        if (hall_sensor_direction < hall_direction_value) {
+            triggered = false;
+        }
+
+        timeout_error(time_out, &error_timeout.renew_vehicle_rotation_status);
     }
 }

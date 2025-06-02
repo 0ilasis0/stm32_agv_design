@@ -15,6 +15,7 @@ typedef struct {
     bool over_hall_fall_back;
     bool rotate_in_place;
     bool rotate_in_place_hall;
+    bool renew_vehicle_rotation_status;
 } ERROR_TIMEOUT;
 
 typedef struct {
