@@ -43,7 +43,7 @@ void user_main(void) {
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();
-
+/*
         if (hall_sensor_node > hall_node_value) {
             decide_move_mode();
 
@@ -56,6 +56,7 @@ void user_main(void) {
 
             }
         }
+*/
         // HAL_Delay(1);
     }
 }
