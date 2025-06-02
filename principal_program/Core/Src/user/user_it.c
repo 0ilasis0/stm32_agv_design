@@ -70,9 +70,9 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
 }
 
 /**
-  * PC13 按鈕中斷，用於測試 (上下緣觸發)，切換 hall_sensor3
+  * PC13 按鈕中斷，用於測試 ，切換 hall_sensor_node
   *
-  * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor3
+  * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor_node
   */
 void user_EXTI15_10_IRQHandler(void) {
 
@@ -80,19 +80,19 @@ void user_EXTI15_10_IRQHandler(void) {
         temp_time1 = HAL_GetTick();
 
         if (toggle1 == 1) {
-            hall_sensor3 = 0;
+            hall_sensor_node = 0;
             toggle1 = 0;
         } else {
-            hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 + 1;
+            hall_sensor_node = 16*16*16 + 16*16 + 16 + 1 + 1;
             toggle1 = 1;
         }
     }
 }
 
 /**
-  * PC4 EXTI 中斷服務函式，用於測試，切換 hall_count_direction
+  * PC4 EXTI 中斷服務函式，用於測試(上下緣觸發)，切換 hall_sensor_direction
   *
-  * EXTI interrupt handler for PC4 test, toggle hall_count_direction
+  * EXTI interrupt handler for PC4 test, toggle hall_sensor_direction
   */
 void user_EXTI4_IRQHandler(void) {
     if (HAL_GetTick() - temp_time2 >= 300) {
@@ -100,10 +100,10 @@ void user_EXTI4_IRQHandler(void) {
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
         if (toggle2 == 1) {
-            hall_count_direction = 0;
+            hall_sensor_direction = 0;
             toggle2 = 0;
         } else {
-            hall_count_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
+            hall_sensor_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
             toggle2 = 1;
         }
     }

@@ -7,7 +7,7 @@
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
-uint32_t hall_sensor3 = 16*16*16 + 16*16 + 16 + 1 +1;
+uint32_t hall_sensor_node = 16*16*16 + 16*16 + 16 + 1 +1;
 uint32_t text = 0;
 /*測試用--------------------------------------*/
 
@@ -21,12 +21,10 @@ void user_main(void) {
 
     // hall_detection_adc_setup();
     // PI_tim_setup();
-    // vehicle_setup();
     // map_setup();
 
 /*測試用--------------------------------------*/
     // motor_speed_setpoint_set(&motor_right, setpoint_straight);
-    map_current_data.current_count++ ;
 /*測試用--------------------------------------*/
 
     while (1) {
@@ -45,68 +43,46 @@ void user_main(void) {
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();
-    /*    if (hall_sensor3 > node_hall_critical_value) {
+
+        if (hall_sensor_node > hall_node_value) {
             decide_move_mode();
 
         } else {
-            protect_over_hall();
-
-            if (vehicle_current_data.status == agv_next) {
-                map_current_data.current_count++ ;
-                vehicle_current_data.status = decide_vehicle_status();
-                vehicle_current_data.address_id = map_current_data.address_id[map_current_data.current_count];
+            if (map_data.status[map_data.current_count] == agv_next) {
+                map_data.current_count++ ;
 
             } else {
                 track_mode();
 
             }
-        }*/
+        }
         // HAL_Delay(1);
     }
 }
 
 /* 決定移動MODE ------------------------------------------------------*/
 void decide_move_mode(void) {
-    // renew current data to next node
-    vehicle_current_data.status = decide_vehicle_status();
 
-    switch(vehicle_current_data.status) {
+    switch(map_data.status[map_data.current_count]) {
         case agv_straight:
             motor_left.speed_sepoint = setpoint_straight;
             motor_right.speed_sepoint = setpoint_straight;
+
             // 改為agv_next，直到離開HALL，使else之後能renew status
-            vehicle_current_data.status = agv_next;
+            map_data.status[map_data.current_count] = agv_next;
             break;
 
         case agv_rotate:
-            // 確定motor stop
-            ensure_motor_stop();
+            protect_over_hall();
             rotate_in_place();
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
-            vehicle_current_data.status = agv_next;
+            map_data.status[map_data.current_count] = agv_next;
             break;
 
         case agv_end:
-            motor_right.speed_sepoint = 0;
-            motor_left.speed_sepoint  = 0;
+            protect_over_hall();
             break;
-    }
-}
-
-/*
- * 決定agv當前狀態
- */
-AGV_STATUS decide_vehicle_status(void) {
-    if (vehicle_current_data.direction == map_current_data.direction[map_current_data.current_count]) {
-        return agv_straight;
-
-    } else if (map_current_data.direction[map_current_data.current_count] == no_data){
-        return agv_end;
-
-    } else {
-        return agv_rotate;
-
     }
 }
 
@@ -114,17 +90,15 @@ AGV_STATUS decide_vehicle_status(void) {
 void protect_over_hall(void) {
     ensure_motor_stop();
 
+    if (hall_sensor_node > hall_node_value) return;
+
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (motor_right.speed_sepoint == 0 &&
-        motor_left.speed_sepoint == 0 &&
-        vehicle_current_data.status == agv_next
-     ) {
+    if (map_data.status[map_data.current_count] == agv_rotate) {
         over_hall_fall_back();
-        rotate_in_place();
+    }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    } else if (vehicle_current_data.status == agv_end){
+    if (map_data.status[map_data.current_count] == agv_end) {
         over_hall_fall_back();
-
     }
 }

@@ -5,13 +5,9 @@
 #include <stdbool.h>
 #include "gpio.h"
 #include "stm32g431xx.h"
+#include "user/map.h"
 
-typedef uint8_t ROTATE_STATUS;
-enum {
-    clockwise,
-    counter_clockwise,
-    either
-};
+
 
 typedef struct{
     uint8_t speed_sepoint;

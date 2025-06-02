@@ -4,20 +4,7 @@
 #include "user/motor.h"
 #include "user/map.h"
 
-typedef enum {
-    agv_straight,                                   // 循跡狀態mode
-    agv_rotate,                                     // 原地旋轉mode
-    agv_end,                                        // 直行mode
-    agv_next
-} AGV_STATUS;
 
-typedef struct {
-    ROTATE_STATUS rotate_direction;
-    AGV_STATUS status;
-    int8_t direction;
-    uint16_t address_id;
-    uint8_t cross_magnatic_amount;
-} VEHICLE_DATA;
 
 typedef enum {
     motion_forward,
@@ -26,26 +13,25 @@ typedef enum {
     motion_counter_clockwise
 } MOTIONCOMMAND;
 
-extern const uint32_t track_hall_critical_value;
-extern const uint32_t node_hall_critical_value;
+extern const uint32_t hall_sensor_track_value;
+extern const uint32_t hall_node_value;
 /*測試用--------------------------------------*/
-extern uint32_t hall_count_direction;
+extern uint32_t hall_sensor_direction;
 /*測試用--------------------------------------*/
-extern VEHICLE_DATA vehicle_current_data;
-extern MAP_DATA map_current_data;
+extern MAP_DATA map_data;
 
 bool motor_speed_setpoint_set(MOTOR_PARAMETER* motor, uint8_t value);
 void track_mode(void);
 void rotate_in_place(void);
-void vehicle_setup(void);
 ROTATE_STATUS get_rotate_direction(void);
 void motor_motion_control(MOTIONCOMMAND mode);
 void veh_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction);
 void rotate_control_direction (ROTATE_STATUS rotate_mode_right, ROTATE_STATUS rotate_mode_left);
-void renew_vehicle_current_direction (int renew_direction, uint32_t *previous_time);
+void renew_vehicle_rotation_status (uint8_t count_until_zero);
 void over_hall_fall_back(void);
 void ensure_motor_stop(void);
 void test_no_load_speed(uint16_t mile_sec);
 void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif);
+uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode);
 
 #endif

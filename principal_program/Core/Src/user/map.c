@@ -15,13 +15,17 @@ LOCATION locations_t[max_node] = {
     {15, {{0,0}, {11,40}, {12,45}, {0,0}, {0,0}, {0,0}, {0,0}, {78,30}}}
 };
 
-//MAP_DATA map_current_data = {0};//
-//text到時候由最段路徑演算法輸入入徑
-MAP_DATA map_current_data = {
+MAP_DATA map_data;
+/*
+MAP_DATA map_data = {
     0,                                                            //current_count
     {1, 7, 3, 3, no_data},                                        //direction
     {0, 1, 2, 3, 4}                                               //address_id
+    {agv_straight, agv_rotate, agv_rotate, agv_straight, agv_end}                                                        // status
 };
+*/
+
+
 
 void map_setup(void) {
 
@@ -31,6 +35,11 @@ void map_setup(void) {
     map_init();
     floyd_warshall();
     build_current_map_data(text_from, text_to);
+
+    for (int i = 0; i <= final_node_count; i++) {
+        map_data.status[i] = decide_vehicle_status(i);
+    }
+
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
@@ -58,6 +67,7 @@ void map_init(void) {
             }
         }
     }
+
 }
 
 // Floyd-Warshall 演算法計算所有節點對間最短路徑
@@ -80,7 +90,7 @@ void build_current_map_data(int from, int to) {
     // 根據 path 矩陣追蹤從 from 到 to 的節點路徑
     while (from != to && count < max_node) {
         int next_node = path[from][to];
-        map_current_data.address_id[count] = locations_t[from].local_id;
+        map_data.address_id[count] = locations_t[from].local_id;
 
         int direction_index = no_data;
 
@@ -92,13 +102,13 @@ void build_current_map_data(int from, int to) {
             }
         }
 
-        map_current_data.direction[count] = direction_index;
+        map_data.direction[count] = direction_index;
         from = next_node;
         count++;
     }
 
-    map_current_data.address_id[count] = locations_t[to].local_id;
-    map_current_data.direction[count] = no_data;
+    map_data.address_id[count] = locations_t[to].local_id;
+    map_data.direction[count] = no_data;
 
     // 紀錄路徑節點數（不含終點）
     final_node_count = count;
@@ -110,4 +120,25 @@ int get_index_by_id(int id) {
         if (locations_t[i].local_id == id) return i;
     }
     return -1;
+}
+
+
+
+/*
+ * 決定agv當前狀態
+ */
+AGV_STATUS decide_vehicle_status(uint8_t count) {
+    if (count == 0 && map_data.direction[count] == no_data) return agv_end;
+    if (count == 0) return agv_straight;
+
+    if (map_data.direction[count] == map_data.direction[count - 1]) {
+        return agv_straight;
+
+    } else if (map_data.direction[count] == no_data){
+        return agv_end;
+
+    } else {
+        return agv_rotate;
+
+    }
 }

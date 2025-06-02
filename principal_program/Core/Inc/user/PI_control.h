@@ -15,7 +15,7 @@ extern float max_speed;
 extern const float dt;                                               // 取樣時間
 
 /*測試用--------------------------------------*/
-extern uint32_t hall_sensor3;
+extern uint32_t hall_sensor_node;
 /*測試用--------------------------------------*/
 
 void PI_Controller(MOTOR_PARAMETER *motor);

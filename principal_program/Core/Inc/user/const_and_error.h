@@ -17,7 +17,12 @@ typedef struct {
     bool rotate_in_place_hall;
 } ERROR_TIMEOUT;
 
+typedef struct {
+    bool rotate_in_place__map_data_current_count;
+} ERROR_DATA;
+
 extern ERROR_TIMEOUT error_timeout;
+extern ERROR_DATA error_data;
 
 void timeout_error (uint32_t error_start, bool *error_parameter);
 
