@@ -2,8 +2,8 @@
 #include "user/const_and_error.h"
 #include "user/vehicle.h"
 #include "user/PI_control.h"
-#include "user/user_uart.h"
-#include "user/packet_proc_mod.h"
+#include "user/uart_mod.h"
+#include "user/uart_packet_proc_mod.h"
 #include "stm32g4xx_hal_gpio.h"
 
 uint32_t temp_time1 = 0;
@@ -17,21 +17,19 @@ void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        // transceive_flags.need_re_proc = true;
         update_motor_step(&motor_right);
         update_motor_step(&motor_left );
     }
     if (user_sys_tick % 50 == 0) {
-        uart_re_packet_proccess(5);
+        transceive_flags.uart_transmit = true;
+        transceive_flags.uart_receive_pkt_proc = true;
     }
     if (user_sys_tick % 100 == 0) {
         speed_calculate(&motor_right);
         speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
-        // transceive_flags.need_tr_proc = true;
-        // uart_tr_packet_proccess();
-        uart_packet_send();
+        transceive_flags.uart_transmit_pkt_proc = true;
     }
     if (user_sys_tick % 1000 == 0) {
     }
@@ -77,6 +75,7 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
   * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor3
   */
 void user_EXTI15_10_IRQHandler(void) {
+
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
 

@@ -1,1 +1,2 @@
-hyhy
+NUCLEO-G431RB
+->stm32g431rb

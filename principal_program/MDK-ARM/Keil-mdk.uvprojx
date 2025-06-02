@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32G431RBTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32G4xx_DFP.1.6.0</PackID>
+          <PackID>Keil.STM32G4xx_DFP.2.0.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20007FFF) IROM(0x8000000-0x801FFFF)  CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -410,16 +410,6 @@
               <FilePath>..\Core\Src\user\motor.c</FilePath>
             </File>
             <File>
-              <FileName>packet_mod.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\packet_mod.c</FilePath>
-            </File>
-            <File>
-              <FileName>packet_proc_mod.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\packet_proc_mod.c</FilePath>
-            </File>
-            <File>
               <FileName>PI_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\PI_control.c</FilePath>
@@ -438,11 +428,6 @@
               <FileName>user_main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\user\user_main.c</FilePath>
-            </File>
-            <File>
-              <FileName>user_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\user\user_uart.c</FilePath>
             </File>
             <File>
               <FileName>vec_mod.c</FileName>
@@ -493,6 +478,21 @@
               <FileName>stm32g4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32g4xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\uart_mod.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_packet_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\uart_packet_mod.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_packet_proc_mod.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\user\uart_packet_proc_mod.c</FilePath>
             </File>
           </Files>
         </Group>

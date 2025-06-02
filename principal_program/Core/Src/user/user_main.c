@@ -2,8 +2,8 @@
 #include "user/motor.h"
 #include "user/PI_control.h"
 #include "user/user_adc.h"
-#include "user/user_uart.h"
-#include "user/packet_proc_mod.h"
+#include "user/uart_mod.h"
+#include "user/uart_packet_proc_mod.h"
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
@@ -13,13 +13,14 @@ uint32_t text = 0;
 
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
+    uart_trcv_buf_init();
     uart_setup();
     motor_setup();
 
-    test_no_load_speed(1000);
+    // test_no_load_speed(1000);
 
-    hall_detection_adc_setup();
-    PI_tim_setup();
+    // hall_detection_adc_setup();
+    // PI_tim_setup();
     // vehicle_setup();
     // map_setup();
 
@@ -29,10 +30,19 @@ void user_main(void) {
 /*測試用--------------------------------------*/
 
     while (1) {
-        if (transceive_flags.need_tr_proc) uart_tr_packet_proccess();
-        if (transceive_flags.need_re_proc) uart_re_packet_proccess(10);
+        if (transceive_flags.uart_transmit) {
+            transceive_flags.uart_transmit = false;
+            // uart_transmit();
+        }
+        if (transceive_flags.uart_transmit_pkt_proc) {
+            transceive_flags.uart_transmit_pkt_proc = false;
+            uart_transmit_pkt_proc();
+        }
+        if (transceive_flags.uart_receive_pkt_proc) {
+            transceive_flags.uart_receive_pkt_proc = false;
+            uart_receive_pkt_proc(5);
+        }
         // track_mode();
-        text=1;
         // rotate_in_place();
         // over_hall_fall_back();
     /*    if (hall_sensor3 > node_hall_critical_value) {
@@ -51,6 +61,7 @@ void user_main(void) {
 
             }
         }*/
+        // HAL_Delay(1);
     }
 }
 
