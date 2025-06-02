@@ -13,7 +13,6 @@ uint32_t text = 0;
 
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
-    uart_trcv_buf_init();
     uart_setup();
     motor_setup();
 
@@ -30,18 +29,7 @@ void user_main(void) {
 /*測試用--------------------------------------*/
 
     while (1) {
-        if (transceive_flags.uart_transmit) {
-            transceive_flags.uart_transmit = false;
-            // uart_transmit();
-        }
-        if (transceive_flags.uart_transmit_pkt_proc) {
-            transceive_flags.uart_transmit_pkt_proc = false;
-            uart_transmit_pkt_proc();
-        }
-        if (transceive_flags.uart_receive_pkt_proc) {
-            transceive_flags.uart_receive_pkt_proc = false;
-            uart_receive_pkt_proc(5);
-        }
+        uart_trcv_proccess();
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();

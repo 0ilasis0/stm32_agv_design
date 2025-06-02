@@ -29,9 +29,9 @@ void user_SysTick_Handler(void) {
         speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
-        transceive_flags.uart_transmit_pkt_proc = true;
     }
     if (user_sys_tick % 1000 == 0) {
+        transceive_flags.uart_transmit_pkt_proc = true;
     }
     // 60s
     if (user_sys_tick >= 60000) {
