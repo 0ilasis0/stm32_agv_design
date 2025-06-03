@@ -3,7 +3,7 @@
 
 
 int start = 0, stop = 0;                            // 計時起點與終點
-uint32_t previous_time;                             // 用來追蹤非阻塞延遲
+uint32_t past_time;                             // 用來追蹤非阻塞延遲
 float distance = 0.0;                               // 計算出來的距離（單位：公分）
 
 uint8_t rx_data[5] = {0};
@@ -18,7 +18,7 @@ void user_main(void) {
     HAL_TIM_Base_Start(&htim1);
     __HAL_TIM_SET_COUNTER(&htim1, 0);
 
-    previous_time = HAL_GetTick();                                  //紀錄當前時間
+    past_time = HAL_GetTick();                                  //紀錄當前時間
 
     HAL_UART_Receive_DMA(&huart3, rx_data, sizeof(rx_data));         // 第一次接收rx設定
 
@@ -29,8 +29,8 @@ void user_main(void) {
             HAL_Delay(300);                                          // 防彈跳
         }
 
-/*        if (HAL_GetTick() - previous_time >= 500) {                // 每 500 毫秒觸發一次
-            previous_time = HAL_GetTick();
+/*        if (HAL_GetTick() - past_time >= 500) {                // 每 500 毫秒觸發一次
+            past_time = HAL_GetTick();
             HCSR04_Trigger();
         }
 

@@ -13,8 +13,8 @@ typedef enum {
     motion_counter_clockwise
 } MOTIONCOMMAND;
 
-extern const uint32_t hall_sensor_track_value;
-extern const uint32_t hall_node_value;
+extern const uint32_t hall_magnetic_stripe_value;
+extern const uint32_t hall_strong_magnet_value;
 /*測試用--------------------------------------*/
 extern uint32_t hall_sensor_direction;
 /*測試用--------------------------------------*/
@@ -33,5 +33,6 @@ void ensure_motor_stop(void);
 void test_no_load_speed(uint16_t mile_sec);
 void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif);
 uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode);
+void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time);
 
 #endif

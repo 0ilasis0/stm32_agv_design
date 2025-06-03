@@ -32,7 +32,7 @@ void user_main(void) {
         // rotate_in_place();
         // over_hall_fall_back();
 /*
-        if (hall_sensor_node > hall_node_value) {
+        if (hall_sensor_node > hall_strong_magnet_value) {
             decide_move_mode();
 
         } else {
@@ -79,7 +79,7 @@ void decide_move_mode(void) {
 void protect_over_hall(void) {
     ensure_motor_stop();
 
-    if (hall_sensor_node > hall_node_value) return;
+    if (hall_sensor_node > hall_strong_magnet_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
     if (map_data.status[map_data.current_count] == agv_rotate) {

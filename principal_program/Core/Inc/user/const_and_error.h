@@ -4,9 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define error_timeout_time_limit 10 * 1500
+#define error_timeout_time_limit 15 * 1000
 
 extern bool PI_enable;
+extern bool search_magnetic_path_enable;
 
 typedef struct {
     bool ensure_motor_stop;
@@ -16,6 +17,8 @@ typedef struct {
     bool rotate_in_place;
     bool rotate_in_place_hall;
     bool renew_vehicle_rotation_status;
+    bool search_magnetic_path;
+    bool search_magnetic_path_in;
 } ERROR_TIMEOUT;
 
 typedef struct {
@@ -25,6 +28,6 @@ typedef struct {
 extern ERROR_TIMEOUT error_timeout;
 extern ERROR_DATA error_data;
 
-void timeout_error (uint32_t error_start, bool *error_parameter);
+bool timeout_error (uint32_t error_start, bool *error_parameter);
 
 #endif

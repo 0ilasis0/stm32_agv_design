@@ -2116,7 +2116,7 @@ Image Symbol Table
     start                                    0x20000004   Data           4  sub_my_main.o(.data)
     stop                                     0x20000008   Data           4  sub_my_main.o(.data)
     distance                                 0x2000000c   Data           4  sub_my_main.o(.data)
-    previous_time                            0x20000010   Data           4  sub_my_main.o(.data)
+    past_time                            0x20000010   Data           4  sub_my_main.o(.data)
     rx_data                                  0x20000014   Data           5  sub_my_main.o(.data)
     tx_data                                  0x20000019   Data           5  sub_my_main.o(.data)
     hpb_exti                                 0x20000038   Data           8  stm32g4xx_nucleo.o(.data)
@@ -2486,7 +2486,7 @@ Image component sizes
 ==============================================================================
 
 
-      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug
 
      15556        984        580         80       2496     978372   Grand Totals
      15556        984        580         80       2496     978372   ELF Image Totals

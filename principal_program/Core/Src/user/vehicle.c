@@ -7,12 +7,10 @@
 #include <math.h>
 #include "stm32g4xx_hal.h"
 
-// 判斷是否轉灣大小
-const uint32_t hall_sensor_track_value = 2*16*16*16 + 16*16 + 16 + 1;
-// 判斷強力磁鐵位置
-const uint32_t hall_node_value = 16*16*16 + 16*16 + 16 + 1;
-// 判斷旋轉方向位置
-const uint32_t hall_direction_value = 16*16*16 + 16*16 + 16 + 1;
+// 判斷磁條強度大小
+const uint32_t hall_magnetic_stripe_value = 2*16*16*16 + 16*16 + 16 + 1;
+// 判斷強力磁鐵強度大小
+const uint32_t hall_strong_magnet_value = 16*16*16 + 16*16 + 16 + 1;
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_direction = 0;
@@ -30,14 +28,24 @@ MOTIONCOMMAND direction_mode;
   * @brief 一般循跡模式控制
   */
 void track_mode(void) {
-
     adc_renew();
 
-    if(motor_right.adc_value >= hall_sensor_track_value) {
+    if (hall_sensor_direction < hall_magnetic_stripe_value &&
+        hall_sensor_node      < hall_magnetic_stripe_value &&
+        motor_right.adc_value < hall_magnetic_stripe_value &&
+        motor_left.adc_value  < hall_magnetic_stripe_value
+        ) {
+        ensure_motor_stop();
+        search_magnetic_path (motion_clockwise, 2000);
+        search_magnetic_path (motion_counter_clockwise, 4000);
+        search_magnetic_path_enable = 1;
+    }
+
+    if (motor_right.adc_value >= hall_magnetic_stripe_value) {
         motor_speed_setpoint_set(&motor_left, setpoint_straight);
         motor_speed_setpoint_set(&motor_right, 0);
 
-    } else if(motor_left.adc_value >= hall_sensor_track_value) {
+    } else if(motor_left.adc_value >= hall_magnetic_stripe_value) {
         motor_speed_setpoint_set(&motor_left, 0);
         motor_speed_setpoint_set(&motor_right, setpoint_straight);
 
@@ -72,10 +80,10 @@ void rotate_in_place(void) {
 
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(hall_sensor_node >= hall_node_value ) {
+    while(hall_sensor_node >= hall_strong_magnet_value ) {
         motor_left.speed_sepoint = setpoint_straight;
         motor_right.speed_sepoint = setpoint_straight;
-        timeout_error(error_start, &error_timeout.rotate_in_place_hall);
+        if (!timeout_error(error_start, &error_timeout.rotate_in_place_hall)) break;
     }
 }
 
@@ -89,8 +97,8 @@ void over_hall_fall_back(void) {
     motor_right.speed_sepoint = setpoint_fall_back;
 
     uint32_t error_start = HAL_GetTick();
-    while(hall_sensor_node <= hall_node_value) {
-        timeout_error(error_start, &error_timeout.over_hall_fall_back);
+    while(hall_sensor_node <= hall_strong_magnet_value) {
+        if (!timeout_error(error_start, &error_timeout.over_hall_fall_back)) break;
     }
 
     motor_motion_control(motion_forward);
@@ -100,28 +108,28 @@ void over_hall_fall_back(void) {
   * @brief 測試空載情況下的馬達最大速度
   * 僅使用右邊測試空載轉速
   */
- uint32_t text_previous_time_fall_back_dif;
+uint32_t text_previous_time_fall_back_dif;
 void test_no_load_speed(uint16_t mile_sec) {
     PI_enable = 0;
     // 確定正轉
     motor_motion_control(motion_backward);
 
-    uint32_t previous_time = HAL_GetTick()
-            ,previous_time_dif = previous_time;
+    uint32_t past_time = HAL_GetTick()
+            ,previous_time_dif = past_time;
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
 
     while (
-        HAL_GetTick() - previous_time < mile_sec ||
+        HAL_GetTick() - past_time < mile_sec ||
         max_speed <= 10
     ) {
         if(max_speed < motor_right.speed_present) {
                 max_speed = motor_right.speed_present;
-                previous_time = HAL_GetTick();
-                text_time = previous_time;
+                past_time = HAL_GetTick();
+                text_time = past_time;
         }
 
-        timeout_error(previous_time_dif, &error_timeout.test_no_load_speed);
+        if (!timeout_error(previous_time_dif, &error_timeout.test_no_load_speed)) break;
     }
 
     set_motor_duty(&motor_left,  0);
@@ -132,9 +140,9 @@ void test_no_load_speed(uint16_t mile_sec) {
     ensure_motor_stop();
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
-    previous_time = HAL_GetTick();
-    while(HAL_GetTick() - previous_time <= previous_time_dif) {
-        timeout_error(previous_time, &error_timeout.over_hall_fall_back_time_based);
+    past_time = HAL_GetTick();
+    while(HAL_GetTick() - past_time <= previous_time_dif) {
+        if (!timeout_error(past_time, &error_timeout.over_hall_fall_back_time_based)) break;
     }
     set_motor_duty(&motor_left,  0);
     set_motor_duty(&motor_right, 0);
@@ -152,7 +160,7 @@ void ensure_motor_stop(void) {
 
     uint32_t error_start = HAL_GetTick();
     while(motor_right.speed_present != 0 || motor_left.speed_present != 0) {
-        timeout_error(error_start, &error_timeout.ensure_motor_stop);
+        if (!timeout_error(error_start, &error_timeout.ensure_motor_stop)) break;
     }
 }
 
@@ -250,7 +258,6 @@ uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode) {
     return count;
 }
 
-
 /**
   * @brief 根據強磁計數更新 AGV 方向資料
   */
@@ -263,14 +270,46 @@ void renew_vehicle_rotation_status (uint8_t count_until_zero) {
 
     uint32_t time_out = HAL_GetTick();
     while (count_until_zero != 0){
-        if (hall_sensor_direction >= hall_direction_value  && !triggered) {
+        if (hall_sensor_direction >= hall_magnetic_stripe_value  && !triggered) {
             count_until_zero --;
             triggered = true;
         }
-        if (hall_sensor_direction < hall_direction_value) {
+        if (hall_sensor_direction < hall_magnetic_stripe_value) {
             triggered = false;
         }
 
-        timeout_error(time_out, &error_timeout.renew_vehicle_rotation_status);
+        if (!timeout_error(time_out, &error_timeout.renew_vehicle_rotation_status)) break;
     }
+}
+
+void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
+    if(!search_magnetic_path_enable) return;
+
+    motor_motion_control(search_direction);
+    motor_left.speed_sepoint  = setpoint_rotate;
+    motor_right.speed_sepoint = setpoint_rotate;
+
+    uint32_t past_time = HAL_GetTick();
+    while(HAL_GetTick() - past_time <= time) {
+        // if hall sensor sensing magnetic force
+        if(hall_sensor_direction >= hall_magnetic_stripe_value) {
+            ensure_motor_stop();
+
+            motor_motion_control(motion_forward);
+            motor_left.speed_sepoint  = setpoint_straight;
+            motor_right.speed_sepoint = setpoint_straight;
+
+            while (motor_left.adc_value  <= hall_magnetic_stripe_value &&
+                   motor_right.adc_value <= hall_magnetic_stripe_value
+                    ) {
+                if(!timeout_error(past_time, &error_timeout.search_magnetic_path_in)) break;
+            }
+            search_magnetic_path_enable = 0;
+            break;
+        }
+
+        if (!timeout_error(past_time, &error_timeout.search_magnetic_path)) break;
+    }
+
+    ensure_motor_stop();
 }
