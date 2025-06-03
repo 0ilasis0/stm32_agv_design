@@ -158,11 +158,6 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uart_dma_rv_bytes</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
           <ItemText>uart_recv_pkt_buf</ItemText>
         </Ww>
       </WatchWindow1>
