@@ -1,4 +1,5 @@
 #include "user/uart_packet_proc_mod.h"
+#include "user/uart_packet_mod.h"
 #include "user/uart_mod.h"
 #include "user/motor.h"
 #include "user/mcu_const.h"
@@ -14,8 +15,8 @@ uint16_t u16_test = 1;
  * @return void
  */
 void rspdw(VecU8* vec_u8) {
-    vec_u8->push(vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
-    vec_u8->push_f32(vec_u8, motor_right.speed_present);
+    vec_u8_push(vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
+    vec_u8_push_f32(vec_u8, motor_right.speed_present);
     // f32_test++;
 }
 
@@ -27,8 +28,8 @@ void rspdw(VecU8* vec_u8) {
  * @return void
  */
 void radcw(VecU8* vec_u8) {
-    vec_u8->push(vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
-    vec_u8->push_u16(vec_u8, motor_right.adc_value);
+    vec_u8_push(vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
+    vec_u8_push_u16(vec_u8, motor_right.adc_value);
     // vec_u8_push_u16(vec_u8, u16_test);
     // u16_test++;
 }
@@ -43,7 +44,7 @@ void radcw(VecU8* vec_u8) {
  */
 void uart_transmit_pkt_proc(void) {
     VecU8 vec_u8 = vec_u8_new();
-    vec_u8.push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
     bool new_vec_wri_flag = false;
     if (transceive_flags.right_speed) {
         new_vec_wri_flag = true;
@@ -53,13 +54,13 @@ void uart_transmit_pkt_proc(void) {
         new_vec_wri_flag = true;
         radcw(&vec_u8);
     }
-    // rspdw(&vec_u8);
-    // radcw(&vec_u8);
-    // new_vec_wri_flag = true;
+    rspdw(&vec_u8);
+    radcw(&vec_u8);
+    new_vec_wri_flag = true;
     if (new_vec_wri_flag) {
         UartPacket packet = uart_packet_new();
-        packet.add_data(&packet, &vec_u8);
-        uart_trsm_buf.push(&uart_trsm_buf, &packet);
+        uart_pkt_add_data(&packet, &vec_u8);
+        uart_trcv_buf_push(&uart_trsm_pkt_buf, &packet);
     };
 }
 
@@ -70,51 +71,50 @@ void uart_transmit_pkt_proc(void) {
  * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
  * @return void
  */
-int hytestc[5] = {0};
 static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
     VecU8 new_vec = vec_u8_new();
-    new_vec.push_byte(&new_vec, CMD_CODE_DATA_TRRE);
+    vec_u8_push_byte(&new_vec, CMD_CODE_DATA_TRRE);
     bool data_proc_flag;
     bool new_vec_wri_flag = false;
     do {
         data_proc_flag = false;
-        if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_STOP));
+        if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP));
             data_proc_flag = true;
             transceive_flags.right_speed = false;
         }
-        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_ONCE));
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE));
             data_proc_flag = true;
             new_vec_wri_flag = true;
             rspdw(&new_vec);
         }
-        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_SPEED_START));
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START));
             data_proc_flag = true;
             transceive_flags.right_speed = true;
         }
-        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_STOP));
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP));
             data_proc_flag = true;
             transceive_flags.right_adc = false;
         }
-        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_ONCE));
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE));
             data_proc_flag = true;
             new_vec_wri_flag = true;
             radcw(&new_vec);
         }
-        else if (vec_u8->start_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
-            vec_u8->rm_front(vec_u8, sizeof(CMD_RIGHT_ADC_START));
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START));
             data_proc_flag = true;
             transceive_flags.right_adc = true;
         }
     } while (data_proc_flag);
     if (new_vec_wri_flag) {
         UartPacket new_packet = uart_packet_new();
-        new_packet.add_data(&new_packet, &new_vec);
-        uart_trsm_buf.push(&uart_trsm_buf, &new_packet);
+        uart_pkt_add_data(&new_packet, &new_vec);
+        uart_trcv_buf_push(&uart_trsm_pkt_buf, &new_packet);
     }
 }
 
@@ -127,23 +127,21 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
  */
 void uart_receive_pkt_proc(uint8_t count) {
     uint8_t i;
-    for (i = 0; i < 5; i++){
+    for (i = 0; i < count; i++){
         UartPacket packet = uart_packet_new();
-        if (!uart_recv_buf.pop(&uart_recv_buf, &packet)) {
-            break;
+        if (!uart_trcv_buf_pop_front(&uart_recv_pkt_buf, &packet)) {
+            return;
         }
-        VecU8 re_vec_u8 = packet.get_data(&packet);
-        uint8_t code = re_vec_u8.data[0];
-        re_vec_u8.rm_front(&re_vec_u8, 1);
+        VecU8 vec_u8 = vec_u8_new();
+        uart_pkt_get_data(&packet, &vec_u8);
+        uint8_t code = vec_u8.data[vec_u8.head];
+        vec_u8_rm_range(&vec_u8, 0, 1);
         switch (code) {
             case CMD_CODE_DATA_TRRE:
-                uart_re_pkt_proc_data_store(&re_vec_u8);
-                hytestc[0] = 88;
-                hytestc[2] = hytestc[1];
+                uart_re_pkt_proc_data_store(&vec_u8);
                 break;
             default:
                 break;
         }
     }
-    hytestc[1]++;
 }
