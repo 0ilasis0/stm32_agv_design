@@ -9,6 +9,8 @@
 extern bool PI_enable;
 extern bool search_magnetic_path_enable;
 
+extern bool debug_breakdown_all_hall_lost;
+
 typedef struct {
     bool ensure_motor_stop;
     bool test_no_load_speed;

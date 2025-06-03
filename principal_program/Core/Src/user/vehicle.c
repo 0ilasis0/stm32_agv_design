@@ -30,16 +30,7 @@ MOTIONCOMMAND direction_mode;
 void track_mode(void) {
     adc_renew();
 
-    if (hall_sensor_direction < hall_magnetic_stripe_value &&
-        hall_sensor_node      < hall_magnetic_stripe_value &&
-        motor_right.adc_value < hall_magnetic_stripe_value &&
-        motor_left.adc_value  < hall_magnetic_stripe_value
-        ) {
-        ensure_motor_stop();
-        search_magnetic_path (motion_clockwise, 2000);
-        search_magnetic_path (motion_counter_clockwise, 4000);
-        search_magnetic_path_enable = 1;
-    }
+    breakdown_all_hall_lost ();
 
     if (motor_right.adc_value >= hall_magnetic_stripe_value) {
         motor_speed_setpoint_set(&motor_left, setpoint_straight);
@@ -282,17 +273,32 @@ void renew_vehicle_rotation_status (uint8_t count_until_zero) {
     }
 }
 
+void breakdown_all_hall_lost (void) {
+    if (!debug_breakdown_all_hall_lost) return;
+
+    if (hall_sensor_direction < hall_magnetic_stripe_value &&
+        hall_sensor_node      < hall_magnetic_stripe_value &&
+        motor_right.adc_value < hall_magnetic_stripe_value &&
+        motor_left.adc_value  < hall_magnetic_stripe_value
+        ) {
+        ensure_motor_stop();
+        search_magnetic_path (motion_clockwise, 2000);
+        search_magnetic_path (motion_counter_clockwise, 4000);
+        search_magnetic_path_enable = 1;
+    }
+}
+
 void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
-    if(!search_magnetic_path_enable) return;
+    if (!search_magnetic_path_enable) return;
 
     motor_motion_control(search_direction);
     motor_left.speed_sepoint  = setpoint_rotate;
     motor_right.speed_sepoint = setpoint_rotate;
 
     uint32_t past_time = HAL_GetTick();
-    while(HAL_GetTick() - past_time <= time) {
+    while (HAL_GetTick() - past_time <= time) {
         // if hall sensor sensing magnetic force
-        if(hall_sensor_direction >= hall_magnetic_stripe_value) {
+        if (hall_sensor_direction >= hall_magnetic_stripe_value) {
             ensure_motor_stop();
 
             motor_motion_control(motion_forward);
@@ -302,7 +308,7 @@ void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
             while (motor_left.adc_value  <= hall_magnetic_stripe_value &&
                    motor_right.adc_value <= hall_magnetic_stripe_value
                     ) {
-                if(!timeout_error(past_time, &error_timeout.search_magnetic_path_in)) break;
+                if (!timeout_error(past_time, &error_timeout.search_magnetic_path_in)) break;
             }
             search_magnetic_path_enable = 0;
             break;

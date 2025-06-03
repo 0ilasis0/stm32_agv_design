@@ -6,6 +6,8 @@
 bool PI_enable = 1;
 bool search_magnetic_path_enable = 1;
 
+bool debug_breakdown_all_hall_lost = 1;
+
 
 
 ERROR_TIMEOUT error_timeout = {0};
