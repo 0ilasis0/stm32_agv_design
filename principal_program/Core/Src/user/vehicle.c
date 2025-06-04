@@ -8,9 +8,9 @@
 #include "stm32g4xx_hal.h"
 
 // 判斷磁條強度大小
-const uint32_t hall_magnetic_stripe_value = 2*16*16*16 + 16*16 + 16 + 1;
+uint32_t hall_magnetic_stripe_value = 1111;
 // 判斷強力磁鐵強度大小
-const uint32_t hall_strong_magnet_value = 16*16*16 + 16*16 + 16 + 1;
+uint32_t hall_strong_magnet_value = 1111;
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_direction = 0;
@@ -72,8 +72,8 @@ void rotate_in_place(void) {
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_sensor_node >= hall_strong_magnet_value ) {
-        motor_left.speed_sepoint = setpoint_straight;
-        motor_right.speed_sepoint = setpoint_straight;
+        motor_left.speed_sepoint_pcn = setpoint_straight;
+        motor_right.speed_sepoint_pcn = setpoint_straight;
         if (!timeout_error(error_start, &error_timeout.rotate_in_place_hall)) break;
     }
 }
@@ -84,8 +84,8 @@ void rotate_in_place(void) {
 void over_hall_fall_back(void) {
     motor_motion_control(motion_backward);
 
-    motor_left.speed_sepoint = setpoint_fall_back;
-    motor_right.speed_sepoint = setpoint_fall_back;
+    motor_left.speed_sepoint_pcn = setpoint_fall_back;
+    motor_right.speed_sepoint_pcn = setpoint_fall_back;
 
     uint32_t error_start = HAL_GetTick();
     while(hall_sensor_node <= hall_strong_magnet_value) {
@@ -101,9 +101,11 @@ void over_hall_fall_back(void) {
   */
 uint32_t text_previous_time_fall_back_dif;
 void test_no_load_speed(uint16_t mile_sec) {
+    if (!debug_test_no_load_speed_enable) return;
+
     PI_enable = 0;
     // 確定正轉
-    motor_motion_control(motion_backward);
+    motor_motion_control(motion_forward);
 
     uint32_t past_time = HAL_GetTick()
             ,previous_time_dif = past_time;
@@ -111,11 +113,10 @@ void test_no_load_speed(uint16_t mile_sec) {
     set_motor_duty(&motor_right, 100);
 
     while (
-        HAL_GetTick() - past_time < mile_sec ||
-        max_speed <= 10
+        HAL_GetTick() - past_time < mile_sec || max_speed_pcn <= 10
     ) {
-        if(max_speed < motor_right.speed_present) {
-                max_speed = motor_right.speed_present;
+        if (max_speed_pcn < motor_right.speed_present) {
+                max_speed_pcn = motor_right.speed_present;
                 past_time = HAL_GetTick();
                 text_time = past_time;
         }
@@ -127,8 +128,9 @@ void test_no_load_speed(uint16_t mile_sec) {
     set_motor_duty(&motor_right, 0);
     previous_time_dif = HAL_GetTick() - previous_time_dif;
 
-    motor_motion_control(motion_forward);
+    motor_motion_control(motion_backward);
     ensure_motor_stop();
+    HAL_Delay(1000);
     set_motor_duty(&motor_left,  100);
     set_motor_duty(&motor_right, 100);
     past_time = HAL_GetTick();
@@ -146,8 +148,8 @@ void test_no_load_speed(uint16_t mile_sec) {
   * @brief 等待左右馬達完全停止
   */
 void ensure_motor_stop(void) {
-    motor_right.speed_sepoint = 0;
-    motor_left.speed_sepoint  = 0;
+    motor_right.speed_sepoint_pcn = 0;
+    motor_left.speed_sepoint_pcn  = 0;
 
     uint32_t error_start = HAL_GetTick();
     while(motor_right.speed_present != 0 || motor_left.speed_present != 0) {
@@ -161,10 +163,10 @@ void ensure_motor_stop(void) {
   */
 bool motor_speed_setpoint_set(MOTOR_PARAMETER* motor, uint8_t value) {
     if (value > 100) {
-        motor->speed_sepoint = 100;
+        motor->speed_sepoint_pcn = 100;
         return false;
     }
-    motor->speed_sepoint = value;
+    motor->speed_sepoint_pcn = value;
     return true;
 }
 
@@ -253,8 +255,8 @@ uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode) {
   * @brief 根據強磁計數更新 AGV 方向資料
   */
 void renew_vehicle_rotation_status (uint8_t count_until_zero) {
-    motor_left.speed_sepoint = setpoint_rotate;
-    motor_right.speed_sepoint = setpoint_rotate;
+    motor_left.speed_sepoint_pcn = setpoint_rotate;
+    motor_right.speed_sepoint_pcn = setpoint_rotate;
 
     //邊緣觸發判斷
     bool triggered = false;
@@ -274,17 +276,18 @@ void renew_vehicle_rotation_status (uint8_t count_until_zero) {
 }
 
 void breakdown_all_hall_lost (void) {
-    if (!debug_breakdown_all_hall_lost) return;
+    if (!debug_breakdown_all_hall_lost_enable) return;
 
-    if (hall_sensor_direction < hall_magnetic_stripe_value &&
+    if (
+        hall_sensor_direction < hall_magnetic_stripe_value &&
         hall_sensor_node      < hall_magnetic_stripe_value &&
         motor_right.adc_value < hall_magnetic_stripe_value &&
         motor_left.adc_value  < hall_magnetic_stripe_value
         ) {
-        ensure_motor_stop();
-        search_magnetic_path (motion_clockwise, 2000);
-        search_magnetic_path (motion_counter_clockwise, 4000);
-        search_magnetic_path_enable = 1;
+            ensure_motor_stop();
+            search_magnetic_path (motion_clockwise, 3000);
+            search_magnetic_path (motion_counter_clockwise, 6000);
+            search_magnetic_path_enable = 1;
     }
 }
 
@@ -292,8 +295,8 @@ void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
     if (!search_magnetic_path_enable) return;
 
     motor_motion_control(search_direction);
-    motor_left.speed_sepoint  = setpoint_rotate;
-    motor_right.speed_sepoint = setpoint_rotate;
+    motor_left.speed_sepoint_pcn  = setpoint_rotate;
+    motor_right.speed_sepoint_pcn = setpoint_rotate;
 
     uint32_t past_time = HAL_GetTick();
     while (HAL_GetTick() - past_time <= time) {
@@ -302,8 +305,8 @@ void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
             ensure_motor_stop();
 
             motor_motion_control(motion_forward);
-            motor_left.speed_sepoint  = setpoint_straight;
-            motor_right.speed_sepoint = setpoint_straight;
+            motor_left.speed_sepoint_pcn  = setpoint_straight;
+            motor_right.speed_sepoint_pcn = setpoint_straight;
 
             while (motor_left.adc_value  <= hall_magnetic_stripe_value &&
                    motor_right.adc_value <= hall_magnetic_stripe_value
@@ -313,6 +316,8 @@ void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
             search_magnetic_path_enable = 0;
             break;
         }
+
+        adc_renew();
 
         if (!timeout_error(past_time, &error_timeout.search_magnetic_path)) break;
     }

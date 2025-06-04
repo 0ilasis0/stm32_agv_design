@@ -22,7 +22,7 @@ MOTOR_PARAMETER motor_left;
   */
 MOTOR_PARAMETER motor_new(
     // range 1~100
-    uint8_t speed_sepoint,
+    uint8_t speed_sepoint_pcn,
     ROTATE_STATUS rotate_direction,
 
     float integral_record,
@@ -44,7 +44,7 @@ MOTOR_PARAMETER motor_new(
 ) {
     MOTOR_PARAMETER motor;
 
-    motor.speed_sepoint = speed_sepoint;
+    motor.speed_sepoint_pcn = speed_sepoint_pcn;
     motor.rotate_direction = rotate_direction;
     motor.integral_record = integral_record;
     motor.step_count = step_count;
@@ -75,7 +75,7 @@ MOTOR_PARAMETER motor_new(
   */
 void motor_setup(void) {
     motor_right = motor_new(
-        30,                 // speed_sepoint  圈/s
+        30,                 // speed_sepoint_pcn  圈/s
         clockwise,          // clockwise counter_clockwise
         0.0,                // integral_record   PI積分累積儲存
         0,                  // rpm_count  計數motor speed
@@ -96,7 +96,7 @@ void motor_setup(void) {
         (uint32_t [])           {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3}
     );
     motor_left = motor_new(
-        30,                 // speed_sepoint
+        30,                 // speed_sepoint_pcn
         counter_clockwise,  // clockwise counter_clockwise
         0.0,                // integral_record   PI積分累積儲存
         0,                  // rpm_count  計數motor speed
@@ -211,7 +211,7 @@ bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
   */
 void speed_calculate(MOTOR_PARAMETER *motor) {
     float real_speed = (float)motor->step_count / 6;
-    real_speed /= 0.1f;
+    real_speed /= 0.1;
     motor->speed_present = real_speed;
     motor->step_count = 0;
 }

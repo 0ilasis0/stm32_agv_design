@@ -29,6 +29,8 @@ void user_SysTick_Handler(void) {
         speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
+        PI_Controller(&motor_right);
+        PI_Controller(&motor_left);
     }
     if (user_sys_tick % 1000 == 0) {
         transceive_flags.uart_transmit_pkt_proc = true;
@@ -65,8 +67,7 @@ void user_EXTI9_5_IRQHandler(void) {
   * TIM1 update or TIM16 interrupt handler to invoke speed calculation
   */
 void user_TIM1_UP_TIM16_IRQHandler(void) {
-    PI_Controller(&motor_right);
-    PI_Controller(&motor_left);
+
 }
 
 /**
@@ -83,7 +84,7 @@ void user_EXTI15_10_IRQHandler(void) {
             hall_sensor_node = 0;
             toggle1 = 0;
         } else {
-            hall_sensor_node = 16*16*16 + 16*16 + 16 + 1 + 1;
+            hall_sensor_node = 1111 + 1;
             toggle1 = 1;
         }
     }
@@ -103,7 +104,7 @@ void user_EXTI4_IRQHandler(void) {
             hall_sensor_direction = 0;
             toggle2 = 0;
         } else {
-            hall_sensor_direction = 16*16*16 + 16*16 + 16 + 1 + 1;
+            hall_sensor_direction = 1111 + 1;
             toggle2 = 1;
         }
     }

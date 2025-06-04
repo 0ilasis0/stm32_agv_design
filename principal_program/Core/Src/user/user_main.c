@@ -7,7 +7,7 @@
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
-uint32_t hall_sensor_node = 16*16*16 + 16*16 + 16 + 1 +1;
+uint32_t hall_sensor_node = 1111 +1;
 uint32_t text = 0;
 /*測試用--------------------------------------*/
 
@@ -16,7 +16,7 @@ void user_main(void) {
     uart_setup();
     motor_setup();
 
-    // test_no_load_speed(1000);
+    test_no_load_speed(1000);
 
     // hall_detection_adc_setup();
     // PI_tim_setup();
@@ -28,6 +28,8 @@ void user_main(void) {
 
     while (1) {
         uart_trcv_proccess();
+
+        motor_speed_setpoint_set(&motor_right, setpoint_straight);
         // track_mode();
         // rotate_in_place();
         // over_hall_fall_back();
@@ -54,8 +56,8 @@ void decide_move_mode(void) {
 
     switch(map_data.status[map_data.current_count]) {
         case agv_straight:
-            motor_left.speed_sepoint = setpoint_straight;
-            motor_right.speed_sepoint = setpoint_straight;
+            motor_left.speed_sepoint_pcn = setpoint_straight;
+            motor_right.speed_sepoint_pcn = setpoint_straight;
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;

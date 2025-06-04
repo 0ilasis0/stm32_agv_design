@@ -6,7 +6,8 @@
 bool PI_enable = 1;
 bool search_magnetic_path_enable = 1;
 
-bool debug_breakdown_all_hall_lost = 1;
+bool debug_breakdown_all_hall_lost_enable = 0;
+bool debug_test_no_load_speed_enable = 0;
 
 
 

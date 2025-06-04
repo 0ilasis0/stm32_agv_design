@@ -10,7 +10,7 @@
 
 
 typedef struct{
-    uint8_t speed_sepoint;
+    uint8_t speed_sepoint_pcn;
     ROTATE_STATUS rotate_direction;
     float integral_record;
     uint16_t step_count;
@@ -34,7 +34,7 @@ extern MOTOR_PARAMETER motor_right;
 extern MOTOR_PARAMETER motor_left;
 MOTOR_PARAMETER motor_new(
     // range 1~100
-    uint8_t speed_sepoint,
+    uint8_t speed_sepoint_pcn,
     ROTATE_STATUS rotate_direction,
 
     float integral_record,

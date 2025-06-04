@@ -13,8 +13,8 @@ typedef enum {
     motion_counter_clockwise
 } MOTIONCOMMAND;
 
-extern const uint32_t hall_magnetic_stripe_value;
-extern const uint32_t hall_strong_magnet_value;
+extern uint32_t hall_magnetic_stripe_value;
+extern uint32_t hall_strong_magnet_value;
 /*測試用--------------------------------------*/
 extern uint32_t hall_sensor_direction;
 /*測試用--------------------------------------*/
