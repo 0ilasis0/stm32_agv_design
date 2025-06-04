@@ -11,7 +11,6 @@
 #define setpoint_fall_back 20                                  // 倒退速度目標
 
 extern float max_speed_pcn;
-extern const float ;                                               // 取樣時間
 
 /*測試用--------------------------------------*/
 extern uint32_t hall_sensor_node;

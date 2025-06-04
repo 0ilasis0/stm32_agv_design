@@ -211,7 +211,7 @@ bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
   */
 void speed_calculate(MOTOR_PARAMETER *motor) {
     float real_speed = (float)motor->step_count / 6;
-    real_speed /= 0.1;
+    real_speed /= 0.1f;
     motor->speed_present = real_speed;
     motor->step_count = 0;
 }
