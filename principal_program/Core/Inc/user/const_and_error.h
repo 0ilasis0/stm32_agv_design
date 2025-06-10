@@ -26,6 +26,7 @@ typedef struct {
 
 typedef struct {
     bool rotate_in_place__map_data_current_count;
+    bool breakdown_all_hall_lost__path_not_found;
 } ERROR_DATA;
 
 extern ERROR_TIMEOUT error_timeout;

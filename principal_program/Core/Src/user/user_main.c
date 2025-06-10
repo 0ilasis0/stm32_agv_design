@@ -7,8 +7,7 @@
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
-uint32_t hall_sensor_node = 1111 +1;
-uint32_t text = 0;
+uint32_t hall_sensor_node = 1300 +1;
 /*測試用--------------------------------------*/
 
 /* +Main ------------------------------------------------------------*/
@@ -16,23 +15,25 @@ void user_main(void) {
     uart_setup();
     motor_setup();
 
-    test_no_load_speed(1000);
+    // test_no_load_speed(1000);
 
-    // hall_detection_adc_setup();
-    // PI_tim_setup();
-    // map_setup();
+    hall_detection_adc_setup();
+    map_setup();
+
+    // adjust_startup_heading ();
 
 /*測試用--------------------------------------*/
-    // motor_speed_setpoint_set(&motor_right, setpoint_straight);
+    // motor_speed_setpoint_set(&motor_right, 100);
+    // set_motor_duty(&motor_right, 75);
+
+    // rotate_in_place();
+    // over_hall_fall_back();
+
 /*測試用--------------------------------------*/
 
     while (1) {
         uart_trcv_proccess();
-
-        motor_speed_setpoint_set(&motor_right, setpoint_straight);
-        // track_mode();
-        // rotate_in_place();
-        // over_hall_fall_back();
+        track_mode();
 /*
         if (hall_sensor_node > hall_strong_magnet_value) {
             decide_move_mode();
@@ -73,6 +74,7 @@ void decide_move_mode(void) {
 
         case agv_end:
             protect_over_hall();
+            map_data.start_direction = map_data.direction[map_data.current_count];
             break;
     }
 }

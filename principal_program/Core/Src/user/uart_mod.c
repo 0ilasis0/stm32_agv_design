@@ -22,7 +22,7 @@ TransceiveFlags transceive_flags = {0};
 static VecU8 uart_dma_tr_bytes;
 /**
  * @brief UART 接收 DMA 緩衝區
- * 
+ *
  *        UART receive DMA buffer
  */
 static VecU8 uart_dma_rv_bytes;
@@ -100,7 +100,7 @@ static void uart_receive(UART_HandleTypeDef *huart) {
         uart_trcv_buf_push(&uart_recv_pkt_buf, &packet);
         vec_u8_rm_range(&uart_dma_rv_bytes, 0, VECU8_MAX_CAPACITY);
     }
-    
+
 }
 
 /**

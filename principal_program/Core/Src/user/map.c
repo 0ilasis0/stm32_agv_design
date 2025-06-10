@@ -34,6 +34,7 @@ void map_setup(void) {
 
     map_init();
     floyd_warshall();
+    map_data_new(no_data);
     build_current_map_data(text_from, text_to);
 
     for (int i = 0; i <= final_node_count; i++) {
@@ -68,6 +69,13 @@ void map_init(void) {
         }
     }
 
+}
+
+MAP_DATA map_data_new (int8_t start_direction) {
+    MAP_DATA map_new;
+    map_new.start_direction = start_direction;
+
+    return map_new;
 }
 
 // Floyd-Warshall 演算法計算所有節點對間最短路徑

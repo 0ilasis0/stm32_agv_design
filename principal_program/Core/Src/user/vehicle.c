@@ -8,9 +8,9 @@
 #include "stm32g4xx_hal.h"
 
 // 判斷磁條強度大小
-uint32_t hall_magnetic_stripe_value = 1111;
+uint32_t hall_magnetic_stripe_value = 1300;
 // 判斷強力磁鐵強度大小
-uint32_t hall_strong_magnet_value = 1111;
+uint32_t hall_strong_magnet_value = 1300;
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_direction = 0;
@@ -36,7 +36,7 @@ void track_mode(void) {
         motor_speed_setpoint_set(&motor_left, setpoint_straight);
         motor_speed_setpoint_set(&motor_right, 0);
 
-    } else if(motor_left.adc_value >= hall_magnetic_stripe_value) {
+    } else if (motor_left.adc_value >= hall_magnetic_stripe_value) {
         motor_speed_setpoint_set(&motor_left, 0);
         motor_speed_setpoint_set(&motor_right, setpoint_straight);
 
@@ -51,24 +51,23 @@ void track_mode(void) {
   */
 void rotate_in_place(void) {
     if (map_data.current_count == 0) error_data.rotate_in_place__map_data_current_count = 1;
-    ROTATE_STATUS rotate_direction_mode = get_rotate_direction();
 
-    switch (rotate_direction_mode) {
-        case clockwise:                         // 順時針旋轉的動作
-            motor_motion_control(motion_clockwise);
-            renew_vehicle_rotation_status(pass_magnetic_stripe_calculate(clockwise));
-            break;
+    ROTATE_STATUS rotate_direction_mode = get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
 
-        case counter_clockwise:                 // 逆時針旋轉的動作
-            motor_motion_control(motion_counter_clockwise);
-            renew_vehicle_rotation_status(pass_magnetic_stripe_calculate(counter_clockwise));
-            break;
+    if (rotate_direction_mode != either) {
+        motor_motion_control(rotate_status_to_motioncommand(rotate_direction_mode));
 
-        case either:                            //結束旋轉
-            motor_motion_control(motion_forward);
-            break;
+        uint8_t renew_count = pass_magnetic_stripe_calculate(
+                rotate_direction_mode,
+                map_data.address_id[map_data.current_count],
+                map_data.direction[map_data.current_count - 1],
+                map_data.direction[map_data.current_count]
+                );
+
+        renew_vehicle_rotation_status(renew_count);
     }
 
+    motor_motion_control(motion_forward);
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_sensor_node >= hall_strong_magnet_value ) {
@@ -109,8 +108,8 @@ void test_no_load_speed(uint16_t mile_sec) {
 
     uint32_t past_time = HAL_GetTick()
             ,previous_time_dif = past_time;
-    set_motor_duty(&motor_left,  100);
-    set_motor_duty(&motor_right, 100);
+    set_motor_duty(&motor_left,  70);
+    set_motor_duty(&motor_right, 70);
 
     while (
         HAL_GetTick() - past_time < mile_sec || max_speed_pcn <= 10
@@ -131,8 +130,8 @@ void test_no_load_speed(uint16_t mile_sec) {
     motor_motion_control(motion_backward);
     ensure_motor_stop();
     HAL_Delay(1000);
-    set_motor_duty(&motor_left,  100);
-    set_motor_duty(&motor_right, 100);
+    set_motor_duty(&motor_left,  70);
+    set_motor_duty(&motor_right, 70);
     past_time = HAL_GetTick();
     while(HAL_GetTick() - past_time <= previous_time_dif) {
         if (!timeout_error(past_time, &error_timeout.over_hall_fall_back_time_based)) break;
@@ -173,8 +172,8 @@ bool motor_speed_setpoint_set(MOTOR_PARAMETER* motor, uint8_t value) {
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-ROTATE_STATUS get_rotate_direction(void) {
-    int8_t diff = (map_data.direction[map_data.current_count] - map_data.direction[map_data.current_count - 1] + 8) % 8;
+ROTATE_STATUS get_rotate_direction(int8_t start_dir, int8_t end_dir) {
+    int8_t diff = (end_dir - start_dir + 8) % 8;
 
     if (diff == 0) {
         return either;                               // 旋轉完成
@@ -226,13 +225,16 @@ void veh_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction){
 /**
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
-uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode) {
+uint8_t pass_magnetic_stripe_calculate(
+    ROTATE_STATUS rotate_direction_mode,
+    uint16_t current_id_input,
+    uint8_t from_dir,
+    uint8_t to_dir
+    ) {
     uint8_t count = 0;
 
     // 取得目前節點（node）在 locations_t 中的索引值
-    int current_id = get_index_by_id(map_data.address_id[map_data.current_count]);
-    int from_dir = map_data.direction[map_data.current_count - 1];
-    int to_dir   = map_data.direction[map_data.current_count];
+    int current_id = get_index_by_id(current_id_input);
 
     if (rotate_direction_mode == clockwise) {
         for (int i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8) {
@@ -275,6 +277,9 @@ void renew_vehicle_rotation_status (uint8_t count_until_zero) {
     }
 }
 
+/**
+  * @brief 當所有相關的霍爾感測器都失去磁條訊號時，嘗試重新搜尋並回到磁條路徑上
+  */
 void breakdown_all_hall_lost (void) {
     if (!debug_breakdown_all_hall_lost_enable) return;
 
@@ -287,10 +292,18 @@ void breakdown_all_hall_lost (void) {
             ensure_motor_stop();
             search_magnetic_path (motion_clockwise, 3000);
             search_magnetic_path (motion_counter_clockwise, 6000);
+
+            if (search_magnetic_path_enable == 1) {
+                while (true) error_data.breakdown_all_hall_lost__path_not_found = 1;
+            }
+
             search_magnetic_path_enable = 1;
     }
 }
 
+/**
+  * @brief 在指定時間內，讓裝置順或逆旋轉，直到偵測到磁條，並停止
+  */
 void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
     if (!search_magnetic_path_enable) return;
 
@@ -323,4 +336,35 @@ void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
     }
 
     ensure_motor_stop();
+}
+
+/**
+  * @brief ROTATE_STATUS 轉 MOTIONCOMMAND
+  */
+MOTIONCOMMAND rotate_status_to_motioncommand (ROTATE_STATUS mode) {
+    if (mode == clockwise) {
+        return motion_clockwise;
+    } else {
+        return motion_counter_clockwise;
+    }
+
+}
+
+/**
+  * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
+  */
+void adjust_startup_heading (void) {
+    if (map_data.start_direction == no_data) return;
+
+    ROTATE_STATUS rotate_direction_mode = get_rotate_direction(map_data.start_direction, map_data.direction[0]);
+    motor_motion_control(rotate_status_to_motioncommand(rotate_direction_mode));
+
+    uint8_t renew_count = pass_magnetic_stripe_calculate(
+        rotate_direction_mode,
+        map_data.address_id[0],
+        map_data.start_direction,
+        map_data.direction[0]
+        );
+
+    renew_vehicle_rotation_status(renew_count);
 }

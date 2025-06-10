@@ -56,8 +56,8 @@ MOTOR_PARAMETER motor_new(
 );
 void motor_setup(void);
 void motor_tim_setup(const MOTOR_PARAMETER *motor);
-void update_motor_step(MOTOR_PARAMETER *motor);
-void commutate_motor(const MOTOR_PARAMETER *motor);
+void motor_step_update(MOTOR_PARAMETER *motor);
+void motor_commutate(const MOTOR_PARAMETER *motor);
 bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value);
 void speed_calculate(MOTOR_PARAMETER *motor);
 

@@ -30,7 +30,8 @@ typedef struct {
 } LOCATION;
 
 typedef struct {
-    uint8_t         current_count;
+    int8_t          start_direction;
+    int8_t          current_count;
     int8_t          direction[max_node];
     uint16_t        address_id[max_node];
     AGV_STATUS      status[max_node];
@@ -41,10 +42,10 @@ extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void map_init(void);
+MAP_DATA map_data_new (int8_t start_direction);
 void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);
 AGV_STATUS decide_vehicle_status(uint8_t count);
-
 
 #endif

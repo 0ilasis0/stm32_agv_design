@@ -75,12 +75,12 @@ MOTOR_PARAMETER motor_new(
   */
 void motor_setup(void) {
     motor_right = motor_new(
-        30,                 // speed_sepoint_pcn  圈/s
+        0,                 // speed_sepoint_pcn  圈/s
         clockwise,          // clockwise counter_clockwise
         0.0,                // integral_record   PI積分累積儲存
         0,                  // rpm_count  計數motor speed
         0,                  // adc_value
-        15,                 // duty_value ; Current PWM value (adjustable)
+        0,                 // duty_value ; Current PWM value (adjustable)
         0,                  // speed_present
         7,                  // currentStep
 
@@ -96,12 +96,12 @@ void motor_setup(void) {
         (uint32_t [])           {TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3}
     );
     motor_left = motor_new(
-        30,                 // speed_sepoint_pcn
+        0,                 // speed_sepoint_pcn
         counter_clockwise,  // clockwise counter_clockwise
         0.0,                // integral_record   PI積分累積儲存
         0,                  // rpm_count  計數motor speed
         0,                  // adc_value
-        15,                 // duty_value ; Current PWM value (adjustable)
+        0,                 // duty_value ; Current PWM value (adjustable)
         0,                  // speed_present
         7,                  // currentStep
 
@@ -121,8 +121,8 @@ void motor_setup(void) {
     motor_tim_setup(&motor_right);
     motor_tim_setup(&motor_left);
 
-    update_motor_step(&motor_right);
-    update_motor_step(&motor_left);
+    motor_step_update(&motor_right);
+    motor_step_update(&motor_left);
 }
 
 /**
@@ -142,7 +142,7 @@ void motor_tim_setup(const MOTOR_PARAMETER *motor) {
   *
   * Execute motor commutation based on current step sequence
   */
-void commutate_motor(const MOTOR_PARAMETER *motor) {
+static inline void motor_commutate(const MOTOR_PARAMETER *motor) {
     for (int i = 0; i < 3; i++) {
         if (SEQUENCE[motor->currentStep][i] == 1) {
             __HAL_TIM_SET_COMPARE(motor->TIMx[i], motor->TIM_CHANNEL_x[i], motor->duty_value);
@@ -162,8 +162,9 @@ void commutate_motor(const MOTOR_PARAMETER *motor) {
   *
   * Update motor step count and determine next step from Hall sensor readings
   */
-void update_motor_step(MOTOR_PARAMETER *motor) {
-    int hallState =
+void motor_step_update(MOTOR_PARAMETER *motor) {
+    if (motor == &motor_left) return;
+    uint8_t hallState =
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[0], motor->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[1], motor->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(motor->Hall_GPIOx[2], motor->Hall_GPIO_Pin_x[2])     );
@@ -187,7 +188,7 @@ void update_motor_step(MOTOR_PARAMETER *motor) {
         }
     }
 
-    commutate_motor(motor);
+    motor_commutate(motor);
 }
 
 bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
@@ -209,8 +210,11 @@ bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
   *
   * Calculate actual speed from Hall counts and delta time
   */
+ float real_speed;
 void speed_calculate(MOTOR_PARAMETER *motor) {
-    float real_speed = (float)motor->step_count / 6;
+    if (motor == &motor_left) return;
+    //速度多3被不知道為甚麼所以先除3
+    real_speed = (float)motor->step_count / (6 * 3);
     real_speed /= 0.1f;
     motor->speed_present = real_speed;
     motor->step_count = 0;

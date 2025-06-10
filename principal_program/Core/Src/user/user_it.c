@@ -13,12 +13,14 @@ int toggle1 = 1;
 int toggle2 = 0;
 
 // trigger at 1ms
+int text = 0;
 void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        update_motor_step(&motor_right);
-        update_motor_step(&motor_left );
+        text = 1;
+        motor_step_update(&motor_right);
+        motor_step_update(&motor_left );
     }
     if (user_sys_tick % 50 == 0) {
         transceive_flags.uart_transmit = true;
@@ -48,7 +50,7 @@ void user_SysTick_Handler(void) {
   */
 void user_EXTI3_IRQHandler(void) {
     motor_right.step_count++;
-    update_motor_step(&motor_right);
+    motor_step_update(&motor_right);
 }
 
 /**
@@ -58,7 +60,7 @@ void user_EXTI3_IRQHandler(void) {
   */
 void user_EXTI9_5_IRQHandler(void) {
     motor_left.step_count++;
-    update_motor_step(&motor_left);
+    motor_step_update(&motor_left);
 }
 
 /**
@@ -76,7 +78,6 @@ void user_TIM1_UP_TIM16_IRQHandler(void) {
   * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor_node
   */
 void user_EXTI15_10_IRQHandler(void) {
-
     if (HAL_GetTick() - temp_time1 >= 300) {
         temp_time1 = HAL_GetTick();
 
@@ -84,7 +85,7 @@ void user_EXTI15_10_IRQHandler(void) {
             hall_sensor_node = 0;
             toggle1 = 0;
         } else {
-            hall_sensor_node = 1111 + 1;
+            hall_sensor_node = 1300 + 1;
             toggle1 = 1;
         }
     }
@@ -104,7 +105,7 @@ void user_EXTI4_IRQHandler(void) {
             hall_sensor_direction = 0;
             toggle2 = 0;
         } else {
-            hall_sensor_direction = 1111 + 1;
+            hall_sensor_direction = 1300 + 1;
             toggle2 = 1;
         }
     }

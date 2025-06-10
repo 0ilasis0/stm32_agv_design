@@ -23,7 +23,7 @@ extern MAP_DATA map_data;
 bool motor_speed_setpoint_set(MOTOR_PARAMETER* motor, uint8_t value);
 void track_mode(void);
 void rotate_in_place(void);
-ROTATE_STATUS get_rotate_direction(void);
+ROTATE_STATUS get_rotate_direction(int8_t start_dir, int8_t end_dir);
 void motor_motion_control(MOTIONCOMMAND mode);
 void veh_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction);
 void rotate_control_direction (ROTATE_STATUS rotate_mode_right, ROTATE_STATUS rotate_mode_left);
@@ -32,8 +32,14 @@ void over_hall_fall_back(void);
 void ensure_motor_stop(void);
 void test_no_load_speed(uint16_t mile_sec);
 void over_hall_fall_back_time_based(uint32_t  previous_time_fall_back_dif);
-uint8_t pass_magnetic_stripe_calculate(ROTATE_STATUS rotate_direction_mode);
+uint8_t pass_magnetic_stripe_calculate(
+    ROTATE_STATUS rotate_direction_mode,
+    uint16_t current_id_input,
+    uint8_t from_dir,
+    uint8_t to_dir
+    );
 void breakdown_all_hall_lost (void);
 void search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time);
+MOTIONCOMMAND rotate_status_to_motioncommand (ROTATE_STATUS mode);
 
 #endif

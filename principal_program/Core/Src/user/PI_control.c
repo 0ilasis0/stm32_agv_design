@@ -4,12 +4,7 @@
 #include "user/user_it.h"
 #include "tim.h"
 
-float max_speed_pcn = 30.0;
-
-/* +setup -----------------------------------------------------------*/
-void PI_tim_setup(void){
-    HAL_TIM_Base_Start_IT(&htim1);
-}
+float max_speed_pcn = 40.0;
 
 float output_pwm_Value;
 float error;
@@ -17,7 +12,8 @@ float integral_temp;
 float setpoint;
 /* +PI speed control ------------------------------------------------*/
 void PI_Controller(MOTOR_PARAMETER *motor) {
-    if (!PI_enable || motor == &motor_left) return;
+    if (motor == &motor_left) return;
+    if (!PI_enable) return;
 
     setpoint = (float)max_speed_pcn * motor->speed_sepoint_pcn / 100;
 
