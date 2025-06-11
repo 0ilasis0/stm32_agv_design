@@ -9,16 +9,13 @@
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
 uint32_t user_sys_tick = 0;
-int toggle1 = 1;
-int toggle2 = 0;
+bool toggle1 = 1;
+bool toggle2 = 0;
 
-// trigger at 1ms
-int text = 0;
 void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
     if (user_sys_tick % 10 == 0) {
-        text = 1;
         motor_step_update(&motor_right);
         motor_step_update(&motor_left );
     }
@@ -27,8 +24,8 @@ void user_SysTick_Handler(void) {
         transceive_flags.uart_receive_pkt_proc = true;
     }
     if (user_sys_tick % 100 == 0) {
-        speed_calculate(&motor_right);
-        speed_calculate(&motor_left);
+        motor_speed_calculate(&motor_right);
+        motor_speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
         PI_Controller(&motor_right);
@@ -85,7 +82,7 @@ void user_EXTI15_10_IRQHandler(void) {
             hall_sensor_node = 0;
             toggle1 = 0;
         } else {
-            hall_sensor_node = 1300 + 1;
+            hall_sensor_node = HALL_MAGNITUTE_EDGE + 1;
             toggle1 = 1;
         }
     }
@@ -105,7 +102,7 @@ void user_EXTI4_IRQHandler(void) {
             hall_sensor_direction = 0;
             toggle2 = 0;
         } else {
-            hall_sensor_direction = 1300 + 1;
+            hall_sensor_direction = HALL_MAGNITUTE_EDGE + 1;
             toggle2 = 1;
         }
     }

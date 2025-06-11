@@ -7,8 +7,6 @@
 #include "stm32g431xx.h"
 #include "user/map.h"
 
-
-
 typedef struct{
     uint8_t speed_sepoint_pcn;
     ROTATE_STATUS rotate_direction;
@@ -29,9 +27,6 @@ typedef struct{
     uint32_t TIM_CHANNEL_x[3];
 
 } MOTOR_PARAMETER;
-
-extern MOTOR_PARAMETER motor_right;
-extern MOTOR_PARAMETER motor_left;
 MOTOR_PARAMETER motor_new(
     // range 1~100
     uint8_t speed_sepoint_pcn,
@@ -54,11 +49,14 @@ MOTOR_PARAMETER motor_new(
     TIM_HandleTypeDef* TIMx[3],
     uint32_t TIM_CHANNEL_x[3]
 );
+extern MOTOR_PARAMETER motor_right;
+extern MOTOR_PARAMETER motor_left;
+
 void motor_setup(void);
-void motor_tim_setup(const MOTOR_PARAMETER *motor);
 void motor_step_update(MOTOR_PARAMETER *motor);
-void motor_commutate(const MOTOR_PARAMETER *motor);
-bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value);
-void speed_calculate(MOTOR_PARAMETER *motor);
+void motor_speed_calculate(MOTOR_PARAMETER *motor);
+bool motor_set_duty(MOTOR_PARAMETER *motor, int16_t value);
+bool motor_set_speed_setpoint(MOTOR_PARAMETER* motor, uint8_t value);
+void motor_set_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction);
 
 #endif

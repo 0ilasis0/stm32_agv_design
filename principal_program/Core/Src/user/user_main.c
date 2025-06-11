@@ -7,7 +7,7 @@
 #include "user/map.h"
 
 /*測試用--------------------------------------*/
-uint32_t hall_sensor_node = 1300 +1;
+uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 /*測試用--------------------------------------*/
 
 /* +Main ------------------------------------------------------------*/
@@ -15,25 +15,25 @@ void user_main(void) {
     uart_setup();
     motor_setup();
 
-    // test_no_load_speed(1000);
+    // vehicle_test_no_load_speed(1000);
 
     hall_detection_adc_setup();
     map_setup();
 
-    // adjust_startup_heading ();
+    // vehicle_adjust_startup_heading ();
 
 /*測試用--------------------------------------*/
-    // motor_speed_setpoint_set(&motor_right, 100);
-    // set_motor_duty(&motor_right, 75);
+    // motor_set_speed_setpoint(&motor_right, 100);
+    // motor_set_duty(&motor_right, 75);
 
-    // rotate_in_place();
-    // over_hall_fall_back();
+    // vehicle_rotate_in_place();
+    // vehicle_over_hall_fall_back();
 
 /*測試用--------------------------------------*/
 
     while (1) {
         uart_trcv_proccess();
-        track_mode();
+        vehicle_track_mode();
 /*
         if (hall_sensor_node > hall_strong_magnet_value) {
             decide_move_mode();
@@ -43,7 +43,7 @@ void user_main(void) {
                 map_data.current_count++ ;
 
             } else {
-                track_mode();
+                vehicle_track_mode();
 
             }
         }
@@ -66,7 +66,7 @@ void decide_move_mode(void) {
 
         case agv_rotate:
             protect_over_hall();
-            rotate_in_place();
+            vehicle_rotate_in_place();
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;
@@ -81,17 +81,17 @@ void decide_move_mode(void) {
 
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
 void protect_over_hall(void) {
-    ensure_motor_stop();
+    vehicle_ensure_motor_stop();
 
     if (hall_sensor_node > hall_strong_magnet_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
     if (map_data.status[map_data.current_count] == agv_rotate) {
-        over_hall_fall_back();
+        vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
     if (map_data.status[map_data.current_count] == agv_end) {
-        over_hall_fall_back();
+        vehicle_over_hall_fall_back();
     }
 }

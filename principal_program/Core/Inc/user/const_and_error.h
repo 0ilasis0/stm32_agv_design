@@ -13,14 +13,14 @@ extern bool debug_breakdown_all_hall_lost_enable;
 extern bool debug_test_no_load_speed_enable;
 
 typedef struct {
-    bool ensure_motor_stop;
-    bool test_no_load_speed;
+    bool vehicle_ensure_motor_stop;
+    bool vehicle_test_no_load_speed;
     bool over_hall_fall_back_time_based;
-    bool over_hall_fall_back;
-    bool rotate_in_place;
+    bool vehicle_over_hall_fall_back;
+    bool vehicle_rotate_in_place;
     bool rotate_in_place_hall;
-    bool renew_vehicle_rotation_status;
-    bool search_magnetic_path;
+    bool vehicle_renew_vehicle_rotation_status;
+    bool vehicle_search_magnetic_path;
     bool search_magnetic_path_in;
 } ERROR_TIMEOUT;
 

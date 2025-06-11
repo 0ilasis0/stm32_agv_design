@@ -1,5 +1,6 @@
 #include "user/motor.h"
 #include "user/PI_control.h"
+#include "user/vehicle.h"
 #include "tim.h"
 
 // Commutation right_SEQUENCE for 120 degree control
@@ -69,6 +70,18 @@ MOTOR_PARAMETER motor_new(
 }
 
 /**
+  * 啟動指定馬達之 PWM 定時器
+  *
+  * Start PWM timers for specified motor channels
+  */
+static inline void motor_tim_setup(const MOTOR_PARAMETER *motor) {
+    HAL_TIM_PWM_Start(motor->TIMx[0], motor->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(motor->TIMx[1], motor->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(motor->TIMx[2], motor->TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start_IT(motor->TIMx[0]);
+}
+
+/**
   * 設定並初始化左右馬達參數
   *
   * Motor Initialization for both motors
@@ -126,18 +139,6 @@ void motor_setup(void) {
 }
 
 /**
-  * 啟動指定馬達之 PWM 定時器
-  *
-  * Start PWM timers for specified motor channels
-  */
-void motor_tim_setup(const MOTOR_PARAMETER *motor) {
-    HAL_TIM_PWM_Start(motor->TIMx[0], motor->TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(motor->TIMx[1], motor->TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(motor->TIMx[2], motor->TIM_CHANNEL_x[2]);
-    HAL_TIM_Base_Start_IT(motor->TIMx[0]);
-}
-
-/**
   * 執行馬達換相控制
   *
   * Execute motor commutation based on current step sequence
@@ -191,7 +192,22 @@ void motor_step_update(MOTOR_PARAMETER *motor) {
     motor_commutate(motor);
 }
 
-bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
+/**
+  * 基於霍爾感測與時間計算即時速度
+  *
+  * Calculate actual speed from Hall counts and delta time
+  */
+float real_speed;
+void motor_speed_calculate(MOTOR_PARAMETER *motor) {
+    if (motor == &motor_left) return;
+    //速度多3被不知道為甚麼所以先除3
+    real_speed = (float)motor->step_count / (6 * 3);
+    real_speed /= 0.1f;
+    motor->speed_present = real_speed;
+    motor->step_count = 0;
+}
+
+bool motor_set_duty(MOTOR_PARAMETER *motor, int16_t value) {
     // 限制PWM最大值&&最小值
     if (value > 100) {
         motor->duty_value = 100;
@@ -206,16 +222,21 @@ bool set_motor_duty(MOTOR_PARAMETER *motor, int16_t value) {
 }
 
 /**
-  * 基於霍爾感測與時間計算即時速度
-  *
-  * Calculate actual speed from Hall counts and delta time
+  * @brief 設定馬達速度目標值，限制範圍 0~100
+  * @retval true：成功，false：超出範圍並已修正
   */
- float real_speed;
-void speed_calculate(MOTOR_PARAMETER *motor) {
-    if (motor == &motor_left) return;
-    //速度多3被不知道為甚麼所以先除3
-    real_speed = (float)motor->step_count / (6 * 3);
-    real_speed /= 0.1f;
-    motor->speed_present = real_speed;
-    motor->step_count = 0;
+bool motor_set_speed_setpoint(MOTOR_PARAMETER* motor, uint8_t value) {
+    if (value > 100) {
+        motor->speed_sepoint_pcn = 100;
+        return false;
+    }
+    motor->speed_sepoint_pcn = value;
+    return true;
+}
+
+/**
+  * @brief 設定馬達旋轉方向（rotate_direction）
+  */
+void motor_set_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction){
+    motor->rotate_direction = direction;
 }
