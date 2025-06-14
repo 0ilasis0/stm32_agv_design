@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#include "user/uart_mod.h"
+#include "uart/main.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart3;

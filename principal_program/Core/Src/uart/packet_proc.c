@@ -1,8 +1,7 @@
-#include "user/uart_packet_proc_mod.h"
-#include "user/uart_packet_mod.h"
-#include "user/uart_mod.h"
-#include "user/motor.h"
-#include "user/mcu_const.h"
+#include "uart/packet_proc.h"
+#include "main/mcu_const.h"
+#include "motor/main.h"
+#include "uart/main.h"
 
 float f32_test = 1;
 uint16_t u16_test = 1;

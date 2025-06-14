@@ -1,10 +1,10 @@
-#include "user/motor.h"
-#include "user/PI_control.h"
-#include "user/vehicle.h"
+#include "motor/main.h"
 #include "tim.h"
+#include "motor/PI_control.h"
+#include "main/vehicle.h"
 
 // Commutation right_SEQUENCE for 120 degree control
-const int SEQUENCE[6][3] = {
+static const int SEQUENCE[6][3] = {
   { 1, -1,  0},
   { 1,  0, -1},
   { 0,  1, -1},
@@ -21,7 +21,7 @@ MOTOR_PARAMETER motor_left;
   *
   * Initialized MOTOR_PARAMETER structure and return motor parameters
   */
-MOTOR_PARAMETER motor_new(
+static MOTOR_PARAMETER motor_new(
     // range 1~100
     uint8_t speed_sepoint_pcn,
     ROTATE_STATUS rotate_direction,
@@ -200,23 +200,22 @@ void motor_step_update(MOTOR_PARAMETER *motor) {
 float real_speed;
 void motor_speed_calculate(MOTOR_PARAMETER *motor) {
     if (motor == &motor_left) return;
-    //速度多3被不知道為甚麼所以先除3
     real_speed = (float)motor->step_count / (6 * 3);
     real_speed /= 0.1f;
     motor->speed_present = real_speed;
     motor->step_count = 0;
 }
 
-bool motor_set_duty(MOTOR_PARAMETER *motor, int16_t value) {
+bool motor_set_duty(MOTOR_PARAMETER *motor, uint8_t value) {
     // 限制PWM最大值&&最小值
     if (value > 100) {
         motor->duty_value = 100;
         return false;
     }
-    if (value < 0) {
-        motor->duty_value = 0;
-        return false;
-    }
+    // if (value < 0) {
+    //     motor->duty_value = 0;
+    //     return false;
+    // }
     motor->duty_value = value;
     return true;
 }
@@ -237,6 +236,18 @@ bool motor_set_speed_setpoint(MOTOR_PARAMETER* motor, uint8_t value) {
 /**
   * @brief 設定馬達旋轉方向（rotate_direction）
   */
-void motor_set_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction){
+inline void motor_set_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction) {
     motor->rotate_direction = direction;
+}
+
+inline void motor_set_integral_record(MOTOR_PARAMETER *motor, float integral) {
+    motor->integral_record = integral;
+}
+
+inline void motor_set_adc_val(MOTOR_PARAMETER *motor, uint16_t value) {
+    motor->adc_value = value;
+}
+
+inline void motor_add_step_count(MOTOR_PARAMETER *motor) {
+    motor->step_count++;
 }

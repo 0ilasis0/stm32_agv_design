@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "user/user_main.h"
+#include "main/main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

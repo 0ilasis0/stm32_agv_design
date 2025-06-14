@@ -1,7 +1,7 @@
-#include "user/uart_mod.h"
+#include "uart/main.h"
 #include <string.h>
 #include "usart.h"
-#include "user/uart_packet_proc_mod.h"
+#include "uart/packet_proc.h"
 
 /**
  * @brief UART 初始化完成旗標
@@ -122,7 +122,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     }
 }
 
-void uart_trcv_proccess(void) {
+void uart_main(void) {
     if (transceive_flags.uart_transmit) {
         transceive_flags.uart_transmit = false;
         uart_transmit(&huart3);

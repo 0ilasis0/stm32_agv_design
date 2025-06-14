@@ -1,11 +1,11 @@
-#include "user/vehicle.h"
-#include "user/PI_control.h"
-#include "user/user_adc.h"
-#include "user/user_it.h"
-#include "user/const_and_error.h"
-#include "tim.h"
+#include "main/vehicle.h"
 #include <math.h>
+#include "tim.h"
 #include "stm32g4xx_hal.h"
+#include "main/adc.h"
+#include "main/it.h"
+#include "main/const_and_error.h"
+#include "motor/PI_control.h"
 
 // 判斷磁條強度大小
 uint32_t hall_magnetic_stripe_value = HALL_MAGNITUTE_EDGE;

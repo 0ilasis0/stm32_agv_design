@@ -1,9 +1,8 @@
-#include "user/user_it.h"
-#include "user/const_and_error.h"
-#include "user/vehicle.h"
-#include "user/PI_control.h"
-#include "user/uart_mod.h"
-#include "user/uart_packet_proc_mod.h"
+#include "main/it.h"
+#include "main/const_and_error.h"
+#include "main/vehicle.h"
+#include "motor/PI_control.h"
+#include "uart/main.h"
 #include "stm32g4xx_hal_gpio.h"
 
 uint32_t temp_time1 = 0;
@@ -28,10 +27,11 @@ void user_SysTick_Handler(void) {
         motor_speed_calculate(&motor_left);
     }
     if (user_sys_tick % 500 == 0) {
-        PI_Controller(&motor_right);
-        PI_Controller(&motor_left);
+        motor_PI_control(&motor_right);
+        motor_PI_control(&motor_left);
     }
     if (user_sys_tick % 1000 == 0) {
+        // uart_set_flag(&transceive_flags.uart_transmit_pkt_proc, true);
         transceive_flags.uart_transmit_pkt_proc = true;
     }
     // 60s
@@ -46,7 +46,7 @@ void user_SysTick_Handler(void) {
   * Handle EXTI interrupt for right motor Hall sensor
   */
 void user_EXTI3_IRQHandler(void) {
-    motor_right.step_count++;
+    motor_add_step_count(&motor_right);
     motor_step_update(&motor_right);
 }
 
@@ -56,7 +56,7 @@ void user_EXTI3_IRQHandler(void) {
   * Handle EXTI interrupt for left motor Hall sensor
   */
 void user_EXTI9_5_IRQHandler(void) {
-    motor_left.step_count++;
+    motor_add_step_count(&motor_left);
     motor_step_update(&motor_left);
 }
 

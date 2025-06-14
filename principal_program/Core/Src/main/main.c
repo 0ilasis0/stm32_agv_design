@@ -1,10 +1,9 @@
-#include "user/user_main.h"
-#include "user/motor.h"
-#include "user/PI_control.h"
-#include "user/user_adc.h"
-#include "user/uart_mod.h"
-#include "user/uart_packet_proc_mod.h"
-#include "user/map.h"
+#include "main/main.h"
+#include "main/adc.h"
+#include "main/map.h"
+#include "motor/PI_control.h"
+#include "uart/main.h"
+#include "uart/packet_proc.h"
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
@@ -14,11 +13,10 @@ uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 void user_main(void) {
     uart_setup();
     motor_setup();
+    adc_setup();
+    map_setup();
 
     // vehicle_test_no_load_speed(1000);
-
-    hall_detection_adc_setup();
-    map_setup();
 
     // vehicle_adjust_startup_heading ();
 
@@ -32,7 +30,7 @@ void user_main(void) {
 /*測試用--------------------------------------*/
 
     while (1) {
-        uart_trcv_proccess();
+        uart_main();
         vehicle_track_mode();
 /*
         if (hall_sensor_node > hall_strong_magnet_value) {

@@ -1,8 +1,8 @@
 #ifndef USER_VEHICLE_H
 #define USER_VEHICLE_H
 
-#include "user/motor.h"
-#include "user/map.h"
+#include "motor/main.h"
+#include "main/map.h"
 
 #define HALL_MAGNITUTE_EDGE 1870  //1730
 

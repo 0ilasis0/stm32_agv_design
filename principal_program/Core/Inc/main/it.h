@@ -1,7 +1,7 @@
 #ifndef USER_IT_H
 #define USER_IT_H
 
-#include "user/motor.h"
+#include "motor/main.h"
 
 void user_SysTick_Handler(void);
 void user_EXTI9_5_IRQHandler(void);

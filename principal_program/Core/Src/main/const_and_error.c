@@ -1,7 +1,5 @@
-#include "user/const_and_error.h"
+#include "main/const_and_error.h"
 #include "stm32g4xx_hal.h"
-
-
 
 bool PI_enable = 1;
 bool search_magnetic_path_enable = 1;

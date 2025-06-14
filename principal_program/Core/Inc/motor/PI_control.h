@@ -1,7 +1,7 @@
 #ifndef USER_PI_CONTROL_H
 #define USER_PI_CONTROL_H
 
-#include "user/motor.h"
+#include "motor/main.h"
 
 #define Kp 0.5f                                                // 比例增益
 #define Ki 0.001f                                             // 積分增益
@@ -16,6 +16,6 @@ extern float max_speed_pcn;
 extern uint32_t hall_sensor_node;
 /*測試用--------------------------------------*/
 
-void PI_Controller(MOTOR_PARAMETER *motor);
+void motor_PI_control(MOTOR_PARAMETER *motor);
 
 #endif

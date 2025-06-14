@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "usart.h"
-#include "user/uart_packet_mod.h"
-#include "user/motor.h"
+#include "uart/packet.h"
+#include "motor/main.h"
 
 #define UART3_BAUDRATE 115200
 #define UART_TIME_OUT 100
@@ -23,6 +23,6 @@ void uart_setup(void);
 void USER_UART3_IRQHandler_Before(void);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
-void uart_trcv_proccess(void);
+void uart_main(void);
 
 #endif

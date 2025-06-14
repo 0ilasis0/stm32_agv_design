@@ -1,7 +1,7 @@
 #ifndef USER_PACKET_H
 #define USER_PACKET_H
 
-#include "user/vec_mod.h"
+#include "main/vec.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

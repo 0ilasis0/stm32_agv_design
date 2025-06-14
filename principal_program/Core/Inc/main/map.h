@@ -1,6 +1,8 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <stdint.h>
+
 #define INF 99999
 #define max_node 6
 #define no_data -1

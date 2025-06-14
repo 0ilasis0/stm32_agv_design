@@ -22,8 +22,8 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "user/user_it.h"
-#include "user/uart_mod.h"
+#include "main/it.h"
+#include "uart/main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
