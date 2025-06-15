@@ -1,5 +1,4 @@
-#ifndef USER_PI_CONTROL_H
-#define USER_PI_CONTROL_H
+#pragma once
 
 #include "motor/main.h"
 
@@ -17,5 +16,3 @@ extern uint32_t hall_sensor_node;
 /*測試用--------------------------------------*/
 
 void motor_PI_control(MOTOR_PARAMETER *motor);
-
-#endif

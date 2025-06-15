@@ -1,8 +1,7 @@
 /**
  * ! Generate by code, do not edit !
  */
-#ifndef MCU_CONST_H
-#define MCU_CONST_H
+#pragma once
 
 #include <stdint.h>
 
@@ -37,5 +36,3 @@
 #define CMD_MOVE_BACKWARD ((uint8_t[]){CMD_CODE_VECH_CONTROL, 0x02})
 #define CMD_MOVE_LEFT ((uint8_t[]){CMD_CODE_VECH_CONTROL, 0x03})
 #define CMD_MOVE_RIGHT ((uint8_t[]){CMD_CODE_VECH_CONTROL, 0x04})
-
-#endif

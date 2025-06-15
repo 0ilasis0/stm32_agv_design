@@ -1,5 +1,4 @@
-#ifndef USER_VEHICLE_H
-#define USER_VEHICLE_H
+#pragma once
 
 #include "motor/main.h"
 #include "main/map.h"
@@ -38,5 +37,3 @@ uint8_t vehicle_pass_magnetic_stripe_calculate(
 void vehicle_breakdown_all_hall_lost (void);
 void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time);
 MOTIONCOMMAND vehicle_rotate_status_to_motioncommand (ROTATE_STATUS mode);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef USER_UART_H
-#define USER_UART_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,5 +23,3 @@ void USER_UART3_IRQHandler_Before(void);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 void uart_main(void);
-
-#endif

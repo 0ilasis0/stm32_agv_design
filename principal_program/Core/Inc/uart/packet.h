@@ -1,5 +1,4 @@
-#ifndef USER_PACKET_H
-#define USER_PACKET_H
+#pragma once
 
 #include "main/vec.h"
 #include <stddef.h>
@@ -42,5 +41,3 @@ UartTrcvBuf uart_trcv_buf_new(void);
 extern UartTrcvBuf uart_trsm_pkt_buf;
 extern UartTrcvBuf uart_recv_pkt_buf;
 void uart_trcv_buf_init(void);
-
-#endif

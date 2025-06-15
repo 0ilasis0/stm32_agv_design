@@ -1,5 +1,4 @@
-#ifndef USER_CONST_H
-#define USER_CONST_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -33,5 +32,3 @@ extern ERROR_TIMEOUT error_timeout;
 extern ERROR_DATA error_data;
 
 bool timeout_error (uint32_t error_start, bool *error_parameter);
-
-#endif

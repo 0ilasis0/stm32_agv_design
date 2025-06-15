@@ -1,5 +1,4 @@
-#ifndef USER_MOTOR_H
-#define USER_MOTOR_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -39,5 +38,3 @@ void motor_set_direction(MOTOR_PARAMETER *motor, ROTATE_STATUS direction);
 void motor_set_integral_record(MOTOR_PARAMETER *motor, float integral);
 void motor_set_adc_val(MOTOR_PARAMETER *motor, uint16_t value);
 void motor_add_step_count(MOTOR_PARAMETER *motor);
-
-#endif

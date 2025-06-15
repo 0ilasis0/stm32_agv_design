@@ -1,5 +1,4 @@
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <stdint.h>
 
@@ -49,5 +48,3 @@ void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);
 AGV_STATUS decide_vehicle_status(uint8_t count);
-
-#endif

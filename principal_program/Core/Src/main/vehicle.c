@@ -136,7 +136,7 @@ uint8_t vehicle_pass_magnetic_stripe_calculate(
     uint16_t current_id_input,
     uint8_t from_dir,
     uint8_t to_dir
-    ) {
+) {
     uint8_t count = 0;
 
     // 取得目前節點（node）在 locations_t 中的索引值
