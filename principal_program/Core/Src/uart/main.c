@@ -19,29 +19,19 @@ static bool uart_init;
  */
 TransceiveFlags transceive_flags = {0};
 
-static VecU8 uart_dma_tr_bytes;
+VecU8 uart_dma_tr_bytes = {0};
 /**
  * @brief UART 接收 DMA 緩衝區
  *
  *        UART receive DMA buffer
  */
-static VecU8 uart_dma_rv_bytes;
+VecU8 uart_dma_rv_bytes = {0};
 
 void USER_MX_USART3_UART_Init(void) {
     uart_init = 0;
     uart_dma_tr_bytes = vec_u8_new();
     uart_dma_rv_bytes = vec_u8_new();
     uart_trcv_buf_init();
-}
-
-/**
- * @brief 設置 UART，清零接收緩衝並啟用 DMA 接收於 IDLE 中斷
- *        Configure UART: clear receive buffer and enable DMA reception on IDLE interrupt
- */
-void uart_setup(void) {
-    // Rx:PB11(R18) Tx:PB9(R5)
-    __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
 }
 
 static void uart_reset_hdmarx_CNDTR(UART_HandleTypeDef *huart) {
@@ -89,12 +79,13 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
-        UartPacket packet = uart_packet_new();
-        uart_trcv_buf_pop_front(&uart_trsm_pkt_buf, &packet);
+        uart_trcv_buf_void_front(&uart_trsm_pkt_buf);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     }
 }
 
 static void uart_receive(UART_HandleTypeDef *huart) {
+    // HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     UartPacket packet = uart_packet_new();
     if (uart_pkt_pack(&packet, &uart_dma_rv_bytes)) {
         uart_trcv_buf_push(&uart_recv_pkt_buf, &packet);
@@ -120,6 +111,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
         __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     }
+}
+
+/**
+ * @brief 設置 UART，清零接收緩衝並啟用 DMA 接收於 IDLE 中斷
+ *        Configure UART: clear receive buffer and enable DMA reception on IDLE interrupt
+ */
+void uart_setup(void) {
+    // Tx:PB9(R5) Rx:PB11(R18)
+    __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
 }
 
 void uart_main(void) {

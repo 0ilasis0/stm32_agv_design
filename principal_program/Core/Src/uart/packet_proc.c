@@ -15,8 +15,9 @@ uint16_t u16_test = 1;
  */
 void rspdw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
-    vec_u8_push_f32(vec_u8, motor_right.speed_present);
-    // f32_test++;
+    // vec_u8_push_f32(vec_u8, motor_right.speed_present);
+    vec_u8_push_f32(vec_u8, f32_test);
+    f32_test++;
 }
 
 /**
@@ -28,9 +29,9 @@ void rspdw(VecU8* vec_u8) {
  */
 void radcw(VecU8* vec_u8) {
     vec_u8_push(vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
-    vec_u8_push_u16(vec_u8, motor_right.adc_value);
-    // vec_u8_push_u16(vec_u8, u16_test);
-    // u16_test++;
+    // vec_u8_push_u16(vec_u8, motor_right.adc_value);
+    vec_u8_push_u16(vec_u8, u16_test);
+    u16_test++;
 }
 
 /**

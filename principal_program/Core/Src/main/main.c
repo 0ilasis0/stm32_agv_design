@@ -13,8 +13,8 @@ uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 void user_main(void) {
     uart_setup();
     motor_setup();
-    adc_setup();
-    map_setup();
+    // adc_setup();
+    // map_setup();
 
     // vehicle_test_no_load_speed(1000);
 
@@ -31,7 +31,7 @@ void user_main(void) {
 
     while (1) {
         uart_main();
-        vehicle_track_mode();
+        // vehicle_track_mode();
 /*
         if (hall_sensor_node > hall_strong_magnet_value) {
             decide_move_mode();

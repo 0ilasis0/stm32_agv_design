@@ -36,6 +36,7 @@ typedef struct UartTrcvBuf {
 } UartTrcvBuf;
 bool uart_trcv_buf_push(UartTrcvBuf *self, const UartPacket *pkt);
 bool uart_trcv_buf_get_front(const UartTrcvBuf *self, UartPacket *pkt);
+bool uart_trcv_buf_void_front(UartTrcvBuf *self);
 bool uart_trcv_buf_pop_front(UartTrcvBuf *self, UartPacket *pkt);
 UartTrcvBuf uart_trcv_buf_new(void);
 extern UartTrcvBuf uart_trsm_pkt_buf;

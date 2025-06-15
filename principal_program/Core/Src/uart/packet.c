@@ -102,6 +102,16 @@ bool uart_trcv_buf_get_front(const UartTrcvBuf *self, UartPacket *pkt) {
     return 1;
 }
 
+bool uart_trcv_buf_void_front(UartTrcvBuf *self) {
+    if (self->len == 0) return 0;
+    if (--self->len == 0) {
+        self->head = 0;
+    } else {
+        self->head = (self->head + 1) % UART_TRCV_BUF_CAP;
+    }
+    return 1;
+}
+
 /**
  * @brief 從環形緩衝區彈出一個封包資料
  *        Pop a packet from the ring buffer
@@ -111,14 +121,9 @@ bool uart_trcv_buf_get_front(const UartTrcvBuf *self, UartPacket *pkt) {
  * @return bool 是否彈出成功 (true if pop successful, false if buffer empty)
  */
 bool uart_trcv_buf_pop_front(UartTrcvBuf *self, UartPacket *pkt) {
-    if (self->len == 0) return 0;
-    if (pkt != NULL) *pkt = self->packets[self->head];
-    if (--self->len == 0) {
-        self->head = 0;
-    } else {
-        self->head = (self->head + 1) % UART_TRCV_BUF_CAP;
-    }
-    return 1;
+    bool result = uart_trcv_buf_get_front(self, pkt);
+    if (!result) return result;
+    return uart_trcv_buf_void_front(self);
 }
 
 /**
