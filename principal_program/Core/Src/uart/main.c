@@ -2,14 +2,7 @@
 #include <string.h>
 #include "usart.h"
 #include "uart/packet_proc.h"
-
-/**
- * @brief UART 初始化完成旗標
- *        UART initialization flag
- *
- * @details 用於跳過第一次 DMA IDLE 中斷 (Used to skip the first DMA IDLE interrupt)
- */
-static bool uart_init;
+#include "uart/trcv_buffer.h"
 
 /**
  * @brief 傳輸/接收操作旗標
@@ -27,48 +20,18 @@ VecU8 uart_dma_tr_bytes = {0};
  */
 VecU8 uart_dma_rv_bytes = {0};
 
-void USER_MX_USART3_UART_Init(void) {
-    uart_init = 0;
-    uart_dma_tr_bytes = vec_u8_new();
-    uart_dma_rv_bytes = vec_u8_new();
-    uart_trcv_buf_init();
-}
-
-static void uart_reset_hdmarx_CNDTR(UART_HandleTypeDef *huart) {
-    __HAL_DMA_DISABLE(huart->hdmarx);
-    huart->hdmarx->Instance->CNDTR = VECU8_MAX_CAPACITY;
-    __HAL_DMA_ENABLE(huart->hdmarx);
-    __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
-}
-
-/**
- * @brief UART3 中斷前置處理：檢查並清除 IDLE 標誌，重新配置 DMA
- *        Pre-handler for UART3 interrupt: check and clear IDLE flag, reconfigure DMA
- */
-void USER_UART3_IRQHandler_Before(void) {
-    UART_HandleTypeDef *huart = &huart3;
-    if (!__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) return;
-    __HAL_UART_CLEAR_IDLEFLAG(huart);
-    uint16_t size = VECU8_MAX_CAPACITY - huart->hdmarx->Instance->CNDTR;
-    uart_dma_rv_bytes.len = size;
-    uart_reset_hdmarx_CNDTR(huart);
-    HAL_UARTEx_RxEventCallback(huart, size);
-}
-
 /**
  * @brief 發送下一筆 UART 封包至 DMA
  *        Transmit next UART packet via DMA
  */
 static void uart_transmit(UART_HandleTypeDef *huart) {
-    if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) {
-        return;
+    if (huart->Instance == USART3) {
+        if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) return;
+        UartPacket packet = uart_packet_new();
+        if (!uart_trcv_buf_pop(&uart_trsm_pkt_buf, &packet)) return;
+        uart_pkt_unpack(&packet, &uart_dma_tr_bytes);
+        HAL_UART_Transmit_DMA(huart, uart_dma_tr_bytes.data, uart_dma_tr_bytes.len);
     }
-    UartPacket packet = uart_packet_new();
-    if (!uart_trcv_buf_pop_front(&uart_trsm_pkt_buf, &packet)) {
-        return;
-    }
-    uart_pkt_unpack(&packet, &uart_dma_tr_bytes);
-    HAL_UART_Transmit_DMA(&huart3, uart_dma_tr_bytes.data, uart_dma_tr_bytes.len);
 }
 
 /**
@@ -79,19 +42,8 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
-        uart_trcv_buf_void_front(&uart_trsm_pkt_buf);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+        
     }
-}
-
-static void uart_receive(UART_HandleTypeDef *huart) {
-    // HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    UartPacket packet = uart_packet_new();
-    if (uart_pkt_pack(&packet, &uart_dma_rv_bytes)) {
-        uart_trcv_buf_push(&uart_recv_pkt_buf, &packet);
-        vec_u8_rm_range(&uart_dma_rv_bytes, 0, VECU8_MAX_CAPACITY);
-    }
-
 }
 
 /**
@@ -103,13 +55,18 @@ static void uart_receive(UART_HandleTypeDef *huart) {
  */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (huart->Instance == USART3) {
-        if (!uart_init) {
-            uart_init = true;
+        __HAL_UART_CLEAR_IDLEFLAG(huart);
+        if (Size == 0) {
+            HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
             return;
         }
-        uart_receive(&huart3);
-        HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
-        __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
+        uart_dma_rv_bytes.len = Size;
+        UartPacket packet = uart_packet_new();
+        if (uart_pkt_pack(&packet, &uart_dma_rv_bytes)) {
+            uart_trcv_buf_push(&uart_recv_pkt_buf, &packet);
+            vec_u8_rm_range(&uart_dma_rv_bytes, 0, VECU8_MAX_CAPACITY);
+        }
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
     }
 }
 

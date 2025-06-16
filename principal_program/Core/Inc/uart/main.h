@@ -17,8 +17,6 @@ typedef struct {
     bool right_adc;
 } TransceiveFlags;
 extern TransceiveFlags transceive_flags;
-void USER_MX_USART3_UART_Init(void);
-void USER_UART3_IRQHandler_Before(void);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 void uart_setup(void);

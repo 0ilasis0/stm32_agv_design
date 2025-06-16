@@ -31,8 +31,9 @@ void user_SysTick_Handler(void) {
         motor_PI_control(&motor_left);
     }
     if (user_sys_tick % 1000 == 0) {
-        // uart_set_flag(&transceive_flags.uart_transmit_pkt_proc, true);
         transceive_flags.uart_transmit_pkt_proc = true;
+    }
+    if (user_sys_tick % 2000 == 0) {
     }
     // 60s
     if (user_sys_tick >= 60000) {

@@ -2,6 +2,7 @@
 #include "main/mcu_const.h"
 #include "motor/main.h"
 #include "uart/main.h"
+#include "uart/trcv_buffer.h"
 
 float f32_test = 1;
 uint16_t u16_test = 1;
@@ -46,14 +47,14 @@ void uart_transmit_pkt_proc(void) {
     VecU8 vec_u8 = vec_u8_new();
     vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
     bool new_vec_wri_flag = false;
-    if (transceive_flags.right_speed) {
-        new_vec_wri_flag = true;
-        rspdw(&vec_u8);
-    }
-    if (transceive_flags.right_adc) {
-        new_vec_wri_flag = true;
-        radcw(&vec_u8);
-    }
+    // if (transceive_flags.right_speed) {
+    //     new_vec_wri_flag = true;
+    //     rspdw(&vec_u8);
+    // }
+    // if (transceive_flags.right_adc) {
+    //     new_vec_wri_flag = true;
+    //     radcw(&vec_u8);
+    // }
     rspdw(&vec_u8);
     radcw(&vec_u8);
     new_vec_wri_flag = true;
@@ -129,7 +130,7 @@ void uart_receive_pkt_proc(uint8_t count) {
     uint8_t i;
     for (i = 0; i < count; i++){
         UartPacket packet = uart_packet_new();
-        if (!uart_trcv_buf_pop_front(&uart_recv_pkt_buf, &packet)) {
+        if (!uart_trcv_buf_pop(&uart_recv_pkt_buf, &packet)) {
             return;
         }
         VecU8 vec_u8 = vec_u8_new();
