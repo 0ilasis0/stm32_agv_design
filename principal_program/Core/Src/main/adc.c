@@ -1,6 +1,7 @@
 #include "main/adc.h"
 #include <stdint.h>
 #include "adc.h"
+#include "main/global_state.h"
 #include "motor/main.h"
 
 static uint16_t ADC_Values[10] = {0};                                 // adc儲存位置

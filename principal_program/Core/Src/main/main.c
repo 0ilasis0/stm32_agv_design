@@ -1,6 +1,8 @@
 #include "main/main.h"
+#include "main/global_state.h"
 #include "main/adc.h"
 #include "main/map.h"
+#include "motor/main.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
 #include "uart/packet_proc.h"
@@ -9,6 +11,9 @@
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 /*測試用--------------------------------------*/
 
+void user_init(void) {
+    motor_init();
+}
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
     uart_setup();

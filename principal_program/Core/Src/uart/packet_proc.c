@@ -1,5 +1,5 @@
 #include "uart/packet_proc.h"
-#include "main/global_variable.h"
+#include "main/global_state.h"
 #include "main/mcu_const.h"
 #include "motor/main.h"
 #include "uart/main.h"
@@ -62,7 +62,7 @@ void uart_tr_pkt_proc(void) {
     if (new_vec_wri_flag) {
         UartPacket packet = UART_PKT_NEW();
         uart_pkt_add_data(&packet, &vec_u8);
-        uart_trcv_buf_push(&global_variable.uart_trsm_pkt_buf, &packet);
+        uart_trcv_buf_push(&global_state.uart_trsm_pkt_buf, &packet);
     };
 }
 
@@ -83,7 +83,7 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP));
             data_proc_flag = true;
-            global_variable.transceive_flags.right_speed = false;
+            global_state.transceive_flags.right_speed = false;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE));
@@ -94,12 +94,12 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START));
             data_proc_flag = true;
-            global_variable.transceive_flags.right_speed = true;
+            global_state.transceive_flags.right_speed = true;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP));
             data_proc_flag = true;
-            global_variable.transceive_flags.right_adc = false;
+            global_state.transceive_flags.right_adc = false;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE));
@@ -110,13 +110,13 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START));
             data_proc_flag = true;
-            global_variable.transceive_flags.right_adc = true;
+            global_state.transceive_flags.right_adc = true;
         }
     } while (data_proc_flag);
     if (new_vec_wri_flag) {
         UartPacket new_packet = UART_PKT_NEW();
         uart_pkt_add_data(&new_packet, &new_vec);
-        uart_trcv_buf_push(&global_variable.uart_trsm_pkt_buf, &new_packet);
+        uart_trcv_buf_push(&global_state.uart_trsm_pkt_buf, &new_packet);
     }
 }
 
@@ -131,7 +131,7 @@ void uart_re_pkt_proc(uint8_t count) {
     uint8_t i;
     for (i = 0; i < count; i++){
         UartPacket packet = UART_PKT_NEW();
-        if (!uart_trcv_buf_pop(&global_variable.uart_recv_pkt_buf, &packet)) {
+        if (!uart_trcv_buf_pop(&global_state.uart_recv_pkt_buf, &packet)) {
             return;
         }
         VecU8 vec_u8 = VEC_U8_NEW();

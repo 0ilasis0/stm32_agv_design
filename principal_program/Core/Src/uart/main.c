@@ -1,6 +1,6 @@
 #include "uart/main.h"
 #include <string.h>
-#include "main/global_variable.h"
+#include "main/global_state.h"
 #include "usart.h"
 #include "uart/packet_proc.h"
 #include "uart/trcv_buffer.h"
@@ -16,7 +16,7 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
         if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) return;
         UartPacket packet = UART_PKT_NEW();
-        if (!uart_trcv_buf_pop(&global_variable.uart_trsm_pkt_buf, &packet)) return;
+        if (!uart_trcv_buf_pop(&global_state.uart_trsm_pkt_buf, &packet)) return;
         uart_pkt_unpack(&packet, &uart_dma_tr_bytes);
         HAL_UART_Transmit_DMA(huart, uart_dma_tr_bytes.data, uart_dma_tr_bytes.len);
     }
@@ -51,7 +51,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         uart_dma_rv_bytes.len = Size;
         UartPacket packet = UART_PKT_NEW();
         if (uart_pkt_pack(&packet, &uart_dma_rv_bytes)) {
-            uart_trcv_buf_push(&global_variable.uart_recv_pkt_buf, &packet);
+            uart_trcv_buf_push(&global_state.uart_recv_pkt_buf, &packet);
             vec_u8_rm_range(&uart_dma_rv_bytes, 0, VECU8_MAX_CAPACITY);
         }
         HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
@@ -69,16 +69,16 @@ void uart_setup(void) {
 }
 
 void uart_main(void) {
-    if (global_variable.transceive_flags.uart_transmit) {
-        global_variable.transceive_flags.uart_transmit = false;
+    if (global_state.transceive_flags.uart_transmit) {
+        global_state.transceive_flags.uart_transmit = false;
         uart_transmit(&huart3);
     }
-    if (global_variable.transceive_flags.uart_tr_pkt_proc) {
-        global_variable.transceive_flags.uart_tr_pkt_proc = false;
+    if (global_state.transceive_flags.uart_tr_pkt_proc) {
+        global_state.transceive_flags.uart_tr_pkt_proc = false;
         uart_tr_pkt_proc();
     }
-    if (global_variable.transceive_flags.uart_re_pkt_proc) {
-        global_variable.transceive_flags.uart_re_pkt_proc = false;
+    if (global_state.transceive_flags.uart_re_pkt_proc) {
+        global_state.transceive_flags.uart_re_pkt_proc = false;
         uart_re_pkt_proc(5);
     }
 }

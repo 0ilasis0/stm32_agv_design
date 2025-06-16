@@ -2,6 +2,7 @@
 #include <math.h>
 #include "tim.h"
 #include "stm32g4xx_hal.h"
+#include "main/global_state.h"
 #include "main/adc.h"
 #include "main/it.h"
 #include "main/const_and_error.h"
@@ -225,6 +226,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
   * @brief 等待左右馬達完全停止
   */
 void vehicle_ensure_motor_stop(void) {
+    // 
     motor_right.speed_sepoint_pcn = 0;
     motor_left.speed_sepoint_pcn  = 0;
 
