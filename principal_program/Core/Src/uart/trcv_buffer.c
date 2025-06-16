@@ -34,15 +34,3 @@ bool uart_trcv_buf_pop(UartTrcvBuf *self, UartPacket *pkt) {
     }
     return 1;
 }
-
-/**
- * @brief 全域傳輸緩衝區
- *        Global transmit ring buffer
- */
-UartTrcvBuf uart_trsm_pkt_buf = {0};
-
-/**
- * @brief 全域接收緩衝區
- *        Global receive ring buffer
- */
-UartTrcvBuf uart_recv_pkt_buf = {0};

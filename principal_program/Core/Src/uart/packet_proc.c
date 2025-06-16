@@ -1,4 +1,5 @@
 #include "uart/packet_proc.h"
+#include "main/global_variable.h"
 #include "main/mcu_const.h"
 #include "motor/main.h"
 #include "uart/main.h"
@@ -43,8 +44,8 @@ void radcw(VecU8* vec_u8) {
  *
  * @return void
  */
-void uart_transmit_pkt_proc(void) {
-    VecU8 vec_u8 = vec_u8_new();
+void uart_tr_pkt_proc(void) {
+    VecU8 vec_u8 = VEC_U8_NEW();
     vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
     bool new_vec_wri_flag = false;
     // if (transceive_flags.right_speed) {
@@ -59,9 +60,9 @@ void uart_transmit_pkt_proc(void) {
     radcw(&vec_u8);
     new_vec_wri_flag = true;
     if (new_vec_wri_flag) {
-        UartPacket packet = uart_packet_new();
+        UartPacket packet = UART_PKT_NEW();
         uart_pkt_add_data(&packet, &vec_u8);
-        uart_trcv_buf_push(&uart_trsm_pkt_buf, &packet);
+        uart_trcv_buf_push(&global_variable.uart_trsm_pkt_buf, &packet);
     };
 }
 
@@ -73,7 +74,7 @@ void uart_transmit_pkt_proc(void) {
  * @return void
  */
 static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
-    VecU8 new_vec = vec_u8_new();
+    VecU8 new_vec = VEC_U8_NEW();
     vec_u8_push_byte(&new_vec, CMD_CODE_DATA_TRRE);
     bool data_proc_flag;
     bool new_vec_wri_flag = false;
@@ -82,7 +83,7 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP));
             data_proc_flag = true;
-            transceive_flags.right_speed = false;
+            global_variable.transceive_flags.right_speed = false;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE));
@@ -93,12 +94,12 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START));
             data_proc_flag = true;
-            transceive_flags.right_speed = true;
+            global_variable.transceive_flags.right_speed = true;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP));
             data_proc_flag = true;
-            transceive_flags.right_adc = false;
+            global_variable.transceive_flags.right_adc = false;
         }
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE));
@@ -109,13 +110,13 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
         else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START));
             data_proc_flag = true;
-            transceive_flags.right_adc = true;
+            global_variable.transceive_flags.right_adc = true;
         }
     } while (data_proc_flag);
     if (new_vec_wri_flag) {
-        UartPacket new_packet = uart_packet_new();
+        UartPacket new_packet = UART_PKT_NEW();
         uart_pkt_add_data(&new_packet, &new_vec);
-        uart_trcv_buf_push(&uart_trsm_pkt_buf, &new_packet);
+        uart_trcv_buf_push(&global_variable.uart_trsm_pkt_buf, &new_packet);
     }
 }
 
@@ -126,14 +127,14 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
  * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
  * @return void
  */
-void uart_receive_pkt_proc(uint8_t count) {
+void uart_re_pkt_proc(uint8_t count) {
     uint8_t i;
     for (i = 0; i < count; i++){
-        UartPacket packet = uart_packet_new();
-        if (!uart_trcv_buf_pop(&uart_recv_pkt_buf, &packet)) {
+        UartPacket packet = UART_PKT_NEW();
+        if (!uart_trcv_buf_pop(&global_variable.uart_recv_pkt_buf, &packet)) {
             return;
         }
-        VecU8 vec_u8 = vec_u8_new();
+        VecU8 vec_u8 = VEC_U8_NEW();
         uart_pkt_get_data(&packet, &vec_u8);
         uint8_t code = vec_u8.data[vec_u8.head];
         vec_u8_rm_range(&vec_u8, 0, 1);

@@ -12,5 +12,3 @@ typedef struct UartTrcvBuf {
 } UartTrcvBuf;
 bool uart_trcv_buf_push(UartTrcvBuf *self, const UartPacket *pkt);
 bool uart_trcv_buf_pop(UartTrcvBuf *self, UartPacket *pkt);
-extern UartTrcvBuf uart_trsm_pkt_buf;
-extern UartTrcvBuf uart_recv_pkt_buf;

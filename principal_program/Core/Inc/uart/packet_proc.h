@@ -4,5 +4,5 @@
 #include <stdbool.h>
 #include "uart/packet.h"
 
-void uart_transmit_pkt_proc(void);
-void uart_receive_pkt_proc(uint8_t count);
+void uart_tr_pkt_proc(void);
+void uart_re_pkt_proc(uint8_t count);

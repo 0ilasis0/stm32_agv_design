@@ -429,6 +429,11 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\main\vehicle.c</FilePath>
             </File>
+            <File>
+              <FileName>global_variable.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\main\global_variable.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
