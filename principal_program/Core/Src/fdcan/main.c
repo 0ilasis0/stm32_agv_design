@@ -46,7 +46,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK) {
             Error_Handler();
         }
-        if ((RxHeader.Identifier == FDCAN_DEVICE_ID) && (RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.DataLength == FDCAN_DLC_BYTES_2)) {
+        if ((RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.Identifier == FDCAN_DEVICE_ID)) {
             BOARD_LED_TOGGLE;
         }
     }
