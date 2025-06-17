@@ -5,8 +5,23 @@
 #include "uart/packet_proc.h"
 #include "uart/trcv_buffer.h"
 
-static VecU8 uart_dma_tr_bytes;
-static VecU8 uart_dma_rv_bytes;
+static VecU8 uart_dma_tr_buf;
+static VecU8 uart_dma_rv_buf;
+
+/**
+ * @brief 全域傳輸/接收緩衝區
+ *        Global transmit/receive ring buffer
+ */
+UartTrcvBuf uart_tr_pkt_buf;
+UartTrcvBuf uart_rv_pkt_buf;
+
+/**
+ * @brief 傳輸/接收操作旗標
+ *        Transmit/receive operation flags
+ *
+ * @details 控制資料處理流程 (Control data processing flow)
+ */
+TransceiveFlags transceive_flags;
 
 /**
  * @brief 發送下一筆 UART 封包至 DMA
@@ -16,9 +31,9 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
     if (huart->Instance == USART3) {
         if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) return;
         UartPacket packet = UART_PKT_NEW();
-        if (!uart_trcv_buf_pop(&global_state.uart_trsm_pkt_buf, &packet)) return;
-        uart_pkt_unpack(&packet, &uart_dma_tr_bytes);
-        HAL_UART_Transmit_DMA(huart, uart_dma_tr_bytes.data, uart_dma_tr_bytes.len);
+        if (!uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet)) return;
+        uart_pkt_unpack(&packet, &uart_dma_tr_buf);
+        HAL_UART_Transmit_DMA(huart, uart_dma_tr_buf.data, uart_dma_tr_buf.len);
     }
 }
 
@@ -40,19 +55,19 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
  * @param Size 接收到的資料長度 (input number of received bytes)
  */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+    __HAL_UART_CLEAR_IDLEFLAG(huart);
     if (huart->Instance == USART3) {
-        __HAL_UART_CLEAR_IDLEFLAG(huart);
         if (Size == 0) {
-            HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
+            HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
             return;
         }
-        uart_dma_rv_bytes.len = Size;
+        uart_dma_rv_buf.len = Size;
         UartPacket packet = UART_PKT_NEW();
-        if (uart_pkt_pack(&packet, &uart_dma_rv_bytes)) {
-            uart_trcv_buf_push(&global_state.uart_recv_pkt_buf, &packet);
-            vec_u8_rm_range(&uart_dma_rv_bytes, 0, VECU8_MAX_CAPACITY);
+        if (uart_pkt_pack(&packet, &uart_dma_rv_buf)) {
+            uart_trcv_buf_push(&uart_rv_pkt_buf, &packet);
+            vec_u8_rm_all(&uart_dma_rv_buf);
         }
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
     }
 }
 
@@ -63,20 +78,20 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 void uart_setup(void) {
     // Tx:PB9(R5) Rx:PB11(R18)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_bytes.data, VECU8_MAX_CAPACITY);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
 }
 
 void uart_main(void) {
-    if (global_state.transceive_flags.uart_transmit) {
-        global_state.transceive_flags.uart_transmit = false;
+    if (transceive_flags.uart_transmit) {
+        transceive_flags.uart_transmit = false;
         uart_transmit(&huart3);
     }
-    if (global_state.transceive_flags.uart_tr_pkt_proc) {
-        global_state.transceive_flags.uart_tr_pkt_proc = false;
+    if (transceive_flags.uart_tr_pkt_proc) {
+        transceive_flags.uart_tr_pkt_proc = false;
         uart_tr_pkt_proc();
     }
-    if (global_state.transceive_flags.uart_re_pkt_proc) {
-        global_state.transceive_flags.uart_re_pkt_proc = false;
+    if (transceive_flags.uart_re_pkt_proc) {
+        transceive_flags.uart_re_pkt_proc = false;
         uart_re_pkt_proc(5);
     }
 }

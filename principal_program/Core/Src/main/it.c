@@ -20,8 +20,8 @@ void user_SysTick_Handler(void) {
         motor_step_update(&motor_left );
     }
     if (user_sys_tick % 50 == 0) {
-        global_state.transceive_flags.uart_transmit = true;
-        global_state.transceive_flags.uart_re_pkt_proc = true;
+        global_state.transceive_flags_h->uart_transmit = true;
+        global_state.transceive_flags_h->uart_re_pkt_proc = true;
     }
     if (user_sys_tick % 100 == 0) {
         motor_speed_calculate(&motor_right);
@@ -33,7 +33,7 @@ void user_SysTick_Handler(void) {
     }
     if (user_sys_tick % 1000 == 0) {
         fdcan_transmit();
-        global_state.transceive_flags.uart_tr_pkt_proc = true;
+        global_state.transceive_flags_h->uart_tr_pkt_proc = true;
     }
     if (user_sys_tick % 2000 == 0) {
     }

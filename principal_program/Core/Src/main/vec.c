@@ -156,6 +156,12 @@ bool vec_u8_push_f32(VecU8 *self, float value) {
     return vec_u8_push(self, &u32, u32_len);
 }
 
+inline bool vec_u8_rm_all(VecU8 *self) {
+    self->head = 0;
+    self->len  = 0;
+    return 1;
+}
+
 /**
  * @brief 從 VecU8 中移除指定範圍的資料
  *        Remove a range of bytes from VecU8
@@ -171,8 +177,7 @@ bool vec_u8_rm_range(VecU8 *self, uint16_t offset, uint16_t size) {
     if (offset >= self->len) return 0;
     if (size == 0) return 1;
     if (size >= self->len) {
-        self->head = 0;
-        self->len  = 0;
+        vec_u8_rm_all(self);
         return 1;
     }
     if (offset == 0) {

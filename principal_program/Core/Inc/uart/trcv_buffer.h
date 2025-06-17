@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include "uart/packet.h"
 
-#define UART_TRCV_BUF_CAP 5
-typedef struct UartTrcvBuf UartTrcvBuf;
+#define UART_TRCV_BUF_CAP 10
 typedef struct UartTrcvBuf {
     UartPacket  packets[UART_TRCV_BUF_CAP];
     uint8_t     head;
