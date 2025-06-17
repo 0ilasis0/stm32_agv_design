@@ -1,33 +1,32 @@
 #include "fdcan/main.h"
 #include "fdcan.h"
 
-FDCAN_RxHeaderTypeDef RxHeader;
+static FDCAN_RxHeaderTypeDef RxHeader;
 uint8_t RxData[8];
-FDCAN_TxHeaderTypeDef TxHeader;
+static FDCAN_TxHeaderTypeDef TxHeader = {
+    .Identifier = FDCAN_DEVICE_ID,
+    .IdType = FDCAN_STANDARD_ID,
+    .TxFrameType = FDCAN_DATA_FRAME,
+    .DataLength = FDCAN_DLC_BYTES_8,
+    .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
+    .BitRateSwitch = FDCAN_BRS_OFF,
+    .FDFormat = FDCAN_CLASSIC_CAN,
+    .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
+};
 uint8_t TxData[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
 
-#define FDCAN_DEVICE_ID 0x321
+#define FDCAN_FilterTypeDef_DEFALT() ((FDCAN_FilterTypeDef){ \
+    .IdType = FDCAN_STANDARD_ID, \
+    .FilterIndex = 0, \
+    .FilterType = FDCAN_FILTER_RANGE, \
+    .FilterConfig = FDCAN_FILTER_TO_RXFIFO0, \
+    .FilterID1 = FDCAN_DEVICE_ID, \
+    .FilterID2 = 0x7FF, \
+})
 
 void user_MX_FDCAN1_Init(void) {
-    FDCAN_FilterTypeDef sFilterConfig;
-    sFilterConfig.IdType = FDCAN_STANDARD_ID;
-    sFilterConfig.FilterIndex = 0;
-    sFilterConfig.FilterType = FDCAN_FILTER_RANGE;
-    sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    sFilterConfig.FilterID1 = FDCAN_DEVICE_ID;
-    sFilterConfig.FilterID2 = 0x7FF;
-    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig) != HAL_OK) {
-        Error_Handler();
-    }
-    TxHeader.Identifier = FDCAN_DEVICE_ID;
-    TxHeader.IdType = FDCAN_STANDARD_ID;
-    TxHeader.TxFrameType = FDCAN_DATA_FRAME;
-    TxHeader.DataLength = FDCAN_DLC_BYTES_8;
-    TxHeader.ErrorStateIndicator = FDCAN_ESI_PASSIVE;
-    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;
-    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
-    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-    TxHeader.MessageMarker = 0;
+    FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
+    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
 }
 
 void fdcan_setup(void) {
