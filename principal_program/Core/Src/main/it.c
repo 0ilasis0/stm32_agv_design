@@ -8,10 +8,10 @@
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
-uint32_t user_sys_tick = 0;
 bool toggle1 = 1;
 bool toggle2 = 0;
 
+static uint32_t user_sys_tick = 0;
 void user_SysTick_Handler(void) {
     user_sys_tick++;
     // 10ms
