@@ -4,7 +4,7 @@
 #include "main/vehicle.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
-#include "stm32g4xx_hal_gpio.h"
+#include "fdcan/main.h"
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
@@ -32,6 +32,7 @@ void user_SysTick_Handler(void) {
         motor_PI_control(&motor_left);
     }
     if (user_sys_tick % 1000 == 0) {
+        fdcan_transmit();
         global_state.transceive_flags.uart_tr_pkt_proc = true;
     }
     if (user_sys_tick % 2000 == 0) {

@@ -6,6 +6,7 @@
 #include "motor/PI_control.h"
 #include "uart/main.h"
 #include "uart/packet_proc.h"
+#include "fdcan/main.h"
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
@@ -17,6 +18,7 @@ void user_init(void) {
 /* +Main ------------------------------------------------------------*/
 void user_main(void) {
     uart_setup();
+    fdcan_setup();
     motor_setup();
     // adc_setup();
     // map_setup();

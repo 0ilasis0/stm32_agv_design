@@ -29,9 +29,7 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
  * @param huart 指向 UART 處理器結構體的指標 (input UART handle pointer)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART3) {
-        
-    }
+    if (huart->Instance == USART3) {}
 }
 
 /**

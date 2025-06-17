@@ -1,6 +1,7 @@
 #pragma once
 
 #include "motor/main.h"
+#include "stm32g431xx.h"
 
 void user_SysTick_Handler(void);
 void user_EXTI9_5_IRQHandler(void);
