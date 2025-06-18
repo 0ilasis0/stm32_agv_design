@@ -4,8 +4,8 @@
 #include "usart.h"
 #include "main/mcu_const.h"
 
-VecU8 uart_dma_tr_buf;
-VecU8 uart_dma_rv_buf;
+VecU8 uart_dma_tr_buf = VEC_U8_NEW();
+VecU8 uart_dma_rv_buf = VEC_U8_NEW();
 
 /**
  * @brief 全域傳輸/接收緩衝區

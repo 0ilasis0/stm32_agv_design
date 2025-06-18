@@ -2,7 +2,7 @@
 #include "fdcan.h"
 
 static FDCAN_RxHeaderTypeDef RxHeader;
-uint8_t RxData[8];
+VecU8 RxData = VEC_U8_NEW();
 static FDCAN_TxHeaderTypeDef TxHeader = {
     .Identifier = FDCAN_DEVICE_ID,
     .IdType = FDCAN_STANDARD_ID,
@@ -13,19 +13,11 @@ static FDCAN_TxHeaderTypeDef TxHeader = {
     .FDFormat = FDCAN_CLASSIC_CAN,
     .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
 };
-uint8_t TxData[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-
-#define FDCAN_FilterTypeDef_DEFALT() ((FDCAN_FilterTypeDef){ \
-    .IdType = FDCAN_STANDARD_ID, \
-    .FilterIndex = 0, \
-    .FilterType = FDCAN_FILTER_RANGE, \
-    .FilterConfig = FDCAN_FILTER_TO_RXFIFO0, \
-    .FilterID1 = FDCAN_DEVICE_ID, \
-    .FilterID2 = 0x7FF, \
-})
+VecU8 TxData = VEC_U8_NEW();
 
 void user_MX_FDCAN1_Init(void)
 {
+    vec_u8_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8);
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
 }
@@ -45,7 +37,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
     {
-        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
+        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData.data) != HAL_OK)
         {
             Error_Handler();
         }
@@ -65,9 +57,9 @@ void fdcan_transmit(void)
     int i;
     for (i = 0; i < 8; i++)
     {
-        TxData[i]++;
+        TxData.data[i]++;
     }
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData);
+    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData.data);
 }
 
 void fdcan_loop(void)
