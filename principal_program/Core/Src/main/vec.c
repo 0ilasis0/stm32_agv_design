@@ -8,12 +8,16 @@
  * @param   self   指向要重新對齊 (realign) 的 VecU8
  * @return  true   重新對齊成功（或本來就不需動作）
  */
-void vec_u8_realign(VecU8 *self) {
+void vec_u8_realign(VecU8 *self)
+{
     if (self->len == 0 || self->head == 0) return;
     uint16_t first_part = VECU8_MAX_CAPACITY - self->head;
-    if (first_part >= self->len) {
+    if (first_part >= self->len)
+    {
         memmove(self->data, self->data + self->head, self->len);
-    } else {
+    }
+    else
+    {
         uint16_t second_part = self->len - first_part;
         memmove(self->data, self->data + self->head, first_part);
         memmove(self->data + first_part, self->data, second_part);
@@ -31,7 +35,8 @@ void vec_u8_realign(VecU8 *self) {
  * @return  true 表示成功，u8 已被填入對應值  
  *          false 表示失敗，通常是因為緩衝區為空或 num 超出範圍  
  */
-bool vec_u8_get_byte(const VecU8 *self, uint8_t *u8, uint16_t id) {
+bool vec_u8_get_byte(const VecU8 *self, uint8_t *u8, uint16_t id)
+{
     if(self->len == 0) return 0;
     if (id >= self->len) return 0;
     uint16_t idx = (self->head + id) % VECU8_MAX_CAPACITY;
@@ -49,16 +54,20 @@ bool vec_u8_get_byte(const VecU8 *self, uint8_t *u8, uint16_t id) {
  * @return true 若開頭吻合 (true if starts with sequence)
  * @return false 否則 (false otherwise)
  */
-bool vec_u8_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pre_len) {
-    if (self->len < pre_len) {
+bool vec_u8_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pre_len)
+{
+    if (self->len < pre_len)
+    {
         return 0;
     }
-    if (self->head + pre_len <= VECU8_MAX_CAPACITY) {
+    if (self->head + pre_len <= VECU8_MAX_CAPACITY)
+    {
         return memcmp(self->data + self->head, pre, pre_len) == 0;
     }
     uint16_t first_part  = VECU8_MAX_CAPACITY - self->head;
     uint16_t remaining = pre_len - first_part;
-    if (memcmp(self->data + self->head, pre, first_part) != 0) {
+    if (memcmp(self->data + self->head, pre, first_part) != 0)
+    {
         return 0;
     }
     return memcmp(self->data, pre + first_part, remaining) == 0;
@@ -74,13 +83,15 @@ bool vec_u8_starts_with(const VecU8 *self, const uint8_t *pre, uint16_t pre_len)
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-bool vec_u8_push(VecU8 *self, const void *src, uint16_t src_len) {
+bool vec_u8_push(VecU8 *self, const void *src, uint16_t src_len)
+{
     if (self->len + src_len > VECU8_MAX_CAPACITY) return 0;
     uint16_t tail = self->head + self->len;
     if (
         (tail >= VECU8_MAX_CAPACITY) ||
         (tail + src_len >= VECU8_MAX_CAPACITY)
-    ) {
+    )
+    {
         vec_u8_realign(self);
         tail = self->len;
     }
@@ -97,7 +108,8 @@ bool vec_u8_push(VecU8 *self, const void *src, uint16_t src_len) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-inline bool vec_u8_push_byte(VecU8 *self, uint8_t value) {
+inline bool vec_u8_push_byte(VecU8 *self, uint8_t value)
+{
     return vec_u8_push(self, &value, 1);
 }
 
@@ -108,9 +120,10 @@ inline bool vec_u8_push_byte(VecU8 *self, uint8_t value) {
  * @param value 要交換大小端的 16-bit 值 (16-bit value to swap)
  * @return uint16_t 交換後的 16-bit 值 (byte-swapped 16-bit value)
  */
-static inline uint16_t swap16(const uint16_t value) {
-    return ((value & 0x00FFU) << 8)
-         | ((value & 0xFF00U) >> 8);
+static inline uint16_t swap16(const uint16_t value)
+{
+    return  ((value & 0x00FFU) << 8) |
+            ((value & 0xFF00U) >> 8);
 }
 /**
  * @brief 將 uint16_t 轉換為大端序並推入 VecU8
@@ -121,7 +134,8 @@ static inline uint16_t swap16(const uint16_t value) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-bool vec_u8_push_u16(VecU8 *self, uint16_t value) {
+bool vec_u8_push_u16(VecU8 *self, uint16_t value)
+{
     uint16_t u16 = swap16(value);
     return vec_u8_push(self, &u16, sizeof(u16));
 }
@@ -133,11 +147,12 @@ bool vec_u8_push_u16(VecU8 *self, uint16_t value) {
  * @param value 要交換大小端的 32-bit 值 (32-bit value to swap)
  * @return uint32_t 交換後的 32-bit 值 (byte-swapped 32-bit value)
  */
-static inline uint32_t swap32(uint32_t value) {
-    return ((value & 0x000000FFU) << 24)
-         | ((value & 0x0000FF00U) <<  8)
-         | ((value & 0x00FF0000U) >>  8)
-         | ((value & 0xFF000000U) >> 24);
+static inline uint32_t swap32(uint32_t value)
+{
+    return  ((value & 0x000000FFU) << 24) |
+            ((value & 0x0000FF00U) <<  8) | 
+            ((value & 0x00FF0000U) >>  8) | 
+            ((value & 0xFF000000U) >> 24);
 }
 /**
  * @brief 將 float 轉換為 IEEE-754 大端序並推入 VecU8
@@ -148,7 +163,8 @@ static inline uint32_t swap32(uint32_t value) {
  * @return true 成功推入 (successfully pushed)
  * @return false 推入失敗（超過容量） (failed to push, exceeds capacity)
  */
-bool vec_u8_push_f32(VecU8 *self, float value) {
+bool vec_u8_push_f32(VecU8 *self, float value)
+{
     uint32_t u32;
     uint8_t u32_len = sizeof(u32);
     memcpy(&u32, &value, u32_len);
@@ -156,7 +172,8 @@ bool vec_u8_push_f32(VecU8 *self, float value) {
     return vec_u8_push(self, &u32, u32_len);
 }
 
-inline bool vec_u8_rm_all(VecU8 *self) {
+inline bool vec_u8_rm_all(VecU8 *self)
+{
     self->head = 0;
     self->len  = 0;
     return 1;
@@ -173,19 +190,23 @@ inline bool vec_u8_rm_all(VecU8 *self) {
  * @return true  成功移除 (successfully removed)
  * @return false offset 超過目前資料長度或 realign 失敗 (offset out of range or realign failed)
  */
-bool vec_u8_rm_range(VecU8 *self, uint16_t offset, uint16_t size) {
+bool vec_u8_rm_range(VecU8 *self, uint16_t offset, uint16_t size)
+{
     if (offset >= self->len) return 0;
     if (size == 0) return 1;
-    if (size >= self->len) {
+    if (size >= self->len)
+    {
         vec_u8_rm_all(self);
         return 1;
     }
-    if (offset == 0) {
+    if (offset == 0)
+    {
         self->head = (self->head + size) % VECU8_MAX_CAPACITY;
         self->len -= size;
         return 1;
     }
-    if (offset + size >= self->len) {
+    if (offset + size >= self->len)
+    {
         self->len = offset;
         return 1;
     }

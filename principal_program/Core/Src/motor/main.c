@@ -42,16 +42,8 @@ MotorParameter motor_left = {
     .motor_const        = &motor_left_const,
 };
 
-void motor_init(void) {
-    // MotorParameter* motor = &motor_right;
-    // motor->rotate_direction   = clockwise;
-    // motor->currentStep        = 7;
-    // motor->motor_const        = &motor_right_const;
-
-    // motor = &motor_left;
-    // motor->rotate_direction   = counter_clockwise;
-    // motor->currentStep        = 7;
-    // motor->motor_const        = &motor_left_const;
+void motor_init(void)
+{
 }
 
 /**
@@ -59,7 +51,8 @@ void motor_init(void) {
   *
   * Start PWM timers for specified motor channels
   */
-static inline void motor_tim_setup(const MotorParameter *motor) {
+static inline void motor_tim_setup(const MotorParameter *motor)
+{
     const MotorConst* motor_const = motor->motor_const;
     HAL_TIM_PWM_Start(motor_const->TIMx[0], motor_const->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(motor_const->TIMx[1], motor_const->TIM_CHANNEL_x[1]);
@@ -72,7 +65,8 @@ static inline void motor_tim_setup(const MotorParameter *motor) {
   *
   * Motor Initialization for both motors
   */
-void motor_setup(void) {
+void motor_setup(void)
+{
     motor_tim_setup(&motor_right);
     motor_tim_setup(&motor_left);
     motor_step_update(&motor_right);
@@ -84,16 +78,23 @@ void motor_setup(void) {
   *
   * Execute motor commutation based on current step sequence
   */
-static inline void motor_commutate(const MotorParameter *motor) {
+static inline void motor_commutate(const MotorParameter *motor)
+{
     const MotorConst* motor_const = motor->motor_const;
-    for (int i = 0; i < 3; i++) {
-        if (SEQUENCE[motor->currentStep][i] == 1) {
+    for (int i = 0; i < 3; i++)
+    {
+        if (SEQUENCE[motor->currentStep][i] == 1)
+        {
             __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], motor->duty_value);
             HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
-        } else if (SEQUENCE[motor->currentStep][i] == -1) {
+        }
+        else if (SEQUENCE[motor->currentStep][i] == -1)
+        {
             __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], 0);
             HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
-        } else {
+        }
+        else
+        {
             __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], 0);
             HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
@@ -105,15 +106,18 @@ static inline void motor_commutate(const MotorParameter *motor) {
   *
   * Update motor step count and determine next step from Hall sensor readings
   */
-void motor_step_update(MotorParameter *motor) {
+void motor_step_update(MotorParameter *motor)
+{
     if (motor == &motor_left) return;
     const MotorConst* motor_const = motor->motor_const;
     uint8_t hallState =
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[0], motor_const->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[1], motor_const->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[2], motor_const->Hall_GPIO_Pin_x[2])     );
-    if (motor->rotate_direction == counter_clockwise) {
-        switch(hallState) {
+    if (motor->rotate_direction == counter_clockwise)
+    {
+        switch(hallState)
+        {
             case 2: motor->currentStep = 0; break;
             case 3: motor->currentStep = 1; break;
             case 1: motor->currentStep = 2; break;
@@ -121,8 +125,11 @@ void motor_step_update(MotorParameter *motor) {
             case 4: motor->currentStep = 4; break;
             case 6: motor->currentStep = 5; break;
         }
-    } else if(motor->rotate_direction == clockwise) {
-        switch(hallState) {
+    }
+    else if(motor->rotate_direction == clockwise)
+    {
+        switch(hallState)
+        {
             case 5: motor->currentStep = 0; break;
             case 4: motor->currentStep = 1; break;
             case 6: motor->currentStep = 2; break;
@@ -141,7 +148,8 @@ void motor_step_update(MotorParameter *motor) {
   * Calculate actual speed from Hall counts and delta time
   */
 float real_speed;
-void motor_speed_calculate(MotorParameter *motor) {
+void motor_speed_calculate(MotorParameter *motor)
+{
     if (motor == &motor_left) return;
     real_speed = (float)motor->step_count / (6 * 3);
     real_speed /= 0.1f;
@@ -149,13 +157,16 @@ void motor_speed_calculate(MotorParameter *motor) {
     motor->step_count = 0;
 }
 
-bool motor_set_duty(MotorParameter *motor, uint8_t value) {
+bool motor_set_duty(MotorParameter *motor, uint8_t value)
+{
     // 限制PWM最大值&&最小值
-    if (value > 100) {
+    if (value > 100)
+    {
         motor->duty_value = 100;
         return false;
     }
-    // if (value < 0) {
+    // if (value < 0)
+    // {
     //     motor->duty_value = 0;
     //     return false;
     // }
@@ -167,8 +178,10 @@ bool motor_set_duty(MotorParameter *motor, uint8_t value) {
   * @brief 設定馬達速度目標值，限制範圍 0~100
   * @retval true：成功，false：超出範圍並已修正
   */
-bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value) {
-    if (value > 100) {
+bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value)
+{
+    if (value > 100)
+    {
         motor->speed_sepoint_pcn = 100;
         return false;
     }
@@ -179,18 +192,22 @@ bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value) {
 /**
   * @brief 設定馬達旋轉方向（rotate_direction）
   */
-inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction) {
+inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction)
+{
     motor->rotate_direction = direction;
 }
 
-inline void motor_set_integral_record(MotorParameter *motor, float integral) {
+inline void motor_set_integral_record(MotorParameter *motor, float integral)
+{
     motor->integral_record = integral;
 }
 
-inline void motor_set_adc_val(MotorParameter *motor, uint16_t value) {
+inline void motor_set_adc_val(MotorParameter *motor, uint16_t value)
+{
     motor->adc_value = value;
 }
 
-inline void motor_add_step_count(MotorParameter *motor) {
+inline void motor_add_step_count(MotorParameter *motor)
+{
     motor->step_count++;
 }

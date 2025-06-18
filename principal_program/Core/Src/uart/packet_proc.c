@@ -15,7 +15,8 @@ uint16_t u16_test = 0;
  * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive response data)
  * @return void
  */
-static void rspdw(void) {
+static void rspdw(void)
+{
     f32_test++;
     VecU8 vec_u8 = VEC_U8_NEW();
     vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
@@ -34,7 +35,8 @@ static void rspdw(void) {
  * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive ADC data)
  * @return void
  */
-static void radcw(void) {
+static void radcw(void)
+{
     u16_test++;
     VecU8 vec_u8 = VEC_U8_NEW();
     vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
@@ -54,7 +56,8 @@ static void radcw(void) {
  *
  * @return void
  */
-void uart_tr_pkt_proc(void) {
+void uart_tr_pkt_proc(void)
+{
     // if (transceive_flags.right_speed) {
     //     rspdw();
     // }
@@ -72,11 +75,11 @@ void uart_tr_pkt_proc(void) {
  * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
  * @return void
  */
-static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
-    bool data_proc_flag;
-    do {
-        VecU8 new_vec = VEC_U8_NEW();
-        vec_u8_push_byte(&new_vec, CMD_CODE_DATA_TRRE);
+static void uart_re_pkt_proc_data_store(VecU8 *vec_u8)
+{
+    bool data_proc_flag = true;
+    while (data_proc_flag)
+    {
         data_proc_flag = false;
         if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
             vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP));
@@ -108,7 +111,7 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
             data_proc_flag = true;
             global_state.transceive_flags_h->right_adc = true;
         }
-    } while (data_proc_flag);
+    }
 }
 
 /**
@@ -118,16 +121,19 @@ static void uart_re_pkt_proc_data_store(VecU8 *vec_u8) {
  * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
  * @return void
  */
-void uart_re_pkt_proc(uint8_t count) {
+void uart_re_pkt_proc(uint8_t count)
+{
     uint8_t i;
-    for (i = 0; i < count; i++){
+    for (i = 0; i < count; i++)
+    {
         UartPacket packet = UART_PKT_NEW();
         if (!uart_trcv_buf_pop(global_state.uart_rv_pkt_buf_h, &packet)) return;
         VecU8 vec_u8 = VEC_U8_NEW();
         uart_pkt_get_data(&packet, &vec_u8);
         uint8_t code = vec_u8.data[vec_u8.head];
         vec_u8_rm_range(&vec_u8, 0, 1);
-        switch (code) {
+        switch (code)
+        {
             case CMD_CODE_DATA_TRRE:
                 uart_re_pkt_proc_data_store(&vec_u8);
                 break;

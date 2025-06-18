@@ -27,8 +27,10 @@ TransceiveFlags transceive_flags;
  * @brief 發送下一筆 UART 封包至 DMA
  *        Transmit next UART packet via DMA
  */
-static void uart_transmit(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART3) {
+static void uart_transmit(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART3)
+    {
         if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) return;
         UartPacket packet = UART_PKT_NEW();
         if (!uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet)) return;
@@ -43,7 +45,8 @@ static void uart_transmit(UART_HandleTypeDef *huart) {
  *
  * @param huart 指向 UART 處理器結構體的指標 (input UART handle pointer)
  */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
     if (huart->Instance == USART3) {}
 }
 
@@ -54,16 +57,20 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
  * @param huart 指向 UART 處理器結構體的指標 (input UART handle pointer)
  * @param Size 接收到的資料長度 (input number of received bytes)
  */
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
     __HAL_UART_CLEAR_IDLEFLAG(huart);
-    if (huart->Instance == USART3) {
-        if (Size == 0) {
+    if (huart->Instance == USART3)
+    {
+        if (Size == 0)
+        {
             HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
             return;
         }
         uart_dma_rv_buf.len = Size;
         UartPacket packet = UART_PKT_NEW();
-        if (uart_pkt_pack(&packet, &uart_dma_rv_buf)) {
+        if (uart_pkt_pack(&packet, &uart_dma_rv_buf))
+        {
             uart_trcv_buf_push(&uart_rv_pkt_buf, &packet);
             vec_u8_rm_all(&uart_dma_rv_buf);
         }
@@ -75,22 +82,27 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
  * @brief 設置 UART，清零接收緩衝並啟用 DMA 接收於 IDLE 中斷
  *        Configure UART: clear receive buffer and enable DMA reception on IDLE interrupt
  */
-void uart_setup(void) {
+void uart_setup(void)
+{
     // Tx:PB9(R5) Rx:PB11(R18)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
 }
 
-void uart_main(void) {
-    if (transceive_flags.uart_transmit) {
+void uart_main(void)
+{
+    if (transceive_flags.uart_transmit)
+    {
         transceive_flags.uart_transmit = false;
         uart_transmit(&huart3);
     }
-    if (transceive_flags.uart_tr_pkt_proc) {
+    if (transceive_flags.uart_tr_pkt_proc)
+    {
         transceive_flags.uart_tr_pkt_proc = false;
         uart_tr_pkt_proc();
     }
-    if (transceive_flags.uart_re_pkt_proc) {
+    if (transceive_flags.uart_re_pkt_proc)
+    {
         transceive_flags.uart_re_pkt_proc = false;
         uart_re_pkt_proc(5);
     }

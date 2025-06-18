@@ -12,11 +12,13 @@
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 /*測試用--------------------------------------*/
 
-void user_init(void) {
+void user_init(void)
+{
     motor_init();
 }
 /* +Main ------------------------------------------------------------*/
-void user_main(void) {
+void user_main(void)
+{
     uart_setup();
     fdcan_setup();
     motor_setup();
@@ -36,7 +38,8 @@ void user_main(void) {
 
 /*測試用--------------------------------------*/
 
-    while (1) {
+    while (1)
+    {
         uart_main();
         // vehicle_track_mode();
 /*
@@ -58,9 +61,11 @@ void user_main(void) {
 }
 
 /* 決定移動MODE ------------------------------------------------------*/
-void decide_move_mode(void) {
+void decide_move_mode(void)
+{
 
-    switch(map_data.status[map_data.current_count]) {
+    switch(map_data.status[map_data.current_count])
+    {
         case agv_straight:
             motor_left.speed_sepoint_pcn = setpoint_straight;
             motor_right.speed_sepoint_pcn = setpoint_straight;
@@ -85,18 +90,21 @@ void decide_move_mode(void) {
 }
 
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
-void protect_over_hall(void) {
+void protect_over_hall(void)
+{
     vehicle_ensure_motor_stop();
 
     if (hall_sensor_node > hall_strong_magnet_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data.status[map_data.current_count] == agv_rotate) {
+    if (map_data.status[map_data.current_count] == agv_rotate)
+    {
         vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data.status[map_data.current_count] == agv_end) {
+    if (map_data.status[map_data.current_count] == agv_end)
+    {
         vehicle_over_hall_fall_back();
     }
 }
