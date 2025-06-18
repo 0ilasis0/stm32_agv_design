@@ -20,7 +20,7 @@ typedef struct UartPacket {
     .start = PACKET_START_CODE, \
     .end   = PACKET_END_CODE \
 })
-bool uart_pkt_add_data(UartPacket *self, VecU8 *vec_u8);
-bool uart_pkt_get_data(const UartPacket *self, VecU8 *vec_u8);
-bool uart_pkt_pack(UartPacket *self, VecU8 *vec_u8);
-bool uart_pkt_unpack(const UartPacket *self, VecU8 *vec_u8);
+FnState uart_pkt_add_data(UartPacket *self, VecU8 *vec_u8);
+FnState uart_pkt_get_data(const UartPacket *self, VecU8 *vec_u8);
+FnState uart_pkt_pack(UartPacket *self, VecU8 *vec_u8);
+FnState uart_pkt_unpack(const UartPacket *self, VecU8 *vec_u8);

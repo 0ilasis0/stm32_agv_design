@@ -14,9 +14,6 @@ extern UartTrcvBuf uart_tr_pkt_buf;
 extern UartTrcvBuf uart_rv_pkt_buf;
 
 typedef struct {
-    bool uart_transmit;
-    bool uart_tr_pkt_proc;
-    bool uart_re_pkt_proc;
     bool right_speed;
     bool right_adc;
 } TransceiveFlags;
