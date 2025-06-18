@@ -1,11 +1,11 @@
 #include "uart/main.h"
 #include <string.h>
-#include "main/global_state.h"
+#include "cmsis_os.h"
 #include "usart.h"
-#include "uart/packet_proc.h"
+#include "main/mcu_const.h"
 
-static VecU8 uart_dma_tr_buf;
-static VecU8 uart_dma_rv_buf;
+VecU8 uart_dma_tr_buf;
+VecU8 uart_dma_rv_buf;
 
 /**
  * @brief 全域傳輸/接收緩衝區
@@ -13,30 +13,6 @@ static VecU8 uart_dma_rv_buf;
  */
 UartTrcvBuf uart_tr_pkt_buf;
 UartTrcvBuf uart_rv_pkt_buf;
-
-/**
- * @brief 傳輸/接收操作旗標
- *        Transmit/receive operation flags
- *
- * @details 控制資料處理流程 (Control data processing flow)
- */
-TransceiveFlags transceive_flags;
-
-/**
- * @brief 發送下一筆 UART 封包至 DMA
- *        Transmit next UART packet via DMA
- */
-static void uart_transmit(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART3)
-    {
-        if (HAL_DMA_GetState(huart->hdmatx) == HAL_DMA_STATE_BUSY) return;
-        UartPacket packet = UART_PKT_NEW();
-        if (!uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet)) return;
-        uart_pkt_unpack(&packet, &uart_dma_tr_buf);
-        HAL_UART_Transmit_DMA(huart, uart_dma_tr_buf.data, uart_dma_tr_buf.len);
-    }
-}
 
 /**
  * @brief UART 傳輸完成回調：移除已傳輸封包
@@ -77,32 +53,175 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
 }
 
+float f32_test = 0;
+uint16_t u16_test = 0;
+
 /**
- * @brief 設置 UART，清零接收緩衝並啟用 DMA 接收於 IDLE 中斷
- *        Configure UART: clear receive buffer and enable DMA reception on IDLE interrupt
+ * @brief 將右側馬達當前速度回應至資料向量
+ *        Push current right motor speed response into byte vector
+ *
+ * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive response data)
+ * @return void
  */
-void uart_setup(void)
+static void rspdw(void)
+{
+    f32_test++;
+    VecU8 vec_u8 = VEC_U8_NEW();
+    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_u8_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
+    // vec_u8_push_f32(vec_u8, motor_right.speed_present);
+    vec_u8_push_f32(&vec_u8, f32_test);
+    UartPacket packet = UART_PKT_NEW();
+    uart_pkt_add_data(&packet, &vec_u8);
+    uart_trcv_buf_push(&uart_tr_pkt_buf, &packet);
+}
+
+/**
+ * @brief 將右側馬達 ADC 值回應至資料向量
+ *        Push right motor ADC value response into byte vector
+ *
+ * @param vec_u8 指向要寫入資料的 VecU8 (input/output vector to receive ADC data)
+ * @return void
+ */
+static void radcw(void)
+{
+    u16_test++;
+    VecU8 vec_u8 = VEC_U8_NEW();
+    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_u8_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
+    // vec_u8_push_u16(vec_u8, motor_right.adc_value);
+    vec_u8_push_u16(&vec_u8, u16_test);
+    UartPacket packet = UART_PKT_NEW();
+    uart_pkt_add_data(&packet, &vec_u8);
+    uart_trcv_buf_push(&uart_tr_pkt_buf, &packet);
+}
+
+static inline void uart_transmit(void)
+{
+    if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return;
+    UartPacket packet = UART_PKT_NEW();
+    if (!uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet)) return;
+    uart_pkt_unpack(&packet, &uart_dma_tr_buf);
+    HAL_UART_Transmit_DMA(&huart3, uart_dma_tr_buf.data, uart_dma_tr_buf.len);
+}
+
+/**
+ * @brief 組合並傳輸封包至傳輸緩衝區
+ *        Assemble and transmit packet into transfer buffer
+ *
+ * @note 根據 transceive_flags 決定回應內容
+ *
+ * @return void
+ */
+static inline void uart_tr_pkt_proc(void)
+{
+    // if (transceive_flags.right_speed) {
+    //     rspdw();
+    // }
+    // if (transceive_flags.right_adc) {
+    //     radcw();
+    // }
+    rspdw();
+    radcw();
+}
+
+/**
+ * @brief 處理接收命令並存儲/回應資料
+ *        Process received commands and store or respond data
+ *
+ * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
+ * @return void
+ */
+static void uart_re_pkt_proc_data_store(VecU8 *vec_u8)
+{
+    bool data_proc_flag = true;
+    while (data_proc_flag)
+    {
+        data_proc_flag = false;
+        if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP));
+            data_proc_flag = true;
+            transceive_flags.right_speed = false;
+        }
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE));
+            data_proc_flag = true;
+            rspdw();
+        }
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START));
+            data_proc_flag = true;
+            transceive_flags.right_speed = true;
+        }
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP));
+            data_proc_flag = true;
+            transceive_flags.right_adc = false;
+        }
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE));
+            data_proc_flag = true;
+            radcw();
+        }
+        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START))) {
+            vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START));
+            data_proc_flag = true;
+            transceive_flags.right_adc = true;
+        }
+    }
+}
+
+/**
+ * @brief 從接收緩衝區反覆讀取封包並處理
+ *        Pop packets from receive buffer and process them
+ *
+ * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
+ * @return void
+ */
+static inline void uart_re_pkt_proc()
+{
+    uint8_t i;
+    for (i = 0; i < 5; i++)
+    {
+        UartPacket packet = UART_PKT_NEW();
+        if (!uart_trcv_buf_pop(&uart_rv_pkt_buf, &packet)) return;
+        VecU8 vec_u8 = VEC_U8_NEW();
+        uart_pkt_get_data(&packet, &vec_u8);
+        uint8_t code = vec_u8.data[vec_u8.head];
+        vec_u8_rm_range(&vec_u8, 0, 1);
+        switch (code)
+        {
+            case CMD_CODE_DATA_TRRE:
+                uart_re_pkt_proc_data_store(&vec_u8);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void StartUartTask(void *argument)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
-}
-
-void uart_loop(void)
-{
-    if (transceive_flags.uart_transmit)
+    uint16_t uart_task_tick = 0;
+    for(;;)
     {
-        transceive_flags.uart_transmit = false;
-        uart_transmit(&huart3);
-    }
-    if (transceive_flags.uart_tr_pkt_proc)
-    {
-        transceive_flags.uart_tr_pkt_proc = false;
-        uart_tr_pkt_proc();
-    }
-    if (transceive_flags.uart_re_pkt_proc)
-    {
-        transceive_flags.uart_re_pkt_proc = false;
-        uart_re_pkt_proc(5);
+        if (uart_task_tick % 50 == 0)
+        {
+            uart_transmit();
+            uart_re_pkt_proc();
+        }
+        if (uart_task_tick % 1000 == 0)
+        {
+            uart_tr_pkt_proc();
+        }
+        if (uart_task_tick % 10000 == 0)
+        {
+            uart_task_tick = 0;
+        }
+        osDelay(1);
+        uart_task_tick++;
     }
 }

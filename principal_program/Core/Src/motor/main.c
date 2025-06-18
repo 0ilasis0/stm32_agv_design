@@ -1,6 +1,5 @@
 #include "motor/main.h"
 #include "tim.h"
-#include "main/global_state.h"
 #include "motor/PI_control.h"
 #include "main/vehicle.h"
 

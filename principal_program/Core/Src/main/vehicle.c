@@ -2,7 +2,6 @@
 #include <math.h>
 #include "tim.h"
 #include "stm32g4xx_hal.h"
-#include "main/global_state.h"
 #include "main/adc.h"
 #include "main/it.h"
 #include "main/const_and_error.h"

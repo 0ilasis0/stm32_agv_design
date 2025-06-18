@@ -429,11 +429,6 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\main\vehicle.c</FilePath>
             </File>
-            <File>
-              <FileName>global_state.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\main\global_state.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -463,11 +458,6 @@
               <FileName>packet.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\uart\packet.c</FilePath>
-            </File>
-            <File>
-              <FileName>packet_proc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\uart\packet_proc.c</FilePath>
             </File>
             <File>
               <FileName>trcv_buffer.c</FileName>

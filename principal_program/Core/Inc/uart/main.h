@@ -21,8 +21,3 @@ typedef struct {
     bool right_adc;
 } TransceiveFlags;
 extern TransceiveFlags transceive_flags;
-
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
-void uart_setup(void);
-void uart_loop(void);

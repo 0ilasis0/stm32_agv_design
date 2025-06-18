@@ -1,5 +1,4 @@
 #include "main/it.h"
-#include "main/global_state.h"
 #include "main/const_and_error.h"
 #include "main/vehicle.h"
 #include "motor/PI_control.h"
@@ -10,38 +9,6 @@ uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;
 bool toggle1 = 1;
 bool toggle2 = 0;
-
-uint32_t user_sys_tick = 0;
-void user_HAL_IncTick(void) {
-    user_sys_tick++;
-    // 10ms
-    if (user_sys_tick % 10 == 0) {
-        motor_step_update(&motor_right);
-        motor_step_update(&motor_left );
-    }
-    if (user_sys_tick % 50 == 0) {
-        global_state.transceive_flags_h->uart_transmit = true;
-        global_state.transceive_flags_h->uart_re_pkt_proc = true;
-    }
-    if (user_sys_tick % 100 == 0) {
-        motor_speed_calculate(&motor_right);
-        motor_speed_calculate(&motor_left);
-    }
-    if (user_sys_tick % 500 == 0) {
-        motor_PI_control(&motor_right);
-        motor_PI_control(&motor_left);
-    }
-    if (user_sys_tick % 1000 == 0) {
-        fdcan_transmit();
-        global_state.transceive_flags_h->uart_tr_pkt_proc = true;
-    }
-    if (user_sys_tick % 2000 == 0) {
-    }
-    // 60s
-    if (user_sys_tick >= 60000) {
-        user_sys_tick = 0;
-    }
-}
 
 /**
   * 處理右側馬達霍爾感測 EXTI 中斷

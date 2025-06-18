@@ -1,7 +1,6 @@
 #include "motor/PI_control.h"
 #include <math.h>
 #include "tim.h"
-#include "main/global_state.h"
 #include "main/const_and_error.h"
 #include "main/it.h"
 

@@ -1,22 +1,25 @@
 #include "main/main.h"
-#include "main/global_state.h"
+#include "cmsis_os.h"
 #include "main/adc.h"
 #include "main/map.h"
 #include "main/it.h"
 #include "motor/main.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
-#include "uart/packet_proc.h"
 #include "fdcan/main.h"
+
+GlobalState global_state = {
+    .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
+    .uart_rv_pkt_buf_h = &uart_rv_pkt_buf,
+};
 
 /*測試用--------------------------------------*/
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 /*測試用--------------------------------------*/
 
-void user_main_setup(void)
+void StartDefaultTask(void *argument)
 {
     motor_setup();
-    uart_setup();
     fdcan_setup();
     // adc_setup();
     // map_setup();
@@ -32,40 +35,62 @@ void user_main_setup(void)
     // vehicle_rotate_in_place();
     // vehicle_over_hall_fall_back();
     /*測試用--------------------------------------*/
-}
-
-/* +Main ------------------------------------------------------------*/
-void user_main_loop(void)
-{
-    uart_loop();
-    // vehicle_track_mode();
-/*
-    if (hall_sensor_node > hall_strong_magnet_value) {
-        decide_move_mode();
-
-    } else {
-        if (map_data.status[map_data.current_count] == agv_next) {
-            map_data.current_count++ ;
+    for(;;)
+    {
+        // vehicle_track_mode();
+    /*
+        if (hall_sensor_node > hall_strong_magnet_value) {
+            decide_move_mode();
 
         } else {
-            vehicle_track_mode();
+            if (map_data.status[map_data.current_count] == agv_next) {
+                map_data.current_count++ ;
 
+            } else {
+                vehicle_track_mode();
+
+            }
         }
+    */
+        osDelay(1); // !DO NOT CANCEL THIS LINE
     }
-*/
-    // HAL_Delay(1);
 }
 
+uint32_t user_sys_tick = 0;
 void HAL_IncTick(void)
 {
-    uwTick += uwTickFreq;
-    user_HAL_IncTick();
+    uwTick += uwTickFreq; // !DO NOT CANCEL THIS LINE
+
+    user_sys_tick++;
+    // 10ms
+    if (user_sys_tick % 10 == 0) {
+        motor_step_update(&motor_right);
+        motor_step_update(&motor_left );
+    }
+    if (user_sys_tick % 50 == 0) {
+    }
+    if (user_sys_tick % 100 == 0) {
+        motor_speed_calculate(&motor_right);
+        motor_speed_calculate(&motor_left);
+    }
+    if (user_sys_tick % 500 == 0) {
+        motor_PI_control(&motor_right);
+        motor_PI_control(&motor_left);
+    }
+    if (user_sys_tick % 1000 == 0) {
+        fdcan_transmit();
+    }
+    if (user_sys_tick % 2000 == 0) {
+    }
+    // 60s
+    if (user_sys_tick >= 60000) {
+        user_sys_tick = 0;
+    }
 }
 
 /* 決定移動MODE ------------------------------------------------------*/
 void decide_move_mode(void)
 {
-
     switch(map_data.status[map_data.current_count])
     {
         case agv_straight:
