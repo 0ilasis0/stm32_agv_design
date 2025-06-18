@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "usart.h"
 #include "uart/packet.h"
+#include "uart/trcv_buffer.h"
 #include "motor/main.h"
 
 #define UART3_BAUDRATE 115200
@@ -24,4 +25,4 @@ extern TransceiveFlags transceive_flags;
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 void uart_setup(void);
-void uart_main(void);
+void uart_loop(void);

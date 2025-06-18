@@ -28,7 +28,6 @@ typedef struct MotorParameter {
 extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
-void motor_init(void);
 void motor_setup(void);
 void motor_step_update(MotorParameter *motor);
 void motor_speed_calculate(MotorParameter *motor);

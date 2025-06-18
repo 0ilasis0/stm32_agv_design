@@ -3,7 +3,6 @@
 #include "main/global_state.h"
 #include "usart.h"
 #include "uart/packet_proc.h"
-#include "uart/trcv_buffer.h"
 
 static VecU8 uart_dma_tr_buf;
 static VecU8 uart_dma_rv_buf;
@@ -89,7 +88,7 @@ void uart_setup(void)
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
 }
 
-void uart_main(void)
+void uart_loop(void)
 {
     if (transceive_flags.uart_transmit)
     {

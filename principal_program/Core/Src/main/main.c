@@ -2,6 +2,7 @@
 #include "main/global_state.h"
 #include "main/adc.h"
 #include "main/map.h"
+#include "main/it.h"
 #include "motor/main.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
@@ -12,16 +13,11 @@
 uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 /*測試用--------------------------------------*/
 
-void user_init(void)
+void user_main_setup(void)
 {
-    motor_init();
-}
-/* +Main ------------------------------------------------------------*/
-void user_main(void)
-{
+    motor_setup();
     uart_setup();
     fdcan_setup();
-    motor_setup();
     // adc_setup();
     // map_setup();
 
@@ -29,35 +25,41 @@ void user_main(void)
 
     // vehicle_adjust_startup_heading ();
 
-/*測試用--------------------------------------*/
+    /*測試用--------------------------------------*/
     // motor_set_speed_setpoint(&motor_right, 100);
     // motor_set_duty(&motor_right, 75);
 
     // vehicle_rotate_in_place();
     // vehicle_over_hall_fall_back();
+    /*測試用--------------------------------------*/
+}
 
-/*測試用--------------------------------------*/
-
-    while (1)
-    {
-        uart_main();
-        // vehicle_track_mode();
+/* +Main ------------------------------------------------------------*/
+void user_main_loop(void)
+{
+    uart_loop();
+    // vehicle_track_mode();
 /*
-        if (hall_sensor_node > hall_strong_magnet_value) {
-            decide_move_mode();
+    if (hall_sensor_node > hall_strong_magnet_value) {
+        decide_move_mode();
+
+    } else {
+        if (map_data.status[map_data.current_count] == agv_next) {
+            map_data.current_count++ ;
 
         } else {
-            if (map_data.status[map_data.current_count] == agv_next) {
-                map_data.current_count++ ;
+            vehicle_track_mode();
 
-            } else {
-                vehicle_track_mode();
-
-            }
         }
-*/
-        // HAL_Delay(1);
     }
+*/
+    // HAL_Delay(1);
+}
+
+void HAL_IncTick(void)
+{
+    uwTick += uwTickFreq;
+    user_HAL_IncTick();
 }
 
 /* 決定移動MODE ------------------------------------------------------*/

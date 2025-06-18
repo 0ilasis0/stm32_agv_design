@@ -24,7 +24,8 @@ uint8_t TxData[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
     .FilterID2 = 0x7FF, \
 })
 
-void user_MX_FDCAN1_Init(void) {
+void user_MX_FDCAN1_Init(void)
+{
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
 }
@@ -40,24 +41,35 @@ void fdcan_setup(void) {
 
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
-    if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET) {
-        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK) {
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+    if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
+    {
+        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
+        {
             Error_Handler();
         }
-        if ((RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.Identifier == FDCAN_DEVICE_ID)) {
+        if ((RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.Identifier == FDCAN_DEVICE_ID))
+        {
             BOARD_LED_TOGGLE;
         }
     }
 }
 
-void fdcan_transmit(void) {
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+{
+}
+
+void fdcan_transmit(void)
+{
     int i;
-    for(i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++)
+    {
         TxData[i]++;
     }
     HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData);
 }
 
-void fdcan_main(void) {
+void fdcan_loop(void)
+{
 }

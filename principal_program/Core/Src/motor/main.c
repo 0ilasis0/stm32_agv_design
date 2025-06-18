@@ -42,10 +42,6 @@ MotorParameter motor_left = {
     .motor_const        = &motor_left_const,
 };
 
-void motor_init(void)
-{
-}
-
 /**
   * 啟動指定馬達之 PWM 定時器
   *
