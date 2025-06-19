@@ -11,7 +11,8 @@ extern bool search_magnetic_path_enable;
 extern bool debug_breakdown_all_hall_lost_enable;
 extern bool debug_test_no_load_speed_enable;
 
-typedef struct {
+typedef struct
+{
     bool vehicle_ensure_motor_stop;
     bool vehicle_test_no_load_speed;
     bool over_hall_fall_back_time_based;

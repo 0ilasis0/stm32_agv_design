@@ -5,7 +5,8 @@
 #include "uart/packet.h"
 
 #define UART_TRCV_BUF_CAP 10
-typedef struct UartTrcvBuf {
+typedef struct UartTrcvBuf
+{
     UartPacket  packets[UART_TRCV_BUF_CAP];
     uint8_t     head;
     uint8_t     len;

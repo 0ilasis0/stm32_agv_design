@@ -7,7 +7,8 @@
 
 #define VECU8_MAX_CAPACITY 10
 
-typedef struct VecU8 {
+typedef struct VecU8
+{
     uint8_t         data[VECU8_MAX_CAPACITY];
     uint16_t        head;
     uint16_t        len;

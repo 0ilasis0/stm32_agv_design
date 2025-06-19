@@ -1,6 +1,7 @@
 #pragma once
 
-typedef enum FnState {
+typedef enum FnState
+{
     FNS_OK,
     FNS_ERROR,
     FNS_BUF_EMPTY,

@@ -6,7 +6,8 @@
 #include "stm32g431xx.h"
 #include "main/map.h"
 
-typedef struct MotorConst {
+typedef struct MotorConst
+{
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];
     TIM_HandleTypeDef* TIMx[3];
@@ -14,7 +15,8 @@ typedef struct MotorConst {
     GPIO_TypeDef* Coil_GPIOx[3];
     uint16_t Coil_GPIO_Pin_x[3];
 } MotorConst;
-typedef struct MotorParameter {
+typedef struct MotorParameter
+{
     const MotorConst* motor_const;
     uint8_t speed_sepoint_pcn;
     ROTATE_STATUS rotate_direction;

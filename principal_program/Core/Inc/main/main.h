@@ -6,7 +6,8 @@
 
 extern __IO uint32_t uwTick;
 
-typedef struct GlobalState {
+typedef struct GlobalState
+{
     UartTrcvBuf* uart_tr_pkt_buf_h;
     UartTrcvBuf* uart_rv_pkt_buf_h;
 } GlobalState;

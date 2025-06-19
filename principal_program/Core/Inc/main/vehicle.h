@@ -12,7 +12,8 @@ extern uint32_t hall_sensor_direction;
 /*測試用--------------------------------------*/
 extern MAP_DATA map_data;
 
-typedef enum {
+typedef enum MOTIONCOMMAND
+{
     motion_forward,
     motion_backward,
     motion_clockwise,
@@ -33,7 +34,7 @@ uint8_t vehicle_pass_magnetic_stripe_calculate(
     uint16_t current_id_input,
     uint8_t from_dir,
     uint8_t to_dir
-    );
+);
 void vehicle_breakdown_all_hall_lost (void);
 void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time);
 MOTIONCOMMAND vehicle_rotate_status_to_motioncommand (ROTATE_STATUS mode);
