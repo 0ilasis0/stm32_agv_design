@@ -6,7 +6,9 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Core/Src/main/adc.c \
+../Core/Src/main/config.c \
 ../Core/Src/main/const_and_error.c \
+../Core/Src/main/fn_state.c \
 ../Core/Src/main/it.c \
 ../Core/Src/main/main.c \
 ../Core/Src/main/map.c \
@@ -16,7 +18,9 @@ C_SRCS += \
 
 OBJS += \
 ./Core/Src/main/adc.o \
+./Core/Src/main/config.o \
 ./Core/Src/main/const_and_error.o \
+./Core/Src/main/fn_state.o \
 ./Core/Src/main/it.o \
 ./Core/Src/main/main.o \
 ./Core/Src/main/map.o \
@@ -26,7 +30,9 @@ OBJS += \
 
 C_DEPS += \
 ./Core/Src/main/adc.d \
+./Core/Src/main/config.d \
 ./Core/Src/main/const_and_error.d \
+./Core/Src/main/fn_state.d \
 ./Core/Src/main/it.d \
 ./Core/Src/main/main.d \
 ./Core/Src/main/map.d \
@@ -42,7 +48,7 @@ Core/Src/main/%.o Core/Src/main/%.su Core/Src/main/%.cyclo: ../Core/Src/main/%.c
 clean: clean-Core-2f-Src-2f-main
 
 clean-Core-2f-Src-2f-main:
-	-$(RM) ./Core/Src/main/adc.cyclo ./Core/Src/main/adc.d ./Core/Src/main/adc.o ./Core/Src/main/adc.su ./Core/Src/main/const_and_error.cyclo ./Core/Src/main/const_and_error.d ./Core/Src/main/const_and_error.o ./Core/Src/main/const_and_error.su ./Core/Src/main/it.cyclo ./Core/Src/main/it.d ./Core/Src/main/it.o ./Core/Src/main/it.su ./Core/Src/main/main.cyclo ./Core/Src/main/main.d ./Core/Src/main/main.o ./Core/Src/main/main.su ./Core/Src/main/map.cyclo ./Core/Src/main/map.d ./Core/Src/main/map.o ./Core/Src/main/map.su ./Core/Src/main/vec.cyclo ./Core/Src/main/vec.d ./Core/Src/main/vec.o ./Core/Src/main/vec.su ./Core/Src/main/vehicle.cyclo ./Core/Src/main/vehicle.d ./Core/Src/main/vehicle.o ./Core/Src/main/vehicle.su ./Core/Src/main/vehicle2.cyclo ./Core/Src/main/vehicle2.d ./Core/Src/main/vehicle2.o ./Core/Src/main/vehicle2.su
+	-$(RM) ./Core/Src/main/adc.cyclo ./Core/Src/main/adc.d ./Core/Src/main/adc.o ./Core/Src/main/adc.su ./Core/Src/main/config.cyclo ./Core/Src/main/config.d ./Core/Src/main/config.o ./Core/Src/main/config.su ./Core/Src/main/const_and_error.cyclo ./Core/Src/main/const_and_error.d ./Core/Src/main/const_and_error.o ./Core/Src/main/const_and_error.su ./Core/Src/main/fn_state.cyclo ./Core/Src/main/fn_state.d ./Core/Src/main/fn_state.o ./Core/Src/main/fn_state.su ./Core/Src/main/it.cyclo ./Core/Src/main/it.d ./Core/Src/main/it.o ./Core/Src/main/it.su ./Core/Src/main/main.cyclo ./Core/Src/main/main.d ./Core/Src/main/main.o ./Core/Src/main/main.su ./Core/Src/main/map.cyclo ./Core/Src/main/map.d ./Core/Src/main/map.o ./Core/Src/main/map.su ./Core/Src/main/vec.cyclo ./Core/Src/main/vec.d ./Core/Src/main/vec.o ./Core/Src/main/vec.su ./Core/Src/main/vehicle.cyclo ./Core/Src/main/vehicle.d ./Core/Src/main/vehicle.o ./Core/Src/main/vehicle.su ./Core/Src/main/vehicle2.cyclo ./Core/Src/main/vehicle2.d ./Core/Src/main/vehicle2.o ./Core/Src/main/vehicle2.su
 
 .PHONY: clean-Core-2f-Src-2f-main
 

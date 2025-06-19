@@ -36,7 +36,7 @@ Core/Src/fdcan.o: ../Core/Src/fdcan.c ../Core/Inc/fdcan.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/fdcan/main.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
- ../Core/Inc/main/vec.h ../Core/Inc/main/config_state.h
+ ../Core/Inc/main/vec.h ../Core/Inc/main/fn_state.h
 ../Core/Inc/fdcan.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -78,4 +78,4 @@ Core/Src/fdcan.o: ../Core/Src/fdcan.c ../Core/Inc/fdcan.h \
 ../Core/Inc/fdcan/main.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
 ../Core/Inc/main/vec.h:
-../Core/Inc/main/config_state.h:
+../Core/Inc/main/fn_state.h:

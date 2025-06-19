@@ -2,6 +2,7 @@
 #include <string.h>
 #include "cmsis_os.h"
 #include "usart.h"
+#include "main/config.h"
 #include "main/mcu_const.h"
 
 VecU8 uart_dma_tr_buf = {0};

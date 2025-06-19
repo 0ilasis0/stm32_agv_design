@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "usart.h"
-#include "main/config_state.h"
+#include "main/fn_state.h"
 #include "uart/packet.h"
 #include "uart/trcv_buffer.h"
 #include "motor/main.h"

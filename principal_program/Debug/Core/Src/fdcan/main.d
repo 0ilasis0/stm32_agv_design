@@ -6,9 +6,8 @@ Core/Src/fdcan/main.o: ../Core/Src/fdcan/main.c ../Core/Inc/fdcan/main.h \
  ../Drivers/CMSIS/Include/cmsis_gcc.h \
  ../Drivers/CMSIS/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h \
- ../Core/Inc/main/vec.h ../Core/Inc/main/config_state.h \
- ../Core/Inc/fdcan.h ../Core/Inc/main.h \
- ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h \
+ ../Core/Inc/main/vec.h ../Core/Inc/main/fn_state.h ../Core/Inc/fdcan.h \
+ ../Core/Inc/main.h ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h \
  ../Core/Inc/stm32g4xx_hal_conf.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h \
@@ -47,7 +46,7 @@ Core/Src/fdcan/main.o: ../Core/Src/fdcan/main.c ../Core/Inc/fdcan/main.h \
 ../Drivers/CMSIS/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h:
 ../Core/Inc/main/vec.h:
-../Core/Inc/main/config_state.h:
+../Core/Inc/main/fn_state.h:
 ../Core/Inc/fdcan.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
