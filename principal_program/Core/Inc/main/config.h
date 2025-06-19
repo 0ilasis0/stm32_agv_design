@@ -18,4 +18,3 @@ typedef struct{
     bool enable_debug_test_no_load_speed;
 } SYSTEM_RUNTIME_SWITCH;
 extern SYSTEM_RUNTIME_SWITCH sys_run_switch;
-

@@ -39,7 +39,7 @@ Core/Src/main/vehicle2.o: ../Core/Src/main/vehicle2.c \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
- ../Core/Inc/main/const_and_error.h
+ ../Core/Inc/main/const_and_error.h ../Core/Inc/main/fn_state.h
 ../Core/Inc/main/vehicle2.h:
 ../Core/Inc/main/map.h:
 ../Core/Inc/main/adc.h:
@@ -85,3 +85,4 @@ Core/Src/main/vehicle2.o: ../Core/Src/main/vehicle2.c \
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
 ../Core/Inc/main/const_and_error.h:
+../Core/Inc/main/fn_state.h:

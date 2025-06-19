@@ -38,7 +38,7 @@ Core/Src/main/adc.o: ../Core/Src/main/adc.c ../Core/Inc/main/adc.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/motor/main.h \
  ../Core/Inc/gpio.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
- ../Core/Inc/main/map.h ../Core/Inc/main/const_and_error.h
+ ../Core/Inc/main/map.h ../Core/Inc/main/config.h
 ../Core/Inc/main/adc.h:
 ../Core/Inc/adc.h:
 ../Core/Inc/main.h:
@@ -82,4 +82,4 @@ Core/Src/main/adc.o: ../Core/Src/main/adc.c ../Core/Inc/main/adc.h \
 ../Core/Inc/gpio.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
 ../Core/Inc/main/map.h:
-../Core/Inc/main/const_and_error.h:
+../Core/Inc/main/config.h:

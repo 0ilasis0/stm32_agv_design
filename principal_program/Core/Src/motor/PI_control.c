@@ -1,7 +1,7 @@
 #include "motor/PI_control.h"
 #include <math.h>
 #include "tim.h"
-#include "main/const_and_error.h"
+#include "main/config.h"
 #include "main/it.h"
 
 float max_speed = 40.0;

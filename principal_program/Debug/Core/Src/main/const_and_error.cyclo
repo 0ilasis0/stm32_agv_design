@@ -1,3 +1,0 @@
-../Core/Src/main/const_and_error.c:7:6:const_and_error_set	1
-../Core/Src/main/const_and_error.c:11:23:sys_run_switch_init	1
-../Core/Src/main/const_and_error.c:24:6:timeout_error	3

@@ -16,6 +16,8 @@ typedef enum FnState
     FNS_BUF_EMPTY,
     FNS_BUF_OVERFLOW,
     FNS_NO_MATCH,
+
+    FNS_NOT_MOVE,
 } FnState;
 #define FNS_ERROR_CHECK(expr)   \
     do {                        \

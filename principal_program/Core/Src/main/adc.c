@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "adc.h"
 #include "motor/main.h"
-#include "main/const_and_error.h"
+#include "main/config.h"
 
 static uint16_t ADC_Values[10] = {0};                                 // adc儲存位置
 

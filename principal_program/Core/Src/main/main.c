@@ -20,7 +20,6 @@ void StartDefaultTask(void *argument)
     // adc_setup();
     // map_setup();
     map_setup();
-    const_and_error_set();
 
     // vehicle_test_no_load_speed(1000);
 

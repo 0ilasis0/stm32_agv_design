@@ -4,7 +4,8 @@
 #include "stm32g4xx_hal.h"
 #include "main/adc.h"
 #include "main/it.h"
-#include "main/const_and_error.h"
+#include "main/fn_state.h"
+#include "main/config.h"
 #include "motor/PI_control.h"
 
 /*測試用--------------------------------------*/
@@ -39,7 +40,7 @@ void vehicle_track_mode(void) {
   */
 ROTATE_STATUS rotate_direction_mode;
 void vehicle_rotate_in_place(void) {
-    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = state_data_no_match;
+    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NO_MATCH;
 
     rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
 
@@ -89,15 +90,16 @@ void vehicle_breakdown_all_hall_lost (void) {
         hall_sensor_node      < hall_magnetic_stripe_value &&
         motor_right.adc_value < hall_magnetic_stripe_value &&
         motor_left.adc_value  < hall_magnetic_stripe_value
-        ) {
-            vehicle2_ensure_motor_stop();
-            vehicle_search_magnetic_path (motion_clockwise, 3000);
-            vehicle_search_magnetic_path (motion_counter_clockwise, 6000);
-            if (sys_run_switch.enable_search_magnetic_path == 1) {
-                while (true) error_state.breakdown_all_hall_lost__path_not_found = state_stop_move;
-            }
+    ) {
+        vehicle2_ensure_motor_stop();
+        vehicle_search_magnetic_path (motion_clockwise, 3000);
+        vehicle_search_magnetic_path (motion_counter_clockwise, 6000);
+        if (sys_run_switch.enable_search_magnetic_path == 1)
+        {
+            while (true) error_state.breakdown_all_hall_lost__path_not_found = FNS_NOT_MOVE;
+        }
 
-            sys_run_switch.enable_search_magnetic_path = 1;
+        sys_run_switch.enable_search_magnetic_path = 1;
     }
 }
 

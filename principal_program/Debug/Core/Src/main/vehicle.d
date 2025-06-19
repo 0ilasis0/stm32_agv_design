@@ -39,7 +39,8 @@ Core/Src/main/vehicle.o: ../Core/Src/main/vehicle.c \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/it.h \
  ../Core/Inc/motor/main.h ../Core/Inc/gpio.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
- ../Core/Inc/main/const_and_error.h ../Core/Inc/motor/PI_control.h
+ ../Core/Inc/main/fn_state.h ../Core/Inc/main/config.h \
+ ../Core/Inc/motor/PI_control.h
 ../Core/Inc/main/vehicle.h:
 ../Core/Inc/main/vehicle2.h:
 ../Core/Inc/main/map.h:
@@ -86,5 +87,6 @@ Core/Src/main/vehicle.o: ../Core/Src/main/vehicle.c \
 ../Core/Inc/motor/main.h:
 ../Core/Inc/gpio.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
-../Core/Inc/main/const_and_error.h:
+../Core/Inc/main/fn_state.h:
+../Core/Inc/main/config.h:
 ../Core/Inc/motor/PI_control.h:
