@@ -37,10 +37,10 @@ Core/Src/main/it.o: ../Core/Src/main/it.c ../Core/Inc/main/it.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
- ../Core/Inc/main/map.h ../Core/Inc/main/const_and_error.h \
- ../Core/Inc/main/vehicle.h ../Core/Inc/main/vehicle2.h \
- ../Core/Inc/main/adc.h ../Core/Inc/motor/PI_control.h \
- ../Core/Inc/uart/main.h ../Core/Inc/usart.h ../Core/Inc/main/fn_state.h \
+ ../Core/Inc/main/map.h ../Core/Inc/main/vehicle.h \
+ ../Core/Inc/main/vehicle2.h ../Core/Inc/main/adc.h \
+ ../Core/Inc/motor/PI_control.h ../Core/Inc/uart/main.h \
+ ../Core/Inc/usart.h ../Core/Inc/main/fn_state.h \
  ../Core/Inc/uart/packet.h ../Core/Inc/main/vec.h \
  ../Core/Inc/uart/trcv_buffer.h ../Core/Inc/fdcan/main.h
 ../Core/Inc/main/it.h:
@@ -85,7 +85,6 @@ Core/Src/main/it.o: ../Core/Src/main/it.c ../Core/Inc/main/it.h \
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:
 ../Core/Inc/main/map.h:
-../Core/Inc/main/const_and_error.h:
 ../Core/Inc/main/vehicle.h:
 ../Core/Inc/main/vehicle2.h:
 ../Core/Inc/main/adc.h:

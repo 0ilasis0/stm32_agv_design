@@ -10,8 +10,9 @@
 
 typedef enum FnState
 {
-    FNS_OK,
-    FNS_ERROR,
+    FNS_INVALID = -1,
+    FNS_OK      = 0,
+    FNS_ERROR   = 1,
     FNS_TIMEOUT,
     FNS_BUF_EMPTY,
     FNS_BUF_OVERFLOW,
