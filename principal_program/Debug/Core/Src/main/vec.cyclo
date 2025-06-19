@@ -1,0 +1,11 @@
+../Core/Src/main/vec.c:11:9:vec_u8_realign	4
+../Core/Src/main/vec.c:39:9:vec_u8_get_byte	3
+../Core/Src/main/vec.c:57:9:vec_u8_starts_with	6
+../Core/Src/main/vec.c:81:9:vec_u8_push	4
+../Core/Src/main/vec.c:106:16:vec_u8_push_byte	1
+../Core/Src/main/vec.c:118:24:swap16	1
+../Core/Src/main/vec.c:132:9:vec_u8_push_u16	1
+../Core/Src/main/vec.c:145:24:swap32	1
+../Core/Src/main/vec.c:161:9:vec_u8_push_f32	1
+../Core/Src/main/vec.c:170:16:vec_u8_rm_all	1
+../Core/Src/main/vec.c:188:9:vec_u8_rm_range	6

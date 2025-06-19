@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "main/fn_state.h"
+#include "main/config_state.h"
 #include "uart/packet.h"
 
 #define UART_TRCV_BUF_CAP 10

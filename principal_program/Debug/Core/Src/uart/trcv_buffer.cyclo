@@ -1,0 +1,2 @@
+../Core/Src/uart/trcv_buffer.c:11:9:uart_trcv_buf_push	2
+../Core/Src/uart/trcv_buffer.c:28:9:uart_trcv_buf_pop	4

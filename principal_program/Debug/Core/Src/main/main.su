@@ -1,0 +1,4 @@
+../Core/Src/main/main.c:16:6:StartDefaultTask	16	static
+../Core/Src/main/main.c:55:6:HAL_IncTick	8	static
+../Core/Src/main/main.c:88:6:decide_move_mode	56	static
+../Core/Src/main/main.c:122:6:protect_over_hall	8	static

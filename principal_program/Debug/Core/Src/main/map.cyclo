@@ -1,0 +1,7 @@
+../Core/Src/main/map.c:23:6:map_setup	2
+../Core/Src/main/map.c:42:6:map_init	8
+../Core/Src/main/map.c:69:10:map_data_init	2
+../Core/Src/main/map.c:78:6:floyd_warshall	5
+../Core/Src/main/map.c:91:6:build_current_map_data	5
+../Core/Src/main/map.c:122:5:get_index_by_id	3
+../Core/Src/main/map.c:134:12:decide_vehicle_status	6

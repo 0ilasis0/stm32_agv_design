@@ -1,0 +1,4 @@
+../Core/Src/uart/packet.c:10:9:uart_pkt_add_data	24	static
+../Core/Src/uart/packet.c:26:9:uart_pkt_get_data	24	static
+../Core/Src/uart/packet.c:41:9:uart_pkt_pack	32	static
+../Core/Src/uart/packet.c:62:9:uart_pkt_unpack	24	static

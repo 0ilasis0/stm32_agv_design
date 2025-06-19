@@ -1,15 +1,16 @@
 #pragma once
 
 #include <stdint.h>
-#include "main/adc.h"
 #include "main/map.h"
+#include "adc.h"
 
 
 #define HALL_MAGNITUTE_EDGE 1870  //1730
 
 
 
-typedef enum {
+typedef enum MOTIONCOMMAND
+{
     motion_forward,
     motion_backward,
     motion_clockwise,

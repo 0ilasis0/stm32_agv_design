@@ -10,7 +10,7 @@ float setpoint = 0;
 /* +PI speed control ------------------------------------------------*/
 void motor_PI_control(MotorParameter *motor)
 {
-    if (!sys_run_switch.enable_PI) return;
+    if (!PI_enable) return;
 
     if (motor == &motor_left) return;
 

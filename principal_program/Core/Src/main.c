@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -74,7 +74,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -213,7 +213,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  
+
   /* USER CODE END Callback 1 */
 }
 

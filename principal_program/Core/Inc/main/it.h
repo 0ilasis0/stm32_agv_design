@@ -3,12 +3,8 @@
 #include "motor/main.h"
 #include "stm32g431xx.h"
 
-void user_HAL_IncTick(void);
-void user_EXTI9_5_IRQHandler(void);
 void user_EXTI3_IRQHandler(void);
-void user_EXTI4_IRQHandler(void);
-void user_EXTI15_10_IRQHandler(void);
 void user_EXTI9_5_IRQHandler(void);
-void user_EXTI3_IRQHandler(void);
-
 void user_TIM1_UP_TIM16_IRQHandler(void);
+void user_EXTI15_10_IRQHandler(void);
+void user_EXTI4_IRQHandler(void);

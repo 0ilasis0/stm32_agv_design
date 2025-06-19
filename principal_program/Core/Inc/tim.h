@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "main/tim.h"
+
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim1;

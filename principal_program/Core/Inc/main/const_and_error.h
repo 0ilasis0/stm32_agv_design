@@ -5,41 +5,31 @@
 
 #define error_timeout_time_limit 30 * 1000
 
+extern bool PI_enable;
+extern bool adc_enable;
+extern bool search_magnetic_path_enable;
 
+extern bool debug_breakdown_all_hall_lost_enable;
+extern bool debug_test_no_load_speed_enable;
 
-typedef enum {
-    state_ok,
-    state_timeout,
-    state_data_no_match,
-    state_stop_move
-} ERR_STATE_MODE;
+typedef struct
+{
+    bool vehicle_test_no_load_speed;
+    bool vehicle_over_hall_fall_back;
+    bool vehicle_rotate_in_place;
+    bool vehicle_rotate_in_place_hall;
+    bool vehicle_search_magnetic_path;
+    bool vehicle2_ensure_motor_stop;
+    bool vehicle2_renew_vehicle_rotation_status;
 
-typedef struct{
-    ERR_STATE_MODE vehicle_test_no_load_speed;
-    ERR_STATE_MODE vehicle_over_hall_fall_back;
-    ERR_STATE_MODE vehicle_rotate_in_place_hall;
-    ERR_STATE_MODE vehicle_search_magnetic_path;
-    ERR_STATE_MODE vehicle2_ensure_motor_stop;
-    ERR_STATE_MODE vehicle2_renew_vehicle_rotation_status;
-    ERR_STATE_MODE rotate_in_place__map_data_current_count;
-    ERR_STATE_MODE breakdown_all_hall_lost__path_not_found;
-} ERR_STATE;
+} ERROR_TIMEOUT;
 
-typedef struct{
-    bool enable_PI;
-    bool enable_adc;
-    bool enable_search_magnetic_path;
-    bool enable_timeout_error;
+typedef struct {
+    bool rotate_in_place__map_data_current_count;
+    bool breakdown_all_hall_lost__path_not_found;
+} ERROR_DATA;
 
-    bool enable_debug_breakdown_all_hall_lost;
-    bool enable_debug_test_no_load_speed;
-} SYSTEM_RUNTIME_SWITCH;
+extern ERROR_TIMEOUT error_timeout;
+extern ERROR_DATA error_data;
 
-
-
-extern ERR_STATE error_state;
-extern SYSTEM_RUNTIME_SWITCH sys_run_switch;
-
-void const_and_error_set (void);
-SYSTEM_RUNTIME_SWITCH sys_run_switch_init (void);
-bool timeout_error (uint32_t error_start, ERR_STATE_MODE *error_parameter);
+bool timeout_error (uint32_t error_start, bool *error_parameter);

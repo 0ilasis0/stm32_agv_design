@@ -216,23 +216,28 @@ static inline FnState uart_re_pkt_proc()
 
 void StartUartTask(void *argument)
 {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
     // Tx:PB9(R5) Rx:PB11(R18)
-    __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+    #ifndef DISABLE_UART_RECV
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
-    uint16_t uart_task_tick = 0;
+    #endif
+    uint8_t tick = 0;
     for(;;)
     {
-        if (uart_task_tick % 50 == 0)
+        #ifndef DISABLE_UART_TRSM
+        uart_transmit();
+        #endif
+        #ifndef DISABLE_UART_RECV
+        uart_re_pkt_proc();
+        #endif
+        if (tick % 20 == 0)
         {
-            uart_transmit();
-            uart_re_pkt_proc();
-        }
-        if (uart_task_tick % 1000 == 0)
-        {
-            uart_task_tick = 0;
+            tick = 0;
+            #ifndef DISABLE_UART_TRSM
             uart_tr_pkt_proc();
+            #endif
         }
-        osDelay(1);
-        uart_task_tick++;
+        osDelay(50);
+        tick++;
     }
 }

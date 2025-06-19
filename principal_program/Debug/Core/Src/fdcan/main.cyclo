@@ -1,0 +1,6 @@
+../Core/Src/fdcan/main.c:18:6:user_MX_FDCAN1_Init	2
+../Core/Src/fdcan/main.c:25:6:fdcan_setup	3
+../Core/Src/fdcan/main.c:36:6:HAL_FDCAN_RxFifo0Callback	5
+../Core/Src/fdcan/main.c:49:6:HAL_FDCAN_TxBufferCompleteCallback	1
+../Core/Src/fdcan/main.c:53:6:fdcan_transmit	2
+../Core/Src/fdcan/main.c:63:6:fdcan_loop	1

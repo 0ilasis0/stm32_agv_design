@@ -31,7 +31,6 @@ void MX_FDCAN1_Init(void)
 {
 
   /* USER CODE BEGIN FDCAN1_Init 0 */
-
   /* USER CODE END FDCAN1_Init 0 */
 
   /* USER CODE BEGIN FDCAN1_Init 1 */

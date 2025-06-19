@@ -1,0 +1,5 @@
+../Core/Src/main/it.c:18:6:user_EXTI3_IRQHandler	8	static
+../Core/Src/main/it.c:28:6:user_EXTI9_5_IRQHandler	8	static
+../Core/Src/main/it.c:38:6:user_TIM1_UP_TIM16_IRQHandler	4	static
+../Core/Src/main/it.c:47:6:user_EXTI15_10_IRQHandler	8	static
+../Core/Src/main/it.c:66:6:user_EXTI4_IRQHandler	8	static

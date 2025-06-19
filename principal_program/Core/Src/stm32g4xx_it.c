@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "main/it.h"
-#include "uart/main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -175,7 +174,7 @@ void DebugMon_Handler(void)
 void EXTI1_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI1_IRQn 0 */
-  user_EXTI3_IRQHandler();
+
   /* USER CODE END EXTI1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
   /* USER CODE BEGIN EXTI1_IRQn 1 */
@@ -189,7 +188,7 @@ void EXTI1_IRQHandler(void)
 void EXTI2_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI2_IRQn 0 */
-  
+
   /* USER CODE END EXTI2_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
   /* USER CODE BEGIN EXTI2_IRQn 1 */
@@ -303,7 +302,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-  
+
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
@@ -331,7 +330,7 @@ void TIM3_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  
+
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
@@ -359,7 +358,7 @@ void EXTI15_10_IRQHandler(void)
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-  
+
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */

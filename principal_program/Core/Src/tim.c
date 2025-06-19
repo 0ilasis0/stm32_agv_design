@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -21,7 +21,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "main/tim.h"
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
