@@ -19,14 +19,13 @@ uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
 
 void StartDefaultTask(void *argument)
 {
-    motor_setup();
-    fdcan_setup();
-    // adc_setup();
-    // map_setup();
+    // fdcan_setup();
+    adc_setup();
+    map_setup();
 
     // vehicle_test_no_load_speed(1000);
 
-    // vehicle_adjust_startup_heading ();
+    vehicle_adjust_startup_heading ();
 
     /*測試用--------------------------------------*/
     // motor_set_speed_setpoint(&motor_right, 100);
@@ -34,11 +33,10 @@ void StartDefaultTask(void *argument)
 
     // vehicle_rotate_in_place();
     // vehicle_over_hall_fall_back();
+
     /*測試用--------------------------------------*/
     for(;;)
     {
-        // vehicle_track_mode();
-    /*
         if (hall_sensor_node > hall_strong_magnet_value) {
             decide_move_mode();
 
@@ -51,7 +49,7 @@ void StartDefaultTask(void *argument)
 
             }
         }
-    */
+
         osDelay(1); // !DO NOT CANCEL THIS LINE
     }
 }
@@ -63,20 +61,20 @@ void HAL_IncTick(void)
 
     user_sys_tick++;
     // 10ms
-    if (user_sys_tick % 10 == 0) {
-        motor_step_update(&motor_right);
-        motor_step_update(&motor_left );
-    }
-    if (user_sys_tick % 50 == 0) {
-    }
-    if (user_sys_tick % 100 == 0) {
-        motor_speed_calculate(&motor_right);
-        motor_speed_calculate(&motor_left);
-    }
-    if (user_sys_tick % 500 == 0) {
-        motor_PI_control(&motor_right);
-        motor_PI_control(&motor_left);
-    }
+    // if (user_sys_tick % 10 == 0) {
+    //     motor_step_update(&motor_right);
+    //     motor_step_update(&motor_left );
+    // }
+    // if (user_sys_tick % 50 == 0) {
+    // }
+    // if (user_sys_tick % 100 == 0) {
+    //     motor_speed_calculate(&motor_right);
+    //     motor_speed_calculate(&motor_left);
+    // }
+    // if (user_sys_tick % 500 == 0) {
+    //     motor_PI_control(&motor_right);
+    //     motor_PI_control(&motor_left);
+    // }
     if (user_sys_tick % 1000 == 0) {
         fdcan_transmit();
     }
@@ -94,6 +92,7 @@ void decide_move_mode(void)
     switch(map_data.status[map_data.current_count])
     {
         case agv_straight:
+
             motor_left.speed_sepoint_pcn = setpoint_straight;
             motor_right.speed_sepoint_pcn = setpoint_straight;
 

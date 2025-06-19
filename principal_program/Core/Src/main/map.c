@@ -34,11 +34,13 @@ void map_setup(void) {
 
     map_init();
     floyd_warshall();
-    map_data_new(no_data);
     build_current_map_data(text_from, text_to);
+
+    map_data_init(map_data.direction[0]);
 
     for (int i = 0; i <= final_node_count; i++) {
         map_data.status[i] = decide_vehicle_status(i);
+
     }
 
 }
@@ -71,9 +73,9 @@ void map_init(void) {
 
 }
 
-MAP_DATA map_data_new (int8_t start_direction) {
+MAP_DATA map_data_init (int8_t init_direction) {
     MAP_DATA map_new;
-    map_new.start_direction = start_direction;
+    map_new.start_direction = init_direction;
 
     return map_new;
 }

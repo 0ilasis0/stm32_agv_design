@@ -1,5 +1,6 @@
 #include "motor/main.h"
 #include "tim.h"
+#include "cmsis_os.h"
 #include "motor/PI_control.h"
 #include "main/vehicle.h"
 
@@ -205,4 +206,28 @@ inline void motor_set_adc_val(MotorParameter *motor, uint16_t value)
 inline void motor_add_step_count(MotorParameter *motor)
 {
     motor->step_count++;
+}
+
+void StartMotorTask(void *argument)
+{
+    motor_setup();
+    uint16_t motor_task_tick = 0;
+    for(;;)
+    {
+        if (motor_task_tick % 10 == 0) {
+            motor_step_update(&motor_right);
+            motor_step_update(&motor_left );
+        }
+        if (motor_task_tick % 100 == 0) {
+            motor_speed_calculate(&motor_right);
+            motor_speed_calculate(&motor_left);
+        }
+        if (motor_task_tick % 500 == 0) {
+            motor_task_tick = 0;
+            motor_PI_control(&motor_right);
+            motor_PI_control(&motor_left);
+        }
+        osDelay(1);
+        motor_task_tick++;
+    }
 }

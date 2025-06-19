@@ -43,7 +43,7 @@ extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void map_init(void);
-MAP_DATA map_data_new (int8_t start_direction);
+MAP_DATA map_data_init (int8_t init_direction);
 void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);

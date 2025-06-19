@@ -190,10 +190,10 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     motor_set_duty(&motor_right, 70);
 
     while (
-        HAL_GetTick() - past_time < mile_sec || max_speed_pcn <= 10
+        HAL_GetTick() - past_time < mile_sec || max_speed <= 10
     ) {
-        if (max_speed_pcn < motor_right.speed_present) {
-                max_speed_pcn = motor_right.speed_present;
+        if (max_speed < motor_right.speed_present) {
+                max_speed = motor_right.speed_present;
                 past_time = HAL_GetTick();
                 text_time = past_time;
         }
@@ -225,7 +225,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
   * @brief 等待左右馬達完全停止
   */
 void vehicle_ensure_motor_stop(void) {
-    // 
+    //
     motor_right.speed_sepoint_pcn = 0;
     motor_left.speed_sepoint_pcn  = 0;
 

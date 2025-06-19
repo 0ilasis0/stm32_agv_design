@@ -4,8 +4,8 @@
 #include "usart.h"
 #include "main/mcu_const.h"
 
-VecU8 uart_dma_tr_buf = VEC_U8_NEW();
-VecU8 uart_dma_rv_buf = VEC_U8_NEW();
+VecU8 uart_dma_tr_buf = {0};
+VecU8 uart_dma_rv_buf = {0};
 
 /**
  * @brief 全域傳輸/接收緩衝區
@@ -229,11 +229,8 @@ void StartUartTask(void *argument)
         }
         if (uart_task_tick % 1000 == 0)
         {
-            uart_tr_pkt_proc();
-        }
-        if (uart_task_tick % 10000 == 0)
-        {
             uart_task_tick = 0;
+            uart_tr_pkt_proc();
         }
         osDelay(1);
         uart_task_tick++;

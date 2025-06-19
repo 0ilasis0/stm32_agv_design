@@ -52,7 +52,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
+  .stack_size = 256 * 4
 };
 /* Definitions for uartTask */
 osThreadId_t uartTaskHandle;
@@ -60,6 +60,13 @@ const osThreadAttr_t uartTask_attributes = {
   .name = "uartTask",
   .priority = (osPriority_t) osPriorityNormal1,
   .stack_size = 256 * 4
+};
+/* Definitions for motorTask */
+osThreadId_t motorTaskHandle;
+const osThreadAttr_t motorTask_attributes = {
+  .name = "motorTask",
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 128 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,6 +76,7 @@ const osThreadAttr_t uartTask_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartUartTask(void *argument);
+void StartMotorTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -104,6 +112,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of uartTask */
   uartTaskHandle = osThreadNew(StartUartTask, NULL, &uartTask_attributes);
+
+  /* creation of motorTask */
+  motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -149,6 +160,24 @@ __weak void StartUartTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartUartTask */
+}
+
+/* USER CODE BEGIN Header_StartMotorTask */
+/**
+* @brief Function implementing the motorTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartMotorTask */
+__weak void StartMotorTask(void *argument)
+{
+  /* USER CODE BEGIN StartMotorTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartMotorTask */
 }
 
 /* Private application code --------------------------------------------------*/

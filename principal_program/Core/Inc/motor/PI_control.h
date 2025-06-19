@@ -9,7 +9,7 @@
 #define setpoint_rotate    30                                  // 原地旋轉速度目標
 #define setpoint_fall_back 20                                  // 倒退速度目標
 
-extern float max_speed_pcn;
+extern float max_speed;
 
 /*測試用--------------------------------------*/
 extern uint32_t hall_sensor_node;

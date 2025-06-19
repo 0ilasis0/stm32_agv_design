@@ -4,7 +4,7 @@
 #include "main/const_and_error.h"
 #include "main/it.h"
 
-float max_speed_pcn = 40.0;
+float max_speed = 40.0;
 float setpoint = 0;
 
 /* +PI speed control ------------------------------------------------*/
@@ -14,7 +14,7 @@ void motor_PI_control(MotorParameter *motor)
 
     if (motor == &motor_left) return;
 
-    setpoint = (float)max_speed_pcn * motor->speed_sepoint_pcn / 100;
+    setpoint = (float)max_speed * motor->speed_sepoint_pcn / 100;
 
     // 計算誤差
     float error = setpoint - motor->speed_present;
