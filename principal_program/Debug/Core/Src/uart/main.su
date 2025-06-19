@@ -6,4 +6,4 @@
 ../Core/Src/uart/main.c:121:23:uart_tr_pkt_proc	8	static
 ../Core/Src/uart/main.c:141:16:uart_re_pkt_proc_data_store	96	static
 ../Core/Src/uart/main.c:194:23:uart_re_pkt_proc	88	static
-../Core/Src/uart/main.c:219:6:StartUartTask	24	static
+../Core/Src/uart/main.c:217:6:StartUartTask	24	static

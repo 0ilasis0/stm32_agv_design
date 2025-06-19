@@ -35,8 +35,8 @@ Core/Src/uart/main.o: ../Core/Src/uart/main.c ../Core/Inc/uart/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
- ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/uart/packet.h \
- ../Core/Inc/main/vec.h ../Core/Inc/main/config_state.h \
+ ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/config_state.h \
+ ../Core/Inc/uart/packet.h ../Core/Inc/main/vec.h \
  ../Core/Inc/uart/trcv_buffer.h ../Core/Inc/motor/main.h \
  ../Core/Inc/gpio.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
@@ -92,9 +92,9 @@ Core/Src/uart/main.o: ../Core/Src/uart/main.c ../Core/Inc/uart/main.h \
 ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h:
 ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
+../Core/Inc/main/config_state.h:
 ../Core/Inc/uart/packet.h:
 ../Core/Inc/main/vec.h:
-../Core/Inc/main/config_state.h:
 ../Core/Inc/uart/trcv_buffer.h:
 ../Core/Inc/motor/main.h:
 ../Core/Inc/gpio.h:

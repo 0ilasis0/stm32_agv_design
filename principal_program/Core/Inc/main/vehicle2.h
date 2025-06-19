@@ -4,24 +4,16 @@
 #include "main/map.h"
 #include "adc.h"
 
-
 #define HALL_MAGNITUTE_EDGE 1870  //1730
 
-
-
-typedef enum MOTIONCOMMAND
-{
+typedef enum {
     motion_forward,
     motion_backward,
     motion_clockwise,
     motion_counter_clockwise
 } MOTIONCOMMAND;
 
-
-
 extern MOTIONCOMMAND direction_mode;
-
-
 
 void vehicle2_motion_and_speed_control(MOTIONCOMMAND mode, uint8_t sepoint_value);
 void vehicle2_ensure_motor_stop(void);

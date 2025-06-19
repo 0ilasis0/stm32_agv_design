@@ -6,4 +6,4 @@
 ../Core/Src/uart/main.c:121:23:uart_tr_pkt_proc	1
 ../Core/Src/uart/main.c:141:16:uart_re_pkt_proc_data_store	14
 ../Core/Src/uart/main.c:194:23:uart_re_pkt_proc	7
-../Core/Src/uart/main.c:219:6:StartUartTask	2
+../Core/Src/uart/main.c:217:6:StartUartTask	2

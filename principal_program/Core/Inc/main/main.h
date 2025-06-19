@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "uart/main.h"
-#include "main/vehicle.h"
 
 extern __IO uint32_t uwTick;
 
