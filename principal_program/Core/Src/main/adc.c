@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "adc.h"
 #include "motor/main.h"
+#include "main/const_and_error.h"
 
 static uint16_t ADC_Values[10] = {0};                                 // adc儲存位置
 
@@ -13,6 +14,8 @@ void adc_setup(void) {
 
 // renew adc senser
 void adc_renew(void) {
+    if (!adc_enable) return;
+
     int i;
     uint32_t sum_r = 0, sum_l = 0;
     for(i = 0; i < 10; i += 2) {

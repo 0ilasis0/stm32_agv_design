@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #define INF 99999
-#define max_node 6
+#define max_node 10
 #define no_data -1
 
 typedef enum {
@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
     int8_t          start_direction;
+    int8_t          start_address_id;
     int8_t          current_count;
     int8_t          direction[max_node];
     uint16_t        address_id[max_node];
@@ -43,7 +44,7 @@ extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void map_init(void);
-MAP_DATA map_data_init (int8_t init_direction);
+MAP_DATA map_data_init (int8_t init_direction, int8_t init_address_id);
 void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);

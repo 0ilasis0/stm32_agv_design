@@ -429,6 +429,11 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\main\vehicle.c</FilePath>
             </File>
+            <File>
+              <FileName>vehicle2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\main\vehicle2.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

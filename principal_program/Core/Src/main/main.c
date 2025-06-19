@@ -13,23 +13,20 @@ GlobalState global_state = {
     .uart_rv_pkt_buf_h = &uart_rv_pkt_buf,
 };
 
-/*測試用--------------------------------------*/
-uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE +1;
-/*測試用--------------------------------------*/
-
 void StartDefaultTask(void *argument)
 {
     // fdcan_setup();
-    adc_setup();
+    // adc_setup();
     map_setup();
 
     // vehicle_test_no_load_speed(1000);
 
-    vehicle_adjust_startup_heading ();
+    // vehicle_adjust_startup_heading ();
 
     /*測試用--------------------------------------*/
     // motor_set_speed_setpoint(&motor_right, 100);
-    // motor_set_duty(&motor_right, 75);
+    // motor_set_duty(&motor_right, 30);
+    motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
 
     // vehicle_rotate_in_place();
     // vehicle_over_hall_fall_back();
@@ -87,21 +84,21 @@ void HAL_IncTick(void)
 }
 
 /* 決定移動MODE ------------------------------------------------------*/
+int text_end = 0;
 void decide_move_mode(void)
 {
     switch(map_data.status[map_data.current_count])
     {
         case agv_straight:
-
-            motor_left.speed_sepoint_pcn = setpoint_straight;
-            motor_right.speed_sepoint_pcn = setpoint_straight;
+            motor_set_speed_setpoint(&motor_right, setpoint_straight);
+            motor_set_speed_setpoint (&motor_left, setpoint_straight);
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;
             break;
 
         case agv_rotate:
-            protect_over_hall();
+            // protect_over_hall();
             vehicle_rotate_in_place();
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
@@ -109,8 +106,14 @@ void decide_move_mode(void)
             break;
 
         case agv_end:
-            protect_over_hall();
-            map_data.start_direction = map_data.direction[map_data.current_count];
+            // protect_over_hall();
+            map_data_init(map_data.direction[map_data.current_count - 1], map_data.address_id[map_data.current_count - 1]);
+            // 終止目前沒有要做甚麼所以先停止動作
+            while (1) {
+                motor_set_speed_setpoint(&motor_right, 0);
+                motor_set_speed_setpoint (&motor_left, 0);
+                text_end = 1;
+            }
             break;
     }
 }
@@ -118,7 +121,7 @@ void decide_move_mode(void)
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
 void protect_over_hall(void)
 {
-    vehicle_ensure_motor_stop();
+    vehicle2_ensure_motor_stop();
 
     if (hall_sensor_node > hall_strong_magnet_value) return;
 

@@ -2,6 +2,8 @@
 #include "stm32g4xx_hal.h"
 
 bool PI_enable = 1;
+bool adc_enable = 0;
+bool timeout_error_enable = 0;
 bool search_magnetic_path_enable = 1;
 
 bool debug_breakdown_all_hall_lost_enable = 1;
@@ -15,6 +17,8 @@ ERROR_DATA error_data = {0};
 
 
 bool timeout_error (uint32_t error_start, bool *error_parameter) {
+    if (!timeout_error_enable) return true;
+
     if (HAL_GetTick() - error_start > error_timeout_time_limit) {
         *error_parameter = 1;
         return false;

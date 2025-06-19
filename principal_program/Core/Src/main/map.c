@@ -7,6 +7,7 @@ int path[max_node][max_node];
 uint8_t final_node_count = 0;
 
 LOCATION locations_t[max_node] = {
+    {5 , {{0,0}, {0,0}, {78,20}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}},
     {78, {{0,0}, {0,0}, {11,35}, {15,30}, {0,0}, {0,0}, {0,0}, {0,0}}},
     {11, {{0,0}, {0,0}, {131,80}, {0,0}, {12,5}, {15,40}, {78,35}, {0,0}}},
     {12, {{11,5}, {131,20}, {0,0}, {0,0}, {0,0}, {0,0}, {15,45}, {0,0}}},
@@ -16,27 +17,19 @@ LOCATION locations_t[max_node] = {
 };
 
 MAP_DATA map_data;
-/*
-MAP_DATA map_data = {
-    0,                                                            //current_count
-    {1, 7, 3, 3, no_data},                                        //direction
-    {0, 1, 2, 3, 4}                                               //address_id
-    {agv_straight, agv_rotate, agv_rotate, agv_straight, agv_end}                                                        // status
-};
-*/
 
 
 
 void map_setup(void) {
 
-    int text_from = get_index_by_id(78);
-    int text_to = get_index_by_id(14);
-
     map_init();
     floyd_warshall();
+
+    int text_from = get_index_by_id(5);
+    int text_to = get_index_by_id(14);
     build_current_map_data(text_from, text_to);
 
-    map_data_init(map_data.direction[0]);
+    map_data_init(no_data, no_data);
 
     for (int i = 0; i <= final_node_count; i++) {
         map_data.status[i] = decide_vehicle_status(i);
@@ -73,9 +66,10 @@ void map_init(void) {
 
 }
 
-MAP_DATA map_data_init (int8_t init_direction) {
+MAP_DATA map_data_init (int8_t init_direction, int8_t init_address_id) {
     MAP_DATA map_new;
     map_new.start_direction = init_direction;
+    map_new.start_address_id = init_address_id;
 
     return map_new;
 }
