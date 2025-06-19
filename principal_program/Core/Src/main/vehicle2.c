@@ -75,7 +75,7 @@ void vehicle2_ensure_motor_stop(void) {
 
     uint32_t error_start = HAL_GetTick();
     while(motor_right.speed_present != 0 || motor_left.speed_present != 0) {
-        if (!timeout_error(error_start, &error_timeout.vehicle2_ensure_motor_stop)) break;
+        if (!timeout_error(error_start, &error_state.vehicle2_ensure_motor_stop)) break;
     }
 }
 
@@ -134,7 +134,7 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
         }
         text_count_until_zero = count_until_zero;
 
-        if (!timeout_error(time_out, &error_timeout.vehicle2_renew_vehicle_rotation_status)) break;
+        if (!timeout_error(time_out, &error_state.vehicle2_renew_vehicle_rotation_status)) break;
     }
 }
 

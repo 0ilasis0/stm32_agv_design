@@ -1,11 +1,9 @@
-#include "main/vehicle.h"
 #include <math.h>
 #include "tim.h"
 #include "stm32g4xx_hal.h"
-#include "main/adc.h"
-#include "main/it.h"
-#include "main/const_and_error.h"
+#include "main/vehicle.h"
 #include "motor/PI_control.h"
+#include "main/const_and_error.h"
 
 /*測試用--------------------------------------*/
 uint32_t text_return_start_time = 0;
@@ -41,7 +39,7 @@ void vehicle_track_mode(void) {
   */
 ROTATE_STATUS rotate_direction_mode;
 void vehicle_rotate_in_place(void) {
-    if (map_data.current_count == 0) error_data.rotate_in_place__map_data_current_count = 1;
+    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = state_data_no_match;
 
     rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
 
@@ -62,7 +60,7 @@ void vehicle_rotate_in_place(void) {
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_sensor_node >= hall_strong_magnet_value ) {
-        if (!timeout_error(error_start, &error_timeout.vehicle_rotate_in_place_hall)) break;
+        if (!timeout_error(error_start, &error_state.vehicle_rotate_in_place_hall)) break;
     }
 }
 
@@ -74,7 +72,7 @@ void vehicle_over_hall_fall_back(void) {
 
     uint32_t error_start = HAL_GetTick();
     while(hall_sensor_node <= hall_strong_magnet_value) {
-        if (!timeout_error(error_start, &error_timeout.vehicle_over_hall_fall_back)) break;
+        if (!timeout_error(error_start, &error_state.vehicle_over_hall_fall_back)) break;
     }
 
     vehicle2_motion_and_speed_control(motion_forward, 0);
@@ -84,7 +82,7 @@ void vehicle_over_hall_fall_back(void) {
   * @brief 當所有相關的霍爾感測器都失去磁條訊號時，嘗試重新搜尋並回到磁條路徑上
   */
 void vehicle_breakdown_all_hall_lost (void) {
-    if (!debug_breakdown_all_hall_lost_enable) return;
+    if (!sys_run_switch.enable_debug_breakdown_all_hall_lost) return;
 
     if (
         hall_sensor_direction < hall_magnetic_stripe_value &&
@@ -95,11 +93,11 @@ void vehicle_breakdown_all_hall_lost (void) {
             vehicle2_ensure_motor_stop();
             vehicle_search_magnetic_path (motion_clockwise, 3000);
             vehicle_search_magnetic_path (motion_counter_clockwise, 6000);
-            if (search_magnetic_path_enable == 1) {
-                while (true) error_data.breakdown_all_hall_lost__path_not_found = 1;
+            if (sys_run_switch.enable_search_magnetic_path == 1) {
+                while (true) error_state.breakdown_all_hall_lost__path_not_found = state_stop_move;
             }
 
-            search_magnetic_path_enable = 1;
+            sys_run_switch.enable_search_magnetic_path = 1;
     }
 }
 
@@ -107,7 +105,7 @@ void vehicle_breakdown_all_hall_lost (void) {
   * @brief 在指定時間內，讓裝置順或逆旋轉，直到偵測到磁條，並停止
   */
 void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time){
-    if (!search_magnetic_path_enable) return;
+    if (!sys_run_switch.enable_search_magnetic_path) return;
     vehicle2_motion_and_speed_control(search_direction, setpoint_rotate);
 
     uint32_t past_time = HAL_GetTick();
@@ -120,13 +118,13 @@ void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time
         ) {
             vehicle2_motion_and_speed_control(motion_forward, 0);
 
-            search_magnetic_path_enable = 0;
+            sys_run_switch.enable_search_magnetic_path = 0;
             break;
         }
 
         adc_renew();
 
-        if (!timeout_error(past_time, &error_timeout.vehicle_search_magnetic_path)) break;
+        if (!timeout_error(past_time, &error_state.vehicle_search_magnetic_path)) break;
     }
 
     vehicle2_ensure_motor_stop();
@@ -156,9 +154,9 @@ void vehicle_adjust_startup_heading (void) {
   * 僅使用右邊測試空載轉速
   */
 void vehicle_test_no_load_speed(uint16_t mile_sec) {
-    if (!debug_test_no_load_speed_enable) return;
+    if (!sys_run_switch.enable_debug_test_no_load_speed) return;
 
-    PI_enable = 0;
+    sys_run_switch.enable_PI = 0;
     // 確定正轉
     vehicle2_motion_and_speed_control(motion_forward, 0);
 
@@ -176,7 +174,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
                 text_time = past_time;
         }
 
-        if (!timeout_error(previous_time_dif, &error_timeout.vehicle_test_no_load_speed)) break;
+        if (!timeout_error(previous_time_dif, &error_state.vehicle_test_no_load_speed)) break;
     }
 
     motor_set_duty(&motor_left,  0);
@@ -190,11 +188,11 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     motor_set_duty(&motor_right, 70);
     past_time = HAL_GetTick();
     while(HAL_GetTick() - past_time <= previous_time_dif) {
-        if (!timeout_error(past_time, &error_timeout.vehicle_test_no_load_speed)) break;
+        if (!timeout_error(past_time, &error_state.vehicle_test_no_load_speed)) break;
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);
     vehicle2_ensure_motor_stop();
     vehicle2_motion_and_speed_control(motion_forward, 0);
-    PI_enable = 1;
+    sys_run_switch.enable_PI = 1;
 }

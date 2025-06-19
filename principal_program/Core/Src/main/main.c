@@ -1,12 +1,12 @@
 #include "main/main.h"
 #include "cmsis_os.h"
-#include "main/adc.h"
-#include "main/map.h"
-#include "main/it.h"
-#include "motor/main.h"
+#include "main/const_and_error.h"
+#include "main/vehicle.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
 #include "fdcan/main.h"
+
+
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
@@ -18,6 +18,7 @@ void StartDefaultTask(void *argument)
     // fdcan_setup();
     // adc_setup();
     map_setup();
+    const_and_error_set();
 
     // vehicle_test_no_load_speed(1000);
 
@@ -28,7 +29,6 @@ void StartDefaultTask(void *argument)
     // motor_set_duty(&motor_right, 30);
     motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
 
-    // vehicle_rotate_in_place();
     // vehicle_over_hall_fall_back();
 
     /*測試用--------------------------------------*/

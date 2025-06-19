@@ -14,7 +14,7 @@ void adc_setup(void) {
 
 // renew adc senser
 void adc_renew(void) {
-    if (!adc_enable) return;
+    if (!sys_run_switch.enable_adc) return;
 
     int i;
     uint32_t sum_r = 0, sum_l = 0;
