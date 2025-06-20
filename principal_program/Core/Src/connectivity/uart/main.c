@@ -51,13 +51,13 @@ static FnState rspdw(void)
 {
     f32_test++;
     VecByte vec_u8;
-    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
-    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
-    vec_u8_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
-    // vec_u8_push_f32(&vec_u8, motor_right.speed_present);
-    vec_u8_push_f32(&vec_u8, f32_test);
+    FNS_ERROR_CHECK(vec_byte_new(&vec_u8, UART_VEC_MAX));
+    vec_byte_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_byte_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
+    // vec_byte_push_f32(&vec_u8, motor_right.speed_present);
+    vec_byte_push_f32(&vec_u8, f32_test);
     uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8);
-    vec_u8_free(&vec_u8);
+    vec_byte_free(&vec_u8);
     return FNS_OK;
 }
 
@@ -72,23 +72,23 @@ static FnState radcw(void)
 {
     u16_test++;
     VecByte vec_u8;
-    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
-    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
-    vec_u8_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
-    // vec_u8_push_u16(&vec_u8, motor_right.adc_value);
-    vec_u8_push_u16(&vec_u8, u16_test);
+    FNS_ERROR_CHECK(vec_byte_new(&vec_u8, UART_VEC_MAX));
+    vec_byte_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_byte_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
+    // vec_byte_push_u16(&vec_u8, motor_right.adc_value);
+    vec_byte_push_u16(&vec_u8, u16_test);
     uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8);
-    vec_u8_free(&vec_u8);
+    vec_byte_free(&vec_u8);
     return FNS_OK;
 }
 
 static FnState uart_transmit(void)
 {
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
-    vec_u8_rm_all(&uart_dma_tr_buf);
-    FNS_ERROR_CHECK(vec_u8_push_byte(&uart_dma_tr_buf, UART_START_CODE));
+    vec_rm_all(&uart_dma_tr_buf);
+    FNS_ERROR_CHECK(vec_byte_push_byte(&uart_dma_tr_buf, UART_START_CODE));
     FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_tr_pkt_buf, &uart_dma_tr_buf));
-    FNS_ERROR_CHECK(vec_u8_push_byte(&uart_dma_tr_buf, UART_END_CODE));
+    FNS_ERROR_CHECK(vec_byte_push_byte(&uart_dma_tr_buf, UART_END_CODE));
     HAL_UART_Transmit_DMA(&huart3, uart_dma_tr_buf.data, uart_dma_tr_buf.len);
     return FNS_OK;
 }
@@ -127,39 +127,39 @@ static FnState uart_re_pkt_proc_data_store(VecByte *vec_u8)
     while (data_proc_flag)
     {
         data_proc_flag = false;
-        if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP)) == FNS_OK)
+        if (vec_byte_starts_with(vec_u8, CMD_RIGHT_SPEED_STOP, sizeof(CMD_RIGHT_SPEED_STOP)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_STOP)));
             data_proc_flag = true;
             transceive_flags.right_speed = false;
         }
-        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE)) == FNS_OK)
+        else if (vec_byte_starts_with(vec_u8, CMD_RIGHT_SPEED_ONCE, sizeof(CMD_RIGHT_SPEED_ONCE)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_ONCE)));
             data_proc_flag = true;
             rspdw();
         }
-        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START)) == FNS_OK)
+        else if (vec_byte_starts_with(vec_u8, CMD_RIGHT_SPEED_START, sizeof(CMD_RIGHT_SPEED_START)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_SPEED_START)));
             data_proc_flag = true;
             transceive_flags.right_speed = true;
         }
-        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP)) == FNS_OK)
+        else if (vec_byte_starts_with(vec_u8, CMD_RIGHT_ADC_STOP, sizeof(CMD_RIGHT_ADC_STOP)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_STOP)));
             data_proc_flag = true;
             transceive_flags.right_adc = false;
         }
-        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE)) == FNS_OK)
+        else if (vec_byte_starts_with(vec_u8, CMD_RIGHT_ADC_ONCE, sizeof(CMD_RIGHT_ADC_ONCE)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_ONCE)));
             data_proc_flag = true;
             radcw();
         }
-        else if (vec_u8_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START)) == FNS_OK)
+        else if (vec_byte_starts_with(vec_u8, CMD_RIGHT_ADC_START, sizeof(CMD_RIGHT_ADC_START)) == FNS_OK)
         {
-            FNS_ERROR_CHECK(vec_u8_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START)));
+            FNS_ERROR_CHECK(vec_rm_range(vec_u8, 0, sizeof(CMD_RIGHT_ADC_START)));
             data_proc_flag = true;
             transceive_flags.right_adc = true;
         }
@@ -177,11 +177,11 @@ static FnState uart_re_pkt_proc_data_store(VecByte *vec_u8)
 static FnState uart_re_pkt_proc(void)
 {
     VecByte vec_u8;
-    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
-    vec_u8_rm_all(&vec_u8);
+    FNS_ERROR_CHECK(vec_byte_new(&vec_u8, UART_VEC_MAX));
+    vec_rm_all(&vec_u8);
     if (uart_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8) == FNS_OK) {
         uint8_t code = vec_u8.data[vec_u8.head];
-        vec_u8_rm_range(&vec_u8, 0, 1);
+        vec_rm_range(&vec_u8, 0, 1);
         switch (code)
         {
             case CMD_CODE_DATA_TRRE:
@@ -191,15 +191,15 @@ static FnState uart_re_pkt_proc(void)
                 break;
         }
     }
-    vec_u8_free(&vec_u8);
+    vec_byte_free(&vec_u8);
     return FNS_OK;
 }
 
 static FnState uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
-    FNS_ERROR_CHECK(vec_u8_new(&uart_dma_tr_buf, UART_VEC_MAX + 2));
-    FNS_ERROR_CHECK(vec_u8_new(&uart_dma_rv_buf, UART_VEC_MAX + 2));
+    FNS_ERROR_CHECK(vec_byte_new(&uart_dma_tr_buf, UART_VEC_MAX + 2));
+    FNS_ERROR_CHECK(vec_byte_new(&uart_dma_rv_buf, UART_VEC_MAX + 2));
     FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
     FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
     return FNS_OK;

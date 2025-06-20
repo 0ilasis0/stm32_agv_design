@@ -3,7 +3,36 @@
 #include <string.h>
 #include "main/config.h"
 
-FnState vec_u8_new(VecByte *self, size_t cap)
+inline FnState vec_rm_all(VecByte *self)
+{
+    self->head = 0;
+    self->len  = 0;
+    return FNS_OK;
+}
+
+FnState vec_rm_range(VecByte *self, size_t offset, size_t size)
+{
+    if (offset >= self->len) return FNS_FAIL;
+    if (size == 0) return FNS_OK;
+    if (size >= self->len) return vec_rm_all(self);
+    if (offset == 0)
+    {
+        self->head = (self->head + size) % self->cap;
+        self->len -= size;
+        return FNS_OK;
+    }
+    if (offset + size >= self->len)
+    {
+        self->len = offset;
+        return FNS_OK;
+    }
+    vec_byte_realign(self);
+    memmove(self->data + offset, self->data + (offset + size), self->len - (offset + size));
+    self->len -= size;
+    return FNS_OK;
+}
+
+FnState vec_byte_new(VecByte *self, size_t cap)
 {
     if (cap == 0 || cap > VECU8_MAX_CAPACITY) return FNS_FAIL;
     self->data = malloc(cap * sizeof(*self->data));
@@ -14,19 +43,18 @@ FnState vec_u8_new(VecByte *self, size_t cap)
     return FNS_OK;
 }
 
-FnState vec_u8_free(VecByte *self)
+FnState vec_byte_free(VecByte *self)
 {
+    vec_rm_all(self);
     if (self->data) {
         free(self->data);
         self->data = NULL;
     }
     self->cap = 0;
-    self->head     = 0;
-    self->len      = 0;
     return FNS_OK;
 }
 
-FnState vec_u8_realign(VecByte *self)
+FnState vec_byte_realign(VecByte *self)
 {
     if (self->len == 0 || self->head == 0) return FNS_OK;
     size_t first_part = self->cap - self->head;
@@ -46,7 +74,7 @@ FnState vec_u8_realign(VecByte *self)
     return FNS_OK;
 }
 
-FnState vec_u8_get_byte(const VecByte *self, uint8_t *u8, size_t id)
+FnState vec_byte_get_byte(const VecByte *self, uint8_t *u8, size_t id)
 {
     if (self->len == 0) return FNS_BUF_EMPTY;
     if (id >= self->len) return FNS_FAIL;
@@ -55,7 +83,7 @@ FnState vec_u8_get_byte(const VecByte *self, uint8_t *u8, size_t id)
     return FNS_OK;
 }
 
-FnState vec_u8_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_len)
+FnState vec_byte_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_len)
 {
     if (self->len < pre_len) return FNS_NO_MATCH;
     if (
@@ -69,7 +97,7 @@ FnState vec_u8_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_l
     return FNS_OK;
 }
 
-FnState vec_u8_push(VecByte *self, const void *src, size_t src_len)
+FnState vec_byte_push(VecByte *self, const void *src, size_t src_len)
 {
     if (self->len + src_len > self->cap) return FNS_BUF_OVERFLOW;
     size_t tail = self->head + self->len;
@@ -78,7 +106,7 @@ FnState vec_u8_push(VecByte *self, const void *src, size_t src_len)
         (tail + src_len >= self->cap)
     )
     {
-        vec_u8_realign(self);
+        vec_byte_realign(self);
         tail = self->len;
     }
     memcpy(self->data + tail, src, src_len);
@@ -86,9 +114,9 @@ FnState vec_u8_push(VecByte *self, const void *src, size_t src_len)
     return FNS_OK;
 }
 
-inline FnState vec_u8_push_byte(VecByte *self, uint8_t value)
+inline FnState vec_byte_push_byte(VecByte *self, uint8_t value)
 {
-    return vec_u8_push(self, &value, 1);
+    return vec_byte_push(self, &value, 1);
 }
 
 /**
@@ -104,10 +132,10 @@ static inline uint16_t swap16(const uint16_t value)
             ((value & 0xFF00U) >> 8);
 }
 
-FnState vec_u8_push_u16(VecByte *self, uint16_t value)
+FnState vec_byte_push_u16(VecByte *self, uint16_t value)
 {
     uint16_t u16 = swap16(value);
-    return vec_u8_push(self, &u16, sizeof(u16));
+    return vec_byte_push(self, &u16, sizeof(u16));
 }
 
 /**
@@ -125,40 +153,11 @@ static inline uint32_t swap32(uint32_t value)
             ((value & 0xFF000000U) >> 24);
 }
 
-FnState vec_u8_push_f32(VecByte *self, float value)
+FnState vec_byte_push_f32(VecByte *self, float value)
 {
     uint32_t u32;
     uint8_t u32_len = sizeof(u32);
     memcpy(&u32, &value, u32_len);
     u32 = swap32(u32);
-    return vec_u8_push(self, &u32, u32_len);
-}
-
-inline FnState vec_u8_rm_all(VecByte *self)
-{
-    self->head = 0;
-    self->len  = 0;
-    return FNS_OK;
-}
-
-FnState vec_u8_rm_range(VecByte *self, size_t offset, size_t size)
-{
-    if (offset >= self->len) return FNS_FAIL;
-    if (size == 0) return FNS_OK;
-    if (size >= self->len) return vec_u8_rm_all(self);
-    if (offset == 0)
-    {
-        self->head = (self->head + size) % self->cap;
-        self->len -= size;
-        return FNS_OK;
-    }
-    if (offset + size >= self->len)
-    {
-        self->len = offset;
-        return FNS_OK;
-    }
-    vec_u8_realign(self);
-    memmove(self->data + offset, self->data + (offset + size), self->len - (offset + size));
-    self->len -= size;
-    return FNS_OK;
+    return vec_byte_push(self, &u32, u32_len);
 }

@@ -48,9 +48,9 @@ static FnState fdcan_transmit(void)
 
 static FnState fdcan_setup(void)
 {
-    FNS_ERROR_CHECK(vec_u8_new(&TxData, 8));
-    FNS_ERROR_CHECK(vec_u8_new(&RxData, 8));
-    FNS_ERROR_CHECK(vec_u8_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8));
+    FNS_ERROR_CHECK(vec_byte_new(&TxData, 8));
+    FNS_ERROR_CHECK(vec_byte_new(&RxData, 8));
+    FNS_ERROR_CHECK(vec_byte_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8));
     return FNS_OK;
 }
 

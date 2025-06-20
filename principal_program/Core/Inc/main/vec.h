@@ -14,6 +14,25 @@ typedef struct VecByte
 } VecByte;
 
 /**
+ * @brief 從 Vec 中移除全部資料
+ * 
+ * @param self   指向 Vec 實例的指標
+ * 
+ * @return FNS_OK 成功移除
+ */
+FnState vec_rm_all(VecByte *self);
+/**
+ * @brief 從 Vec 中移除指定範圍的資料
+ * 
+ * @param self   指向 Vec 實例的指標
+ * @param offset 要移除區段在目前資料（以 head 為起點）的起始位移
+ * @param size   要移除的長度
+ * 
+ * @return FNS_OK 成功移除
+ * @return FNS_FAIL offset 超過目前資料長度或 realign 失敗
+ */
+FnState vec_rm_range(VecByte *self, size_t offset, size_t size);
+/**
  * @brief 初始化 VecByte，動態配置緩衝區
  * 
  * @param self 指向 VecByte 實例的指標
@@ -23,7 +42,7 @@ typedef struct VecByte
  * @return FNS_ERR_OOM 配置失敗（記憶體不足）
  * @return FNS_FAIL  輸入參數錯誤（如 cap==0）
  */
-FnState vec_u8_new(VecByte *self, size_t cap);
+FnState vec_byte_new(VecByte *self, size_t cap);
 /**
  * @brief 釋放 VecByte 佔用的資源，並重置欄位
  * 
@@ -31,7 +50,7 @@ FnState vec_u8_new(VecByte *self, size_t cap);
  * 
  * @return FNS_OK
  */
-FnState vec_u8_free(VecByte *self);
+FnState vec_byte_free(VecByte *self);
 /**
  * @brief 把 VecByte 裡的資料「搬到索引 0 開始」(head = 0)，並保留原本的儲存順序
  *
@@ -39,7 +58,7 @@ FnState vec_u8_free(VecByte *self);
  * 
  * @return FNS_OK 重新對齊成功
  */
-FnState vec_u8_realign(VecByte *self);
+FnState vec_byte_realign(VecByte *self);
 /**
  * @brief 從 VecU8 中，讀取相對於 head 的第 id 個位元組
  *
@@ -51,7 +70,7 @@ FnState vec_u8_realign(VecByte *self);
  * @return FNS_BUF_EMPTY 緩衝區為空
  * @return FNS_FAIL id 超出範圍
  */
-FnState vec_u8_get_byte(const VecByte *self, uint8_t *u8, size_t id);
+FnState vec_byte_get_byte(const VecByte *self, uint8_t *u8, size_t id);
 /**
  * @brief 檢查 VecByte 起始位置是否以指定序列開頭
  * 
@@ -62,7 +81,7 @@ FnState vec_u8_get_byte(const VecByte *self, uint8_t *u8, size_t id);
  * @return FNS_OK 開頭吻合
  * @return false 否則 (false otherwise)
  */
-FnState vec_u8_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_len);
+FnState vec_byte_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_len);
 /**
  * @brief 將 src 指向的位元組組合並推入 VecByte 末端
  *
@@ -73,7 +92,7 @@ FnState vec_u8_starts_with(const VecByte *self, const uint8_t *pre, size_t pre_l
  * @return FNS_OK 成功推入
  * @return FNS_BUF_OVERFLOW 推入失敗（超過容量）
  */
-FnState vec_u8_push(VecByte *self, const void *src, size_t src_len);
+FnState vec_byte_push(VecByte *self, const void *src, size_t src_len);
 /**
  * @brief 將一 byte 推入 VecByte
  *
@@ -83,7 +102,7 @@ FnState vec_u8_push(VecByte *self, const void *src, size_t src_len);
  * @return FNS_OK 成功推入
  * @return FNS_BUF_OVERFLOW 推入失敗（超過容量）
  */
-FnState vec_u8_push_byte(VecByte *self, uint8_t value);
+FnState vec_byte_push_byte(VecByte *self, uint8_t value);
 /**
  * @brief 將原始值轉換為 IEEE-754 大端序並推入 VecByte
  * 
@@ -93,7 +112,7 @@ FnState vec_u8_push_byte(VecByte *self, uint8_t value);
  * @return FNS_OK 成功推入
  * @return FNS_BUF_OVERFLOW 推入失敗（超過容量）
  */
-FnState vec_u8_push_u16(VecByte *self, uint16_t value);
+FnState vec_byte_push_u16(VecByte *self, uint16_t value);
 /**
  * @brief 將原始值轉換為 IEEE-754 大端序並推入 VecByte
  * 
@@ -103,23 +122,4 @@ FnState vec_u8_push_u16(VecByte *self, uint16_t value);
  * @return FNS_OK 成功推入
  * @return FNS_BUF_OVERFLOW 推入失敗（超過容量）
  */
-FnState vec_u8_push_f32(VecByte *self, float value);
-/**
- * @brief 從 VecByte 中移除全部資料
- * 
- * @param self   指向 VecByte 實例的指標
- * 
- * @return FNS_OK 成功移除
- */
-FnState vec_u8_rm_all(VecByte *self);
-/**
- * @brief 從 VecByte 中移除指定範圍的資料
- * 
- * @param self   指向 VecByte 實例的指標
- * @param offset 要移除區段在目前資料（以 head 為起點）的起始位移
- * @param size   要移除的 byte 長度
- * 
- * @return FNS_OK 成功移除
- * @return FNS_FAIL offset 超過目前資料長度或 realign 失敗
- */
-FnState vec_u8_rm_range(VecByte *self, size_t offset, size_t size);
+FnState vec_byte_push_f32(VecByte *self, float value);
