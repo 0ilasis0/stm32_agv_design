@@ -25,7 +25,31 @@ extern FnState last_error;
     do {                        \
         FnState _err = (expr);  \
         if (_err != FNS_OK)     \
+        {                       \
+            last_error = _err;  \
             return _err;        \
+        }                       \
+    } while (0)
+
+#define FNS_ERROR_CHECK_VOID(expr)  \
+    do {                            \
+        FnState _err = (expr);      \
+        if (_err != FNS_OK)         \
+        {                           \
+            last_error = _err;      \
+            return;                 \
+        }                           \
+    } while (0)
+
+#define FNS_ERROR_CHECK_CLEAN(fncall, cleanup)  \
+    do {                                        \
+        FnState __ret = (fncall);               \
+        if (__ret != FNS_OK)                    \
+        {                                       \
+            cleanup;                            \
+            last_error = _err;                  \
+            return __ret;                       \
+        }                                       \
     } while (0)
 
 typedef struct FnState_h

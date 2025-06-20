@@ -1,6 +1,6 @@
 Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
- ../Core/Inc/uart/main.h ../Core/Inc/usart.h ../Core/Inc/main.h \
- ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h \
+ ../Core/Inc/connectivity/uart/main.h ../Core/Inc/usart.h \
+ ../Core/Inc/main.h ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h \
  ../Core/Inc/stm32g4xx_hal_conf.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h \
@@ -36,7 +36,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/main/config.h ../Core/Inc/uart/trcv_buffer.h \
+ ../Core/Inc/main/config.h ../Core/Inc/connectivity/uart/trcv_buffer.h \
  ../Core/Inc/main/vec.h ../Core/Inc/motor/main.h ../Core/Inc/gpio.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
  ../Core/Inc/main/map.h \
@@ -54,7 +54,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Core/Inc/main/adc.h ../Core/Inc/main/it.h ../Core/Inc/main/vehicle.h \
  ../Core/Inc/main/vehicle2.h ../Core/Inc/motor/PI_control.h
 ../Core/Inc/main/main.h:
-../Core/Inc/uart/main.h:
+../Core/Inc/connectivity/uart/main.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -95,7 +95,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Core/Inc/main/fn_state.h:
 ../Core/Inc/main/config.h:
-../Core/Inc/uart/trcv_buffer.h:
+../Core/Inc/connectivity/uart/trcv_buffer.h:
 ../Core/Inc/main/vec.h:
 ../Core/Inc/motor/main.h:
 ../Core/Inc/gpio.h:

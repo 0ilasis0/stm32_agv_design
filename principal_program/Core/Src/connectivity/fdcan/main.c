@@ -1,4 +1,4 @@
-#include "fdcan/main.h"
+#include "connectivity/fdcan/main.h"
 #include "cmsis_os.h"
 #include "fdcan.h"
 #include "main/config.h"
@@ -15,8 +15,8 @@ static FDCAN_TxHeaderTypeDef TxHeader = {
 };
 static FDCAN_RxHeaderTypeDef RxHeader;
 
-Vec_U8 TxData;
-Vec_U8 RxData;
+VecByte TxData;
+VecByte RxData;
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
@@ -38,7 +38,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 static FnState fdcan_transmit(void)
 {
     int i;
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < TxData.len; i++)
     {
         TxData.data[i]++;
     }
@@ -54,9 +54,10 @@ static FnState fdcan_setup(void)
     return FNS_OK;
 }
 
+#ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
-    if (fdcan_setup() != FNS_OK) return;
+    FNS_ERROR_CHECK_VOID(fdcan_setup());
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
     if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
@@ -73,3 +74,4 @@ void StartFdCanTask(void *argument)
         tick++;
     }
 }
+#endif

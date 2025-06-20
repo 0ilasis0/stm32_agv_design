@@ -6,7 +6,7 @@
 #include "main/vehicle.h"
 #include "motor/main.h"
 #include "motor/PI_control.h"
-#include "uart/main.h"
+#include "connectivity/uart/main.h"
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,

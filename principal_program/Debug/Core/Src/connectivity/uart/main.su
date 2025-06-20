@@ -1,0 +1,10 @@
+../Core/Src/connectivity/uart/main.c:16:6:HAL_UART_TxCpltCallback	16	static
+../Core/Src/connectivity/uart/main.c:21:6:HAL_UARTEx_RxEventCallback	16	static
+../Core/Src/connectivity/uart/main.c:50:16:rspdw	40	static
+../Core/Src/connectivity/uart/main.c:71:16:radcw	40	static
+../Core/Src/connectivity/uart/main.c:85:16:uart_transmit	24	static
+../Core/Src/connectivity/uart/main.c:104:16:uart_tr_pkt_proc	8	static
+../Core/Src/connectivity/uart/main.c:124:16:uart_re_pkt_proc_data_store	120	static
+../Core/Src/connectivity/uart/main.c:177:16:uart_re_pkt_proc	32	static
+../Core/Src/connectivity/uart/main.c:198:16:uart_setup	24	static
+../Core/Src/connectivity/uart/main.c:209:6:StartUartTask	24	static

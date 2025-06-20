@@ -14,6 +14,7 @@
 #define UART_START_CODE  ((uint8_t) '>')
 #define UART_END_CODE    ((uint8_t) '\n')
 
+// #define DISABLE_FDCAN
 // #define DISABLE_UART
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV

@@ -1,14 +1,14 @@
 #pragma once     //使不重複 include
 
 #include <stdint.h>
-#include "uart/main.h"
+#include "connectivity/uart/main.h"
 
 extern __IO uint32_t uwTick;
 
 typedef struct GlobalState
 {
-    UartTrcvBuf* uart_tr_pkt_buf_h;
-    UartTrcvBuf* uart_rv_pkt_buf_h;
+    ByteTrcvBuf* uart_tr_pkt_buf_h;
+    ByteTrcvBuf* uart_rv_pkt_buf_h;
 } GlobalState;
 extern GlobalState global_state;
 

@@ -1,8 +1,8 @@
 #include "main/it.h"
 #include "main/vehicle.h"
 #include "motor/PI_control.h"
-#include "uart/main.h"
-#include "fdcan/main.h"
+#include "connectivity/uart/main.h"
+#include "connectivity/fdcan/main.h"
 
 uint32_t temp_time1 = 0;
 uint32_t temp_time2 = 0;

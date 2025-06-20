@@ -5,11 +5,11 @@
 #include "usart.h"
 #include "main/fn_state.h"
 #include "main/config.h"
-#include "uart/trcv_buffer.h"
+#include "connectivity/uart/trcv_buffer.h"
 #include "motor/main.h"
 
-extern UartTrcvBuf uart_tr_pkt_buf;
-extern UartTrcvBuf uart_rv_pkt_buf;
+extern ByteTrcvBuf uart_tr_pkt_buf;
+extern ByteTrcvBuf uart_rv_pkt_buf;
 
 typedef struct
 {

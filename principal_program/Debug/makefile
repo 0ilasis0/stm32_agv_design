@@ -16,11 +16,11 @@ RM := rm -rf
 -include Drivers/STM32G4xx_HAL_Driver/Src/subdir.mk
 -include Drivers/BSP/STM32G4xx_Nucleo/subdir.mk
 -include Core/Startup/subdir.mk
--include Core/Src/uart/subdir.mk
 -include Core/Src/motor/subdir.mk
 -include Core/Src/main/subdir.mk
 -include Core/Src/freeRTOS/subdir.mk
--include Core/Src/fdcan/subdir.mk
+-include Core/Src/connectivity/uart/subdir.mk
+-include Core/Src/connectivity/fdcan/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
 

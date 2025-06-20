@@ -1,0 +1,3 @@
+../Core/Src/connectivity/uart/trcv_buffer.c:3:9:uart_trcv_buf_setup	32	static
+../Core/Src/connectivity/uart/trcv_buffer.c:23:9:uart_trcv_buf_push	24	static
+../Core/Src/connectivity/uart/trcv_buffer.c:41:9:uart_trcv_buf_pop	24	static

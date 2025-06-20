@@ -23,11 +23,11 @@ C_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 Core/Src \
-Core/Src/fdcan \
+Core/Src/connectivity/fdcan \
+Core/Src/connectivity/uart \
 Core/Src/freeRTOS \
 Core/Src/main \
 Core/Src/motor \
-Core/Src/uart \
 Core/Startup \
 Drivers/BSP/STM32G4xx_Nucleo \
 Drivers/STM32G4xx_HAL_Driver/Src \
