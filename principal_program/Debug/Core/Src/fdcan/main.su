@@ -1,5 +1,0 @@
-../Core/Src/fdcan/main.c:21:6:HAL_FDCAN_TxBufferCompleteCallback	16	static
-../Core/Src/fdcan/main.c:25:6:HAL_FDCAN_RxFifo0Callback	16	static
-../Core/Src/fdcan/main.c:38:16:fdcan_transmit	16	static
-../Core/Src/fdcan/main.c:49:16:fdcan_setup	32	static
-../Core/Src/fdcan/main.c:58:6:StartFdCanTask	80	static

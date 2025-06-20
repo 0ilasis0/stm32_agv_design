@@ -1,6 +1,0 @@
-../Core/Src/main/vehicle2.c:19:6:vehicle2_motion_and_speed_control	16	static
-../Core/Src/main/vehicle2.c:51:15:vehicle2_get_rotate_direction	24	static
-../Core/Src/main/vehicle2.c:69:6:vehicle2_ensure_motor_stop	16	static
-../Core/Src/main/vehicle2.c:83:9:vehicle2_pass_magnetic_stripe_calculate	40	static
-../Core/Src/main/vehicle2.c:120:6:vehicle2_renew_vehicle_rotation_status	24	static
-../Core/Src/main/vehicle2.c:142:15:vehicle2_rotate_status_to_motioncommand	16	static
