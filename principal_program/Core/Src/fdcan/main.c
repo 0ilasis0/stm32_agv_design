@@ -1,8 +1,8 @@
 #include "fdcan/main.h"
+#include "cmsis_os.h"
 #include "fdcan.h"
+#include "main/config.h"
 
-static FDCAN_RxHeaderTypeDef RxHeader;
-Vec_U8 RxData = {0};
 static FDCAN_TxHeaderTypeDef TxHeader = {
     .Identifier = FDCAN_DEVICE_ID,
     .IdType = FDCAN_STANDARD_ID,
@@ -13,27 +13,14 @@ static FDCAN_TxHeaderTypeDef TxHeader = {
     .FDFormat = FDCAN_CLASSIC_CAN,
     .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
 };
-Vec_U8 TxData = {0};
+static FDCAN_RxHeaderTypeDef RxHeader;
 
-void user_MX_FDCAN1_Init(void)
+Vec_U8 TxData;
+Vec_U8 RxData;
+
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    FNS_ERROR_CHECK(vec_u8_new(&TxData, 8));
-    FNS_ERROR_CHECK(vec_u8_new(&RxData, 8));
-    vec_u8_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8);
-    FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
-    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
 }
-
-void fdcan_setup(void) {
-    if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) {
-        Error_Handler();
-    }
-    if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK){
-        Error_Handler();
-    }
-}
-
-#define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
@@ -48,11 +35,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     }
 }
 
-void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
-{
-}
-
-void fdcan_transmit(void)
+static FnState fdcan_transmit(void)
 {
     int i;
     for (i = 0; i < 8; i++)
@@ -60,8 +43,33 @@ void fdcan_transmit(void)
         TxData.data[i]++;
     }
     HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData.data);
+    return FNS_OK;
 }
 
-void fdcan_loop(void)
+static FnState fdcan_setup(void)
 {
+    FNS_ERROR_CHECK(vec_u8_new(&TxData, 8));
+    FNS_ERROR_CHECK(vec_u8_new(&RxData, 8));
+    FNS_ERROR_CHECK(vec_u8_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8));
+    return FNS_OK;
+}
+
+void StartFdCanTask(void *argument)
+{
+    if (fdcan_setup() != FNS_OK) return;
+    FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
+    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
+    if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
+    if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK) Error_Handler();
+    uint8_t tick = 0;
+    for(;;)
+    {
+        if (tick % 20 == 0)
+        {
+            fdcan_transmit();
+            tick = 0;
+        }
+        osDelay(50);
+        tick++;
+    }
 }

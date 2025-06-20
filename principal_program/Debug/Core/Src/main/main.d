@@ -52,8 +52,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/main/adc.h ../Core/Inc/main/it.h ../Core/Inc/main/vehicle.h \
- ../Core/Inc/main/vehicle2.h ../Core/Inc/motor/PI_control.h \
- ../Core/Inc/fdcan/main.h
+ ../Core/Inc/main/vehicle2.h ../Core/Inc/motor/PI_control.h
 ../Core/Inc/main/main.h:
 ../Core/Inc/uart/main.h:
 ../Core/Inc/usart.h:
@@ -118,4 +117,3 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Core/Inc/main/vehicle.h:
 ../Core/Inc/main/vehicle2.h:
 ../Core/Inc/motor/PI_control.h:
-../Core/Inc/fdcan/main.h:

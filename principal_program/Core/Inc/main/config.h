@@ -5,6 +5,8 @@
 
 #include <stdbool.h>
 
+#define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
+
 #define VECU8_MAX_CAPACITY 256
 
 #define UART_VEC_MAX 128

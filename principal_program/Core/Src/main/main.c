@@ -7,7 +7,6 @@
 #include "motor/main.h"
 #include "motor/PI_control.h"
 #include "uart/main.h"
-#include "fdcan/main.h"
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
@@ -16,7 +15,6 @@ GlobalState global_state = {
 
 void StartDefaultTask(void *argument)
 {
-    fdcan_setup();
     // adc_setup();
     // map_setup();
     map_setup();
@@ -74,11 +72,6 @@ void HAL_IncTick(void)
     //     motor_PI_control(&motor_right);
     //     motor_PI_control(&motor_left);
     // }
-    if (user_sys_tick % 1000 == 0) {
-        fdcan_transmit();
-    }
-    if (user_sys_tick % 2000 == 0) {
-    }
     // 60s
     if (user_sys_tick >= 60000) {
         user_sys_tick = 0;

@@ -15,7 +15,3 @@
     .FilterID1 = FDCAN_DEVICE_ID,               \
     .FilterID2 = 0x7FF,                         \
 })
-
-void user_MX_FDCAN1_Init(void);
-void fdcan_setup(void);
-void fdcan_transmit(void);
