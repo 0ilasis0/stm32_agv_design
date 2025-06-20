@@ -5,13 +5,9 @@
 #include "main/config.h"
 #include "main/mcu_const.h"
 
-Vec_U8 uart_dma_tr_buf;
-Vec_U8 uart_dma_rv_buf;
+static Vec_U8 uart_dma_tr_buf;
+static Vec_U8 uart_dma_rv_buf;
 
-/**
- * @brief 全域傳輸/接收緩衝區
- *        Global transmit/receive ring buffer
- */
 UartTrcvBuf uart_tr_pkt_buf;
 UartTrcvBuf uart_rv_pkt_buf;
 
