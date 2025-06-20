@@ -12,8 +12,8 @@ VecU8 uart_dma_rv_buf = {0};
  * @brief 全域傳輸/接收緩衝區
  *        Global transmit/receive ring buffer
  */
-UartTrcvBuf uart_tr_pkt_buf;
-UartTrcvBuf uart_rv_pkt_buf;
+UartTrcvBuf uart_tr_pkt_buf = {0};
+UartTrcvBuf uart_rv_pkt_buf = {0};
 
 TransceiveFlags transceive_flags = {0};
 
@@ -101,7 +101,7 @@ static FnState radcw(void)
     return FNS_OK;
 }
 
-static inline FnState uart_transmit(void)
+static FnState uart_transmit(void)
 {
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_ERROR;
     UartPacket packet = UART_PKT_NEW();
@@ -119,7 +119,7 @@ static inline FnState uart_transmit(void)
  *
  * @return void
  */
-static inline FnState uart_tr_pkt_proc(void)
+static FnState uart_tr_pkt_proc(void)
 {
     // if (transceive_flags.right_speed) {
     //     rspdw();
@@ -192,7 +192,7 @@ static FnState uart_re_pkt_proc_data_store(VecU8 *vec_u8)
  * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
  * @return void
  */
-static inline FnState uart_re_pkt_proc()
+static FnState uart_re_pkt_proc()
 {
     uint8_t i;
     for (i = 0; i < 5; i++)

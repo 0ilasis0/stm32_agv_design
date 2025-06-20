@@ -13,7 +13,6 @@ typedef struct VecU8
     uint16_t        head;
     uint16_t        len;
 } VecU8;
-
 #define VEC_U8_NEW() ((VecU8){0})
 FnState vec_u8_realign(VecU8 *self);
 FnState vec_u8_get_byte(const VecU8 *self, uint8_t *u8, uint16_t id);

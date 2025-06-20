@@ -1,9 +1,8 @@
 #pragma once
 
-#include "main/vec.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include "main/vec.h"
 
 #define PACKET_START_CODE  ((uint8_t) '>')
 #define PACKET_END_CODE    ((uint8_t) '\n')

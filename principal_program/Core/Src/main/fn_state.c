@@ -12,7 +12,7 @@ FnState_h error_state = {
     .breakdown_all_hall_lost__path_not_found = FNS_INVALID,
 };
 
-bool timeout_error (uint32_t start_time, FnState *error_parameter) {
+bool timeout_error(uint32_t start_time, FnState *error_parameter) {
     if (!sys_run_switch.enable_timeout_error) return true;
 
     if (HAL_GetTick() - start_time > error_timeout_time_limit) {
