@@ -2,7 +2,7 @@
 #include "fdcan.h"
 
 static FDCAN_RxHeaderTypeDef RxHeader;
-VecU8 RxData = {0};
+Vec_U8 RxData = {0};
 static FDCAN_TxHeaderTypeDef TxHeader = {
     .Identifier = FDCAN_DEVICE_ID,
     .IdType = FDCAN_STANDARD_ID,
@@ -13,7 +13,7 @@ static FDCAN_TxHeaderTypeDef TxHeader = {
     .FDFormat = FDCAN_CLASSIC_CAN,
     .TxEventFifoControl = FDCAN_NO_TX_EVENTS,
 };
-VecU8 TxData = {0};
+Vec_U8 TxData = {0};
 
 void user_MX_FDCAN1_Init(void)
 {

@@ -7,7 +7,7 @@
  * @param self 指向要新增資料的 UART 封包 (input packet)
  * @param vec_u8 要新增的資料向量 (input data vector)
  */
-FnState uart_pkt_add_data(UartPacket *self, VecU8 *vec_u8)
+FnState uart_pkt_add_data(UartPacket *self, Vec_U8 *vec_u8)
 {
     FNS_ERROR_CHECK(vec_u8_realign(vec_u8));
     FNS_ERROR_CHECK(vec_u8_push(&self->vec, vec_u8->data, vec_u8->len));
@@ -23,7 +23,7 @@ FnState uart_pkt_add_data(UartPacket *self, VecU8 *vec_u8)
  * @param self  來源 UART 封包指標 (input UART packet pointer)
  * @return     VecU8 由封包提取出的資料向量 (the data vector extracted from the packet)
  */
-FnState uart_pkt_get_data(const UartPacket *self, VecU8 *vec_u8)
+FnState uart_pkt_get_data(const UartPacket *self, Vec_U8 *vec_u8)
 {
     FNS_ERROR_CHECK(vec_u8_rm_all(vec_u8));
     FNS_ERROR_CHECK(vec_u8_push(vec_u8, self->vec.data, self->vec.len));
@@ -38,7 +38,7 @@ FnState uart_pkt_get_data(const UartPacket *self, VecU8 *vec_u8)
  * @param vec_u8 包含封包起始碼與結束碼的資料向量 (input byte vector with start/end codes)
  * @return bool 是否封包成功 (true if pack successful, false otherwise)
  */
-FnState uart_pkt_pack(UartPacket *self, VecU8 *vec_u8)
+FnState uart_pkt_pack(UartPacket *self, Vec_U8 *vec_u8)
 {
     uint8_t byte;
     FNS_ERROR_CHECK(vec_u8_get_byte(vec_u8, &byte, 0));
@@ -59,7 +59,7 @@ FnState uart_pkt_pack(UartPacket *self, VecU8 *vec_u8)
  * @param self 指向要解包的 UART 封包 (input packet)
  * @return VecU8 包含完整封包的資料向量 (vector containing full packet bytes)
  */
-FnState uart_pkt_unpack(const UartPacket *self, VecU8 *vec_u8)
+FnState uart_pkt_unpack(const UartPacket *self, Vec_U8 *vec_u8)
 {
     FNS_ERROR_CHECK(vec_u8_rm_all(vec_u8));
     FNS_ERROR_CHECK(vec_u8_push_byte(vec_u8, self->start));

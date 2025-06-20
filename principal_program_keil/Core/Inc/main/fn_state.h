@@ -3,7 +3,7 @@
 typedef enum FnState
 {
     FNS_OK,
-    FNS_ERROR,
+    FNS_FAIL,
     FNS_BUF_EMPTY,
     FNS_BUF_OVERFLOW,
     FNS_NO_MATCH,

@@ -4,8 +4,8 @@
 #include "usart.h"
 #include "main/mcu_const.h"
 
-VecU8 uart_dma_tr_buf = {0};
-VecU8 uart_dma_rv_buf = {0};
+Vec_U8 uart_dma_tr_buf = {0};
+Vec_U8 uart_dma_rv_buf = {0};
 
 /**
  * @brief 全域傳輸/接收緩衝區
@@ -68,7 +68,7 @@ uint16_t u16_test = 0;
 static FnState rspdw(void)
 {
     f32_test++;
-    VecU8 vec_u8 = VEC_U8_NEW();
+    Vec_U8 vec_u8 = VEC_U8_NEW();
     FNS_ERROR_CHECK(vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE));
     FNS_ERROR_CHECK(vec_u8_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE)));
     // FNS_ERROR_CHECK(vec_u8_push_f32(&vec_u8, motor_right.speed_present));
@@ -89,7 +89,7 @@ static FnState rspdw(void)
 static FnState radcw(void)
 {
     u16_test++;
-    VecU8 vec_u8 = VEC_U8_NEW();
+    Vec_U8 vec_u8 = VEC_U8_NEW();
     FNS_ERROR_CHECK(vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE));
     FNS_ERROR_CHECK(vec_u8_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE)));
     // FNS_ERROR_CHECK(vec_u8_push_u16(&vec_u8, motor_right.adc_value));
@@ -102,7 +102,7 @@ static FnState radcw(void)
 
 static inline FnState uart_transmit(void)
 {
-    if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_ERROR;
+    if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     UartPacket packet = UART_PKT_NEW();
     FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet));
     FNS_ERROR_CHECK(uart_pkt_unpack(&packet, &uart_dma_tr_buf));
@@ -138,7 +138,7 @@ static inline FnState uart_tr_pkt_proc(void)
  * @param vec_u8 指向去除命令碼後的資料向量 (input vector without command code)
  * @return void
  */
-static FnState uart_re_pkt_proc_data_store(VecU8 *vec_u8)
+static FnState uart_re_pkt_proc_data_store(Vec_U8 *vec_u8)
 {
     bool data_proc_flag = true;
     while (data_proc_flag)
@@ -198,7 +198,7 @@ static inline FnState uart_re_pkt_proc()
     {
         UartPacket packet = UART_PKT_NEW();
         FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_rv_pkt_buf, &packet));
-        VecU8 vec_u8 = VEC_U8_NEW();
+        Vec_U8 vec_u8 = VEC_U8_NEW();
         FNS_ERROR_CHECK(uart_pkt_get_data(&packet, &vec_u8));
         uint8_t code = vec_u8.data[vec_u8.head];
         FNS_ERROR_CHECK(vec_u8_rm_range(&vec_u8, 0, 1));
