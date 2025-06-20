@@ -1,2 +1,3 @@
-../Core/Src/uart/trcv_buffer.c:11:9:uart_trcv_buf_push	32	static
-../Core/Src/uart/trcv_buffer.c:28:9:uart_trcv_buf_pop	24	static
+../Core/Src/uart/trcv_buffer.c:3:9:uart_trcv_buf_setup	24	static
+../Core/Src/uart/trcv_buffer.c:21:9:uart_trcv_buf_push	24	static
+../Core/Src/uart/trcv_buffer.c:39:9:uart_trcv_buf_pop	24	static

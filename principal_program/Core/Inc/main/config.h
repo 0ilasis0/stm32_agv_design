@@ -5,6 +5,14 @@
 
 #include <stdbool.h>
 
+#define VECU8_MAX_CAPACITY 256
+
+#define UART_VEC_MAX 128
+#define UART_TRCV_BUF_CAP 10
+#define UART_START_CODE  ((uint8_t) '>')
+#define UART_END_CODE    ((uint8_t) '\n')
+
+// #define DISABLE_UART
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV
 

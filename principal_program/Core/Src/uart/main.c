@@ -5,54 +5,39 @@
 #include "main/config.h"
 #include "main/mcu_const.h"
 
-Vec_U8 uart_dma_tr_buf = {0};
-Vec_U8 uart_dma_rv_buf = {0};
+Vec_U8 uart_dma_tr_buf;
+Vec_U8 uart_dma_rv_buf;
 
 /**
  * @brief 全域傳輸/接收緩衝區
  *        Global transmit/receive ring buffer
  */
-UartTrcvBuf uart_tr_pkt_buf = {0};
-UartTrcvBuf uart_rv_pkt_buf = {0};
+UartTrcvBuf uart_tr_pkt_buf;
+UartTrcvBuf uart_rv_pkt_buf;
 
 TransceiveFlags transceive_flags = {0};
 
-/**
- * @brief UART 傳輸完成回調：移除已傳輸封包
- *        UART TX complete callback: pop transmitted packet
- *
- * @param huart 指向 UART 處理器結構體的指標 (input UART handle pointer)
- */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART3) {}
 }
 
-/**
- * @brief UART 空閒接收事件回調：處理接收資料並推入接收緩衝
- *        UART IDLE reception event callback: process received data and push to receive buffer
- *
- * @param huart 指向 UART 處理器結構體的指標 (input UART handle pointer)
- * @param Size 接收到的資料長度 (input number of received bytes)
- */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
     __HAL_UART_CLEAR_IDLEFLAG(huart);
     if (huart->Instance == USART3)
     {
-        if (Size == 0)
+        if (Size != 0)
         {
-            HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
-            return;
+            uart_dma_rv_buf.len = Size;
+            if (
+                (uart_dma_rv_buf.data[0] == UART_START_CODE)
+                && (uart_dma_rv_buf.data[uart_dma_rv_buf.len-1] == UART_END_CODE)
+            ) {
+                uart_trcv_buf_push(&uart_rv_pkt_buf, &uart_dma_rv_buf);
+            }
         }
-        uart_dma_rv_buf.len = Size;
-        UartPacket packet = UART_PKT_NEW();
-        if (uart_pkt_pack(&packet, &uart_dma_rv_buf) != FNS_OK)
-        {
-            vec_u8_rm_all(&uart_dma_rv_buf);
-            uart_trcv_buf_push(&uart_rv_pkt_buf, &packet);
-        }
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_dma_rv_buf.data, uart_dma_rv_buf.capacity);
     }
 }
 
@@ -69,14 +54,14 @@ uint16_t u16_test = 0;
 static FnState rspdw(void)
 {
     f32_test++;
-    Vec_U8 vec_u8 = VEC_U8_NEW();
-    FNS_ERROR_CHECK(vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE));
-    FNS_ERROR_CHECK(vec_u8_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE)));
-    // FNS_ERROR_CHECK(vec_u8_push_f32(&vec_u8, motor_right.speed_present));
-    FNS_ERROR_CHECK(vec_u8_push_f32(&vec_u8, f32_test));
-    UartPacket packet = UART_PKT_NEW();
-    FNS_ERROR_CHECK(uart_pkt_add_data(&packet, &vec_u8));
-    FNS_ERROR_CHECK(uart_trcv_buf_push(&uart_tr_pkt_buf, &packet));
+    Vec_U8 vec_u8;
+    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
+    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_u8_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE));
+    // vec_u8_push_f32(&vec_u8, motor_right.speed_present);
+    vec_u8_push_f32(&vec_u8, f32_test);
+    uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8);
+    vec_u8_free(&vec_u8);
     return FNS_OK;
 }
 
@@ -90,23 +75,24 @@ static FnState rspdw(void)
 static FnState radcw(void)
 {
     u16_test++;
-    Vec_U8 vec_u8 = VEC_U8_NEW();
-    FNS_ERROR_CHECK(vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE));
-    FNS_ERROR_CHECK(vec_u8_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE)));
-    // FNS_ERROR_CHECK(vec_u8_push_u16(&vec_u8, motor_right.adc_value));
-    FNS_ERROR_CHECK(vec_u8_push_u16(&vec_u8, u16_test));
-    UartPacket packet = UART_PKT_NEW();
-    FNS_ERROR_CHECK(uart_pkt_add_data(&packet, &vec_u8));
-    FNS_ERROR_CHECK(uart_trcv_buf_push(&uart_tr_pkt_buf, &packet));
+    Vec_U8 vec_u8;
+    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
+    vec_u8_push_byte(&vec_u8, CMD_CODE_DATA_TRRE);
+    vec_u8_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE));
+    // vec_u8_push_u16(&vec_u8, motor_right.adc_value);
+    vec_u8_push_u16(&vec_u8, u16_test);
+    uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8);
+    vec_u8_free(&vec_u8);
     return FNS_OK;
 }
 
 static FnState uart_transmit(void)
 {
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
-    UartPacket packet = UART_PKT_NEW();
-    FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_tr_pkt_buf, &packet));
-    FNS_ERROR_CHECK(uart_pkt_unpack(&packet, &uart_dma_tr_buf));
+    vec_u8_rm_all(&uart_dma_tr_buf);
+    FNS_ERROR_CHECK(vec_u8_push_byte(&uart_dma_tr_buf, UART_START_CODE));
+    FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_tr_pkt_buf, &uart_dma_tr_buf));
+    FNS_ERROR_CHECK(vec_u8_push_byte(&uart_dma_tr_buf, UART_END_CODE));
     HAL_UART_Transmit_DMA(&huart3, uart_dma_tr_buf.data, uart_dma_tr_buf.len);
     return FNS_OK;
 }
@@ -187,58 +173,68 @@ static FnState uart_re_pkt_proc_data_store(Vec_U8 *vec_u8)
 
 /**
  * @brief 從接收緩衝區反覆讀取封包並處理
- *        Pop packets from receive buffer and process them
+ *        Pop vecs from receive buffer and process them
  *
- * @param count 單次最大處理封包數量 (input maximum number of packets to process per time)
+ * @param count 單次最大處理封包數量 (input maximum number of vecs to process per time)
  * @return void
  */
-static FnState uart_re_pkt_proc()
+static FnState uart_re_pkt_proc(void)
 {
-    uint8_t i;
-    for (i = 0; i < 5; i++)
-    {
-        UartPacket packet = UART_PKT_NEW();
-        FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_rv_pkt_buf, &packet));
-        Vec_U8 vec_u8 = VEC_U8_NEW();
-        FNS_ERROR_CHECK(uart_pkt_get_data(&packet, &vec_u8));
+    Vec_U8 vec_u8;
+    FNS_ERROR_CHECK(vec_u8_new(&vec_u8, UART_VEC_MAX));
+    vec_u8_rm_all(&vec_u8);
+    if (uart_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8) == FNS_OK) {
         uint8_t code = vec_u8.data[vec_u8.head];
-        FNS_ERROR_CHECK(vec_u8_rm_range(&vec_u8, 0, 1));
+        vec_u8_rm_range(&vec_u8, 0, 1);
         switch (code)
         {
             case CMD_CODE_DATA_TRRE:
-                FNS_ERROR_CHECK(uart_re_pkt_proc_data_store(&vec_u8));
+                uart_re_pkt_proc_data_store(&vec_u8);
                 break;
             default:
                 break;
         }
     }
+    vec_u8_free(&vec_u8);
     return FNS_OK;
 }
 
+static FnState uart_setup(void)
+{
+    // Tx:PB9(R5) Rx:PB11(R18)
+    FNS_ERROR_CHECK(vec_u8_new(&uart_dma_tr_buf, UART_VEC_MAX + 2));
+    FNS_ERROR_CHECK(vec_u8_new(&uart_dma_rv_buf, UART_VEC_MAX + 2));
+    FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_tr_pkt_buf));
+    FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_rv_pkt_buf));
+    return FNS_OK;
+}
+
+#ifndef DISABLE_UART
 void StartUartTask(void *argument)
 {
+    if (uart_setup() != FNS_OK) return;
     __HAL_UART_CLEAR_IDLEFLAG(&huart3);
-    // Tx:PB9(R5) Rx:PB11(R18)
-    #ifndef DISABLE_UART_RECV
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, VECU8_MAX_CAPACITY);
-    #endif
+#ifndef DISABLE_UART_RECV
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_dma_rv_buf.data, uart_dma_rv_buf.capacity);
+#endif
     uint8_t tick = 0;
     for(;;)
     {
-        #ifndef DISABLE_UART_TRSM
+#ifndef DISABLE_UART_TRSM
         uart_transmit();
-        #endif
-        #ifndef DISABLE_UART_RECV
+#endif
+#ifndef DISABLE_UART_RECV
         uart_re_pkt_proc();
-        #endif
+#endif
         if (tick % 20 == 0)
         {
             tick = 0;
-            #ifndef DISABLE_UART_TRSM
+#ifndef DISABLE_UART_TRSM
             uart_tr_pkt_proc();
-            #endif
+#endif
         }
         osDelay(50);
         tick++;
     }
 }
+#endif

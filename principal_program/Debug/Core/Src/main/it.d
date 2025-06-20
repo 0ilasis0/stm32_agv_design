@@ -41,8 +41,8 @@ Core/Src/main/it.o: ../Core/Src/main/it.c ../Core/Inc/main/it.h \
  ../Core/Inc/main/vehicle2.h ../Core/Inc/main/adc.h \
  ../Core/Inc/motor/PI_control.h ../Core/Inc/uart/main.h \
  ../Core/Inc/usart.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/uart/packet.h ../Core/Inc/main/vec.h \
- ../Core/Inc/uart/trcv_buffer.h ../Core/Inc/fdcan/main.h
+ ../Core/Inc/main/config.h ../Core/Inc/uart/trcv_buffer.h \
+ ../Core/Inc/main/vec.h ../Core/Inc/fdcan/main.h
 ../Core/Inc/main/it.h:
 ../Core/Inc/motor/main.h:
 ../Core/Inc/gpio.h:
@@ -92,7 +92,7 @@ Core/Src/main/it.o: ../Core/Src/main/it.c ../Core/Inc/main/it.h \
 ../Core/Inc/uart/main.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main/fn_state.h:
-../Core/Inc/uart/packet.h:
-../Core/Inc/main/vec.h:
+../Core/Inc/main/config.h:
 ../Core/Inc/uart/trcv_buffer.h:
+../Core/Inc/main/vec.h:
 ../Core/Inc/fdcan/main.h:

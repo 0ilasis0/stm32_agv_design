@@ -9,6 +9,7 @@
 #define error_timeout_time_limit 30 * 1000
 
 typedef int FnState;
+extern FnState last_error;
 
 #define FNS_INVALID         -1
 #define FNS_OK              0
@@ -18,6 +19,7 @@ typedef int FnState;
 #define FNS_BUF_OVERFLOW    4
 #define FNS_NO_MATCH        5
 #define FNS_NOT_MOVE        6
+#define FNS_ERR_OOM         7
 
 #define FNS_ERROR_CHECK(expr)   \
     do {                        \

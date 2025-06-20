@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "usart.h"
 #include "main/fn_state.h"
-#include "uart/packet.h"
+#include "main/config.h"
 #include "uart/trcv_buffer.h"
 #include "motor/main.h"
 

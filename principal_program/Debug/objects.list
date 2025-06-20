@@ -27,7 +27,6 @@
 "./Core/Src/motor/PI_control.o"
 "./Core/Src/motor/main.o"
 "./Core/Src/uart/main.o"
-"./Core/Src/uart/packet.o"
 "./Core/Src/uart/trcv_buffer.o"
 "./Core/Startup/startup_stm32g431rbtx.o"
 "./Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.o"

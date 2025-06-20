@@ -36,9 +36,8 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/uart/packet.h ../Core/Inc/main/vec.h \
- ../Core/Inc/uart/trcv_buffer.h ../Core/Inc/motor/main.h \
- ../Core/Inc/gpio.h \
+ ../Core/Inc/main/config.h ../Core/Inc/uart/trcv_buffer.h \
+ ../Core/Inc/main/vec.h ../Core/Inc/motor/main.h ../Core/Inc/gpio.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h \
  ../Core/Inc/main/map.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
@@ -96,9 +95,9 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Core/Inc/main/fn_state.h:
-../Core/Inc/uart/packet.h:
-../Core/Inc/main/vec.h:
+../Core/Inc/main/config.h:
 ../Core/Inc/uart/trcv_buffer.h:
+../Core/Inc/main/vec.h:
 ../Core/Inc/motor/main.h:
 ../Core/Inc/gpio.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g431xx.h:

@@ -17,6 +17,8 @@ Vec_U8 TxData = {0};
 
 void user_MX_FDCAN1_Init(void)
 {
+    FNS_ERROR_CHECK(vec_u8_new(&TxData, 8));
+    FNS_ERROR_CHECK(vec_u8_new(&RxData, 8));
     vec_u8_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8);
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();

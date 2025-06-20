@@ -6,17 +6,14 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Core/Src/uart/main.c \
-../Core/Src/uart/packet.c \
 ../Core/Src/uart/trcv_buffer.c 
 
 OBJS += \
 ./Core/Src/uart/main.o \
-./Core/Src/uart/packet.o \
 ./Core/Src/uart/trcv_buffer.o 
 
 C_DEPS += \
 ./Core/Src/uart/main.d \
-./Core/Src/uart/packet.d \
 ./Core/Src/uart/trcv_buffer.d 
 
 
@@ -27,7 +24,7 @@ Core/Src/uart/%.o Core/Src/uart/%.su Core/Src/uart/%.cyclo: ../Core/Src/uart/%.c
 clean: clean-Core-2f-Src-2f-uart
 
 clean-Core-2f-Src-2f-uart:
-	-$(RM) ./Core/Src/uart/main.cyclo ./Core/Src/uart/main.d ./Core/Src/uart/main.o ./Core/Src/uart/main.su ./Core/Src/uart/packet.cyclo ./Core/Src/uart/packet.d ./Core/Src/uart/packet.o ./Core/Src/uart/packet.su ./Core/Src/uart/trcv_buffer.cyclo ./Core/Src/uart/trcv_buffer.d ./Core/Src/uart/trcv_buffer.o ./Core/Src/uart/trcv_buffer.su
+	-$(RM) ./Core/Src/uart/main.cyclo ./Core/Src/uart/main.d ./Core/Src/uart/main.o ./Core/Src/uart/main.su ./Core/Src/uart/trcv_buffer.cyclo ./Core/Src/uart/trcv_buffer.d ./Core/Src/uart/trcv_buffer.o ./Core/Src/uart/trcv_buffer.su
 
 .PHONY: clean-Core-2f-Src-2f-uart
 
