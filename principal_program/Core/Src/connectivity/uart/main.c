@@ -205,7 +205,7 @@ void StartUartTask(void *argument)
 #ifndef DISABLE_UART_RECV
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_rv_buf.data, uart_rv_buf.cap);
 #endif
-    uint8_t tick = 0;
+    size_t tick = 0;
     for (;;)
     {
 #ifndef DISABLE_UART_TRSM

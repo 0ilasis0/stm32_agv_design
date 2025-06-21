@@ -62,7 +62,7 @@ void StartFdCanTask(void *argument)
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
     if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
     if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK) Error_Handler();
-    uint8_t tick = 0;
+    size_t tick = 0;
     for(;;)
     {
         if (tick % 20 == 0)

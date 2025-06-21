@@ -8,9 +8,11 @@
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
 #define VECU8_MAX_CAPACITY 256
-
 #define UART_VEC_MAX 128
+
+#define TRCV_BUF_MAX_CAPACITY 10
 #define UART_TRCV_BUF_CAP 10
+
 #define UART_START_CODE  ((uint8_t) '>')
 #define UART_END_CODE    ((uint8_t) '\n')
 
