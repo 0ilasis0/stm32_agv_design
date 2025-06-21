@@ -193,13 +193,18 @@ static FnState uart_setup(void)
 #ifndef DISABLE_UART
 void StartUartTask(void *argument)
 {
-    FNS_ERROR_CHECK_VOID(uart_setup());
+    if (uart_setup() != FNS_OK) {
+        for (;;)
+        {
+            osDelay(1000);
+        }
+    }
     __HAL_UART_CLEAR_IDLEFLAG(&huart3);
 #ifndef DISABLE_UART_RECV
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_rv_buf.data, uart_rv_buf.cap);
 #endif
     uint8_t tick = 0;
-    for(;;)
+    for (;;)
     {
 #ifndef DISABLE_UART_TRSM
         uart_transmit();

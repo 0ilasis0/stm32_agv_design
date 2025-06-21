@@ -1,10 +1,13 @@
 #include "connectivity/trcv_buffer.h"
+#include <stdlib.h>
 
 FnState connect_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_size)
 {
     self->head = 0;
     self->len = 0;
     self->cap = buf_size;
+    self->vecs = malloc(buf_size * sizeof(VecByte));
+    if (self->vecs == NULL) return FNS_ERR_OOM;
     for (size_t i = 0; i < buf_size; i++)
     {
         FNS_ERROR_CHECK(vec_byte_new(&self->vecs[i], data_size));

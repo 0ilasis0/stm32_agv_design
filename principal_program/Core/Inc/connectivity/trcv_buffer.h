@@ -7,10 +7,10 @@
 
 typedef struct ByteTrcvBuf
 {
-    VecByte  vecs[UART_TRCV_BUF_CAP];
-    size_t cap;
-    size_t head;
-    size_t len;
+    VecByte*    vecs;
+    size_t      cap;
+    size_t      head;
+    size_t      len;
 } ByteTrcvBuf;
 
 FnState connect_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_size);
