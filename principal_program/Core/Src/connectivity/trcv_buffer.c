@@ -1,6 +1,6 @@
 #include "connectivity/trcv_buffer.h"
 
-FnState uart_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_size)
+FnState connect_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_size)
 {
     self->head = 0;
     self->len = 0;
@@ -12,7 +12,7 @@ FnState uart_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_size
     return FNS_OK;
 }
 
-FnState uart_trcv_buf_push(ByteTrcvBuf* self, const VecByte* vec_u8)
+FnState connect_trcv_buf_push(ByteTrcvBuf* self, const VecByte* vec_u8)
 {
     if (self->len >= self->cap) return FNS_BUF_OVERFLOW;
     size_t tail = (self->head + self->len) % self->cap;
@@ -22,7 +22,7 @@ FnState uart_trcv_buf_push(ByteTrcvBuf* self, const VecByte* vec_u8)
     return FNS_OK;
 }
 
-FnState uart_trcv_buf_pop(ByteTrcvBuf* self, VecByte* vec_u8)
+FnState connect_trcv_buf_pop(ByteTrcvBuf* self, VecByte* vec_u8)
 {
     if (self->len == 0) return FNS_BUF_EMPTY;
     FNS_ERROR_CHECK(vec_byte_push(vec_u8, self->vecs[self->head].data, self->vecs[self->head].len));

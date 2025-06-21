@@ -30,7 +30,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
                 (uart_rv_buf.data[0] == UART_START_CODE)
                 && (uart_rv_buf.data[uart_rv_buf.len-1] == UART_END_CODE)
             ) {
-                uart_trcv_buf_push(&uart_rv_pkt_buf, &uart_rv_buf);
+                connect_trcv_buf_push(&uart_rv_pkt_buf, &uart_rv_buf);
             }
         }
         HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_rv_buf.data, uart_rv_buf.cap);
@@ -49,7 +49,7 @@ static FnState rspdw(void)
     FNS_ERROR_CHECK_CLEAN(vec_byte_push(&vec_u8, CMD_RIGHT_SPEED_STORE, sizeof(CMD_RIGHT_SPEED_STORE)), vec_byte_free(&vec_u8));
     // FNS_ERROR_CHECK_CLEAN(vec_byte_push_f32(&vec_u8, motor_right.speed_present), vec_byte_free(&vec_u8));
     FNS_ERROR_CHECK_CLEAN(vec_byte_push_f32(&vec_u8, f32_test), vec_byte_free(&vec_u8));
-    FNS_ERROR_CHECK_CLEAN(uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8), vec_byte_free(&vec_u8));
+    FNS_ERROR_CHECK_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8), vec_byte_free(&vec_u8));
     vec_byte_free(&vec_u8);
     return FNS_OK;
 }
@@ -63,7 +63,7 @@ static FnState radcw(void)
     FNS_ERROR_CHECK_CLEAN(vec_byte_push(&vec_u8, CMD_RIGHT_ADC_STORE, sizeof(CMD_RIGHT_ADC_STORE)), vec_byte_free(&vec_u8));
     // FNS_ERROR_CHECK_CLEAN(vec_byte_push_u16(&vec_u8, motor_right.adc_value), vec_byte_free(&vec_u8));
     FNS_ERROR_CHECK_CLEAN(vec_byte_push_u16(&vec_u8, u16_test), vec_byte_free(&vec_u8));
-    FNS_ERROR_CHECK_CLEAN(uart_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8), vec_byte_free(&vec_u8));
+    FNS_ERROR_CHECK_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_u8), vec_byte_free(&vec_u8));
     vec_byte_free(&vec_u8);
     return FNS_OK;
 }
@@ -73,7 +73,7 @@ static FnState uart_transmit(void)
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     vec_rm_all(&uart_tr_buf);
     FNS_ERROR_CHECK(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
-    FNS_ERROR_CHECK(uart_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
+    FNS_ERROR_CHECK(connect_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
     FNS_ERROR_CHECK(vec_byte_push_byte(&uart_tr_buf, UART_END_CODE));
     HAL_UART_Transmit_DMA(&huart3, uart_tr_buf.data, uart_tr_buf.len);
     return FNS_OK;
@@ -164,7 +164,7 @@ static FnState uart_re_pkt_proc(void)
 {
     VecByte vec_u8;
     FNS_ERROR_CHECK(vec_byte_new(&vec_u8, UART_VEC_MAX));
-    if (uart_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8) == FNS_OK) {
+    if (connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8) == FNS_OK) {
         uint8_t code = vec_u8.data[vec_u8.head];
         vec_rm_range(&vec_u8, 0, 1);
         switch (code)
@@ -185,8 +185,8 @@ static FnState uart_setup(void)
     // Tx:PB9(R5) Rx:PB11(R18)
     FNS_ERROR_CHECK(vec_byte_new(&uart_tr_buf, UART_VEC_MAX + 2));
     FNS_ERROR_CHECK(vec_byte_new(&uart_rv_buf, UART_VEC_MAX + 2));
-    FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
-    FNS_ERROR_CHECK(uart_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
+    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
+    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
     return FNS_OK;
 }
 
