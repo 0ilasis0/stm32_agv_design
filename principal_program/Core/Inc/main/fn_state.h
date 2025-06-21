@@ -43,12 +43,12 @@ extern FnState last_error;
 
 #define FNS_ERROR_CHECK_CLEAN(fncall, cleanup)  \
     do {                                        \
-        FnState __ret = (fncall);               \
-        if (__ret != FNS_OK)                    \
+        FnState _err = (fncall);               \
+        if (_err != FNS_OK)                    \
         {                                       \
             cleanup;                            \
             last_error = _err;                  \
-            return __ret;                       \
+            return _err;                       \
         }                                       \
     } while (0)
 

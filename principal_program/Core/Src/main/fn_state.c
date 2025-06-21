@@ -2,7 +2,7 @@
 #include "stm32g4xx_hal.h"
 #include "main/config.h"
 
-FnState last_error;
+FnState last_error = FNS_INVALID;
 
 FnState_h error_state = {
     .vehicle_test_no_load_speed = FNS_INVALID,

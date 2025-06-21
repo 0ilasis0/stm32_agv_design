@@ -31,7 +31,7 @@ FnState uart_trcv_buf_push(ByteTrcvBuf* self, const VecByte* vec_u8);
  * @param self 指向 ByteTrcvBuf 的指標
  * @param vec_u8 接收彈出的封包
  * 
- * @return FNS_OK 推入成功
- * @return FNS_BUF_OVERFLOW 推入失敗（超過容量）
+ * @return FNS_OK 彈出成功
+ * @return FNS_BUF_EMPTY 彈出失敗（緩衝區為空）
  */
 FnState uart_trcv_buf_pop(ByteTrcvBuf* self, VecByte* vec_u8);
