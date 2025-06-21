@@ -160,11 +160,13 @@ static FnState uart_re_pkt_proc_data_store(VecByte *vec_u8)
  * @param count 單次最大處理封包數量 (input maximum number of vecs to process per time)
  * @return void
  */
-static FnState uart_re_pkt_proc(void)
+static FnState uart_re_pkt_proc(size_t count)
 {
     VecByte vec_u8;
     FNS_ERROR_CHECK(vec_byte_new(&vec_u8, UART_VEC_MAX));
-    if (connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8) == FNS_OK) {
+    for (size_t i = 0; i < count; i++)
+    {
+        FNS_ERROR_CHECK_CLEAN(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_u8), vec_byte_free(&vec_u8));
         uint8_t code = vec_u8.data[vec_u8.head];
         vec_rm_range(&vec_u8, 0, 1);
         switch (code)
@@ -210,16 +212,16 @@ void StartUartTask(void *argument)
         uart_transmit();
 #endif
 #ifndef DISABLE_UART_RECV
-        uart_re_pkt_proc();
+        uart_re_pkt_proc(5);
 #endif
-        if (tick % 20 == 0)
+        if (tick % 100 == 0)
         {
             tick = 0;
 #ifndef DISABLE_UART_TRSM
             uart_tr_pkt_proc();
 #endif
         }
-        osDelay(50);
+        osDelay(10);
         tick++;
     }
 }
