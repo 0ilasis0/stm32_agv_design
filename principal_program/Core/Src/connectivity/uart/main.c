@@ -7,7 +7,7 @@
 #include "main/mcu_const.h"
 #include "connectivity/write_pkt.h"
 
-static bool data_tranmit = true;
+static bool data_tranmit = false;
 static VecByte uart_tr_buf;
 static VecByte uart_rv_buf;
 
@@ -31,6 +31,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
                 (uart_rv_buf.data[0] == UART_START_CODE)
                 && (uart_rv_buf.data[uart_rv_buf.len-1] == UART_END_CODE)
             ) {
+                vec_rm_range(&uart_rv_buf, 0, 1);
+                vec_rm_range(&uart_rv_buf, uart_rv_buf.len-1, 1);
                 connect_trcv_buf_push(&uart_rv_pkt_buf, &uart_rv_buf);
             }
         }

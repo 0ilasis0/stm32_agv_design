@@ -72,7 +72,7 @@ const osThreadAttr_t MotorTask_attributes = {
 osThreadId_t FdCanTaskHandle;
 const osThreadAttr_t FdCanTask_attributes = {
   .name = "FdCanTask",
-  .priority = (osPriority_t) osPriorityAboveNormal,
+  .priority = (osPriority_t) osPriorityAboveNormal1,
   .stack_size = 256 * 4
 };
 

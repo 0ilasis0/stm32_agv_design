@@ -18,6 +18,8 @@ static FDCAN_RxHeaderTypeDef RxHeader;
 VecByte TxData;
 VecByte RxData;
 
+char fdcan_f = 0;
+
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
 }
@@ -60,8 +62,11 @@ void StartFdCanTask(void *argument)
     FNS_ERROR_CHECK_VOID(fdcan_setup());
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
+    fdcan_f = 5;
     if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
+    fdcan_f = 6;
     if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK) Error_Handler();
+    fdcan_f = 7;
     size_t tick = 0;
     for(;;)
     {
