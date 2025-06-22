@@ -7,12 +7,23 @@
 
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
-#define VECU8_MAX_CAPACITY 256
-#define UART_VEC_MAX 128
+// ! SYSTEM config, Change CAREFULLY --------------------
 
+#define TIM1_PSC 17000
+#define TIM1_ARR 5000
+
+#define TIM2_PSC 170
+#define TIM2_ARR 100
+
+#define TIM3_PSC 170
+#define TIM3_ARR 100
+
+#define VEC_BYTE_MAX_CAPACITY 256
 #define TRCV_BUF_MAX_CAPACITY 10
-#define UART_TRCV_BUF_CAP 10
 
+#define UART_BAUDRATE 115200
+#define UART_VEC_MAX 128
+#define UART_TRCV_BUF_CAP 10
 #define UART_START_CODE  ((uint8_t) '>')
 #define UART_END_CODE    ((uint8_t) '\n')
 
@@ -20,6 +31,8 @@
 // #define DISABLE_UART
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV
+
+// ! SYSTEM config END ------------------------------
 
 typedef struct{
     bool enable_PI;
