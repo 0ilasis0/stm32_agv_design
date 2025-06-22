@@ -118,7 +118,7 @@ static inline FnState uart_transmit(void)
  *
  * @return void
  */
-static inline FnState uart_tr_pkt_proc(void)
+static inline FnState tr_pkt_proc(void)
 {
     // if (transceive_flags.right_speed) {
     //     rspdw();
@@ -230,7 +230,7 @@ void StartUartTask(void *argument)
         if (uart_task_tick % 1000 == 0)
         {
             uart_task_tick = 0;
-            uart_tr_pkt_proc();
+            tr_pkt_proc();
         }
         osDelay(1);
         uart_task_tick++;

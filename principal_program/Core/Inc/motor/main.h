@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "gpio.h"
 #include "stm32g431xx.h"
+#include "gpio.h"
 #include "main/map.h"
 
 typedef struct MotorConst

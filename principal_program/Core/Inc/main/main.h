@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include "connectivity/uart/main.h"
 
-extern __IO uint32_t uwTick;
-
 typedef struct GlobalState
 {
     ByteTrcvBuf* uart_tr_pkt_buf_h;

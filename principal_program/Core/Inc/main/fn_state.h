@@ -41,14 +41,14 @@ extern FnState last_error;
         }                           \
     } while (0)
 
-#define FNS_ERROR_CHECK_CLEAN(fncall, cleanup)  \
+#define FNS_ERROR_CHECK_CLEAN(expr, cleanup)    \
     do {                                        \
-        FnState _err = (fncall);               \
-        if (_err != FNS_OK)                    \
+        FnState _err = (expr);                  \
+        if (_err != FNS_OK)                     \
         {                                       \
             cleanup;                            \
             last_error = _err;                  \
-            return _err;                       \
+            return _err;                        \
         }                                       \
     } while (0)
 
