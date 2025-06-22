@@ -1,0 +1,2 @@
+測試中斷before換成after
+移動gpio腳
