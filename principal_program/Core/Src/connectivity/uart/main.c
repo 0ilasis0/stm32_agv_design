@@ -64,7 +64,7 @@ static FnState tr_pkt_proc(void)
 static FnState rv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
-    FNS_ERROR_CHECK(vec_byte_new(&vec_byte, UART_VEC_MAX));
+    FNS_ERROR_CHECK(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
         FNS_ERROR_CHECK_CLEAN(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
@@ -90,10 +90,10 @@ static FnState rv_pkt_proc(size_t count)
 static FnState uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
-    FNS_ERROR_CHECK(vec_byte_new(&uart_tr_buf, UART_VEC_MAX + 2));
-    FNS_ERROR_CHECK(vec_byte_new(&uart_rv_buf, UART_VEC_MAX + 2));
-    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
-    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_MAX));
+    FNS_ERROR_CHECK(vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2));
+    FNS_ERROR_CHECK(vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2));
+    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
+    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
     return FNS_OK;
 }
 

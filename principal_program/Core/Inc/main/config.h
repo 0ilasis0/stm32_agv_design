@@ -18,14 +18,14 @@
 #define TIM3_PSC 170
 #define TIM3_ARR 100
 
-#define VEC_BYTE_MAX_CAPACITY 256
-#define TRCV_BUF_MAX_CAPACITY 10
+#define VEC_BYTE_MAX_CAP 256
+#define TRCV_BUF_MAX_CAP 10
 
-#define UART_BAUDRATE 115200
-#define UART_VEC_MAX 128
-#define UART_TRCV_BUF_CAP 10
-#define UART_START_CODE  ((uint8_t) '>')
-#define UART_END_CODE    ((uint8_t) '\n')
+#define UART_BAUDRATE       115200
+#define UART_VEC_BYTE_CAP   128
+#define UART_TRCV_BUF_CAP   10
+#define UART_START_CODE     ((uint8_t) '>')
+#define UART_END_CODE       ((uint8_t) '\n')
 
 // ! SYSTEM config END ------------------------------
 
