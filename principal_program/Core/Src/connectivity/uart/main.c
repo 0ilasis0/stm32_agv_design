@@ -2,10 +2,10 @@
 #include <string.h>
 #include "cmsis_os.h"
 #include "usart.h"
+#include "connectivity/cmds.h"
+#include "connectivity/write_pkt.h"
 #include "main/config.h"
 #include "main/fn_state.h"
-#include "main/mcu_const.h"
-#include "connectivity/write_pkt.h"
 
 static bool data_tranmit = false;
 static VecByte uart_tr_buf;

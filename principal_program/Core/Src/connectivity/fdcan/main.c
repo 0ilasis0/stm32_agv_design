@@ -1,6 +1,7 @@
 #include "connectivity/fdcan/main.h"
 #include "cmsis_os.h"
 #include "fdcan.h"
+#include "connectivity/cmds.h"
 #include "main/config.h"
 
 static FDCAN_TxHeaderTypeDef TxHeader = {
