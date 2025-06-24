@@ -15,8 +15,8 @@ GlobalState global_state = {
 
 void StartDefaultTask(void *argument)
 {
-    adc_setup();
-    map_setup();
+    // adc_setup();
+    // map_setup();
 
     // vehicle_test_no_load_speed(1000);
 
@@ -24,6 +24,10 @@ void StartDefaultTask(void *argument)
 
     /*測試用--------------------------------------*/
     // motor_set_speed_setpoint(&motor_right, 100);
+<<<<<<< HEAD
+=======
+    motor_set_duty(&motor_right, 30);
+>>>>>>> 6b2a144 (132)
     // motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
 
     // vehicle_rotate_in_place();
