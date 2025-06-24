@@ -29,7 +29,7 @@ void map_setup(void) {
     int text_to = get_index_by_id(14);
     build_current_map_data(text_from, text_to);
 
-    map_data_init(no_data, no_data);
+    map_data = map_data_init(no_data, no_data);
 
     for (int i = 0; i <= final_node_count; i++) {
         map_data.status[i] = decide_vehicle_status(i);

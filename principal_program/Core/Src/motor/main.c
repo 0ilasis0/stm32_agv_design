@@ -211,8 +211,6 @@ inline void motor_add_step_count(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup();
-    motor_set_direction(&motor_right, counter_clockwise);
-    motor_set_duty(&motor_right, 20);
     uint16_t tick = 0;
     for(;;)
     {

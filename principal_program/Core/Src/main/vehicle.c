@@ -13,6 +13,42 @@ uint32_t text_return_start_time = 0;
 uint32_t text_time = 0;
 /*測試用--------------------------------------*/
 
+
+/* 決定移動MODE ------------------------------------------------------*/
+int text_end = 0;
+void decide_move_mode(void)
+{
+    switch(map_data.status[map_data.current_count])
+    {
+        case agv_straight:
+            motor_set_speed_setpoint(&motor_right, setpoint_straight);
+            motor_set_speed_setpoint (&motor_left, setpoint_straight);
+
+            // 改為agv_next，直到離開HALL，使else之後能renew status
+            map_data.status[map_data.current_count] = agv_next;
+            break;
+
+        case agv_rotate:
+            // protect_over_hall();
+            vehicle_rotate_in_place();
+
+            // 改為agv_next，直到離開HALL，使else之後能renew status
+            map_data.status[map_data.current_count] = agv_next;
+            break;
+
+        case agv_end:
+            // protect_over_hall();
+            map_data_init(map_data.direction[map_data.current_count - 1], map_data.address_id[map_data.current_count - 1]);
+            // 終止目前沒有要做甚麼所以先停止動作
+            while (1) {
+                motor_set_speed_setpoint(&motor_right, 0);
+                motor_set_speed_setpoint (&motor_left, 0);
+                text_end = 1;
+            }
+            break;
+    }
+}
+
 /**
   * @brief 一般循跡模式控制
   */
@@ -135,6 +171,7 @@ void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time
 /**
   * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
   */
+ int text = 0;
 void vehicle_adjust_startup_heading (void) {
     if (map_data.start_address_id == no_data) return;
 
@@ -147,7 +184,7 @@ void vehicle_adjust_startup_heading (void) {
         map_data.start_direction,
         map_data.direction[0]
         );
-
+    text = 1;
     vehicle2_renew_vehicle_rotation_status(renew_count);
 }
 
@@ -162,7 +199,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     // 確定正轉
     vehicle2_motion_and_speed_control(motion_forward, 0);
 
-    uint32_t past_time = HAL_GetTick()
+    uint32_t past_time = HAL_GetTick();
             ,previous_time_dif = past_time;
     motor_set_duty(&motor_left,  70);
     motor_set_duty(&motor_right, 70);
@@ -198,3 +235,24 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     vehicle2_motion_and_speed_control(motion_forward, 0);
     sys_run_switch.enable_PI = 1;
 }
+
+/* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
+void protect_over_hall(void)
+{
+    vehicle2_ensure_motor_stop();
+
+    if (hall_sensor_node > hall_strong_magnet_value) return;
+
+    //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
+    if (map_data.status[map_data.current_count] == agv_rotate)
+    {
+        vehicle_over_hall_fall_back();
+    }
+
+    //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
+    if (map_data.status[map_data.current_count] == agv_end)
+    {
+        vehicle_over_hall_fall_back();
+    }
+}
+

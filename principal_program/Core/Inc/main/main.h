@@ -11,5 +11,3 @@ typedef struct GlobalState
 extern GlobalState global_state;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
-void decide_move_mode(void);
-void protect_over_hall(void);
