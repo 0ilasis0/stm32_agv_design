@@ -19,7 +19,6 @@ typedef enum {
     either
 } ROTATE_STATUS;
 
-
 typedef struct {
     int id;
     int distance;

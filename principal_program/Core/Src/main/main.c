@@ -18,33 +18,32 @@ void StartDefaultTask(void *argument)
     adc_setup();
     map_setup();
 
-    vehicle_test_no_load_speed(1000);
+    // vehicle_test_no_load_speed(1000);
 
-    vehicle_adjust_startup_heading ();
+    // vehicle_adjust_startup_heading ();
 
     /*測試用--------------------------------------*/
-    motor_set_speed_setpoint(&motor_right, 100);
-    motor_set_duty(&motor_right, 30);
-    motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
+    // motor_set_speed_setpoint(&motor_right, 100);
+    // motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
 
-    vehicle_rotate_in_place();
-    vehicle_over_hall_fall_back();
+    // vehicle_rotate_in_place();
+    // vehicle_over_hall_fall_back();
 
     /*測試用--------------------------------------*/
     for(;;)
     {
-        if (hall_sensor_node > hall_strong_magnet_value) {
-            decide_move_mode();
+        // if (hall_sensor_node > hall_strong_magnet_value) {
+        //     decide_move_mode();
 
-        } else {
-            if (map_data.status[map_data.current_count] == agv_next) {
-                map_data.current_count++ ;
+        // } else {
+        //     if (map_data.status[map_data.current_count] == agv_next) {
+        //         map_data.current_count++ ;
 
-            } else {
-                vehicle_track_mode();
+        //     } else {
+        //         vehicle_track_mode();
 
-            }
-        }
+        //     }
+        // }
 
         osDelay(1000); // !DO NOT CANCEL THIS LINE
     }

@@ -24,7 +24,7 @@ typedef struct MotorParameter
     uint16_t step_count;
     uint16_t adc_value;
     uint8_t duty_value;
-    float speed_present;
+    uint16_t speed_present;
     uint8_t currentStep;
 } MotorParameter;
 extern MotorParameter motor_right;
@@ -32,7 +32,7 @@ extern MotorParameter motor_left;
 
 void motor_setup(void);
 void motor_step_update(MotorParameter *motor);
-void motor_speed_calculate(MotorParameter *motor);
+void motor_speed_calculate(MotorParameter *motor, float sec);
 bool motor_set_duty(MotorParameter *motor, uint8_t value);
 bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value);
 void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction);

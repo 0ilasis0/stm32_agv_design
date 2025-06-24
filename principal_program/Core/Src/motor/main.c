@@ -17,6 +17,7 @@ static const int8_t SEQUENCE[6][3] = {
 static const MotorConst motor_right_const = {
     .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC      },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 },
+    // PA0(L28) PA1(L30) PB10(R25)
     .TIMx               = { &htim2,        &htim2,        &htim2       },
     .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
     .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
@@ -31,6 +32,7 @@ MotorParameter motor_right = {
 static const MotorConst motor_left_const = {
     .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC     },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8},
+    // PA6(R13) PA4(L32) PB0(L34)
     .TIMx               = { &htim3,        &htim3,        &htim3       },
     .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
     .Coil_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
@@ -77,14 +79,15 @@ void motor_setup(void)
 static inline void motor_commutate(const MotorParameter *motor)
 {
     const MotorConst* motor_const = motor->motor_const;
+    const uint8_t currentStep = motor->currentStep;
     for (int i = 0; i < 3; i++)
     {
-        if (SEQUENCE[motor->currentStep][i] == 1)
+        if (SEQUENCE[currentStep][i] == 1)
         {
             __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], motor->duty_value);
             HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
-        else if (SEQUENCE[motor->currentStep][i] == -1)
+        else if (SEQUENCE[currentStep][i] == -1)
         {
             __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], 0);
             HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
@@ -104,7 +107,6 @@ static inline void motor_commutate(const MotorParameter *motor)
   */
 void motor_step_update(MotorParameter *motor)
 {
-    if (motor == &motor_left) return;
     const MotorConst* motor_const = motor->motor_const;
     uint8_t hallState =
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[0], motor_const->Hall_GPIO_Pin_x[0]) << 2) |
@@ -143,14 +145,12 @@ void motor_step_update(MotorParameter *motor)
   *
   * Calculate actual speed from Hall counts and delta time
   */
-float real_speed;
-void motor_speed_calculate(MotorParameter *motor)
+void motor_speed_calculate(MotorParameter *motor, float sec)
 {
-    if (motor == &motor_left) return;
-    real_speed = (float)motor->step_count / (6 * 3);
-    real_speed /= 0.1f;
-    motor->speed_present = real_speed;
+    float real_speed = (float)motor->step_count / (6 * 3);
     motor->step_count = 0;
+    real_speed /= sec;
+    motor->speed_present = real_speed;
 }
 
 bool motor_set_duty(MotorParameter *motor, uint8_t value)
@@ -161,11 +161,11 @@ bool motor_set_duty(MotorParameter *motor, uint8_t value)
         motor->duty_value = 100;
         return false;
     }
-    // if (value < 0)
-    // {
-    //     motor->duty_value = 0;
-    //     return false;
-    // }
+    if (value < 0)
+    {
+        motor->duty_value = 0;
+        return false;
+    }
     motor->duty_value = value;
     return true;
 }
@@ -211,23 +211,26 @@ inline void motor_add_step_count(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup();
-    uint16_t motor_task_tick = 0;
+    motor_set_direction(&motor_right, counter_clockwise);
+    motor_set_duty(&motor_right, 20);
+    uint16_t tick = 0;
     for(;;)
     {
-        if (motor_task_tick % 10 == 0) {
-            motor_step_update(&motor_right);
-            motor_step_update(&motor_left );
+        if (tick % 10 == 0) {
+            if (motor_right.speed_present == 0) motor_step_update(&motor_right);
+            if (motor_left.speed_present == 0) motor_step_update(&motor_left);
         }
-        if (motor_task_tick % 100 == 0) {
-            motor_speed_calculate(&motor_right);
-            motor_speed_calculate(&motor_left);
+        if (tick % 100 == 0) {
+            motor_speed_calculate(&motor_right, 0.1f);
+            motor_speed_calculate(&motor_left, 0.1f);
         }
-        if (motor_task_tick % 500 == 0) {
-            motor_task_tick = 0;
+        if (tick % 500 == 0) {
+            tick = 0;
             motor_PI_control(&motor_right);
             motor_PI_control(&motor_left);
         }
+
         osDelay(1);
-        motor_task_tick++;
+        tick++;
     }
 }
