@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+enum HAL_StatusTypeDef;
 
 #define error_timeout_time_limit 30 * 1000
 
@@ -21,17 +22,17 @@ extern FnState last_error;
 #define FNS_NOT_MOVE        6
 #define FNS_ERR_OOM         7
 
-#define FNS_ERROR_CHECK(expr)   \
-    do {                        \
-        FnState _err = (expr);  \
-        if (_err != FNS_OK)     \
-        {                       \
-            last_error = _err;  \
-            return _err;        \
-        }                       \
+#define ERROR_CHECK_FNS_RETURN(expr)    \
+    do {                                \
+        FnState _err = (expr);          \
+        if (_err != FNS_OK)             \
+        {                               \
+            last_error = _err;          \
+            return _err;                \
+        }                               \
     } while (0)
 
-#define FNS_ERROR_CHECK_VOID(expr)  \
+#define ERROR_CHECK_FNS_VOID(expr)  \
     do {                            \
         FnState _err = (expr);      \
         if (_err != FNS_OK)         \
@@ -41,7 +42,7 @@ extern FnState last_error;
         }                           \
     } while (0)
 
-#define FNS_ERROR_CHECK_CLEAN(expr, cleanup)    \
+#define ERROR_CHECK_FNS_CLEAN(expr, cleanup)    \
     do {                                        \
         FnState _err = (expr);                  \
         if (_err != FNS_OK)                     \
@@ -50,6 +51,25 @@ extern FnState last_error;
             last_error = _err;                  \
             return _err;                        \
         }                                       \
+    } while (0)
+
+#define ERROR_CHECK_FNS_HANDLE(expr)    \
+    do {                                \
+        FnState _err = (expr);          \
+        if (_err != FNS_OK)             \
+        {                               \
+            last_error = _err;          \
+            Error_Handler();            \
+        }                               \
+    } while (0)
+
+#define ERROR_CHECK_HAL_HANDLE(expr)        \
+    do {                                    \
+        HAL_StatusTypeDef _err = (expr);    \
+        if (_err != HAL_OK)                 \
+        {                                   \
+            Error_Handler();                \
+        }                                   \
     } while (0)
 
 typedef struct FnState_h

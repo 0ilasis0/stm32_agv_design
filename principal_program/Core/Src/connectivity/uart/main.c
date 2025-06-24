@@ -44,9 +44,9 @@ static FnState uart_transmit(void)
 {
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     vec_rm_all(&uart_tr_buf);
-    FNS_ERROR_CHECK(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
-    FNS_ERROR_CHECK(connect_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
-    FNS_ERROR_CHECK(vec_byte_push_byte(&uart_tr_buf, UART_END_CODE));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
+    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_END_CODE));
     HAL_UART_Transmit_DMA(&huart3, uart_tr_buf.data, uart_tr_buf.len);
     return FNS_OK;
 }
@@ -64,10 +64,10 @@ static FnState tr_pkt_proc(void)
 static FnState rv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
-    FNS_ERROR_CHECK(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        FNS_ERROR_CHECK_CLEAN(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
         uint8_t code = vec_byte.data[vec_byte.head];
         vec_rm_range(&vec_byte, 0, 1);
         switch (code)
@@ -90,10 +90,10 @@ static FnState rv_pkt_proc(size_t count)
 static FnState uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
-    FNS_ERROR_CHECK(vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2));
-    FNS_ERROR_CHECK(vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2));
-    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
-    FNS_ERROR_CHECK(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2));
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2));
+    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
+    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
     return FNS_OK;
 }
 

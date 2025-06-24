@@ -19,13 +19,8 @@ static FDCAN_RxHeaderTypeDef RxHeader;
 VecByte TxData;
 VecByte RxData;
 
-size_t fdcan_f0 = 0;
-size_t fdcan_f1 = 0;
-size_t fdcan_f2 = 0;
-
-void HAL_FDCAN_TxFifoEmptyCallback(FDCAN_HandleTypeDef *hfdcan)
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    fdcan_f2++;
     BOARD_LED_TOGGLE;
 }
 
@@ -37,42 +32,37 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         RxData.len = RxHeader.DataLength;
         if ((RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.Identifier == FDCAN_DEVICE_ID))
         {
-            fdcan_f0++;
-            // BOARD_LED_TOGGLE;
+            BOARD_LED_TOGGLE;
         }
     }
 }
 
 static FnState fdcan_transmit(void)
 {
-    int i;
-    for (i = 0; i < TxData.len; i++)
-    {
-        TxData.data[i]++;
-    }
+    TxData.data[0]++;
     if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData.data) == HAL_OK)
     {
-        fdcan_f1++;
     }
     return FNS_OK;
 }
 
 static FnState fdcan_setup(void)
 {
-    FNS_ERROR_CHECK(vec_byte_new(&TxData, 8));
-    FNS_ERROR_CHECK(vec_byte_new(&RxData, 8));
-    FNS_ERROR_CHECK(vec_byte_push(&TxData, (uint8_t[]){0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8));
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&TxData, 8));
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&RxData, 8));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push(&TxData, (uint8_t[]){0x00, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80}, 8));
     return FNS_OK;
 }
 
 #ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
-    FNS_ERROR_CHECK_VOID(fdcan_setup());
+    ERROR_CHECK_FNS_VOID(fdcan_setup());
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
-    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
-    if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
-    if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK) Error_Handler();
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0));
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_TX_COMPLETE, FDCAN_TX_BUFFER0 |FDCAN_TX_BUFFER1 |FDCAN_TX_BUFFER2));
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
     size_t tick = 0;
     for(;;)
     {
