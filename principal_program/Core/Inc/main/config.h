@@ -9,14 +9,12 @@
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 
-#define TIM1_PSC 17000
-#define TIM1_ARR 5000
-
-#define TIM2_PSC 170
-#define TIM2_ARR 100
-
-#define TIM3_PSC 170
-#define TIM3_ARR 100
+#define TIM1_PSC    17000
+#define TIM1_ARR     5000
+#define TIM2_PSC      170
+#define TIM2_ARR      100
+#define TIM3_PSC      170
+#define TIM3_ARR      100
 
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10

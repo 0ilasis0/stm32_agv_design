@@ -11,7 +11,6 @@ enum HAL_StatusTypeDef;
 
 typedef int FnState;
 extern FnState last_error;
-
 #define FNS_INVALID         -1
 #define FNS_OK              0
 #define FNS_FAIL            1
