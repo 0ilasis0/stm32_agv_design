@@ -97,7 +97,7 @@ void vehicle_rotate_in_place(void) {
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
     while(hall_sensor_node >= hall_strong_magnet_value ) {
-        if (!timeout_error(error_start, &error_state.vehicle_rotate_in_place_hall)) break;
+        timeout_error(error_start, &error_state.vehicle_rotate_in_place_hall);
     }
 }
 
@@ -109,7 +109,7 @@ void vehicle_over_hall_fall_back(void) {
 
     uint32_t error_start = HAL_GetTick();
     while(hall_sensor_node <= hall_strong_magnet_value) {
-        if (!timeout_error(error_start, &error_state.vehicle_over_hall_fall_back)) break;
+        timeout_error(error_start, &error_state.vehicle_over_hall_fall_back);
     }
 
     vehicle2_motion_and_speed_control(motion_forward, 0);
@@ -162,7 +162,7 @@ void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time
 
         adc_renew();
 
-        if (!timeout_error(past_time, &error_state.vehicle_search_magnetic_path)) break;
+        timeout_error(past_time, &error_state.vehicle_search_magnetic_path);
     }
 
     vehicle2_ensure_motor_stop();
@@ -199,7 +199,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     // 確定正轉
     vehicle2_motion_and_speed_control(motion_forward, 0);
 
-    uint32_t past_time = HAL_GetTick();
+    uint32_t past_time = HAL_GetTick()
             ,previous_time_dif = past_time;
     motor_set_duty(&motor_left,  70);
     motor_set_duty(&motor_right, 70);
@@ -213,7 +213,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
                 text_time = past_time;
         }
 
-        if (!timeout_error(previous_time_dif, &error_state.vehicle_test_no_load_speed)) break;
+        timeout_error(previous_time_dif, &error_state.vehicle_test_no_load_speed);
     }
 
     motor_set_duty(&motor_left,  0);
@@ -227,7 +227,7 @@ void vehicle_test_no_load_speed(uint16_t mile_sec) {
     motor_set_duty(&motor_right, 70);
     past_time = HAL_GetTick();
     while(HAL_GetTick() - past_time <= previous_time_dif) {
-        if (!timeout_error(past_time, &error_state.vehicle_test_no_load_speed)) break;
+        timeout_error(past_time, &error_state.vehicle_test_no_load_speed);
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);

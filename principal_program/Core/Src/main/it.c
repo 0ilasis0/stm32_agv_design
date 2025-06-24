@@ -51,10 +51,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
     else if (GPIO_Pin == GPIO_PIN_4)
     {
-        BOARD_LED_TOGGLE;
         if (HAL_GetTick() - temp_time2 >= 300) {
             temp_time2 = HAL_GetTick();
-            BOARD_LED_TOGGLE
+            BOARD_LED_TOGGLE;
 
             if (toggle2 == 1) {
                 hall_sensor_direction = 0;

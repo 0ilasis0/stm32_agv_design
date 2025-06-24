@@ -85,4 +85,4 @@ typedef struct FnState_h
 } FnState_h;
 extern FnState_h error_state;
 
-bool timeout_error(uint32_t error_start, FnState *error_parameter);
+void timeout_error(uint32_t error_start, FnState *error_parameter);
