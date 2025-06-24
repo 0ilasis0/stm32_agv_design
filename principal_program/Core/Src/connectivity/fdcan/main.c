@@ -19,10 +19,14 @@ static FDCAN_RxHeaderTypeDef RxHeader;
 VecByte TxData;
 VecByte RxData;
 
-char fdcan_f = 0;
+size_t fdcan_f0 = 0;
+size_t fdcan_f1 = 0;
+size_t fdcan_f2 = 0;
 
-void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+void HAL_FDCAN_TxFifoEmptyCallback(FDCAN_HandleTypeDef *hfdcan)
 {
+    fdcan_f2++;
+    BOARD_LED_TOGGLE;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -33,7 +37,8 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         RxData.len = RxHeader.DataLength;
         if ((RxHeader.IdType == FDCAN_STANDARD_ID) && (RxHeader.Identifier == FDCAN_DEVICE_ID))
         {
-            BOARD_LED_TOGGLE;
+            fdcan_f0++;
+            // BOARD_LED_TOGGLE;
         }
     }
 }
@@ -45,7 +50,10 @@ static FnState fdcan_transmit(void)
     {
         TxData.data[i]++;
     }
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData.data);
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData.data) == HAL_OK)
+    {
+        fdcan_f1++;
+    }
     return FNS_OK;
 }
 
@@ -63,11 +71,8 @@ void StartFdCanTask(void *argument)
     FNS_ERROR_CHECK_VOID(fdcan_setup());
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0) != HAL_OK) Error_Handler();
-    fdcan_f = 5;
     if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) Error_Handler();
-    fdcan_f = 6;
     if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK) Error_Handler();
-    fdcan_f = 7;
     size_t tick = 0;
     for(;;)
     {

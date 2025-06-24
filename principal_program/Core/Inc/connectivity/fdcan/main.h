@@ -4,7 +4,7 @@
 #include "stm32g431xx.h"
 #include "main/vec.h"
 
-#define FDCAN_DEVICE_ID 0x321
+#define FDCAN_DEVICE_ID 0x000
 
 #define FDCAN_FilterTypeDef_DEFALT()            \
 ((FDCAN_FilterTypeDef){                         \
@@ -13,5 +13,5 @@
     .FilterType = FDCAN_FILTER_RANGE,           \
     .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,    \
     .FilterID1 = FDCAN_DEVICE_ID,               \
-    .FilterID2 = 0x7FF,                         \
+    .FilterID2 = 0x000,                         \
 })

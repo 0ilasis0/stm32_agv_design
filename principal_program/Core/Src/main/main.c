@@ -46,7 +46,7 @@ void StartDefaultTask(void *argument)
             }
         }
 
-        osDelay(1); // !DO NOT CANCEL THIS LINE
+        osDelay(1000); // !DO NOT CANCEL THIS LINE
     }
 }
 
