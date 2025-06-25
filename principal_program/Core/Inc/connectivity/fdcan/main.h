@@ -8,13 +8,8 @@
 #define FDCAN_DEVICE_ID_MIN 0x020
 #define FDCAN_DEVICE_ID_MAX 0x02F
 
+extern bool fdcan_enable;
 extern bool fdacn_data_trsm_ready;
-
-extern FDCAN_TxHeaderTypeDef fdcanTxHeader;
-extern FDCAN_RxHeaderTypeDef fdcanRxHeader;
-
-extern VecByte fdcan_tr_buf;
-extern VecByte fdcan_rv_buf;
 
 extern FdcanByteTrcvBuf fdcan_tr_pkt_buf;
 extern FdcanByteTrcvBuf fdcan_rv_pkt_buf;

@@ -8,7 +8,7 @@
 #include "main/fn_state.h"
 
 bool uart_enable = false;
-static bool fdacn_data_trsm_ready = false;
+bool uart_data_trsm_ready = false;
 
 static VecByte uart_tr_buf;
 static VecByte uart_rv_buf;
@@ -56,11 +56,18 @@ static FnState uart_transmit(void)
 
 static FnState tr_pkt_proc(void)
 {
-    if (!fdacn_data_trsm_ready) return FNS_INVALID;
-    pkt_left_speed(&uart_tr_pkt_buf);
-    pkt_right_speed(&uart_tr_pkt_buf);
-    pkt_left_duty(&uart_tr_pkt_buf);
-    pkt_right_duty(&uart_tr_pkt_buf);
+    if (!uart_data_trsm_ready) return FNS_INVALID;
+    VecByte vec_byte;
+    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
+    pkt_left_speed(&vec_byte);
+    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+    pkt_right_speed(&vec_byte);
+    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+    pkt_left_duty(&vec_byte);
+    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+    pkt_right_duty(&vec_byte);
+    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+    ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
     return FNS_OK;
 }
 
@@ -76,10 +83,10 @@ static FnState rv_pkt_proc(size_t count)
         switch (code)
         {
             case CMD_B0_DATA_STOP:
-                fdacn_data_trsm_ready = false;
+                uart_data_trsm_ready = false;
                 break;
             case CMD_B0_DATA_START:
-                fdacn_data_trsm_ready = true;
+                uart_data_trsm_ready = true;
                 break;
             default:
                 last_error = FNS_NO_MATCH;

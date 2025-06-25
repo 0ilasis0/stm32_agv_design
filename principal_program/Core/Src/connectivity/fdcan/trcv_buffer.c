@@ -1,4 +1,6 @@
 #include "connectivity/fdcan/trcv_buffer.h"
+#include <stdlib.h>
+#include "connectivity/trcv_buffer.h"
 
 FnState fdcan_trcv_buf_setup(FdcanByteTrcvBuf* self, size_t buf_size, size_t data_size)
 {
