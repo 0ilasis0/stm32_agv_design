@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "main/config.h"
 #include "main/map.h"
 #include "gpio.h"
 #include "tim.h"

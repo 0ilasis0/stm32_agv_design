@@ -1,7 +1,6 @@
 #include "motor/main.h"
 #include "tim.h"
 #include "cmsis_os.h"
-#include "stm32g431xx.h"
 #include "motor/PI_control.h"
 #include "main/vehicle.h"
 

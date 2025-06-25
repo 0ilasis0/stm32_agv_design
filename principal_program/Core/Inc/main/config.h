@@ -4,6 +4,8 @@
 #pragma once
 
 #include <stdbool.h>
+#include "stm32g431xx.h"
+#include "stm32g4xx_hal.h"
 
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
@@ -18,6 +20,9 @@
 
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10
+
+#define FDCAN_VEC_BYTE_CAP   8
+#define FDCAN_TRCV_BUF_CAP   10
 
 #define UART_BAUDRATE       115200
 #define UART_VEC_BYTE_CAP   128

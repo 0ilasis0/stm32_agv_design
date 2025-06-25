@@ -7,7 +7,9 @@
 #include "main/config.h"
 #include "main/fn_state.h"
 
-static bool data_tranmit = false;
+bool uart_enable = false;
+static bool fdacn_data_trsm_ready = false;
+
 static VecByte uart_tr_buf;
 static VecByte uart_rv_buf;
 
@@ -42,6 +44,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
 static FnState uart_transmit(void)
 {
+    if (!uart_enable) return FNS_INVALID;
     if (HAL_DMA_GetState(huart3.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     vec_rm_all(&uart_tr_buf);
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
@@ -53,7 +56,7 @@ static FnState uart_transmit(void)
 
 static FnState tr_pkt_proc(void)
 {
-    if (!data_tranmit) return FNS_INVALID;
+    if (!fdacn_data_trsm_ready) return FNS_INVALID;
     pkt_left_speed(&uart_tr_pkt_buf);
     pkt_right_speed(&uart_tr_pkt_buf);
     pkt_left_duty(&uart_tr_pkt_buf);
@@ -73,10 +76,10 @@ static FnState rv_pkt_proc(size_t count)
         switch (code)
         {
             case CMD_B0_DATA_STOP:
-                data_tranmit = false;
+                fdacn_data_trsm_ready = false;
                 break;
             case CMD_B0_DATA_START:
-                data_tranmit = true;
+                fdacn_data_trsm_ready = true;
                 break;
             default:
                 last_error = FNS_NO_MATCH;
@@ -106,6 +109,7 @@ void StartUartTask(void *argument)
             osDelay(1000);
         }
     }
+    uart_enable = true;
 #ifndef DISABLE_UART_RECV
     __HAL_UART_CLEAR_IDLEFLAG(&huart3);
     HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_rv_buf.data, uart_rv_buf.cap);

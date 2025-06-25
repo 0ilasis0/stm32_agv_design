@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-enum HAL_StatusTypeDef;
+#include "main/config.h"
 
 #define error_timeout_time_limit 30 * 1000
 
