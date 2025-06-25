@@ -47,10 +47,10 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
+/* Definitions for DefaultTask */
+osThreadId_t DefaultTaskHandle;
+const osThreadAttr_t DefaultTask_attributes = {
+  .name = "DefaultTask",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
@@ -61,6 +61,13 @@ const osThreadAttr_t ArmTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
+/* Definitions for FdCanTask */
+osThreadId_t FdCanTaskHandle;
+const osThreadAttr_t FdCanTask_attributes = {
+  .name = "FdCanTask",
+  .priority = (osPriority_t) osPriorityAboveNormal7,
+  .stack_size = 256 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -69,6 +76,7 @@ const osThreadAttr_t ArmTask_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartArmTask(void *argument);
+void StartFdCanTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -99,11 +107,14 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of DefaultTask */
+  DefaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &DefaultTask_attributes);
 
   /* creation of ArmTask */
   ArmTaskHandle = osThreadNew(StartArmTask, NULL, &ArmTask_attributes);
+
+  /* creation of FdCanTask */
+  FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -149,6 +160,24 @@ __weak void StartArmTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartArmTask */
+}
+
+/* USER CODE BEGIN Header_StartFdCanTask */
+/**
+* @brief Function implementing the FdCanTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartFdCanTask */
+__weak void StartFdCanTask(void *argument)
+{
+  /* USER CODE BEGIN StartFdCanTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartFdCanTask */
 }
 
 /* Private application code --------------------------------------------------*/

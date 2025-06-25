@@ -13,6 +13,7 @@ GlobalState global_state = {
     .uart_rv_pkt_buf_h = &uart_rv_pkt_buf,
 };
 
+size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     adc_setup();
@@ -44,20 +45,6 @@ void StartDefaultTask(void *argument)
         }
 
         osDelay(1000); // !DO NOT CANCEL THIS LINE
-    }
-}
-
-uint32_t user_sys_tick = 0;
-void HAL_IncTick(void)
-{
-    uwTick += uwTickFreq; // !DO NOT CANCEL THIS LINE
-
-    user_sys_tick++;
-    // 10ms
-    // if (user_sys_tick % 10 == 0) {
-    // }
-    // 60s
-    if (user_sys_tick >= 60000) {
-        user_sys_tick = 0;
+        defalt_running++;
     }
 }
