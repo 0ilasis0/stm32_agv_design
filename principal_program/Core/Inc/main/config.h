@@ -7,10 +7,12 @@
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
 
-#define UNUSED_FUNC __attribute__((unused))
+#define UNUSED_FNC __attribute__((unused))
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 
 // ! SYSTEM config, Change CAREFULLY --------------------
+
+#define PRINCIPAL_PROGRAM
 
 #define TIM1_PSC    17000
 #define TIM1_ARR     5000
@@ -22,6 +24,7 @@
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10
 
+#define FDCAN_FILTER_COUNT  1
 #define FDCAN_FILTER_ID_MIN 0x020
 #define FDCAN_FILTER_ID_MAX 0x02F
 #define FDCAN_VEC_BYTE_CAP  8

@@ -2,11 +2,10 @@
 #include "cmsis_os.h"
 #include "fdcan.h"
 #include "connectivity/cmds.h"
-#include "connectivity/write_pkt.h"
 
 FncState fdcan_enable_trsm = FNC_DISABLE;
 FncState fdcan_enable_recv = FNC_DISABLE;
-FncState fdacn_data_trsm_ready = FNC_DISABLE;
+FncState fdacn_data_trsm_ready = FNC_ENABLE;
 
 static FDCAN_TxHeaderTypeDef fdcanTxHeader = {
     .Identifier = 0x000,
@@ -26,15 +25,18 @@ static VecByte fdcan_rv_buf;
 FdcanByteTrcvBuf fdcan_tr_pkt_buf;
 FdcanByteTrcvBuf fdcan_rv_pkt_buf;
 
+size_t fdcant[3] = {0};
+
 static inline bool fifo_it_check(uint32_t its, uint32_t tag) {
     return (its & tag) != RESET;
 }
 
 void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEventFifoITs)
 {
+    fdcant[1]++;
     if (fifo_it_check(TxEventFifoITs, FDCAN_IT_TX_EVT_FIFO_NEW_DATA))
     {
-        BOARD_LED_TOGGLE;
+        
     }
     if (fifo_it_check(TxEventFifoITs, FDCAN_IT_TX_EVT_FIFO_FULL))
     {
@@ -49,11 +51,13 @@ void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEvent
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
+    fdcant[0]++;
+    BOARD_LED_TOGGLE;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    if (fdcan_enable_recv != FNC_ENABLE) return;
+    fdcant[2]++;
     if(fifo_it_check(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcanRxHeader, fdcan_rv_buf.data));
@@ -62,7 +66,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     }
 }
 
-static UNUSED_FUNC void fdcan_setup(void)
+static UNUSED_FNC void init(void)
 {
     if (
            (vec_byte_new(&fdcan_tr_buf, 8) == FNS_OK)
@@ -74,7 +78,7 @@ static UNUSED_FUNC void fdcan_setup(void)
     ) fdcan_enable_recv = FNC_ENABLE;
 }
 
-static UNUSED_FUNC FnState pkt_transmit(void)
+static UNUSED_FNC FnState pkt_transmit(void)
 {
     vec_rm_all(&fdcan_tr_buf);
     ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_pop(&fdcan_tr_pkt_buf, &fdcan_tr_buf, &fdcanTxHeader.Identifier));
@@ -84,22 +88,22 @@ static UNUSED_FUNC FnState pkt_transmit(void)
     return FNS_OK;
 }
 
-static UNUSED_FUNC FnState tr_pkt_proc(void)
+static UNUSED_FNC FnState tr_pkt_proc(void)
 {
     if (fdacn_data_trsm_ready == FNC_ENABLE)
     {
         VecByte vec_byte;
         ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
-#ifdef ENABLE_CON_PKT_TEST
-        pkt_test(&vec_byte);
-        ERROR_CHECK_FNS_CLEAN(fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, 0x000), vec_byte_free(&vec_byte));
-#endif
+        #ifdef ENABLE_CON_PKT_TEST
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, 0x002), vec_byte_free(&vec_byte));
+        #endif
         ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
     }
     return FNS_OK;
 }
 
-static UNUSED_FUNC FnState rv_pkt_proc(size_t count)
+static UNUSED_FNC FnState rv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
@@ -129,7 +133,8 @@ static UNUSED_FUNC FnState rv_pkt_proc(size_t count)
 #ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
-    fdcan_setup();
+    init();
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
@@ -141,13 +146,13 @@ void StartFdCanTask(void *argument)
         HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_TX_COMPLETE,
             FDCAN_TX_BUFFER0|FDCAN_TX_BUFFER1|FDCAN_TX_BUFFER2)
     );
-    if (fdcan_enable_trsm == FNC_ENABLE) ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
+    if (fdcan_enable_recv == FNC_ENABLE) ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
     size_t tick = 0;
     for(;;)
     {
         if (fdcan_enable_trsm == FNC_ENABLE) pkt_transmit();
         rv_pkt_proc(5);
-        if (tick % 100 == 0)
+        if (tick % 50 == 0)
         {
             tick = 0;
             tr_pkt_proc();

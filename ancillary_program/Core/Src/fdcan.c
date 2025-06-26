@@ -21,7 +21,7 @@
 #include "fdcan.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "main/config.h"
 /* USER CODE END 0 */
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -52,7 +52,7 @@ void MX_FDCAN1_Init(void)
   hfdcan1.Init.DataSyncJumpWidth = 1;
   hfdcan1.Init.DataTimeSeg1 = 14;
   hfdcan1.Init.DataTimeSeg2 = 2;
-  hfdcan1.Init.StdFiltersNbr = 0;
+  hfdcan1.Init.StdFiltersNbr = FDCAN_FILTER_COUNT;
   hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)

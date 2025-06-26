@@ -2,10 +2,9 @@
 #include <string.h>
 #include "cmsis_os.h"
 #include "usart.h"
-#include "connectivity/cmds.h"
-#include "connectivity/write_pkt.h"
 #include "main/config.h"
 #include "main/fn_state.h"
+#include "connectivity/cmds.h"
 
 FncState uart_enable_trsm = FNC_DISABLE;
 FncState uart_enable_recv = FNC_DISABLE;
@@ -41,7 +40,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_rv_buf.data, uart_rv_buf.cap);
 }
 
-static UNUSED_FUNC void uart_setup(void)
+static UNUSED_FNC void uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
     if (
@@ -54,7 +53,7 @@ static UNUSED_FUNC void uart_setup(void)
     ) uart_enable_recv = FNC_ENABLE;
 }
 
-static UNUSED_FUNC FnState uart_transmit(void)
+static UNUSED_FNC FnState uart_transmit(void)
 {
     if (HAL_DMA_GetState(huart1.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     vec_rm_all(&uart_tr_buf);
@@ -65,26 +64,32 @@ static UNUSED_FUNC FnState uart_transmit(void)
     return FNS_OK;
 }
 
-static UNUSED_FUNC FnState tr_pkt_proc(void)
+static UNUSED_FNC FnState tr_pkt_proc(void)
 {
     if (uart_data_trsm_ready == FNC_ENABLE)
     {
         VecByte vec_byte;
         ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
-        pkt_left_speed(&vec_byte);
-        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        pkt_right_speed(&vec_byte);
-        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        pkt_left_duty(&vec_byte);
-        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        pkt_right_duty(&vec_byte);
-        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+        #ifdef ENABLE_CON_PKT_TEST
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte),
+            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        #endif
+        #ifdef PRINCIPAL_PROGRAM
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
+            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
+            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
+            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
+            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        #endif
+        vec_byte_free(&vec_byte);
     }
     return FNS_OK;
 }
 
-static UNUSED_FUNC FnState rv_pkt_proc(size_t count)
+static UNUSED_FNC FnState rv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
