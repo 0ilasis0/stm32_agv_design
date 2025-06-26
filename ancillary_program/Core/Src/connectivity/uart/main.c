@@ -7,8 +7,9 @@
 #include "main/config.h"
 #include "main/fn_state.h"
 
-bool uart_enable = false;
-bool uart_data_trsm_ready = false;
+FncState uart_enable_trsm = FNC_DISABLE;
+FncState uart_enable_recv = FNC_DISABLE;
+FncState uart_data_trsm_ready = FNC_DISABLE;
 
 static VecByte uart_tr_buf;
 static VecByte uart_rv_buf;
@@ -40,19 +41,21 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     HAL_UARTEx_ReceiveToIdle_DMA(huart, uart_rv_buf.data, uart_rv_buf.cap);
 }
 
-static UNUSED_FUNC FnState uart_setup(void)
+static UNUSED_FUNC void uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2));
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2));
-    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
-    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP));
-    return FNS_OK;
+    if (
+           (vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2) == FNS_OK)
+        && (connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP) == FNS_OK)
+    ) uart_enable_trsm = FNC_ENABLE;
+    if (
+           (vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2) == FNS_OK)
+        && (connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP) == FNS_OK)
+    ) uart_enable_recv = FNC_ENABLE;
 }
 
 static UNUSED_FUNC FnState uart_transmit(void)
 {
-    if (!uart_enable) return FNS_INVALID;
     if (HAL_DMA_GetState(huart1.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
     vec_rm_all(&uart_tr_buf);
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
@@ -64,18 +67,20 @@ static UNUSED_FUNC FnState uart_transmit(void)
 
 static UNUSED_FUNC FnState tr_pkt_proc(void)
 {
-    if (!uart_data_trsm_ready) return FNS_INVALID;
-    VecByte vec_byte;
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
-    pkt_left_speed(&vec_byte);
-    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-    pkt_right_speed(&vec_byte);
-    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-    pkt_left_duty(&vec_byte);
-    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-    pkt_right_duty(&vec_byte);
-    ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-    ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+    if (uart_data_trsm_ready == FNC_ENABLE)
+    {
+        VecByte vec_byte;
+        ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
+        pkt_left_speed(&vec_byte);
+        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        pkt_right_speed(&vec_byte);
+        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        pkt_left_duty(&vec_byte);
+        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        pkt_right_duty(&vec_byte);
+        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+    }
     return FNS_OK;
 }
 
@@ -108,32 +113,21 @@ static UNUSED_FUNC FnState rv_pkt_proc(size_t count)
 #ifndef DISABLE_UART
 void StartUartTask(void *argument)
 {
-    if (uart_setup() != FNS_OK) {
-        for (;;)
-        {
-            osDelay(1000);
-        }
+    uart_setup();
+    if (uart_enable_recv == FNC_ENABLE)
+    {
+        __HAL_UART_CLEAR_IDLEFLAG(&huart1);
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart1, uart_rv_buf.data, uart_rv_buf.cap);
     }
-    uart_enable = true;
-#ifndef DISABLE_UART_RECV
-    __HAL_UART_CLEAR_IDLEFLAG(&huart3);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, uart_rv_buf.data, uart_rv_buf.cap);
-#endif
     size_t tick = 0;
     for (;;)
     {
-#ifndef DISABLE_UART_TRSM
-        uart_transmit();
-#endif
-#ifndef DISABLE_UART_RECV
+        if (uart_enable_trsm == FNC_ENABLE) uart_transmit();
         rv_pkt_proc(5);
-#endif
         if (tick % 500 == 0)
         {
             tick = 0;
-#ifndef DISABLE_UART_TRSM
             tr_pkt_proc();
-#endif
         }
         osDelay(10);
         tick++;

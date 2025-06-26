@@ -35,8 +35,27 @@
 
 // ! SYSTEM config END ------------------------------
 
+typedef int8_t FncState;
+#define FNC_CANCEL  -1
+#define FNC_DISABLE 0
+#define FNC_ENABLE  1
+
 #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV
+
+#define error_timeout_time_limit 1000
+
+typedef struct SYSTEM_RUNTIME_SWITCH
+{
+    bool enable_adc;
+    bool enable_PI;
+    bool enable_search_magnetic_path;
+    bool enable_timeout_error;
+
+    bool enable_debug_breakdown_all_hall_lost;
+    bool enable_debug_test_no_load_speed;
+} SYSTEM_RUNTIME_SWITCH;
+extern SYSTEM_RUNTIME_SWITCH sys_run_switch;

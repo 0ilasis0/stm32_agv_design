@@ -2,11 +2,11 @@
 #include "cmsis_os.h"
 #include "fdcan.h"
 #include "connectivity/cmds.h"
-#include "main/config.h"
 #include "connectivity/write_pkt.h"
 
-bool fdcan_enable = false;
-bool fdacn_data_trsm_ready = true;
+FncState fdcan_enable_trsm = FNC_DISABLE;
+FncState fdcan_enable_recv = FNC_DISABLE;
+FncState fdacn_data_trsm_ready = FNC_DISABLE;
 
 static FDCAN_TxHeaderTypeDef fdcanTxHeader = {
     .Identifier = 0x000,
@@ -53,6 +53,7 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
+    if (fdcan_enable_recv != FNC_ENABLE) return;
     if(fifo_it_check(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcanRxHeader, fdcan_rv_buf.data));
@@ -61,18 +62,20 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     }
 }
 
-static UNUSED_FUNC FnState fdcan_setup(void)
+static UNUSED_FUNC void fdcan_setup(void)
 {
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&fdcan_tr_buf, 8));
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&fdcan_rv_buf, 8));
-    ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_setup(&fdcan_tr_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
-    ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_setup(&fdcan_rv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
-    return FNS_OK;
+    if (
+           (vec_byte_new(&fdcan_tr_buf, 8) == FNS_OK)
+        && (fdcan_trcv_buf_setup(&fdcan_tr_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP) == FNS_OK)
+    ) fdcan_enable_trsm = FNC_ENABLE;
+    if (
+           (vec_byte_new(&fdcan_rv_buf, 8) == FNS_OK)
+        && (fdcan_trcv_buf_setup(&fdcan_rv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP) == FNS_OK)
+    ) fdcan_enable_recv = FNC_ENABLE;
 }
 
-static UNUSED_FUNC FnState fdcan_transmit(void)
+static UNUSED_FUNC FnState pkt_transmit(void)
 {
-    if (!fdcan_enable) return FNS_INVALID;
     vec_rm_all(&fdcan_tr_buf);
     ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_pop(&fdcan_tr_pkt_buf, &fdcan_tr_buf, &fdcanTxHeader.Identifier));
     if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcanTxHeader, fdcan_tr_buf.data) == HAL_OK)
@@ -83,14 +86,16 @@ static UNUSED_FUNC FnState fdcan_transmit(void)
 
 static UNUSED_FUNC FnState tr_pkt_proc(void)
 {
-    if (!fdacn_data_trsm_ready) return FNS_INVALID;
-    VecByte vec_byte;
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
+    if (fdacn_data_trsm_ready == FNC_ENABLE)
+    {
+        VecByte vec_byte;
+        ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
 #ifdef ENABLE_CON_PKT_TEST
-    pkt_test(&vec_byte);
-    ERROR_CHECK_FNS_CLEAN(fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, 0x000), vec_byte_free(&vec_byte));
+        pkt_test(&vec_byte);
+        ERROR_CHECK_FNS_CLEAN(fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, 0x000), vec_byte_free(&vec_byte));
 #endif
-    ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+    }
     return FNS_OK;
 }
 
@@ -124,7 +129,7 @@ static UNUSED_FUNC FnState rv_pkt_proc(size_t count)
 #ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
-    ERROR_CHECK_FNS_VOID(fdcan_setup());
+    fdcan_setup();
     FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
@@ -136,12 +141,11 @@ void StartFdCanTask(void *argument)
         HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_TX_COMPLETE,
             FDCAN_TX_BUFFER0|FDCAN_TX_BUFFER1|FDCAN_TX_BUFFER2)
     );
-    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
-    fdcan_enable = true;
+    if (fdcan_enable_trsm == FNC_ENABLE) ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
     size_t tick = 0;
     for(;;)
     {
-        fdcan_transmit();
+        if (fdcan_enable_trsm == FNC_ENABLE) pkt_transmit();
         rv_pkt_proc(5);
         if (tick % 100 == 0)
         {
