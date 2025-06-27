@@ -21,14 +21,14 @@ void StartDefaultTask(void *argument)
 
     // vehicle_test_no_load_speed(1000);
 
-    vehicle_adjust_startup_heading ();
-
     /*測試用--------------------------------------*/
     // motor_set_speed_setpoint(&motor_right, 100);
     motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
     // vehicle_over_hall_fall_back();
-
+    init_map_data_direction_and_address(&map_data, 5, 7);
     /*測試用--------------------------------------*/
+
+    vehicle_adjust_startup_heading();
     for(;;)
     {
         if (hall_sensor_node > hall_strong_magnet_value) {

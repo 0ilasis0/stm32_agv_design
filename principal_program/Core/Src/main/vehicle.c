@@ -38,7 +38,7 @@ void decide_move_mode(void)
 
         case agv_end:
             // protect_over_hall();
-            map_data_init(map_data.direction[map_data.current_count - 1], map_data.address_id[map_data.current_count - 1]);
+            init_map_data_direction_and_address(&map_data, map_data.address_id[map_data.current_count - 1], map_data.direction[map_data.current_count - 1]);
             // 終止目前沒有要做甚麼所以先停止動作
             while (1) {
                 motor_set_speed_setpoint(&motor_right, 0);
@@ -171,7 +171,6 @@ void vehicle_search_magnetic_path (MOTIONCOMMAND search_direction, uint16_t time
 /**
   * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
   */
- int text = 0;
 void vehicle_adjust_startup_heading (void) {
     if (map_data.start_address_id == no_data) return;
 
@@ -184,7 +183,6 @@ void vehicle_adjust_startup_heading (void) {
         map_data.start_direction,
         map_data.direction[0]
         );
-    text = 1;
     vehicle2_renew_vehicle_rotation_status(renew_count);
 }
 

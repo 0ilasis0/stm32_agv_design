@@ -80,6 +80,7 @@ void vehicle2_ensure_motor_stop(void) {
 /**
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
+
 uint8_t vehicle2_pass_magnetic_stripe_calculate(
     ROTATE_STATUS rotate_direction_mode,
     uint16_t current_id_input,
@@ -117,10 +118,11 @@ uint8_t vehicle2_pass_magnetic_stripe_calculate(
   * @brief 根據強磁計數更新 AGV 方向資料
   */
 uint8_t text_count_until_zero;
+uint8_t text123;
 void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
     //邊緣觸發判斷
     bool triggered = false;
-
+    text123 = count_until_zero;
     uint32_t time_out = HAL_GetTick();
     while (count_until_zero != 0){
         if (hall_sensor_direction >= hall_magnetic_stripe_value  && !triggered) {
