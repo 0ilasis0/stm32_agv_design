@@ -7,8 +7,6 @@
 #include <stdbool.h>
 #include "main/config.h"
 
-#define ERROR_TIMEOUT_TIME_LIMIT 15 * 1000
-
 typedef int FnState;
 extern FnState last_error;
 #define FNS_INVALID         -1
@@ -62,6 +60,15 @@ extern FnState last_error;
         }                               \
     } while (0)
 
+#define ERROR_CHECK_HAL_RETERN(expr)        \
+    do {                                    \
+        HAL_StatusTypeDef _err = (expr);    \
+        if (_err != HAL_OK)                 \
+        {                                   \
+            return _err;                    \
+        }                                   \
+    } while (0)
+
 #define ERROR_CHECK_HAL_HANDLE(expr)        \
     do {                                    \
         HAL_StatusTypeDef _err = (expr);    \
@@ -70,6 +77,11 @@ extern FnState last_error;
             Error_Handler();                \
         }                                   \
     } while (0)
+
+
+#define ERROR_TIMEOUT_TIME_LIMIT 15 * 1000
+
+#ifdef PRINCIPAL_PROGRAM
 
 typedef struct FnState_h
 {
@@ -84,3 +96,5 @@ typedef struct FnState_h
 } FnState_h;
 extern FnState_h error_state;
 void timeout_error(uint32_t start_time, FnState *error_parameter);
+
+#endif

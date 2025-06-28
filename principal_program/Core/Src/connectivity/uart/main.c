@@ -68,7 +68,7 @@ static UNUSED_FNC FnState uart_transmit(void)
     return FNS_OK;
 }
 
-static UNUSED_FNC FnState tr_pkt_proc(void)
+static UNUSED_FNC FnState trsm_pkt_proc(void)
 {
     if (uart_data_trsm_ready == FNC_ENABLE)
     {
@@ -93,7 +93,7 @@ static UNUSED_FNC FnState tr_pkt_proc(void)
     return FNS_OK;
 }
 
-static UNUSED_FNC FnState rv_pkt_proc(size_t count)
+static UNUSED_FNC FnState recv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
@@ -132,11 +132,11 @@ void StartUartTask(void *argument)
     for (;;)
     {
         if (uart_enable_trsm == FNC_ENABLE) uart_transmit();
-        rv_pkt_proc(5);
+        recv_pkt_proc(5);
         if (tick % 500 == 0)
         {
             tick = 0;
-            tr_pkt_proc();
+            trsm_pkt_proc();
         }
         osDelay(10);
         tick++;

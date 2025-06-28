@@ -9,6 +9,7 @@
 
 #define UNUSED_FNC __attribute__((unused))
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
+#define ITS_CHECK(its, tag)  (((its) & (tag)) != RESET)
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 

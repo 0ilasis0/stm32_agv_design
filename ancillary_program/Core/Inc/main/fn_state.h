@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-enum HAL_StatusTypeDef;
+#include "main/config.h"
 
 typedef int FnState;
 extern FnState last_error;
@@ -60,6 +60,14 @@ extern FnState last_error;
         }                               \
     } while (0)
 
+#define ERROR_CHECK_HAL_VOID(expr)          \
+    do {                                    \
+        HAL_StatusTypeDef _err = (expr);    \
+        if (_err != HAL_OK)                 \
+        {                                   \
+        }                                   \
+    } while (0)
+
 #define ERROR_CHECK_HAL_HANDLE(expr)        \
     do {                                    \
         HAL_StatusTypeDef _err = (expr);    \
@@ -68,3 +76,24 @@ extern FnState last_error;
             Error_Handler();                \
         }                                   \
     } while (0)
+
+
+#define ERROR_TIMEOUT_TIME_LIMIT 15 * 1000
+
+#ifdef PRINCIPAL_PROGRAM
+
+typedef struct FnState_h
+{
+    FnState vehicle_test_no_load_speed;
+    FnState vehicle_over_hall_fall_back;
+    FnState vehicle_rotate_in_place_hall;
+    FnState vehicle_search_magnetic_path;
+    FnState vehicle2_ensure_motor_stop;
+    FnState vehicle2_renew_vehicle_rotation_status;
+    FnState rotate_in_place__map_data_current_count;
+    FnState breakdown_all_hall_lost__path_not_found;
+} FnState_h;
+extern FnState_h error_state;
+void timeout_error(uint32_t start_time, FnState *error_parameter);
+
+#endif

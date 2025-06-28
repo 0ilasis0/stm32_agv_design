@@ -42,6 +42,6 @@
 #define CMD_B1_FINGER           (uint8_t)0x90   // 馬達
 
 #define CMD_B2_STOP             (uint8_t)0x00   // 停止
-#define CMD_B2_FOWARD           (uint8_t)0x10   // 方位設定
+#define CMD_B2_SET              (uint8_t)0x10   // 方位設定
 
 #define CMD_B3_VALUE            (uint8_t)0x00   // 方位值0-100

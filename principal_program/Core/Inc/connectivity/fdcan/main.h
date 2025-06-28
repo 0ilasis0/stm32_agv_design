@@ -7,5 +7,5 @@
 extern FncState fdcan_enable;
 extern FncState fdacn_data_trsm_ready;
 
-extern FdcanByteTrcvBuf fdcan_tr_pkt_buf;
-extern FdcanByteTrcvBuf fdcan_rv_pkt_buf;
+extern FdcanByteTrcvBuf fdcan_trsm_pkt_buf;
+extern FdcanByteTrcvBuf fdcan_recv_pkt_buf;
