@@ -6,11 +6,13 @@
 
 #define HALL_MAGNITUTE_EDGE 1870  //1730
 
+// ? add current
 typedef enum {
+    motion_unchange,
     motion_forward,
     motion_backward,
     motion_clockwise,
-    motion_counter_clockwise
+    motion_c_clockwise
 } MOTIONCOMMAND;
 
 extern MOTIONCOMMAND direction_mode;

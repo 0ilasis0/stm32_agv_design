@@ -15,4 +15,4 @@ extern float max_speed;
 extern uint32_t hall_sensor_node;
 /*測試用--------------------------------------*/
 
-void motor_PI_control(ArmParameter *motor);
+void motor_PI_control(MotorParameter *motor);

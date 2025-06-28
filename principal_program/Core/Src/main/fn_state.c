@@ -18,7 +18,7 @@ FnState_h error_state = {
 void timeout_error(uint32_t start_time, FnState *error_parameter) {
     if (!sys_run_switch.enable_timeout_error) return;
 
-    if (HAL_GetTick() - start_time > error_timeout_time_limit) {
+    if (HAL_GetTick() - start_time > ERROR_TIMEOUT_TIME_LIMIT) {
         *error_parameter = FNS_TIMEOUT;
         while(true);
     }

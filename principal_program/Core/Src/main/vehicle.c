@@ -129,7 +129,7 @@ void vehicle_breakdown_all_hall_lost (void) {
     ) {
         vehicle2_ensure_motor_stop();
         vehicle_search_magnetic_path (motion_clockwise, 3000);
-        vehicle_search_magnetic_path (motion_counter_clockwise, 6000);
+        vehicle_search_magnetic_path (motion_c_clockwise, 6000);
         if (sys_run_switch.enable_search_magnetic_path == 1)
         {
             while (true) error_state.breakdown_all_hall_lost__path_not_found = FNS_NOT_MOVE;

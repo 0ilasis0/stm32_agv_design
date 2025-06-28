@@ -51,8 +51,6 @@ typedef int8_t FncState;
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV
 
-#define error_timeout_time_limit 1000
-
 typedef struct SYSTEM_RUNTIME_SWITCH
 {
     bool enable_adc;

@@ -23,8 +23,8 @@ static const ArmConst motor_right_const = {
     .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 },
 };
-ArmParameter motor_right = {
-    .rotate_direction   = clockwise,
+MotorParameter motor_right = {
+    .rotate_direction   = rotate_clockwise,
     .currentStep        = 7,
     .motor_const        = &motor_right_const,
 };
@@ -38,8 +38,8 @@ static const ArmConst motor_left_const = {
     .Coil_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12 },
 };
-ArmParameter motor_left = {
-    .rotate_direction   = counter_clockwise,
+MotorParameter motor_left = {
+    .rotate_direction   = rotate_c_clockwise,
     .currentStep        = 7,
     .motor_const        = &motor_left_const,
 };
@@ -49,7 +49,7 @@ ArmParameter motor_left = {
   *
   * Start PWM timers for specified motor channels
   */
-static void motor_tim_setup(const ArmParameter *motor)
+static void motor_tim_setup(const MotorParameter *motor)
 {
     const ArmConst* motor_const = motor->motor_const;
     HAL_TIM_PWM_Start(motor_const->TIMx[0], motor_const->TIM_CHANNEL_x[0]);
@@ -76,7 +76,7 @@ static void motor_setup(void)
   *
   * Execute motor commutation based on current step sequence
   */
-static void motor_commutate(const ArmParameter *motor)
+static void motor_commutate(const MotorParameter *motor)
 {
     const ArmConst* motor_const = motor->motor_const;
     const uint8_t currentStep = motor->currentStep;
@@ -105,14 +105,14 @@ static void motor_commutate(const ArmParameter *motor)
   *
   * Update motor step count and determine next step from Hall sensor readings
   */
-void motor_step_update(ArmParameter *motor)
+void motor_step_update(MotorParameter *motor)
 {
     const ArmConst* motor_const = motor->motor_const;
     uint8_t hallState =
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[0], motor_const->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[1], motor_const->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[2], motor_const->Hall_GPIO_Pin_x[2])     );
-    if (motor->rotate_direction == counter_clockwise)
+    if (motor->rotate_direction == rotate_c_clockwise)
     {
         switch(hallState)
         {
@@ -124,7 +124,7 @@ void motor_step_update(ArmParameter *motor)
             case 6: motor->currentStep = 5; break;
         }
     }
-    else if(motor->rotate_direction == clockwise)
+    else if(motor->rotate_direction == rotate_clockwise)
     {
         switch(hallState)
         {
@@ -145,7 +145,7 @@ void motor_step_update(ArmParameter *motor)
   *
   * Calculate actual speed from Hall counts and delta time
   */
-void motor_speed_calculate(ArmParameter *motor, float sec)
+void motor_speed_calculate(MotorParameter *motor, float sec)
 {
     float real_speed = (float)motor->step_count / (6 * 3);
     motor->step_count = 0;
@@ -153,7 +153,7 @@ void motor_speed_calculate(ArmParameter *motor, float sec)
     motor->speed_present = real_speed;
 }
 
-bool motor_set_duty(ArmParameter *motor, uint8_t value)
+bool motor_set_duty(MotorParameter *motor, uint8_t value)
 {
     // 限制PWM最大值&&最小值
     if (value > 100)
@@ -174,7 +174,7 @@ bool motor_set_duty(ArmParameter *motor, uint8_t value)
   * @brief 設定馬達速度目標值，限制範圍 0~100
   * @retval true：成功，false：超出範圍並已修正
   */
-bool motor_set_speed_setpoint(ArmParameter* motor, uint8_t value)
+bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value)
 {
     if (value > 100)
     {
@@ -188,22 +188,22 @@ bool motor_set_speed_setpoint(ArmParameter* motor, uint8_t value)
 /**
   * @brief 設定馬達旋轉方向（rotate_direction）
   */
-inline void motor_set_direction(ArmParameter *motor, ROTATE_STATUS direction)
+inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction)
 {
     motor->rotate_direction = direction;
 }
 
-inline void motor_set_integral_record(ArmParameter *motor, float integral)
+inline void motor_set_integral_record(MotorParameter *motor, float integral)
 {
     motor->integral_record = integral;
 }
 
-inline void motor_set_adc_val(ArmParameter *motor, uint16_t value)
+inline void motor_set_adc_val(MotorParameter *motor, uint16_t value)
 {
     motor->adc_value = value;
 }
 
-inline void motor_add_step_count(ArmParameter *motor)
+inline void motor_add_step_count(MotorParameter *motor)
 {
     motor->step_count++;
 }

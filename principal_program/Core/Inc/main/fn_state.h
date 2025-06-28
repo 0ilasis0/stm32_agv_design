@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "main/config.h"
 
-#define error_timeout_time_limit 15 * 1000
+#define ERROR_TIMEOUT_TIME_LIMIT 15 * 1000
 
 typedef int FnState;
 extern FnState last_error;
@@ -83,3 +83,4 @@ typedef struct FnState_h
     FnState breakdown_all_hall_lost__path_not_found;
 } FnState_h;
 extern FnState_h error_state;
+void timeout_error(uint32_t start_time, FnState *error_parameter);

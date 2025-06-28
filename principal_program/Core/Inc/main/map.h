@@ -13,9 +13,10 @@ typedef enum {
     agv_next
 } AGV_STATUS;
 
+// ? 為啥放這???
 typedef enum {
-    clockwise,
-    counter_clockwise,
+    rotate_clockwise,
+    rotate_c_clockwise,
     either
 } ROTATE_STATUS;
 

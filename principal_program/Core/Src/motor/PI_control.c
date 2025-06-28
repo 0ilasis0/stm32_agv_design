@@ -8,7 +8,7 @@ float max_speed = 40.0;
 float setpoint = 0;
 
 /* +PI speed control ------------------------------------------------*/
-void motor_PI_control(ArmParameter *motor)
+void motor_PI_control(MotorParameter *motor)
 {
     if (!sys_run_switch.enable_PI) return;
 

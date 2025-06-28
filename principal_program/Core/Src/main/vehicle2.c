@@ -16,28 +16,27 @@ uint32_t hall_sensor_direction = 0;
 /**
   * @brief 根據運動模式控制馬達旋轉方向與設定速度
   */
+static MOTIONCOMMAND currnet_mode;
 void vehicle2_motion_and_speed_control(MOTIONCOMMAND mode, uint8_t sepoint_value){
-    vehicle2_ensure_motor_stop();
-
+    // ? 如果方向一樣 不須stop
+    if (mode != currnet_mode) vehicle2_ensure_motor_stop();
+    if (mode == motion_unchange) mode = currnet_mode;
     switch(mode) {
         case motion_forward:
-            motor_set_direction(&motor_right, clockwise);
-            motor_set_direction(&motor_left,  counter_clockwise);
+            motor_set_direction(&motor_right, rotate_clockwise);
+            motor_set_direction(&motor_left,  rotate_c_clockwise);
             break;
-
         case motion_backward:
-            motor_set_direction(&motor_right, counter_clockwise);
-            motor_set_direction(&motor_left,  clockwise);
+            motor_set_direction(&motor_right, rotate_c_clockwise);
+            motor_set_direction(&motor_left,  rotate_clockwise);
             break;
-
         case motion_clockwise:
-            motor_set_direction(&motor_right, counter_clockwise);
-            motor_set_direction(&motor_left,  counter_clockwise);
+            motor_set_direction(&motor_right, rotate_c_clockwise);
+            motor_set_direction(&motor_left,  rotate_c_clockwise);
             break;
-
-        case motion_counter_clockwise:
-            motor_set_direction(&motor_right, clockwise);
-            motor_set_direction(&motor_left,  clockwise);
+        case motion_c_clockwise:
+            motor_set_direction(&motor_right, rotate_clockwise);
+            motor_set_direction(&motor_left,  rotate_clockwise);
             break;
     }
 
@@ -55,10 +54,10 @@ ROTATE_STATUS vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir) {
         return either;                               // 旋轉完成
 
     } else if (diff <= 3) {
-        return clockwise;
+        return motion_clockwise;
 
     } else {
-        return counter_clockwise;
+        return motion_c_clockwise;
 
     }
 }
@@ -92,7 +91,7 @@ uint8_t vehicle2_pass_magnetic_stripe_calculate(
     // 取得目前節點（node）在 locations_t 中的索引值
     int current_id = get_index_by_id(current_id_input);
 
-    if (rotate_direction_mode == clockwise) {
+    if (rotate_direction_mode == motion_clockwise) {
         for (int i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8) {
             if (locations_t[current_id].connect[i].distance != 0) {
                 count++;
@@ -142,10 +141,10 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
   * @brief ROTATE_STATUS 轉 MOTIONCOMMAND
   */
 MOTIONCOMMAND vehicle2_rotate_status_to_motioncommand (ROTATE_STATUS mode) {
-    if (mode == clockwise) {
+    if (mode == motion_clockwise) {
         return motion_clockwise;
     } else {
-        return motion_counter_clockwise;
+        return motion_c_clockwise;
     }
 
 }
