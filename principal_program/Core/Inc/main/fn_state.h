@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include "main/config.h"
 
+#define error_timeout_time_limit 15 * 1000
+
 typedef int FnState;
 extern FnState last_error;
 #define FNS_INVALID         -1

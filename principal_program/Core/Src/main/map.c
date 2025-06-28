@@ -22,14 +22,26 @@ MAP_DATA map_data;
 
 void map_setup(void) {
 
-    map_init();
+    init_map();
+
+    int8_t init_direction[max_node] = {no_data};
+    uint16_t init_address_id[max_node] = {no_data};
+    AGV_STATUS init_status[max_node] = {agv_end};
+    map_data = init_map_data(
+        no_data,
+        no_data,
+        0,
+        init_direction,
+        init_address_id,
+        init_status);
+
     floyd_warshall();
 
     int text_from = get_index_by_id(5);
     int text_to = get_index_by_id(14);
     build_current_map_data(text_from, text_to);
 
-    map_data = map_data_init(no_data, no_data);
+
 
     for (int i = 0; i <= final_node_count; i++) {
         map_data.status[i] = decide_vehicle_status(i);
@@ -39,7 +51,7 @@ void map_setup(void) {
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
-void map_init(void) {
+void init_map(void) {
     for (int i = 0; i < max_node; i++) {
         for (int j = 0; j < max_node; j++) {
             graph[i][j] = (i == j) ? 0 : INF;  // 自己到自己距離為0，其他為無限大
@@ -63,16 +75,36 @@ void map_init(void) {
             }
         }
     }
-
 }
 
-MAP_DATA map_data_init (int8_t init_direction, int8_t init_address_id) {
+MAP_DATA init_map_data (
+    int8_t init_start_direction,
+    int8_t init_start_address_id,
+    int8_t init_current_count,
+    int8_t init_direction[max_node],
+    uint16_t init_address_id[max_node],
+    AGV_STATUS init_status[max_node]
+    )
+{
     MAP_DATA map_new;
-    map_new.start_direction = init_direction;
-    map_new.start_address_id = init_address_id;
+    map_new.start_direction = init_start_direction;
+    map_new.start_address_id = init_start_address_id;
+    map_new.current_count = init_current_count;
+    for (uint8_t i = 0; i < max_node; i++) {
+        map_new.direction[i] = init_direction[i];
+        map_new.address_id[i] = init_address_id[i];
+        map_new.status[i] = init_status[i];  // 假設 AGV_IDLE 是你的 enum 預設值
+    }
 
     return map_new;
 }
+
+
+MAP_DATA init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
+{
+
+}
+
 
 // Floyd-Warshall 演算法計算所有節點對間最短路徑
 void floyd_warshall(void) {
