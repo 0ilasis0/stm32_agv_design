@@ -16,6 +16,10 @@ static VecByte uart_rv_buf;
 ByteTrcvBuf uart_tr_pkt_buf;
 ByteTrcvBuf uart_rv_pkt_buf;
 
+#ifdef ENABLE_CON_PKT_TEST
+uint32_t uart_test_pkt_c = 0;
+#endif
+
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance != USART1) return;
@@ -71,7 +75,7 @@ static UNUSED_FNC FnState tr_pkt_proc(void)
         VecByte vec_byte;
         ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
         #ifdef ENABLE_CON_PKT_TEST
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte),
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &uart_test_pkt_c),
             connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
         #endif
         #ifdef PRINCIPAL_PROGRAM

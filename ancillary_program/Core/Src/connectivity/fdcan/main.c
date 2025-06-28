@@ -5,7 +5,7 @@
 
 FncState fdcan_enable_trsm = FNC_DISABLE;
 FncState fdcan_enable_recv = FNC_DISABLE;
-FncState fdacn_data_trsm_ready = FNC_ENABLE;
+FncState fdacn_data_trsm_ready = FNC_DISABLE;
 
 static FDCAN_TxHeaderTypeDef fdcanTxHeader = {
     .Identifier = 0x000,
@@ -26,6 +26,10 @@ FdcanByteTrcvBuf fdcan_tr_pkt_buf;
 FdcanByteTrcvBuf fdcan_rv_pkt_buf;
 
 size_t fdcant[3] = {0};
+
+#ifdef ENABLE_CON_PKT_TEST
+uint32_t fdcan_test_pkt_c = 0;
+#endif
 
 static inline bool fifo_it_check(uint32_t its, uint32_t tag) {
     return (its & tag) != RESET;
@@ -57,10 +61,20 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    fdcant[2]++;
     if(fifo_it_check(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcanRxHeader, fdcan_rv_buf.data));
+        fdcan_rv_buf.len = fdcanRxHeader.DataLength;
+        fdcan_trcv_buf_push(&fdcan_rv_pkt_buf, &fdcan_rv_buf, fdcanRxHeader.Identifier);
+    }
+}
+
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
+{
+    fdcant[2]++;
+    if(fifo_it_check(RxFifo1ITs, FDCAN_IT_RX_FIFO1_NEW_MESSAGE))
+    {
+        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &fdcanRxHeader, fdcan_rv_buf.data));
         fdcan_rv_buf.len = fdcanRxHeader.DataLength;
         fdcan_trcv_buf_push(&fdcan_rv_pkt_buf, &fdcan_rv_buf, fdcanRxHeader.Identifier);
     }
@@ -95,8 +109,20 @@ static UNUSED_FNC FnState tr_pkt_proc(void)
         VecByte vec_byte;
         ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
         #ifdef ENABLE_CON_PKT_TEST
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, 0x002), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &fdcan_test_pkt_c),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, FDCAN_TEST_ID), vec_byte_free(&vec_byte));
+        #endif
+        #ifndef ENABLE_CON_PKT_TEST
+        #ifdef PRINCIPAL_PROGRAM
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_tr_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+        #endif
         #endif
         ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
     }
@@ -117,13 +143,13 @@ static UNUSED_FNC FnState rv_pkt_proc(size_t count)
         {
             case CMD_B0_DATA_STOP:
                 fdacn_data_trsm_ready = false;
-                break;
+                continue;
             case CMD_B0_DATA_START:
                 fdacn_data_trsm_ready = true;
-                break;
+                continue;
             default:
                 last_error = FNS_NO_MATCH;
-                break;
+                continue;
         }
     }
     vec_byte_free(&vec_byte);
@@ -135,8 +161,24 @@ void StartFdCanTask(void *argument)
 {
     init();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
-    FDCAN_FilterTypeDef sFilter0 = FDCAN_FilterTypeDef_DEFALT();
+    FDCAN_FilterTypeDef sFilter0 = {
+        .IdType = FDCAN_STANDARD_ID,
+        .FilterIndex = 0,
+        .FilterType = FDCAN_FILTER_RANGE,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0_HP,
+        .FilterID1 = FDCAN_FILTER_ID_MIN,
+        .FilterID2 = FDCAN_FILTER_ID_MIN + 3,
+    };
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0));
+    FDCAN_FilterTypeDef sFilter1 = {
+        .IdType = FDCAN_STANDARD_ID,
+        .FilterIndex = 1,
+        .FilterType = FDCAN_FILTER_RANGE,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO1,
+        .FilterID1 = FDCAN_FILTER_ID_MIN + 4,
+        .FilterID2 = FDCAN_FILTER_ID_MAX,
+    };
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter1));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
     ERROR_CHECK_HAL_HANDLE(
         HAL_FDCAN_ActivateNotification(&hfdcan1,
@@ -146,7 +188,11 @@ void StartFdCanTask(void *argument)
         HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_TX_COMPLETE,
             FDCAN_TX_BUFFER0|FDCAN_TX_BUFFER1|FDCAN_TX_BUFFER2)
     );
-    if (fdcan_enable_recv == FNC_ENABLE) ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
+    if (fdcan_enable_recv == FNC_ENABLE)
+    {
+        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
+        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0));
+    }
     size_t tick = 0;
     for(;;)
     {

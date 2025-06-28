@@ -27,6 +27,7 @@
 #define FDCAN_FILTER_ID_MAX 0x03F
 #define FDCAN_VEC_BYTE_CAP  8
 #define FDCAN_TRCV_BUF_CAP  10
+#define FDCAN_TEST_ID       0x02
 
 #define UART_BAUDRATE       115200
 #define UART_VEC_BYTE_CAP   128

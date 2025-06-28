@@ -10,7 +10,7 @@ FnState pkt_test(VecByte* vec_byte, uint32_t* value)
     vec_rm_all(vec_byte);
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_B0_DATA, CMD_B1_LEFT_SPEED, 0x01, 0x00}, 4));
     ERROR_CHECK_FNS_RETURN(vec_byte_push_u32(vec_byte, *value));
-    *value++;
+    (*value)++;
     return FNS_OK;
 }
 

@@ -24,11 +24,13 @@
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10
 
-#define FDCAN_FILTER_COUNT  1
+#define FDCAN_FILTER_COUNT  2
 #define FDCAN_FILTER_ID_MIN 0x020
 #define FDCAN_FILTER_ID_MAX 0x02F
 #define FDCAN_VEC_BYTE_CAP  8
 #define FDCAN_TRCV_BUF_CAP  10
+#define FDCAN_TEST_ID       0x01
+#define FDCAN_MOTOR_DATA_ID 0x01
 
 #define UART_BAUDRATE       115200
 #define UART_VEC_BYTE_CAP   128
@@ -43,7 +45,7 @@ typedef int8_t FncState;
 #define FNC_DISABLE 0
 #define FNC_ENABLE  1
 
-#define ENABLE_CON_PKT_TEST
+// #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM
