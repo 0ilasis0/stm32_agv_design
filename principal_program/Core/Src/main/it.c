@@ -33,17 +33,17 @@ void user_EXTI15_10_IRQHandler(void) {
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
-           (GPIO_Pin == GPIO_PIN_1)
-        || (GPIO_Pin == GPIO_PIN_2)
-        || (GPIO_Pin == GPIO_PIN_3)
+           (GPIO_Pin == motor_right.motor_const->Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_right.motor_const->Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_right.motor_const->Hall_GPIO_Pin_x[2])
     ) {
         motor_add_step_count(&motor_right);
         motor_step_update(&motor_right);
     }
     else if (
-           (GPIO_Pin == GPIO_PIN_5)
-        || (GPIO_Pin == GPIO_PIN_6)
-        || (GPIO_Pin == GPIO_PIN_8)
+           (GPIO_Pin == motor_left.motor_const->Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_left.motor_const->Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_left.motor_const->Hall_GPIO_Pin_x[2])
     ) {
         motor_add_step_count(&motor_left);
         motor_step_update(&motor_left);
@@ -62,4 +62,5 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             }
         }
     }
+    
 }

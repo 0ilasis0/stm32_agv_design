@@ -15,12 +15,12 @@ static const int8_t SEQUENCE[6][3] = {
 };
 
 static const ArmConst motor_right_const = {
-    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC      },
+    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC      }, // Todo pb 4 5 3
     .Hall_GPIO_Pin_x    = { GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 },
     // PA0(L28) PA1(L30) PB10(R25)
-    .TIMx               = { &htim2,        &htim2,        &htim2       },
+    .TIMx               = { &htim2,        &htim2,        &htim2       }, // Todo pa 6 pb 10 pa 0
     .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
-    .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
+    .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       }, // Todo pb 13 14 15
     .Coil_GPIO_Pin_x    = { GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 },
 };
 MotorParameter motor_right = {
@@ -30,12 +30,12 @@ MotorParameter motor_right = {
 };
 
 static const ArmConst motor_left_const = {
-    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC     },
+    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC     }, // Todo pa 13 14 15
     .Hall_GPIO_Pin_x    = { GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8},
     // PA6(R13) PA4(L32) PB0(L34)
-    .TIMx               = { &htim3,        &htim3,        &htim3       },
+    .TIMx               = { &htim3,        &htim3,        &htim3       }, // Todo pa 1 4 pb 0
     .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
-    .Coil_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
+    .Coil_GPIOx         = { GPIOC,       GPIOC,       GPIOC       }, // Todo pb 7 pc 2 3
     .Coil_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12 },
 };
 MotorParameter motor_left = {

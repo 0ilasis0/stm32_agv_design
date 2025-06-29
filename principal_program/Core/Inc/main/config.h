@@ -15,12 +15,14 @@
 
 #define PRINCIPAL_PROGRAM
 
-#define TIM1_PSC    17000
-#define TIM1_ARR     5000
-#define TIM2_PSC      170
-#define TIM2_ARR      100
-#define TIM3_PSC      170
-#define TIM3_ARR      100
+#define TIM1_PSC     17000
+#define TIM1_ARR      5000
+#define MOTOR_PSC      170
+#define MOTOR_ARR      100
+#define TIM2_PSC MOTOR_PSC // 170
+#define TIM2_ARR MOTOR_ARR // 100
+#define TIM3_PSC MOTOR_PSC // 170
+#define TIM3_ARR MOTOR_ARR // 100
 
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10
