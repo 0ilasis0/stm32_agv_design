@@ -11,8 +11,6 @@
 #include "robotic_arm/main.h"
 #endif
 
-FncState fdcan_enable_trsm = FNC_DISABLE;
-FncState fdcan_enable_recv = FNC_DISABLE;
 FncState fdacn_data_trsm_ready = FNC_DISABLE;
 
 static bool fdcan_bus_off = false;
@@ -36,24 +34,17 @@ static VecByte fdcan_recv1_buf;
 FdcanByteTrcvBuf fdcan_trsm_pkt_buf;
 FdcanByteTrcvBuf fdcan_recv_pkt_buf;
 
-size_t fdcant[4] = {0};
-
 #ifdef ENABLE_CON_PKT_TEST
 uint32_t fdcan_test_pkt_c = 0;
 #endif
 
 static UNUSED_FNC void fdcan_init(void)
 {
-    // ERROR_CHECK_FNS_HANDLE();
-    if (
-           (vec_byte_new(&fdcan_trsm_buf, 8) == FNS_OK)
-        && (fdcan_trcv_buf_setup(&fdcan_trsm_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP) == FNS_OK)
-    ) fdcan_enable_trsm = FNC_ENABLE;
-    if (
-           (vec_byte_new(&fdcan_recv0_buf, 8) == FNS_OK)
-        && (vec_byte_new(&fdcan_recv1_buf, 8) == FNS_OK)
-        && (fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP) == FNS_OK)
-    ) fdcan_enable_recv = FNC_ENABLE;
+    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_trsm_buf, 8));
+    ERROR_CHECK_FNS_HANDLE(fdcan_trcv_buf_setup(&fdcan_trsm_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
+    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_recv0_buf, 8));
+    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_recv1_buf, 8));
+    ERROR_CHECK_FNS_HANDLE(fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
 }
 
 static FnState fdcan_set_filter(FDCAN_HandleTypeDef *hfdcan)
@@ -97,11 +88,8 @@ static FnState fdcan_set_notification(FDCAN_HandleTypeDef *hfdcan)
             | FDCAN_TX_BUFFER2
         )
     );
-    if (fdcan_enable_recv == FNC_ENABLE)
-    {
-        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
-        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0));
-    }
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0));
     return FNS_OK;
 }
 
@@ -112,15 +100,12 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
         if (ITS_CHECK(ErrorStatusITs, FDCAN_IT_BUS_OFF))
         {
             fdcan_bus_off = true;
-            fdcan_enable_trsm = FNC_DISABLE;
-            fdcan_enable_recv = FNC_DISABLE;
         }
     }
 }
 
 void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEventFifoITs)
 {
-    fdcant[1]++;
     if (ITS_CHECK(TxEventFifoITs, FDCAN_IT_TX_EVT_FIFO_NEW_DATA))
     {
         
@@ -138,14 +123,12 @@ void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEvent
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    fdcant[0]++;
     BOARD_LED_TOGGLE;
 }
 
 static FnState fifo0_proc0(VecByte* vec_byte);
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    fdcant[2]++;
     if(ITS_CHECK(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
         vec_rm_all(&fdcan_recv0_buf);
@@ -468,10 +451,8 @@ void StartFdCanTask(void *argument)
             fdcan_bus_off = false;
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
-            fdcan_enable_trsm = FNC_ENABLE;
-            fdcan_enable_recv = FNC_ENABLE;
         }
-        if (fdcan_enable_trsm == FNC_ENABLE) pkt_transmit();
+        pkt_transmit();
         recv_pkt_proc(5);
         if (tick % 50 == 0)
         {
