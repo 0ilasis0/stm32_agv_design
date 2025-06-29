@@ -1,11 +1,12 @@
 /*
 #include "main/fn_state.h"
+#include "fn_state.h"
 */
 #pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "main/config.h"
+#include "config.h"
 
 typedef int FnState;
 extern FnState last_error;
@@ -36,6 +37,16 @@ extern FnState last_error;
         {                           \
             last_error = _err;      \
             return;                 \
+        }                           \
+    } while (0)
+
+#define ERROR_CHECK_FNS_BREAK(expr) \
+    do {                            \
+        FnState _err = (expr);      \
+        if (_err != FNS_OK)         \
+        {                           \
+            last_error = _err;      \
+            break;                  \
         }                           \
     } while (0)
 
@@ -78,10 +89,14 @@ extern FnState last_error;
         }                                   \
     } while (0)
 
+#ifdef AGV_ESP32_DEVICE
 
-#define ERROR_TIMEOUT_TIME_LIMIT 15 * 1000
+void Error_Handler(void);
+
+#endif
 
 #ifdef PRINCIPAL_PROGRAM
+#define ERROR_TIMEOUT_TIME_LIMIT (15*1000)
 
 typedef struct FnState_h
 {
@@ -96,5 +111,4 @@ typedef struct FnState_h
 } FnState_h;
 extern FnState_h error_state;
 void timeout_error(uint32_t start_time, FnState *error_parameter);
-
 #endif

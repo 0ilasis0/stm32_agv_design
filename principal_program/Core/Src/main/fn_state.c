@@ -1,8 +1,8 @@
 #include "main/fn_state.h"
-#include "stm32g4xx_hal.h"
-#include "main/config.h"
 
 FnState last_error = FNS_INVALID;
+
+#ifdef PRINCIPAL_PROGRAM
 
 FnState_h error_state = {
     .vehicle_test_no_load_speed = FNS_INVALID,
@@ -23,3 +23,16 @@ void timeout_error(uint32_t start_time, FnState *error_parameter) {
         while(true);
     }
 }
+
+#endif
+
+#ifdef AGV_ESP32_DEVICE
+
+void Error_Handler(void)
+{
+    while (1)
+    {
+    }
+}
+
+#endif
