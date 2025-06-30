@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
+#include "cmsis_os.h"
 
 #define UNUSED_FNC __attribute__((unused))
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
@@ -23,6 +24,13 @@
 #define TIM2_ARR MOTOR_ARR // 100
 #define TIM3_PSC MOTOR_PSC // 170
 #define TIM3_ARR MOTOR_ARR // 100
+#define MOTOR_MAX_SPEED 80
+#define MOTOR_PI_KP 0.1f                                                // 比例增益
+#define MOTOR_PI_KI 0.001f                                             // 積分增益
+#define VEHICLE_setpoint_straight  40                                  // 循跡速度目標
+#define VEHICLE_setpoint_rotate    30                                  // 原地旋轉速度目標
+#define VEHICLE_setpoint_fall_back 20                                  // 倒退速度目標
+
 
 #define VEC_BYTE_MAX_CAP 256
 #define TRCV_BUF_MAX_CAP 10
@@ -65,3 +73,7 @@ typedef struct SYSTEM_RUNTIME_SWITCH
     bool enable_debug_test_no_load_speed;
 } SYSTEM_RUNTIME_SWITCH;
 extern SYSTEM_RUNTIME_SWITCH sys_run_switch;
+
+
+// Todo Delete?
+extern uint32_t hall_sensor_node;

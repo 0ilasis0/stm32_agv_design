@@ -34,7 +34,6 @@ void map_setup(void) {
         init_direction,
         init_address_id,
         init_status);
-
     floyd_warshall();
 
     int text_from = get_index_by_id(5);
@@ -54,7 +53,13 @@ void map_setup(void) {
 void init_map(void) {
     for (int i = 0; i < max_node; i++) {
         for (int j = 0; j < max_node; j++) {
-            graph[i][j] = (i == j) ? 0 : INF;  // 自己到自己距離為0，其他為無限大
+            // 自己到自己距離為0，其他為無限大
+            if (i == j) {
+                graph[i][j] = 0;
+            } else {
+                graph[i][j] = INF;
+            }
+            // graph[i][j] = (i == j) ? 0 : INF; //to do delete
             path[i][j] = -1;                   // 初始化路徑為無路徑 (-1)
         }
     }
@@ -100,9 +105,10 @@ MAP_DATA init_map_data (
 }
 
 
-MAP_DATA init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
+void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
 {
-
+    map_new->start_direction = init_direction;
+    map_new->start_address_id = init_address_id;
 }
 
 

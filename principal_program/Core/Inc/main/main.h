@@ -10,4 +10,4 @@ typedef struct GlobalState
 } GlobalState;
 extern GlobalState global_state;
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);

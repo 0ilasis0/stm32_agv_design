@@ -1,8 +1,8 @@
 #include "motor/main.h"
 #include "tim.h"
-#include "cmsis_os.h"
-#include "motor/PI_control.h"
 #include "main/vehicle.h"
+
+float max_speed = MOTOR_MAX_SPEED;
 
 // Commutation right_SEQUENCE for 120 degree control
 static const int8_t SEQUENCE[6][3] = {
@@ -14,29 +14,14 @@ static const int8_t SEQUENCE[6][3] = {
   { 0, -1,  1}
 };
 
-static const ArmConst motor_right_const = {
-    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC      }, // Todo pb 4 5 3
-    .Hall_GPIO_Pin_x    = { GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3 },
-    // PA0(L28) PA1(L30) PB10(R25)
-    .TIMx               = { &htim2,        &htim2,        &htim2       }, // Todo pa 6 pb 10 pa 0
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
-    .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       }, // Todo pb 13 14 15
-    .Coil_GPIO_Pin_x    = { GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 },
-};
-MotorParameter motor_right = {
-    .rotate_direction   = rotate_clockwise,
-    .currentStep        = 7,
-    .motor_const        = &motor_right_const,
-};
-
-static const ArmConst motor_left_const = {
-    .Hall_GPIOx         = { GPIOC,      GPIOC,      GPIOC     }, // Todo pa 13 14 15
-    .Hall_GPIO_Pin_x    = { GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_8},
-    // PA6(R13) PA4(L32) PB0(L34)
-    .TIMx               = { &htim3,        &htim3,        &htim3       }, // Todo pa 1 4 pb 0
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3},
-    .Coil_GPIOx         = { GPIOC,       GPIOC,       GPIOC       }, // Todo pb 7 pc 2 3
-    .Coil_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12 },
+static const MotorConst motor_left_const = {
+    .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
+    .Hall_GPIO_Pin_x    = { GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_15},
+    // PA1(L30) PA4(L32) PB0(L34)
+    .TIMx               = { &htim2,        &htim3,        &htim3        },
+    .TIM_CHANNEL_x      = { TIM_CHANNEL_2, TIM_CHANNEL_2, TIM_CHANNEL_3 },
+    .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
+    .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
 };
 MotorParameter motor_left = {
     .rotate_direction   = rotate_c_clockwise,
@@ -44,18 +29,35 @@ MotorParameter motor_left = {
     .motor_const        = &motor_left_const,
 };
 
+static const MotorConst motor_right_const = {
+    .Hall_GPIOx         = { GPIOA,      GPIOB,      GPIOB      },
+    .Hall_GPIO_Pin_x    = { GPIO_PIN_8, GPIO_PIN_4, GPIO_PIN_5 },
+    // PA6(R13) PB10(R25) PA0(L28)
+    .TIMx               = { &htim3,        &htim2,        &htim2        },
+    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_3, TIM_CHANNEL_1 },
+    .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
+    .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
+};
+MotorParameter motor_right = {
+    .rotate_direction   = rotate_clockwise,
+    .currentStep        = 7,
+    .motor_const        = &motor_right_const,
+};
+
 /**
   * 啟動指定馬達之 PWM 定時器
   *
   * Start PWM timers for specified motor channels
   */
-static void motor_tim_setup(const MotorParameter *motor)
+static void tim_setup(const MotorParameter *motor)
 {
-    const ArmConst* motor_const = motor->motor_const;
+    const MotorConst* motor_const = motor->motor_const;
     HAL_TIM_PWM_Start(motor_const->TIMx[0], motor_const->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(motor_const->TIMx[1], motor_const->TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(motor_const->TIMx[2], motor_const->TIM_CHANNEL_x[2]);
     HAL_TIM_Base_Start_IT(motor_const->TIMx[0]);
+    // HAL_TIM_Base_Start_IT(motor_const->TIMx[1]);
+    // HAL_TIM_Base_Start_IT(motor_const->TIMx[2]);
 }
 
 /**
@@ -63,10 +65,10 @@ static void motor_tim_setup(const MotorParameter *motor)
   *
   * Motor Initialization for both motors
   */
-static void motor_setup(void)
+static void setup(void)
 {
-    motor_tim_setup(&motor_right);
-    motor_tim_setup(&motor_left);
+    tim_setup(&motor_right);
+    tim_setup(&motor_left);
     motor_step_update(&motor_right);
     motor_step_update(&motor_left);
 }
@@ -76,9 +78,9 @@ static void motor_setup(void)
   *
   * Execute motor commutation based on current step sequence
   */
-static void motor_commutate(const MotorParameter *motor)
+static void step_commutate(const MotorParameter *motor)
 {
-    const ArmConst* motor_const = motor->motor_const;
+    const MotorConst* motor_const = motor->motor_const;
     const uint8_t currentStep = motor->currentStep;
     for (int i = 0; i < 3; i++)
     {
@@ -107,7 +109,7 @@ static void motor_commutate(const MotorParameter *motor)
   */
 void motor_step_update(MotorParameter *motor)
 {
-    const ArmConst* motor_const = motor->motor_const;
+    const MotorConst* motor_const = motor->motor_const;
     uint8_t hallState =
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[0], motor_const->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[1], motor_const->Hall_GPIO_Pin_x[1]) << 1) |
@@ -137,7 +139,7 @@ void motor_step_update(MotorParameter *motor)
         }
     }
 
-    motor_commutate(motor);
+    step_commutate(motor);
 }
 
 /**
@@ -153,21 +155,21 @@ void motor_speed_calculate(MotorParameter *motor, float sec)
     motor->speed_present = real_speed;
 }
 
-bool motor_set_duty(MotorParameter *motor, uint8_t value)
+FnState motor_set_duty(MotorParameter *motor, int8_t value)
 {
     // 限制PWM最大值&&最小值
     if (value > 100)
     {
         motor->duty_value = 100;
-        return false;
+        return FNS_FAIL;
     }
-    if (value < 0)
+    else if (value < 0)
     {
         motor->duty_value = 0;
-        return false;
+        return FNS_FAIL;
     }
     motor->duty_value = value;
-    return true;
+    return FNS_OK;
 }
 
 /**
@@ -208,24 +210,42 @@ inline void motor_add_step_count(MotorParameter *motor)
     motor->step_count++;
 }
 
+float setpoint = 0;
+/* +PI speed control ------------------------------------------------*/
+static void PI_control(MotorParameter *motor)
+{
+    if (!sys_run_switch.enable_PI) return;
+
+    if (motor == &motor_left) return;
+
+    setpoint = (float)max_speed * motor->speed_sepoint_pcn / 100;
+
+    // 計算誤差
+    float error = setpoint - motor->speed_present;
+    float integral = motor->integral_record + error;
+    // 計算 P I 控制輸出
+    float output_pwm_Value = (float)MOTOR_PI_KP * error + MOTOR_PI_KI * integral;
+
+    if (motor_set_duty(motor, motor->duty_value + output_pwm_Value)) return;
+    motor_set_integral_record(motor, integral);
+}
+
 void StartMotorTask(void *argument)
 {
-    motor_setup();
+    setup();
     uint16_t tick = 0;
     for(;;)
     {
-        if (tick % 10 == 0) {
+        if (tick % 10 == 0)
+        {
             if (motor_right.speed_present == 0) motor_step_update(&motor_right);
             if (motor_left.speed_present == 0) motor_step_update(&motor_left);
         }
-        if (tick % 100 == 0) {
-            motor_speed_calculate(&motor_right, 0.1f);
-            motor_speed_calculate(&motor_left, 0.1f);
-        }
-        if (tick % 500 == 0) {
+        if (tick % 500 == 0)
+        {
             tick = 0;
-            motor_PI_control(&motor_right);
-            motor_PI_control(&motor_left);
+            PI_control(&motor_right);
+            PI_control(&motor_left);
         }
         osDelay(1);
         tick++;

@@ -20,8 +20,9 @@ void timeout_error(uint32_t start_time, FnState *error_parameter) {
 
     if (HAL_GetTick() - start_time > ERROR_TIMEOUT_TIME_LIMIT) {
         *error_parameter = FNS_TIMEOUT;
-        while(true);
+        while (true);
     }
+    osDelay(10);
 }
 
 #endif

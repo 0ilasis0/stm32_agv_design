@@ -3,11 +3,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "main/config.h"
+#include "main/fn_state.h"
 #include "main/map.h"
 #include "gpio.h"
 #include "tim.h"
 
-typedef struct ArmConst
+extern float max_speed;
+
+typedef enum {
+    rotate_clockwise,
+    rotate_c_clockwise,
+} ROTATE_STATUS;
+
+typedef struct MotorConst
 {
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];
@@ -15,10 +23,10 @@ typedef struct ArmConst
     uint32_t TIM_CHANNEL_x[3];
     GPIO_TypeDef* Coil_GPIOx[3];
     uint16_t Coil_GPIO_Pin_x[3];
-} ArmConst;
+} MotorConst;
 typedef struct MotorParameter
 {
-    const ArmConst* motor_const;
+    const MotorConst* motor_const;
     uint8_t speed_sepoint_pcn;
     ROTATE_STATUS rotate_direction;
     float integral_record;
@@ -33,7 +41,7 @@ extern MotorParameter motor_left;
 
 void motor_step_update(MotorParameter *motor);
 void motor_speed_calculate(MotorParameter *motor, float sec);
-bool motor_set_duty(MotorParameter *motor, uint8_t value);
+FnState motor_set_duty(MotorParameter *motor, int8_t value);
 bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value);
 void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction);
 void motor_set_integral_record(MotorParameter *motor, float integral);

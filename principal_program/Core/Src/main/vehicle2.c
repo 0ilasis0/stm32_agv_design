@@ -1,5 +1,4 @@
 #include "main/vehicle2.h"
-#include "motor/PI_control.h"
 #include "main/fn_state.h"
 
 
@@ -16,12 +15,12 @@ uint32_t hall_sensor_direction = 0;
 /**
   * @brief 根據運動模式控制馬達旋轉方向與設定速度
   */
-static MOTIONCOMMAND currnet_mode;
-void vehicle2_motion_and_speed_control(MOTIONCOMMAND mode, uint8_t sepoint_value){
-    // ? 如果方向一樣 不須stop
+static MotionCommand currnet_mode;
+void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value){
     if (mode != currnet_mode) vehicle2_ensure_motor_stop();
-    if (mode == motion_unchange) mode = currnet_mode;
     switch(mode) {
+        case motion_unchange:
+            break;
         case motion_forward:
             motor_set_direction(&motor_right, rotate_clockwise);
             motor_set_direction(&motor_left,  rotate_c_clockwise);
@@ -47,13 +46,10 @@ void vehicle2_motion_and_speed_control(MOTIONCOMMAND mode, uint8_t sepoint_value
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-ROTATE_STATUS vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir) {
+MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir) {
     int8_t diff = (end_dir - start_dir + 8) % 8;
 
-    if (diff == 0) {
-        return either;                               // 旋轉完成
-
-    } else if (diff <= 3) {
+    if (diff <= 3) {
         return motion_clockwise;
 
     } else {
@@ -71,7 +67,8 @@ void vehicle2_ensure_motor_stop(void) {
     motor_left.speed_sepoint_pcn  = 0;
 
     uint32_t error_start = HAL_GetTick();
-    while(motor_right.speed_present != 0 || motor_left.speed_present != 0) {
+    while(motor_right.speed_present != 0 || motor_left.speed_present != 0)
+    {
         timeout_error(error_start, &error_state.vehicle2_ensure_motor_stop);
     }
 }
@@ -81,7 +78,7 @@ void vehicle2_ensure_motor_stop(void) {
   */
 
 uint8_t vehicle2_pass_magnetic_stripe_calculate(
-    ROTATE_STATUS rotate_direction_mode,
+    MotionCommand rotate_direction_mode,
     uint16_t current_id_input,
     uint8_t from_dir,
     uint8_t to_dir
@@ -116,12 +113,9 @@ uint8_t vehicle2_pass_magnetic_stripe_calculate(
 /**
   * @brief 根據強磁計數更新 AGV 方向資料
   */
-uint8_t text_count_until_zero;
-uint8_t text123;
 void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
     //邊緣觸發判斷
     bool triggered = false;
-    text123 = count_until_zero;
     uint32_t time_out = HAL_GetTick();
     while (count_until_zero != 0){
         if (hall_sensor_direction >= hall_magnetic_stripe_value  && !triggered) {
@@ -131,20 +125,7 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
         if (hall_sensor_direction < hall_magnetic_stripe_value) {
             triggered = false;
         }
-        text_count_until_zero = count_until_zero;
 
         timeout_error(time_out, &error_state.vehicle2_renew_vehicle_rotation_status);
     }
-}
-
-/**
-  * @brief ROTATE_STATUS 轉 MOTIONCOMMAND
-  */
-MOTIONCOMMAND vehicle2_rotate_status_to_motioncommand (ROTATE_STATUS mode) {
-    if (mode == motion_clockwise) {
-        return motion_clockwise;
-    } else {
-        return motion_c_clockwise;
-    }
-
 }

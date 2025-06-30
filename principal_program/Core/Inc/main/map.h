@@ -13,13 +13,6 @@ typedef enum {
     agv_next
 } AGV_STATUS;
 
-// ? 為啥放這???
-typedef enum {
-    rotate_clockwise,
-    rotate_c_clockwise,
-    either
-} ROTATE_STATUS;
-
 typedef struct {
     int id;
     int distance;
@@ -44,7 +37,7 @@ extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void init_map(void);
-MAP_DATA init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
+void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
 MAP_DATA init_map_data (
     int8_t init_start_direction,
     int8_t init_start_address_id,

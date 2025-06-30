@@ -1,5 +1,4 @@
 #include "connectivity/fdcan/main.h"
-#include "cmsis_os.h"
 #include "fdcan.h"
 #include "connectivity/cmds.h"
 
@@ -106,7 +105,7 @@ void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEvent
 {
     if (ITS_CHECK(TxEventFifoITs, FDCAN_IT_TX_EVT_FIFO_NEW_DATA))
     {
-        
+
     }
     if (ITS_CHECK(TxEventFifoITs, FDCAN_IT_TX_EVT_FIFO_FULL))
     {
@@ -144,7 +143,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &value, 1));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
-                    MOTIONCOMMAND mode = motion_unchange;
+                    MotionCommand mode = motion_unchange;
                     switch (code)
                     {
                         case CMD_B2_STOP:
