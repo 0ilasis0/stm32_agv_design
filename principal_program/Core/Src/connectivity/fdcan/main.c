@@ -123,6 +123,34 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
     BOARD_LED_TOGGLE;
 }
 
+#ifdef ANCILLARY_PROGRAM
+static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
+{
+    uint8_t code;
+    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
+    switch (code)
+    {
+        case CMD_B2_STOP:
+        {
+            arm_set_tim(arm, arm->tim_current);
+            break;
+        }
+        case CMD_B2_SET:
+        {
+            arm_set_pos(arm, vec_byte->data[vec_byte->head]);
+            break;
+        }
+        default:
+        {
+            last_error = FNS_NO_MATCH;
+            return FNS_NO_MATCH;
+        }
+    }
+    return FNS_OK;
+}
+#endif
+
 static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
 {
     uint8_t code;
@@ -369,34 +397,6 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
     ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
     return FNS_OK;
 }
-
-#ifdef ANCILLARY_PROGRAM
-static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
-{
-    uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
-    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
-    switch (code)
-    {
-        case CMD_B2_STOP:
-        {
-            arm_set_tim(arm, arm->tim_current);
-            break;
-        }
-        case CMD_B2_SET:
-        {
-            arm_set_pos(arm, vec_byte->data[vec_byte->head]);
-            break;
-        }
-        default:
-        {
-            last_error = FNS_NO_MATCH;
-            return FNS_NO_MATCH;
-        }
-    }
-    return FNS_OK;
-}
-#endif
 
 static FnState recv_pkt_proc_inner(VecByte* vec_byte)
 {

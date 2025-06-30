@@ -1,10 +1,11 @@
 #include "robotic_arm/main.h"
-#include "cmsis_os.h"
 
 static const ArmConst arm_bottom_const = {
     // PA0(L28) 
     .TIMx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_1,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_bottom = {
     .arm_const = &arm_bottom_const,
@@ -16,6 +17,8 @@ static const ArmConst arm_shoulder_const = {
     // PA1(L30)
     .TIMx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_2,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_shoulder = {
     .arm_const = &arm_shoulder_const,
@@ -27,6 +30,8 @@ static const ArmConst arm_elbow_btm_const = {
     // PB10(R25)
     .TIMx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_3,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_elbow_btm = {
     .arm_const = &arm_elbow_btm_const,
@@ -38,6 +43,8 @@ static const ArmConst arm_elbow_top_const = {
     // PA6(R13)
     .TIMx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_1,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_elbow_top = {
     .arm_const = &arm_elbow_top_const,
@@ -49,6 +56,8 @@ static const ArmConst arm_wrist_const = {
     // PA4(L32)
     .TIMx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_2,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_wrist = {
     .arm_const = &arm_wrist_const,
@@ -60,6 +69,8 @@ static const ArmConst arm_finger_const = {
     // PB0(L34)
     .TIMx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_3,
+    .tim_min = ARM_TIM_MIN,
+    .tim_max = ARM_TIM_MAX / 2,
 };
 ArmParameter arm_finger = {
     .arm_const = &arm_finger_const,
@@ -69,8 +80,9 @@ ArmParameter arm_finger = {
 
 void arm_set_tim(ArmParameter* arm, ArmTim tim)
 {
-    if      (tim < ARM_TIM_MIN) arm->tim_setpoint = ARM_TIM_MIN;
-    else if (tim > ARM_TIM_MAX) arm->tim_setpoint = ARM_TIM_MAX;
+    const ArmConst* arm_const = arm->arm_const;
+    if      (tim < arm_const->tim_min) arm->tim_setpoint = arm_const->tim_min;
+    else if (tim > arm_const->tim_max) arm->tim_setpoint = arm_const->tim_max;
     arm->tim_setpoint = tim;
 }
 
@@ -93,8 +105,11 @@ static void arm_turn(ArmParameter* arm)
     if      (dtim >  ARM_TIM_STEP)  arm->tim_current += ARM_TIM_STEP;
     else if (dtim < -ARM_TIM_STEP)  arm->tim_current -= ARM_TIM_STEP;
     else                            arm->tim_current  = arm->tim_setpoint;
-    if (arm->tim_current < ARM_TIM_MIN) arm->tim_current = ARM_TIM_MIN;
-    else if (arm->tim_current > ARM_TIM_MAX) arm->tim_current = ARM_TIM_MAX;
+    // const ArmConst* arm_const = arm->arm_const;
+    // if (arm->tim_current < arm_const->tim_min)
+    //     arm->tim_current = arm_const->tim_min;
+    // else if (arm->tim_current > arm_const->tim_max)
+    //     arm->tim_current = arm_const->tim_max;
     __HAL_TIM_SET_COMPARE(arm->arm_const->TIMx, arm->arm_const->TIM_CHANNEL_x, arm->tim_current);
 }
 

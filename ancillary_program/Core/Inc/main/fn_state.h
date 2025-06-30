@@ -4,9 +4,7 @@
 */
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "config.h"
+#include "main/config.h"
 
 typedef int FnState;
 extern FnState last_error;

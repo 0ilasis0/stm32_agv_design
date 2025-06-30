@@ -1,6 +1,6 @@
 #include "connectivity/uart/main.h"
 #include <string.h>
-#include "cmsis_os.h"
+
 #include "usart.h"
 #include "main/config.h"
 #include "main/fn_state.h"

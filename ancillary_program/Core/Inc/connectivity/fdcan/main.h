@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include "main/config.h"
 #include "connectivity/fdcan/trcv_buffer.h"
 

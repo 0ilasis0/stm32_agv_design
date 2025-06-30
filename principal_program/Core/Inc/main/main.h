@@ -1,6 +1,5 @@
 #pragma once     //使不重複 include
 
-#include <stdint.h>
 #include "connectivity/uart/main.h"
 
 typedef struct GlobalState

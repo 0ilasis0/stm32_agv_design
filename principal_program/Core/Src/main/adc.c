@@ -1,5 +1,4 @@
 #include "main/adc.h"
-#include <stdint.h>
 #include "adc.h"
 #include "motor/main.h"
 #include "main/config.h"

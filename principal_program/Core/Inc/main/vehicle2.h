@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "main/config.h"
 #include "motor/main.h"
 #include "adc.h"
 

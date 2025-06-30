@@ -3,9 +3,13 @@
 */
 #pragma once
 
+#include <stdio.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
+#include "cmsis_os.h"
 
 #define UNUSED_FNC __attribute__((unused))
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
@@ -36,15 +40,15 @@
 #define UART_START_CODE     ((uint8_t) '>')
 #define UART_END_CODE       ((uint8_t) '\n')
 
+#define ENABLE_CON_PKT_TEST
+// #define DISABLE_FDCAN
+#define DISABLE_UART
+// #define DISABLE_UART_TRSM
+// #define DISABLE_UART_RECV
+
 // ! SYSTEM config END ------------------------------
 
 typedef int8_t FncState;
 #define FNC_CANCEL  -1
 #define FNC_DISABLE 0
 #define FNC_ENABLE  1
-
-#define ENABLE_CON_PKT_TEST
-// #define DISABLE_FDCAN
-#define DISABLE_UART
-// #define DISABLE_UART_TRSM
-// #define DISABLE_UART_RECV

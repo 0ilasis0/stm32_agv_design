@@ -4,9 +4,7 @@
 */
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "config.h"
+#include "main/config.h"
 
 typedef int FnState;
 extern FnState last_error;
@@ -19,6 +17,7 @@ extern FnState last_error;
 #define FNS_NO_MATCH        5
 #define FNS_NOT_MOVE        6
 #define FNS_ERR_OOM         7
+#define FNS_BUSY            8
 
 #define ERROR_CHECK_FNS_RETURN(expr)    \
     do {                                \

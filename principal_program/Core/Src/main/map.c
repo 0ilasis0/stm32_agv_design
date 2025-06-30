@@ -1,6 +1,4 @@
 #include "main/map.h"
-#include <stdio.h>
-#include <stdint.h>
 
 int graph[max_node][max_node];
 int path[max_node][max_node];

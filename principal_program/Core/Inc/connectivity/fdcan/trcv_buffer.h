@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include "connectivity/trcv_buffer.h"
 
 typedef struct FdcanByteTrcvBuf

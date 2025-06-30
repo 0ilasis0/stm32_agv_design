@@ -4,9 +4,10 @@
 #include "main/it.h"
 #include "main/vehicle.h"
 #include "motor/main.h"
+#include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
-static uint16_t htim2_tick = 0;
+static uint16_t motor_tim_tick = 0;
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
@@ -15,15 +16,52 @@ GlobalState global_state = {
 
 void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim->Instance == TIM2)
+    if (htim == MOTOR_HTIM)
     {
-        if (htim2_tick % 1000 == 0)
+        if (motor_tim_tick % 1000 == 0)
         {
-            htim2_tick = 0;
+            motor_tim_tick = 0;
             motor_speed_calculate(&motor_right, 0.1f);
             motor_speed_calculate(&motor_left, 0.1f);
         }
-        htim2_tick++;
+        motor_tim_tick++;
+    }
+    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_CH)
+    {
+        us_sensor_overflow();
+        us_sensor_start();
+    }
+}
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim == US_SENSOR_HTIM)
+    {
+        us_sensor_tri_off();
+    }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (
+           (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[2])
+    ) {
+        motor_add_step_count(&motor_right);
+        motor_step_update(&motor_right);
+    }
+    else if (
+           (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[2])
+    ) {
+        motor_add_step_count(&motor_left);
+        motor_step_update(&motor_left);
+    }
+    else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
+    {
+        us_sensor_stop(&us_sensor_head);
     }
 }
 

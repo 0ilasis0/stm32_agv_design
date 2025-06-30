@@ -1,5 +1,6 @@
 #include "motor/main.h"
 #include "tim.h"
+#include "us_sensor/main.h"
 #include "main/vehicle.h"
 
 float max_speed = MOTOR_MAX_SPEED;
@@ -18,30 +19,30 @@ static const MotorConst motor_left_const = {
     .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_15},
     // PA1(L30) PA4(L32) PB0(L34)
-    .TIMx               = { &htim2,        &htim3,        &htim3        },
+    .htimx               = { &htim2,        &htim3,        &htim3        },
     .TIM_CHANNEL_x      = { TIM_CHANNEL_2, TIM_CHANNEL_2, TIM_CHANNEL_3 },
     .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
 };
 MotorParameter motor_left = {
+    .const_h            = &motor_left_const,
     .rotate_direction   = rotate_c_clockwise,
     .currentStep        = 7,
-    .motor_const        = &motor_left_const,
 };
 
 static const MotorConst motor_right_const = {
     .Hall_GPIOx         = { GPIOA,      GPIOB,      GPIOB      },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_8, GPIO_PIN_4, GPIO_PIN_5 },
     // PA6(R13) PB10(R25) PA0(L28)
-    .TIMx               = { &htim3,        &htim2,        &htim2        },
+    .htimx               = { &htim3,        &htim2,        &htim2        },
     .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_3, TIM_CHANNEL_1 },
     .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
 };
 MotorParameter motor_right = {
+    .const_h            = &motor_right_const,
     .rotate_direction   = rotate_clockwise,
     .currentStep        = 7,
-    .motor_const        = &motor_right_const,
 };
 
 /**
@@ -51,13 +52,13 @@ MotorParameter motor_right = {
   */
 static void tim_setup(const MotorParameter *motor)
 {
-    const MotorConst* motor_const = motor->motor_const;
-    HAL_TIM_PWM_Start(motor_const->TIMx[0], motor_const->TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(motor_const->TIMx[1], motor_const->TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(motor_const->TIMx[2], motor_const->TIM_CHANNEL_x[2]);
-    HAL_TIM_Base_Start_IT(motor_const->TIMx[0]);
-    // HAL_TIM_Base_Start_IT(motor_const->TIMx[1]);
-    // HAL_TIM_Base_Start_IT(motor_const->TIMx[2]);
+    const MotorConst* const_h = motor->const_h;
+    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start_IT(const_h->htimx[0]);
+    // HAL_TIM_Base_Start_IT(const_h->htimx[1]);
+    // HAL_TIM_Base_Start_IT(const_h->htimx[2]);
 }
 
 /**
@@ -80,24 +81,24 @@ static void setup(void)
   */
 static void step_commutate(const MotorParameter *motor)
 {
-    const MotorConst* motor_const = motor->motor_const;
+    const MotorConst* const_h = motor->const_h;
     const uint8_t currentStep = motor->currentStep;
     for (int i = 0; i < 3; i++)
     {
         if (SEQUENCE[currentStep][i] == 1)
         {
-            __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], motor->duty_value);
-            HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty_value);
+            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
         else if (SEQUENCE[currentStep][i] == -1)
         {
-            __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
+            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
         }
         else
         {
-            __HAL_TIM_SET_COMPARE(motor_const->TIMx[i], motor_const->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(motor_const->Coil_GPIOx[i], motor_const->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
     }
 }
@@ -109,11 +110,11 @@ static void step_commutate(const MotorParameter *motor)
   */
 void motor_step_update(MotorParameter *motor)
 {
-    const MotorConst* motor_const = motor->motor_const;
+    const MotorConst* const_h = motor->const_h;
     uint8_t hallState =
-        (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[0], motor_const->Hall_GPIO_Pin_x[0]) << 2) |
-        (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[1], motor_const->Hall_GPIO_Pin_x[1]) << 1) |
-        (HAL_GPIO_ReadPin(motor_const->Hall_GPIOx[2], motor_const->Hall_GPIO_Pin_x[2])     );
+        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2) |
+        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1) |
+        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
     if (motor->rotate_direction == rotate_c_clockwise)
     {
         switch(hallState)
@@ -240,6 +241,7 @@ void StartMotorTask(void *argument)
         {
             if (motor_right.speed_present == 0) motor_step_update(&motor_right);
             if (motor_left.speed_present == 0) motor_step_update(&motor_left);
+            us_sensor_enable(&us_sensor_head);
         }
         if (tick % 500 == 0)
         {

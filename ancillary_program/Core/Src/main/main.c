@@ -1,8 +1,8 @@
 #include "main/main.h"
-#include "cmsis_os.h"
+#include "main/config.h"
 
 size_t defalt_running = 0;
-StartDefaultTask(void *argument)
+void StartDefaultTask(void *argument)
 {
     for(;;)
     {

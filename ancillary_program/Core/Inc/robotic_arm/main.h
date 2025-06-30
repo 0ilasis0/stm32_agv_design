@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
 #include "tim.h"
 #include "gpio.h"
+#include "main/config.h"
 
 typedef uint8_t ArmTim;
 #define ARM_TIM_MIN    50
@@ -13,6 +13,8 @@ typedef struct ArmConst
 {
     TIM_HandleTypeDef* TIMx;
     uint32_t TIM_CHANNEL_x;
+    ArmTim tim_min;
+    ArmTim tim_max;
 } ArmConst;
 typedef struct ArmParameter
 {

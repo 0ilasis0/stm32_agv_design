@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "main/config.h"
 #include "main/fn_state.h"
 #include "main/map.h"
@@ -19,14 +17,14 @@ typedef struct MotorConst
 {
     GPIO_TypeDef* Hall_GPIOx[3];
     uint16_t Hall_GPIO_Pin_x[3];
-    TIM_HandleTypeDef* TIMx[3];
+    TIM_HandleTypeDef* htimx[3];
     uint32_t TIM_CHANNEL_x[3];
     GPIO_TypeDef* Coil_GPIOx[3];
     uint16_t Coil_GPIO_Pin_x[3];
 } MotorConst;
 typedef struct MotorParameter
 {
-    const MotorConst* motor_const;
+    const MotorConst* const_h;
     uint8_t speed_sepoint_pcn;
     ROTATE_STATUS rotate_direction;
     float integral_record;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "connectivity/trcv_buffer.h"
 
 extern ByteTrcvBuf uart_tr_pkt_buf;

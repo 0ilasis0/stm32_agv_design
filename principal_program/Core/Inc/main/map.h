@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "main/config.h"
 
 #define INF 99999
 #define max_node 10
