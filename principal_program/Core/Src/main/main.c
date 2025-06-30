@@ -26,7 +26,7 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
         motor_tim_tick++;
     }
-    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_CH)
+    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
     {
         us_sensor_overflow();
         us_sensor_start();

@@ -37,7 +37,8 @@
 #define MOTOR_PI_KI             0.001f  // 積分增益
 
 #define US_SENSOR_HTIM          &htim4
-#define US_SENSOR_TIM_CH        HAL_TIM_ACTIVE_CHANNEL_1
+#define US_SENSOR_TIM_CH        TIM_CHANNEL_1
+#define US_SENSOR_TIM_ACT_CH    HAL_TIM_ACTIVE_CHANNEL_1
 
 #define VEHICLE_setpoint_straight  40   // 循跡速度目標
 #define VEHICLE_setpoint_rotate    30   // 原地旋轉速度目標
