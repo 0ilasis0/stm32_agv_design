@@ -33,8 +33,11 @@
 
 #define MOTOR_HTIM              &htim2
 #define MOTOR_MAX_SPEED         80
-#define MOTOR_PI_KP             0.1f    // 比例增益
+#define MOTOR_PI_KP             0.25f    // 比例增益
 #define MOTOR_PI_KI             0.001f  // 積分增益
+
+#define ADC_CAP                 20
+#define ADC_HALL_MAGNITUTE_EDGE 1730  //1870
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1

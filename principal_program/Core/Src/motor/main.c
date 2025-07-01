@@ -18,9 +18,9 @@ static const int8_t SEQUENCE[6][3] = {
 static const MotorConst motor_left_const = {
     .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_15},
-    // PA1(L30) PA4(L32) PB0(L34)
-    .htimx               = { &htim2,        &htim3,        &htim3        },
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_2, TIM_CHANNEL_2, TIM_CHANNEL_3 },
+    //                      PA0(L28)       PA1(L30)       PA4(L32)
+    .htimx              = { &htim2,        &htim2,        &htim3        },
+    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_2 },
     .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
 };
@@ -33,9 +33,9 @@ MotorParameter motor_left = {
 static const MotorConst motor_right_const = {
     .Hall_GPIOx         = { GPIOA,      GPIOB,      GPIOB      },
     .Hall_GPIO_Pin_x    = { GPIO_PIN_8, GPIO_PIN_4, GPIO_PIN_5 },
-    // PA6(R13) PB10(R25) PA0(L28)
-    .htimx               = { &htim3,        &htim2,        &htim2        },
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_3, TIM_CHANNEL_1 },
+    //                      PC8(R02)       PA6(R13)       PB10(R25)
+    .htimx              = { &htim3,        &htim3,        &htim2        },
+    .TIM_CHANNEL_x      = { TIM_CHANNEL_3, TIM_CHANNEL_1, TIM_CHANNEL_3 },
     .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
     .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
 };
@@ -211,15 +211,12 @@ inline void motor_add_step_count(MotorParameter *motor)
     motor->step_count++;
 }
 
-float setpoint = 0;
 /* +PI speed control ------------------------------------------------*/
 static void PI_control(MotorParameter *motor)
 {
     if (!sys_run_switch.enable_PI) return;
 
-    if (motor == &motor_left) return;
-
-    setpoint = (float)max_speed * motor->speed_sepoint_pcn / 100;
+    float setpoint = (float)max_speed * motor->speed_sepoint_pcn / 100;
 
     // 計算誤差
     float error = setpoint - motor->speed_present;
@@ -227,6 +224,7 @@ static void PI_control(MotorParameter *motor)
     // 計算 P I 控制輸出
     float output_pwm_Value = (float)MOTOR_PI_KP * error + MOTOR_PI_KI * integral;
 
+    // 避免太大的error
     if (motor_set_duty(motor, motor->duty_value + output_pwm_Value)) return;
     motor_set_integral_record(motor, integral);
 }
@@ -241,7 +239,7 @@ void StartMotorTask(void *argument)
         {
             if (motor_right.speed_present == 0) motor_step_update(&motor_right);
             if (motor_left.speed_present == 0) motor_step_update(&motor_left);
-            us_sensor_enable(&us_sensor_head);
+            // us_sensor_enable(&us_sensor_head);
         }
         if (tick % 500 == 0)
         {

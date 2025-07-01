@@ -26,19 +26,19 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
         motor_tim_tick++;
     }
-    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
-    {
-        us_sensor_overflow();
-        us_sensor_start();
-    }
+    // else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
+    // {
+    //     us_sensor_overflow();
+    //     us_sensor_start();
+    // }
 }
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == US_SENSOR_HTIM)
-    {
-        us_sensor_tri_off();
-    }
+    // if (htim == US_SENSOR_HTIM)
+    // {
+    //     us_sensor_tri_off();
+    // }
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -59,33 +59,35 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         motor_add_step_count(&motor_left);
         motor_step_update(&motor_left);
     }
-    else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
-    {
-        us_sensor_stop(&us_sensor_head);
-    }
+    // else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
+    // {
+    //     us_sensor_stop(&us_sensor_head);
+    // }
 }
 
 size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
-    // adc_setup();
-    // map_setup();
+    adc_setup();
+    map_setup();
 
     // vehicle_test_no_load_speed(1000);
 
     /*測試用--------------------------------------*/
     // motor_set_duty(&motor_right, 50);
-    motor_set_speed_setpoint(&motor_right, 100);
-    // motor_set_speed_setpoint(&motor_left, 30);
-    // motor_right.adc_value = HALL_MAGNITUTE_EDGE + 1;
+    // motor_set_duty(&motor_left, 50);
+    // motor_set_speed_setpoint(&motor_left, 100);
+    // motor_set_speed_setpoint(&motor_right, 100);
+    // motor_right.adc_value = ADC_HALL_MAGNITUTE_EDGE + 1;
     // vehicle_over_hall_fall_back();
     // init_map_data_direction_and_address(&map_data, 5, 7);
     /*測試用--------------------------------------*/
 
-    // vehicle_adjust_startup_heading();
+    vehicle_adjust_startup_heading();
     for(;;)
     {
-        // vehicle_main
+        // vehicle_main();
+        vehicle_track_mode();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "main/config.h"
 #include "motor/main.h"
+#include "main/config.h"
 #include "adc.h"
 
-#define HALL_MAGNITUTE_EDGE 1870  //1730
+
 
 // ? add current
 typedef enum {

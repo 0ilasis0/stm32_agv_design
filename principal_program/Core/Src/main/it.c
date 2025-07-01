@@ -9,6 +9,4 @@
   * Test interrupt for PC13 button (trigger on both edges), toggle hall_sensor_node
   */
 void user_EXTI15_10_IRQHandler(void) {
-    vehicle2_ensure_motor_stop();
-    Error_Handler();
 }

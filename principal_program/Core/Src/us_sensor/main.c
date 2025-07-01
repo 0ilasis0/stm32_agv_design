@@ -3,7 +3,7 @@
 
 static const USSConst us_sensor_head_const = {
     .trig_GPIOx = GPIOC,
-    .trig_GPIO_Pin_x = GPIO_PIN_8,
+    .trig_GPIO_Pin_x = GPIO_PIN_5,
     .echo_GPIOx = GPIOC,
     .echo_GPIO_Pin_x = GPIO_PIN_6,
 };

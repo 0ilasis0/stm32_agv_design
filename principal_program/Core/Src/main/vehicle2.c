@@ -2,15 +2,6 @@
 #include "main/fn_state.h"
 
 
-// 判斷磁條強度大小
-uint32_t hall_magnetic_stripe_value = HALL_MAGNITUTE_EDGE;
-// 判斷強力磁鐵強度大小
-uint32_t hall_strong_magnet_value = HALL_MAGNITUTE_EDGE;
-
-/*測試用--------------------------------------*/
-uint32_t hall_sensor_node = HALL_MAGNITUTE_EDGE + 1;
-uint32_t hall_sensor_direction = 0;
-/*測試用--------------------------------------*/
 
 /**
   * @brief 根據運動模式控制馬達旋轉方向與設定速度

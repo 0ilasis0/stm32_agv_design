@@ -5,14 +5,6 @@
 
 
 
-extern uint32_t hall_magnetic_stripe_value;
-extern uint32_t hall_strong_magnet_value;
-/*測試用--------------------------------------*/
-extern uint32_t hall_sensor_direction;
-/*測試用--------------------------------------*/
-
-
-
 void vehicle_main(void);
 void decide_move_mode(void);
 void vehicle_track_mode(void);

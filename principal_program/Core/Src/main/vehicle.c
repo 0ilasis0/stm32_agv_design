@@ -68,7 +68,7 @@ void decide_move_mode(void)
 void vehicle_track_mode(void) {
     adc_renew();
 
-    vehicle_breakdown_all_hall_lost ();
+    vehicle_breakdown_all_hall_lost();
 
     if (motor_right.adc_value >= hall_magnetic_stripe_value) {
         motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
