@@ -380,8 +380,7 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
         #ifdef ENABLE_CON_PKT_TEST
         ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &fdcan_test_pkt_c),
             fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_TEST_ID), vec_byte_free(&vec_byte));
-        #endif
-        #ifndef ENABLE_CON_PKT_TEST
+        #else
         #ifdef PRINCIPAL_PROGRAM
         ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
             fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
@@ -394,7 +393,7 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
         #endif
         #endif
     }
-    ERROR_CHECK_FNS_RETURN(vec_byte_free(&vec_byte));
+    vec_byte_free(&vec_byte);
     return FNS_OK;
 }
 
@@ -431,7 +430,7 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        ERROR_CHECK_FNS_BREAK(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id));
+        if (ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id))) break;
         recv_pkt_proc_inner(&vec_byte);
     }
     vec_byte_free(&vec_byte);

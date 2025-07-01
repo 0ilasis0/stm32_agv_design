@@ -13,9 +13,13 @@
 #define CMD_B1_RIGHT_SPEED      (uint8_t)0x11   // 右馬達速度f32
 #define CMD_B1_LEFT_DUTY        (uint8_t)0x20   // 左馬達功率u8
 #define CMD_B1_RIGHT_DUTY       (uint8_t)0x21   // 右馬達功率u8
+#define CMD_B1_VECH_POSI        (uint8_t)0x80   // 車輛位置
 
 #define CMD_B2_TOTAL            (uint8_t)0x00   // 資料包總計(can)
+#define CMD_B2_POS              (uint8_t)0x00   // 位置ID
+
 #define CMD_B3_NUMBER           (uint8_t)0x00   // 資料包編號(can)
+#define CMD_B3_FACING           (uint8_t)0x00   // 目標ID
 
 //--------------------------------------------------
 #define CMD_B0_VECH_CONTROL     (uint8_t)0x10   // 車輛控制

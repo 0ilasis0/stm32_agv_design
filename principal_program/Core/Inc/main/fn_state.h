@@ -8,7 +8,7 @@
 
 typedef int FnState;
 extern FnState last_error;
-#define FNS_INVALID         -1
+#define FNS_INVALID        -1
 #define FNS_OK              0
 #define FNS_FAIL            1
 #define FNS_TIMEOUT         2
@@ -18,6 +18,8 @@ extern FnState last_error;
 #define FNS_NOT_MOVE        6
 #define FNS_ERR_OOM         7
 #define FNS_BUSY            8
+
+#define ERROR_CHECK_FNS_RAW(expr) ((expr) != FNS_OK)
 
 #define ERROR_CHECK_FNS_RETURN(expr)    \
     do {                                \
@@ -37,27 +39,6 @@ extern FnState last_error;
             last_error = _err;      \
             return;                 \
         }                           \
-    } while (0)
-
-#define ERROR_CHECK_FNS_BREAK(expr) \
-    do {                            \
-        FnState _err = (expr);      \
-        if (_err != FNS_OK)         \
-        {                           \
-            last_error = _err;      \
-            break;                  \
-        }                           \
-    } while (0)
-
-#define ERROR_CHECK_FNS_CLEAN(expr, cleanup)    \
-    do {                                        \
-        FnState _err = (expr);                  \
-        if (_err != FNS_OK)                     \
-        {                                       \
-            cleanup;                            \
-            last_error = _err;                  \
-            return _err;                        \
-        }                                       \
     } while (0)
 
 #define ERROR_CHECK_FNS_HANDLE(expr)    \

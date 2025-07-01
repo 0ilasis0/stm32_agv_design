@@ -1,6 +1,5 @@
 #include "connectivity/uart/main.h"
 #include <string.h>
-
 #include "usart.h"
 #include "main/config.h"
 #include "main/fn_state.h"
@@ -68,7 +67,7 @@ static UNUSED_FNC FnState uart_transmit(void)
     return FNS_OK;
 }
 
-static UNUSED_FNC FnState tr_pkt_proc(void)
+static UNUSED_FNC FnState trsm_pkt_proc(void)
 {
     if (uart_data_trsm_ready == FNC_ENABLE)
     {
@@ -93,13 +92,13 @@ static UNUSED_FNC FnState tr_pkt_proc(void)
     return FNS_OK;
 }
 
-static UNUSED_FNC FnState rv_pkt_proc(size_t count)
+static UNUSED_FNC FnState recv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        ERROR_CHECK_FNS_CLEAN(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        if (ERROR_CHECK_FNS_RAW(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte))) break;
         uint8_t code = vec_byte.data[vec_byte.head];
         vec_rm_range(&vec_byte, 0, 1);
         switch (code)
@@ -132,11 +131,11 @@ void StartUartTask(void *argument)
     for (;;)
     {
         if (uart_enable_trsm == FNC_ENABLE) uart_transmit();
-        rv_pkt_proc(5);
+        recv_pkt_proc(5);
         if (tick % 500 == 0)
         {
             tick = 0;
-            tr_pkt_proc();
+            trsm_pkt_proc();
         }
         osDelay(10);
         tick++;
