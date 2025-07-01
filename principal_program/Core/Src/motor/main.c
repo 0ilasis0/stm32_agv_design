@@ -201,11 +201,6 @@ inline void motor_set_integral_record(MotorParameter *motor, float integral)
     motor->integral_record = integral;
 }
 
-inline void motor_set_adc_val(MotorParameter *motor, uint16_t value)
-{
-    motor->adc_value = value;
-}
-
 inline void motor_add_step_count(MotorParameter *motor)
 {
     motor->step_count++;
@@ -224,9 +219,22 @@ static void PI_control(MotorParameter *motor)
     // 計算 P I 控制輸出
     float output_pwm_Value = (float)MOTOR_PI_KP * error + MOTOR_PI_KI * integral;
 
+    reset_duty_if_speed_zero(motor);
+
     // 避免太大的error
     if (motor_set_duty(motor, motor->duty_value + output_pwm_Value)) return;
     motor_set_integral_record(motor, integral);
+}
+
+void reset_duty_if_speed_zero(MotorParameter *motor)
+{
+    if (
+        motor->speed_present == 0
+        && motor->speed_sepoint_pcn == 0
+        && motor->duty_value < 10
+        ) {
+        motor_set_duty(motor, 0);
+    }
 }
 
 void StartMotorTask(void *argument)

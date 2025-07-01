@@ -109,11 +109,11 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
     bool triggered = false;
     uint32_t time_out = HAL_GetTick();
     while (count_until_zero != 0){
-        if (hall_sensor_direction >= hall_magnetic_stripe_value  && !triggered) {
+        if (adc_hall.sensor_direction >= adc_hall.magnetic_stripe_value  && !triggered) {
             count_until_zero --;
             triggered = true;
         }
-        if (hall_sensor_direction < hall_magnetic_stripe_value) {
+        if (adc_hall.sensor_direction < adc_hall.magnetic_stripe_value) {
             triggered = false;
         }
 

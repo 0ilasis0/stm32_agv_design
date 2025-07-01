@@ -10,7 +10,7 @@
 int text_end = 0;
 void vehicle_main (void)
 {
-    if (hall_sensor_node > hall_strong_magnet_value) {
+    if (adc_hall.sensor_node > adc_hall.strong_magnet_value) {
         decide_move_mode();
 
     } else {
@@ -70,11 +70,11 @@ void vehicle_track_mode(void) {
 
     vehicle_breakdown_all_hall_lost();
 
-    if (motor_right.adc_value >= hall_magnetic_stripe_value) {
+    if (adc_hall.sensor_track_right >= adc_hall.magnetic_stripe_value) {
         motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
         motor_set_speed_setpoint(&motor_right, 0);
 
-    } else if (motor_left.adc_value >= hall_magnetic_stripe_value) {
+    } else if (adc_hall.sensor_track_left >= adc_hall.magnetic_stripe_value) {
         motor_set_speed_setpoint(&motor_left, 0);
         motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
 
@@ -108,7 +108,7 @@ void vehicle_rotate_in_place(void)
     vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(hall_sensor_node >= hall_strong_magnet_value ) {
+    while(adc_hall.sensor_node >= adc_hall.strong_magnet_value ) {
         timeout_error(error_start, &error_state.vehicle_rotate_in_place_hall);
     }
 }
@@ -120,7 +120,7 @@ void vehicle_over_hall_fall_back(void) {
     vehicle2_motion_and_speed_control(motion_backward, VEHICLE_setpoint_fall_back);
 
     uint32_t error_start = HAL_GetTick();
-    while(hall_sensor_node <= hall_strong_magnet_value) {
+    while(adc_hall.sensor_node <= adc_hall.strong_magnet_value) {
         timeout_error(error_start, &error_state.vehicle_over_hall_fall_back);
     }
 
@@ -134,10 +134,10 @@ void vehicle_breakdown_all_hall_lost (void) {
     if (!sys_run_switch.enable_debug_breakdown_all_hall_lost) return;
 
     if (
-        hall_sensor_direction < hall_magnetic_stripe_value &&
-        hall_sensor_node      < hall_magnetic_stripe_value &&
-        motor_right.adc_value < hall_magnetic_stripe_value &&
-        motor_left.adc_value  < hall_magnetic_stripe_value
+        adc_hall.sensor_direction < adc_hall.magnetic_stripe_value &&
+        adc_hall.sensor_node      < adc_hall.magnetic_stripe_value &&
+        adc_hall.sensor_track_right < adc_hall.magnetic_stripe_value &&
+        adc_hall.sensor_track_left  < adc_hall.magnetic_stripe_value
     ) {
         vehicle2_ensure_motor_stop();
         vehicle_search_magnetic_path (motion_clockwise, 3000);
@@ -162,9 +162,9 @@ void vehicle_search_magnetic_path (MotionCommand search_direction, uint16_t time
     while (HAL_GetTick() - past_time <= time) {
         // if hall sensor sensing magnetic force
         if (
-            hall_sensor_direction >= hall_magnetic_stripe_value ||
-            motor_left.adc_value  >= hall_magnetic_stripe_value ||
-            motor_right.adc_value >= hall_magnetic_stripe_value
+            adc_hall.sensor_direction >= adc_hall.magnetic_stripe_value ||
+            adc_hall.sensor_track_left  >= adc_hall.magnetic_stripe_value ||
+            adc_hall.sensor_track_right >= adc_hall.magnetic_stripe_value
         ) {
             vehicle2_motion_and_speed_control(motion_forward, 0);
 
@@ -250,7 +250,7 @@ void protect_over_hall(void)
 {
     vehicle2_ensure_motor_stop();
 
-    if (hall_sensor_node > hall_strong_magnet_value) return;
+    if (adc_hall.sensor_node > adc_hall.strong_magnet_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
     if (map_data.status[map_data.current_count] == agv_rotate)
@@ -264,4 +264,3 @@ void protect_over_hall(void)
         vehicle_over_hall_fall_back();
     }
 }
-

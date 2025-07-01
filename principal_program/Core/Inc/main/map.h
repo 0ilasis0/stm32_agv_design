@@ -10,7 +10,8 @@ typedef enum {
     agv_straight,                                   // 循跡狀態mode
     agv_rotate,                                     // 原地旋轉mode
     agv_end,                                        // 直行mode
-    agv_next
+    agv_next,
+    agv_idle,                                       //初始化或待命
 } AGV_STATUS;
 
 typedef struct {
@@ -38,13 +39,7 @@ extern LOCATION locations_t[max_node];
 void map_setup(void);
 void init_map(void);
 void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
-MAP_DATA init_map_data (
-    int8_t init_start_direction,
-    int8_t init_start_address_id,
-    int8_t init_current_count,
-    int8_t init_direction[max_node],
-    uint16_t init_address_id[max_node],
-    AGV_STATUS init_status[max_node]);
+MAP_DATA init_map_data (void);
 void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);

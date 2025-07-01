@@ -78,7 +78,6 @@ void StartDefaultTask(void *argument)
     // motor_set_duty(&motor_left, 50);
     // motor_set_speed_setpoint(&motor_left, 100);
     // motor_set_speed_setpoint(&motor_right, 100);
-    // motor_right.adc_value = ADC_HALL_MAGNITUTE_EDGE + 1;
     // vehicle_over_hall_fall_back();
     // init_map_data_direction_and_address(&map_data, 5, 7);
     /*測試用--------------------------------------*/

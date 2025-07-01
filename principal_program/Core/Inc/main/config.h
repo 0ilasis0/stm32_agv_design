@@ -88,7 +88,3 @@ typedef struct SYSTEM_RUNTIME_SWITCH
     bool enable_debug_test_no_load_speed;
 } SYSTEM_RUNTIME_SWITCH;
 extern SYSTEM_RUNTIME_SWITCH sys_run_switch;
-
-
-// Todo Delete?
-extern uint32_t hall_sensor_node;
