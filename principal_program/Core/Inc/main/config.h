@@ -38,8 +38,9 @@
 #define MOTOR_PI_KP             0.25f    // 比例增益
 #define MOTOR_PI_KI             0.001f  // 積分增益
 
-#define ADC_CAP                 20
-#define ADC_HALL_MAGNITUTE_EDGE 1730  //1870
+#define ADC_CAP                   20
+#define ADC_MAGNETIC_STRIPE_VALUE 1775
+#define ADC_STRONG_MAGNET_VALUE   1700
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1
@@ -87,6 +88,7 @@ typedef struct SYSTEM_RUNTIME_SWITCH
     bool enable_timeout_error;
 
     bool enable_debug_breakdown_all_hall_lost;
+    bool enable_debug_protect_over_hall;
     bool enable_debug_test_no_load_speed;
 } SYSTEM_RUNTIME_SWITCH;
 extern SYSTEM_RUNTIME_SWITCH sys_run_switch;

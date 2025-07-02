@@ -2,7 +2,6 @@
 
 #include "main/config.h"
 #include "main/fn_state.h"
-#include "main/map.h"
 #include "gpio.h"
 #include "tim.h"
 

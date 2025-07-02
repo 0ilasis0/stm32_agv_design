@@ -1,32 +1,33 @@
 #include "main/vehicle2.h"
 #include "main/fn_state.h"
-
-
+#include "main/map.h"
 
 /**
   * @brief 根據運動模式控制馬達旋轉方向與設定速度
   */
-static MotionCommand currnet_mode;
-void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value){
-    if (mode != currnet_mode) vehicle2_ensure_motor_stop();
+void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value)
+{
+    if (mode != agv_state.vehicle_currnet_mode) vehicle2_ensure_motor_stop();
     switch(mode) {
-        case motion_unchange:
-            break;
         case motion_forward:
             motor_set_direction(&motor_right, rotate_clockwise);
             motor_set_direction(&motor_left,  rotate_c_clockwise);
+            agv_state.vehicle_currnet_mode = motion_forward;
             break;
         case motion_backward:
             motor_set_direction(&motor_right, rotate_c_clockwise);
             motor_set_direction(&motor_left,  rotate_clockwise);
+            agv_state.vehicle_currnet_mode = motion_backward;
             break;
         case motion_clockwise:
             motor_set_direction(&motor_right, rotate_c_clockwise);
             motor_set_direction(&motor_left,  rotate_c_clockwise);
+            agv_state.vehicle_currnet_mode = motion_clockwise;
             break;
         case motion_c_clockwise:
             motor_set_direction(&motor_right, rotate_clockwise);
             motor_set_direction(&motor_left,  rotate_clockwise);
+            agv_state.vehicle_currnet_mode = motion_c_clockwise;
             break;
     }
 
@@ -37,7 +38,8 @@ void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir) {
+MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir)
+{
     int8_t diff = (end_dir - start_dir + 8) % 8;
 
     if (diff <= 3) {
@@ -53,7 +55,9 @@ MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir) {
   * @brief 等待左右馬達完全停止
   */
 void vehicle2_ensure_motor_stop(void) {
-    //
+
+    agv_state.vehicle_currnet_mode = motion_stop;
+
     motor_right.speed_sepoint_pcn = 0;
     motor_left.speed_sepoint_pcn  = 0;
 
@@ -104,19 +108,25 @@ uint8_t vehicle2_pass_magnetic_stripe_calculate(
 /**
   * @brief 根據強磁計數更新 AGV 方向資料
   */
-void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero) {
-    //邊緣觸發判斷
+uint8_t look_rotate_count = 0;
+void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero)
+{
+    //邊緣觸發判斷+時間預防
     bool triggered = false;
     uint32_t time_out = HAL_GetTick();
+
     while (count_until_zero != 0){
-        if (adc_hall.sensor_direction >= adc_hall.magnetic_stripe_value  && !triggered) {
+        if (adc_hall.sensor_direction <= adc_hall.magnetic_stripe_value  && !triggered) {
             count_until_zero --;
             triggered = true;
         }
-        if (adc_hall.sensor_direction < adc_hall.magnetic_stripe_value) {
+        if (adc_hall.sensor_direction > adc_hall.magnetic_stripe_value && time_out - HAL_GetTick() > 500) {
             triggered = false;
         }
 
+        look_rotate_count = count_until_zero;
+
         timeout_error(time_out, &error_state.vehicle2_renew_vehicle_rotation_status);
     }
+    vehicle2_ensure_motor_stop();
 }

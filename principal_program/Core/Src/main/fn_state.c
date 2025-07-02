@@ -1,4 +1,5 @@
 #include "main/fn_state.h"
+#include "main/vehicle2.h"
 
 FnState last_error = FNS_INVALID;
 
@@ -15,14 +16,17 @@ FnState_h error_state = {
     .breakdown_all_hall_lost__path_not_found = FNS_INVALID,
 };
 
+uint32_t look_timeout_dif = 0;
 void timeout_error(uint32_t start_time, FnState *error_parameter) {
     if (!sys_run_switch.enable_timeout_error) return;
 
+    look_timeout_dif = HAL_GetTick() - start_time;
+
     if (HAL_GetTick() - start_time > ERROR_TIMEOUT_TIME_LIMIT) {
         *error_parameter = FNS_TIMEOUT;
-        while (true);
+        vehicle2_ensure_motor_stop();
+        while (true) osDelay(10);
     }
-    osDelay(10);
 }
 
 #endif

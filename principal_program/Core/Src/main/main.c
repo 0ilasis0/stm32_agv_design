@@ -3,6 +3,7 @@
 #include "main/adc.h"
 #include "main/it.h"
 #include "main/vehicle.h"
+#include "main/map.h"
 #include "motor/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
@@ -23,6 +24,7 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             motor_tim_tick = 0;
             motor_speed_calculate(&motor_right, 0.1f);
             motor_speed_calculate(&motor_left, 0.1f);
+            adc_renew();
         }
         motor_tim_tick++;
     }
@@ -78,15 +80,14 @@ void StartDefaultTask(void *argument)
     // motor_set_duty(&motor_left, 50);
     // motor_set_speed_setpoint(&motor_left, 100);
     // motor_set_speed_setpoint(&motor_right, 100);
-    // vehicle_over_hall_fall_back();
-    // init_map_data_direction_and_address(&map_data, 5, 7);
+
+    // init_map_data_direction_and_address(&map_data, 11, 7);
     /*測試用--------------------------------------*/
 
-    vehicle_adjust_startup_heading();
+    // vehicle_adjust_startup_heading();
     for(;;)
     {
-        // vehicle_main();
-        vehicle_track_mode();
+        vehicle_main();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

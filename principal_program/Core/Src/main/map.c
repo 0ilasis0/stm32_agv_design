@@ -4,6 +4,9 @@ int graph[max_node][max_node];
 int path[max_node][max_node];
 uint8_t final_node_count = 0;
 
+MAP_DATA map_data;
+AgvState agv_state;
+
 LOCATION locations_t[max_node] = {
     {5 , {{0,0}, {0,0}, {78,20}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}},
     {78, {{0,0}, {0,0}, {11,35}, {15,30}, {0,0}, {0,0}, {0,0}, {0,0}}},
@@ -14,14 +17,12 @@ LOCATION locations_t[max_node] = {
     {15, {{0,0}, {11,40}, {12,45}, {0,0}, {0,0}, {0,0}, {0,0}, {78,30}}}
 };
 
-MAP_DATA map_data;
 
 
-
-void map_setup(void) {
+void map_setup(void)
+ {
 
     init_map();
-
 
     map_data = init_map_data();
     floyd_warshall();
@@ -30,7 +31,7 @@ void map_setup(void) {
     int text_to = get_index_by_id(14);
     build_current_map_data(text_from, text_to);
 
-
+    agv_state = init_agv_state_data();
 
     for (int i = 0; i <= final_node_count; i++) {
         map_data.status[i] = decide_vehicle_status(i);
@@ -40,7 +41,8 @@ void map_setup(void) {
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
-void init_map(void) {
+void init_map(void)
+ {
     for (int i = 0; i < max_node; i++) {
         for (int j = 0; j < max_node; j++) {
             // 自己到自己距離為0，其他為無限大
@@ -88,6 +90,14 @@ MAP_DATA init_map_data (void)
     return map_new;
 }
 
+AgvState init_agv_state_data (void)
+{
+    AgvState agv_state_new;
+    agv_state_new.address_id = map_data.address_id[0];
+    agv_state_new.direction = map_data.direction[0];
+    agv_state_new.vehicle_currnet_mode = map_data.status[0];
+    return agv_state_new;
+}
 
 void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
 {
@@ -95,9 +105,9 @@ void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address
     map_new->start_address_id = init_address_id;
 }
 
-
 // Floyd-Warshall 演算法計算所有節點對間最短路徑
-void floyd_warshall(void) {
+void floyd_warshall(void)
+ {
     for (int k = 0; k < max_node; k++) {
         for (int i = 0; i < max_node; i++) {
             for (int j = 0; j < max_node; j++) {
@@ -110,7 +120,8 @@ void floyd_warshall(void) {
     }
 }
 
-void build_current_map_data(int from, int to) {
+void build_current_map_data(int from, int to)
+ {
     int count = 0;
 
     // 根據 path 矩陣追蹤從 from 到 to 的節點路徑
@@ -141,19 +152,19 @@ void build_current_map_data(int from, int to) {
 }
 
 // 尋找節點 ID 對應的陣列索引
-int get_index_by_id(int id) {
+int get_index_by_id(int id)
+ {
     for (int i = 0; i < max_node; i++) {
         if (locations_t[i].local_id == id) return i;
     }
     return -1;
 }
 
-
-
 /*
  * 決定agv當前狀態
  */
-AGV_STATUS decide_vehicle_status(uint8_t count) {
+AGV_STATUS decide_vehicle_status(uint8_t count)
+ {
     if (count == 0 && map_data.direction[count] == no_data) return agv_end;
     if (count == 0) return agv_straight;
 

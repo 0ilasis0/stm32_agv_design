@@ -1,6 +1,7 @@
 #pragma once
 
 #include "main/config.h"
+#include "main/vehicle2.h"
 
 #define INF 99999
 #define max_node 10
@@ -33,11 +34,19 @@ typedef struct {
     AGV_STATUS      status[max_node];
 } MAP_DATA;
 
+typedef struct {
+    uint16_t        address_id;
+    int8_t          direction;
+    MotionCommand   vehicle_currnet_mode;
+} AgvState;
+
 extern MAP_DATA map_data;
+extern AgvState agv_state;
 extern LOCATION locations_t[max_node];
 
 void map_setup(void);
 void init_map(void);
+AgvState init_agv_state_data (void);
 void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
 MAP_DATA init_map_data (void);
 void floyd_warshall(void);

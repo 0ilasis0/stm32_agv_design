@@ -231,7 +231,6 @@ void reset_duty_if_speed_zero(MotorParameter *motor)
     if (
         motor->speed_present == 0
         && motor->speed_sepoint_pcn == 0
-        && motor->duty_value < 10
         ) {
         motor_set_duty(motor, 0);
     }

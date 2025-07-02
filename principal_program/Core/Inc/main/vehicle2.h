@@ -4,18 +4,14 @@
 #include "main/config.h"
 #include "adc.h"
 
-
-
-// ? add current
 typedef enum {
     motion_unchange,
     motion_forward,
     motion_backward,
     motion_clockwise,
-    motion_c_clockwise
+    motion_c_clockwise,
+    motion_stop,
 } MotionCommand;
-
-extern MotionCommand direction_mode;
 
 void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value);
 void vehicle2_ensure_motor_stop(void);
