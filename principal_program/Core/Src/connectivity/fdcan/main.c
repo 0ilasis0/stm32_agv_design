@@ -127,7 +127,7 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
     switch (code)
     {
@@ -154,22 +154,22 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
 static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
     switch (code)
     {
         #ifdef PRINCIPAL_PROGRAM
         case CMD_B0_VECH_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
             ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
             switch (code)
             {
                 case CMD_B1_VEHICLE:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &value, 1));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
                     MotionCommand mode = motion_unchange;
                     switch (code)
@@ -195,8 +195,8 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                 case CMD_B1_LEFT_MOTOR:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &value, 1));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
                     MotorParameter* motor = &motor_left;
                     switch (code)
@@ -224,8 +224,8 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                 case CMD_B1_RIGHT_MOTOR:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &value, 1));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
                     MotorParameter* motor = &motor_right;
                     switch (code)
@@ -262,13 +262,13 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
         #ifdef ANCILLARY_PROGRAM
         case CMD_B0_ARM_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
             ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
             switch (code)
             {
                 case CMD_B1_ARM:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
                     switch (code)
                     {
@@ -400,7 +400,7 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
 static FnState recv_pkt_proc_inner(VecByte* vec_byte)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, &code, 0));
+    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
     switch (code)
     {
