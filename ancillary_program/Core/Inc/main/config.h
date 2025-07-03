@@ -42,6 +42,13 @@
 #define UART_START_CODE     ((uint8_t) '>')
 #define UART_END_CODE       ((uint8_t) '\n')
 
+#define SPI2_RFID_SDA   
+#define SPI2_RFID_SCK
+#define SPI2_RFID_MOSI
+#define SPI2_RFID_MISO
+#define SPI2_RFID_IRQ
+#define SPI2_RFID_RST
+
 #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART

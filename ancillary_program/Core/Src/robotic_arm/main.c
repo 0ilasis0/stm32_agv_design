@@ -2,7 +2,7 @@
 
 static const ArmConst arm_bottom_const = {
     // PA0(L28) 
-    .TIMx = &htim2,
+    .htimx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_1,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -15,7 +15,7 @@ ArmParameter arm_bottom = {
 
 static const ArmConst arm_shoulder_const = {
     // PA1(L30)
-    .TIMx = &htim2,
+    .htimx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_2,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -28,7 +28,7 @@ ArmParameter arm_shoulder = {
 
 static const ArmConst arm_elbow_btm_const = {
     // PB10(R25)
-    .TIMx = &htim2,
+    .htimx = &htim2,
     .TIM_CHANNEL_x = TIM_CHANNEL_3,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -41,7 +41,7 @@ ArmParameter arm_elbow_btm = {
 
 static const ArmConst arm_elbow_top_const = {
     // PA6(R13)
-    .TIMx = &htim3,
+    .htimx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_1,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -54,7 +54,7 @@ ArmParameter arm_elbow_top = {
 
 static const ArmConst arm_wrist_const = {
     // PA4(L32)
-    .TIMx = &htim3,
+    .htimx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_2,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -67,7 +67,7 @@ ArmParameter arm_wrist = {
 
 static const ArmConst arm_finger_const = {
     // PB0(L34)
-    .TIMx = &htim3,
+    .htimx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_3,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX / 2,
@@ -95,7 +95,7 @@ inline void arm_set_pos(ArmParameter* arm, uint8_t pos)
 static void arm_setup(ArmParameter* arm)
 {
     const ArmConst* arm_const = arm->arm_const;
-    HAL_TIM_PWM_Start(arm_const->TIMx, arm_const->TIM_CHANNEL_x);
+    HAL_TIM_PWM_Start(arm_const->htimx, arm_const->TIM_CHANNEL_x);
 }
 
 static void arm_turn(ArmParameter* arm)
@@ -110,7 +110,7 @@ static void arm_turn(ArmParameter* arm)
     //     arm->tim_current = arm_const->tim_min;
     // else if (arm->tim_current > arm_const->tim_max)
     //     arm->tim_current = arm_const->tim_max;
-    __HAL_TIM_SET_COMPARE(arm->arm_const->TIMx, arm->arm_const->TIM_CHANNEL_x, arm->tim_current);
+    __HAL_TIM_SET_COMPARE(arm->arm_const->htimx, arm->arm_const->TIM_CHANNEL_x, arm->tim_current);
 }
 
 void StartArmTask(void *argument)

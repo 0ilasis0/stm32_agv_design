@@ -11,7 +11,7 @@ typedef uint8_t ArmTim;
 
 typedef struct ArmConst
 {
-    TIM_HandleTypeDef* TIMx;
+    TIM_HandleTypeDef* htimx;
     uint32_t TIM_CHANNEL_x;
     ArmTim tim_min;
     ArmTim tim_max;
