@@ -1,4 +1,8 @@
 /**
+ * https://github.com/miguelbalboa/rfid
+ * 
+ * ver 1.4.12
+ * 
  * Library to use Arduino MFRC522 module.
  * 
  * @authors Dr.Leong, Miguel Balboa, Søren Thing Andersen, Tom Clement, many more! See GitLog.
@@ -12,8 +16,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Custom code Start
 #include "spi.h"
 #include "main/config.h"
+// Custom code End
 
 // Custon add
 typedef struct RC522Const
@@ -207,15 +213,15 @@ typedef struct RC522MIFARE_Key {
 } RC522MIFARE_Key;
 
 // Member variables
-extern RC522Uid uid;			// Used by RC522_PICC_ReadCardSerial().
+extern RC522Uid rc522_uid;			// Used by RC522_PICC_ReadCardSerial().
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Basic interface functions for communicating with the MFRC522
 /////////////////////////////////////////////////////////////////////////////////////
 void RC522_PCD_WriteRegister(const RC522Const* rc522_const, PCD_Register reg, uint8_t value);
-void RC522_PCD_WriteRegister_i(const RC522Const* rc522_const, PCD_Register reg, uint8_t count, uint8_t *values);
+void RC522_PCD_WriteRegister_full(const RC522Const* rc522_const, PCD_Register reg, uint8_t count, uint8_t *values);
 uint8_t RC522_PCD_ReadRegister(const RC522Const* rc522_const, PCD_Register reg);
-void RC522_PCD_ReadRegister_i(const RC522Const* rc522_const, PCD_Register reg, uint8_t count, uint8_t *values, uint8_t rxAlign); // defalt: rxAlign = 0
+void RC522_PCD_ReadRegister_full(const RC522Const* rc522_const, PCD_Register reg, uint8_t count, uint8_t *values, uint8_t rxAlign); // defalt: rxAlign = 0
 void RC522_PCD_SetRegisterBitMask(const RC522Const* rc522_const, PCD_Register reg, uint8_t mask);
 void RC522_PCD_ClearRegisterBitMask(const RC522Const* rc522_const, PCD_Register reg, uint8_t mask);
 StatusCode RC522_PCD_CalculateCRC(const RC522Const* rc522_const, uint8_t *data, uint8_t length, uint8_t *result);
@@ -229,15 +235,15 @@ void RC522_PCD_Init(const RC522Const* rc522_const);
 void RC522_PCD_Reset(const RC522Const* rc522_const);
 void RC522_PCD_AntennaOn(const RC522Const* rc522_const);
 void RC522_PCD_AntennaOff(const RC522Const* rc522_const);
-uint8_t RC522_PCD_GetAntennaGain(RC522Const* rc522_const);
+uint8_t RC522_PCD_GetAntennaGain(const RC522Const* rc522_const);
 void RC522_PCD_SetAntennaGain(const RC522Const* rc522_const, uint8_t mask);
 bool RC522_PCD_PerformSelfTest(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Power control functions
 /////////////////////////////////////////////////////////////////////////////////////
-void RC522_PCD_SoftPowerDown();
-void RC522_PCD_SoftPowerUp();
+void RC522_PCD_SoftPowerDown(const RC522Const* rc522_const);
+void RC522_PCD_SoftPowerUp(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for communicating with PICCs
@@ -267,6 +273,7 @@ StatusCode RC522_MIFARE_Ultralight_Write(const RC522Const* rc522_const, uint8_t 
 StatusCode RC522_MIFARE_Decrement(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
 StatusCode RC522_MIFARE_Increment(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
 StatusCode RC522_MIFARE_Restore(const RC522Const* rc522_const, uint8_t blockAddr);
+StatusCode RC522_MIFARE_TwoStepHelper(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, int32_t data);
 StatusCode RC522_MIFARE_Transfer(const RC522Const* rc522_const, uint8_t blockAddr);
 StatusCode RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t *value);
 StatusCode RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t value);
@@ -275,28 +282,28 @@ StatusCode RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t *passWo
 /////////////////////////////////////////////////////////////////////////////////////
 // Support functions
 /////////////////////////////////////////////////////////////////////////////////////
-StatusCode RC522_PCD_MIFARE_Transceive(uint8_t *sendData, uint8_t sendLen, bool acceptTimeout); // defalt: acceptTimeout = false
+StatusCode RC522_PCD_MIFARE_Transceive(const RC522Const* rc522_const, uint8_t *sendData, uint8_t sendLen, bool acceptTimeout); // defalt: acceptTimeout = false
 // old function used too much memory, now name moved to flash; if you need char, copy from flash to memory
-//const char *GetStatusCodeName(byte code);
-const char *RC522_GetStatusCodeName(StatusCode code);
-PICC_Type RC522_PICC_GetType(uint8_t sak);
+// const char *GetStatusCodeName(byte code);
+// const char *RC522_GetStatusCodeName(const RC522Const* rc522_const, StatusCode code);
+// PICC_Type RC522_PICC_GetType(const RC522Const* rc522_const, uint8_t sak);
 // old function used too much memory, now name moved to flash; if you need char, copy from flash to memory
-//const char *PICC_GetTypeName(byte type);
-const char *RC522_PICC_GetTypeName(PICC_Type type);
+// const char *PICC_GetTypeName(byte type);
+// const char *RC522_PICC_GetTypeName(const RC522Const* rc522_const, PICC_Type type);
 
 // Support functions for debuging
-void RC522_PCD_DumpVersionToSerial();
-void RC522_PICC_DumpToSerial(RC522Uid *uid);
-void RC522_PICC_DumpDetailsToSerial(RC522Uid *uid);
-void RC522_PICC_DumpMifareClassicToSerial(RC522Uid *uid, PICC_Type piccType, RC522MIFARE_Key *key);
-void RC522_PICC_DumpMifareClassicSectorToSerial(RC522Uid *uid, RC522MIFARE_Key *key, uint8_t sector);
-void RC522_PICC_DumpMifareUltralightToSerial();
+// void RC522_PCD_DumpVersionToSerial(const RC522Const* rc522_const);
+// void RC522_PICC_DumpToSerial(const RC522Const* rc522_const, RC522Uid *uid);
+// void RC522_PICC_DumpDetailsToSerial(const RC522Const* rc522_const, RC522Uid *uid);
+// void RC522_PICC_DumpMifareClassicToSerial(const RC522Const* rc522_const, RC522Uid *uid, PICC_Type piccType, RC522MIFARE_Key *key);
+// void RC522_PICC_DumpMifareClassicSectorToSerial(const RC522Const* rc522_const, RC522Uid *uid, RC522MIFARE_Key *key, uint8_t sector);
+// void RC522_PICC_DumpMifareUltralightToSerial(const RC522Const* rc522_const);
 
 // Advanced functions for MIFARE
 void RC522_MIFARE_SetAccessBits(uint8_t *accessBitBuffer, uint8_t g0, uint8_t g1, uint8_t g2, uint8_t g3);
-bool RC522_MIFARE_OpenUidBackdoor(bool logErrors);
-bool RC522_MIFARE_SetUid(uint8_t *newUid, uint8_t uidSize, bool logErrors);
-bool RC522_MIFARE_UnbrickUidSector(bool logErrors);
+bool RC522_MIFARE_OpenUidBackdoor(const RC522Const* rc522_const);
+bool RC522_MIFARE_SetUid(const RC522Const* rc522_const, uint8_t *newUid, uint8_t uidSize);
+bool RC522_MIFARE_UnbrickUidSector(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Convenience functions - does not add extra functionality
@@ -304,4 +311,3 @@ bool RC522_MIFARE_UnbrickUidSector(bool logErrors);
 bool RC522_PICC_IsNewCardPresent(const RC522Const* rc522_const);
 bool RC522_PICC_ReadCardSerial(const RC522Const* rc522_const);
 
-StatusCode RC522_MIFARE_TwoStepHelper(uint8_t command, uint8_t blockAddr, int32_t data);

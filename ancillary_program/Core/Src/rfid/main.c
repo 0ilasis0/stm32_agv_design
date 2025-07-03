@@ -26,10 +26,10 @@ void rc522_main(void)
         && RC522_PICC_ReadCardSerial(&rfid_const)
     ) {
         size_t i;
-        for (i = 0; i < uid.size; i++)
+        for (i = 0; i < rc522_uid.size; i++)
         {
-            if (uid.uidByte[i] != uid_test.uidByte[i]) {
-                memcpy(&uid_test, &uid, sizeof(RC522Uid));
+            if (rc522_uid.uidByte[i] != uid_test.uidByte[i]) {
+                memcpy(&uid_test, &rc522_uid, sizeof(RC522Uid));
             }
         }
     }
