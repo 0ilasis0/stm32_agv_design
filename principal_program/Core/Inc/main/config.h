@@ -34,13 +34,14 @@
 #define TIM4_CH1_CCR            10          // 10us
 
 #define MOTOR_HTIM              &htim2
-#define MOTOR_MAX_SPEED         80
+#define MOTOR_MAX_SPEED         100
 #define MOTOR_PI_KP             0.25f    // 比例增益
 #define MOTOR_PI_KI             0.001f  // 積分增益
 
-#define ADC_CAP                   20
-#define ADC_MAGNETIC_STRIPE_VALUE 1775
-#define ADC_STRONG_MAGNET_VALUE   1700
+#define ADC_COUNT                   4
+#define ADC_NEED_LEN                9
+#define ADC_MAGNETIC_STRIPE_VALUE 1700
+#define ADC_STRONG_MAGNET_VALUE   1550
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1

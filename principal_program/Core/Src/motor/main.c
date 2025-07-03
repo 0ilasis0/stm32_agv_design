@@ -27,7 +27,7 @@ static const MotorConst motor_left_const = {
 MotorParameter motor_left = {
     .const_h            = &motor_left_const,
     .rotate_direction   = rotate_c_clockwise,
-    .currentStep        = 7,
+    .current_step        = 7,
 };
 
 static const MotorConst motor_right_const = {
@@ -42,7 +42,7 @@ static const MotorConst motor_right_const = {
 MotorParameter motor_right = {
     .const_h            = &motor_right_const,
     .rotate_direction   = rotate_clockwise,
-    .currentStep        = 7,
+    .current_step        = 7,
 };
 
 /**
@@ -82,15 +82,15 @@ static void setup(void)
 static void step_commutate(const MotorParameter *motor)
 {
     const MotorConst* const_h = motor->const_h;
-    const uint8_t currentStep = motor->currentStep;
+    const uint8_t current_step = motor->current_step;
     for (int i = 0; i < 3; i++)
     {
-        if (SEQUENCE[currentStep][i] == 1)
+        if (SEQUENCE[current_step][i] == 1)
         {
-            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty_value);
+            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty_pcn);
             HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
-        else if (SEQUENCE[currentStep][i] == -1)
+        else if (SEQUENCE[current_step][i] == -1)
         {
             __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
             HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
@@ -119,24 +119,24 @@ void motor_step_update(MotorParameter *motor)
     {
         switch(hallState)
         {
-            case 2: motor->currentStep = 0; break;
-            case 3: motor->currentStep = 1; break;
-            case 1: motor->currentStep = 2; break;
-            case 5: motor->currentStep = 3; break;
-            case 4: motor->currentStep = 4; break;
-            case 6: motor->currentStep = 5; break;
+            case 2: motor->current_step = 0; break;
+            case 3: motor->current_step = 1; break;
+            case 1: motor->current_step = 2; break;
+            case 5: motor->current_step = 3; break;
+            case 4: motor->current_step = 4; break;
+            case 6: motor->current_step = 5; break;
         }
     }
     else if(motor->rotate_direction == rotate_clockwise)
     {
         switch(hallState)
         {
-            case 5: motor->currentStep = 0; break;
-            case 4: motor->currentStep = 1; break;
-            case 6: motor->currentStep = 2; break;
-            case 2: motor->currentStep = 3; break;
-            case 3: motor->currentStep = 4; break;
-            case 1: motor->currentStep = 5; break;
+            case 5: motor->current_step = 0; break;
+            case 4: motor->current_step = 1; break;
+            case 6: motor->current_step = 2; break;
+            case 2: motor->current_step = 3; break;
+            case 3: motor->current_step = 4; break;
+            case 1: motor->current_step = 5; break;
         }
     }
 
@@ -161,15 +161,15 @@ FnState motor_set_duty(MotorParameter *motor, int8_t value)
     // 限制PWM最大值&&最小值
     if (value > 100)
     {
-        motor->duty_value = 100;
+        motor->duty_pcn = 100;
         return FNS_FAIL;
     }
     else if (value < 0)
     {
-        motor->duty_value = 0;
+        motor->duty_pcn = 0;
         return FNS_FAIL;
     }
-    motor->duty_value = value;
+    motor->duty_pcn = value;
     return FNS_OK;
 }
 
@@ -222,7 +222,7 @@ static void PI_control(MotorParameter *motor)
     reset_duty_if_speed_zero(motor);
 
     // 避免太大的error
-    if (motor_set_duty(motor, motor->duty_value + output_pwm_Value)) return;
+    if (motor_set_duty(motor, motor->duty_pcn + output_pwm_Value)) return;
     motor_set_integral_record(motor, integral);
 }
 

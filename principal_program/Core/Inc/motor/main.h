@@ -21,17 +21,19 @@ typedef struct MotorConst
     GPIO_TypeDef* Coil_GPIOx[3];
     uint16_t Coil_GPIO_Pin_x[3];
 } MotorConst;
+
 typedef struct MotorParameter
 {
     const MotorConst* const_h;
     uint8_t speed_sepoint_pcn;
+    uint8_t duty_pcn;
     ROTATE_STATUS rotate_direction;
     float integral_record;
     uint16_t step_count;
-    uint8_t duty_value;
     uint16_t speed_present;
-    uint8_t currentStep;
+    uint8_t current_step;
 } MotorParameter;
+
 extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
