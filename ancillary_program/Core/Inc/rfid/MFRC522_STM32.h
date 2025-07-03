@@ -30,23 +30,6 @@ typedef struct RC522Const
 
 #define MFRC522_SPICLOCK (4000000u)	// MFRC522 accept upto 10MHz, set to 4MHz.
 
-// Firmware data for self-test
-// Reference values based on firmware version
-// Hint: if needed, you can remove unused self-test data to save flash memory
-//
-// Version 0.0 (0x90)
-// Philips Semiconductors; Preliminary Specification Revision 2.0 - 01 August 2005; 16.1 self-test
-extern const uint8_t MFRC522_firmware_referenceV0_0[64];
-// Version 1.0 (0x91)
-// NXP Semiconductors; Rev. 3.8 - 17 September 2014; 16.1.1 self-test
-extern const uint8_t MFRC522_firmware_referenceV1_0[64];
-// Version 2.0 (0x92)
-// NXP Semiconductors; Rev. 3.8 - 17 September 2014; 16.1.1 self-test
-extern const uint8_t MFRC522_firmware_referenceV2_0[64];
-// Clone
-// Fudan Semiconductor FM17522 (0x88)
-extern const uint8_t FM17522_firmware_reference[64];
-
 // Size of the MFRC522 FIFO
 #define FIFO_SIZE   64		// The FIFO is 64 bytes.
 // Default value for unused pin
@@ -240,15 +223,15 @@ StatusCode RC522_PCD_CalculateCRC(const RC522Const* rc522_const, uint8_t *data, 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for manipulating the MFRC522
 /////////////////////////////////////////////////////////////////////////////////////
-void RC522_PCD_Init(RC522Const* rc522_const);
+void RC522_PCD_Init(const RC522Const* rc522_const);
 // void RC522_PCD_Init_rs(const RC522Const* rc522_const,uint8_t resetPowerDownPin);
 // void RC522_PCD_Init_rs_p(const RC522Const* rc522_const,uint8_t chipSelectPin, uint8_t resetPowerDownPin);
-void RC522_PCD_Reset(RC522Const* rc522_const);
-void RC522_PCD_AntennaOn(RC522Const* rc522_const);
-void RC522_PCD_AntennaOff(RC522Const* rc522_const);
+void RC522_PCD_Reset(const RC522Const* rc522_const);
+void RC522_PCD_AntennaOn(const RC522Const* rc522_const);
+void RC522_PCD_AntennaOff(const RC522Const* rc522_const);
 uint8_t RC522_PCD_GetAntennaGain(RC522Const* rc522_const);
 void RC522_PCD_SetAntennaGain(const RC522Const* rc522_const, uint8_t mask);
-bool RC522_PCD_PerformSelfTest(RC522Const* rc522_const);
+bool RC522_PCD_PerformSelfTest(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Power control functions
@@ -271,13 +254,13 @@ StatusCode RC522_PICC_RequestA(const RC522Const* rc522_const, uint8_t *bufferATQ
 StatusCode RC522_PICC_WakeupA(const RC522Const* rc522_const, uint8_t *bufferATQA, uint8_t *bufferSize);
 StatusCode RC522_PICC_REQA_or_WUPA(const RC522Const* rc522_const, uint8_t command, uint8_t *bufferATQA, uint8_t *bufferSize);
 StatusCode RC522_PICC_Select(const RC522Const* rc522_const, RC522Uid *uid, uint8_t validBits); // defalt: validBits = 0
-StatusCode RC522_PICC_HaltA(RC522Const* rc522_const);
+StatusCode RC522_PICC_HaltA(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for communicating with MIFARE PICCs
 /////////////////////////////////////////////////////////////////////////////////////
 StatusCode RC522_PCD_Authenticate(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, RC522MIFARE_Key *key, RC522Uid *uid);
-void RC522_PCD_StopCrypto1(RC522Const* rc522_const);
+void RC522_PCD_StopCrypto1(const RC522Const* rc522_const);
 StatusCode RC522_MIFARE_Read(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t *bufferSize);
 StatusCode RC522_MIFARE_Write(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t bufferSize);
 StatusCode RC522_MIFARE_Ultralight_Write(const RC522Const* rc522_const, uint8_t page, uint8_t *buffer, uint8_t bufferSize);
@@ -318,7 +301,7 @@ bool RC522_MIFARE_UnbrickUidSector(bool logErrors);
 /////////////////////////////////////////////////////////////////////////////////////
 // Convenience functions - does not add extra functionality
 /////////////////////////////////////////////////////////////////////////////////////
-bool RC522_PICC_IsNewCardPresent(RC522Const* rc522_const);
-bool RC522_PICC_ReadCardSerial(RC522Const* rc522_const);
+bool RC522_PICC_IsNewCardPresent(const RC522Const* rc522_const);
+bool RC522_PICC_ReadCardSerial(const RC522Const* rc522_const);
 
 StatusCode RC522_MIFARE_TwoStepHelper(uint8_t command, uint8_t blockAddr, int32_t data);

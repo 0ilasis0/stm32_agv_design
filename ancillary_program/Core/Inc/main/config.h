@@ -50,7 +50,7 @@
 #define SPI2_RFID_RST
 
 #define ENABLE_CON_PKT_TEST
-// #define DISABLE_FDCAN
+#define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM
 // #define DISABLE_UART_RECV

@@ -11,19 +11,26 @@ const RC522Const rfid_const = {
 };
 
 RC522Uid uid_test;
-void rc522_main(void)
+void rc522_setup(void)
 {
     RC522_PCD_Init(&rfid_const);
+    if (!RC522_PCD_PerformSelfTest(&rfid_const))
+    {
+    }
 }
 
-void rc522_detected_card(void)
+void rc522_main(void)
 {
-    if (RC522_PICC_IsNewCardPresent(&rfid_const)) {  // :contentReference[oaicite:5]{index=5}
-        // 2. 讀取卡片序號（抗碰撞 + Select）
-        if (RC522_PICC_ReadCardSerial(&rfid_const)) {  // :contentReference[oaicite:6]{index=6}
-            // 3. 複製到應用層暫存結構
-            memcpy(&uid_test, &uid, sizeof(RC522Uid));
-            // TODO: 在此處理讀到的 uid_test.uidByte[0..uid_test.size-1]
+    if (
+           RC522_PICC_IsNewCardPresent(&rfid_const) 
+        && RC522_PICC_ReadCardSerial(&rfid_const)
+    ) {
+        size_t i;
+        for (i = 0; i < uid.size; i++)
+        {
+            if (uid.uidByte[i] != uid_test.uidByte[i]) {
+                memcpy(&uid_test, &uid, sizeof(RC522Uid));
+            }
         }
     }
 }
