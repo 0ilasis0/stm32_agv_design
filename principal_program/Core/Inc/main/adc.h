@@ -15,5 +15,4 @@ typedef struct
 extern AdcHall adc_hall;
 
 void adc_setup(void);
-AdcHall adc_hall_init (void);
 void adc_renew(void);

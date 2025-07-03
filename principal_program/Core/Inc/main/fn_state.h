@@ -83,7 +83,7 @@ typedef struct FnState_h
 {
     FnState vehicle_test_no_load_speed;
     FnState vehicle_over_hall_fall_back;
-    FnState vehicle_rotate_in_place_hall;
+    FnState agv_forward_leave_strong_magnet;
     FnState vehicle_search_magnetic_path;
     FnState vehicle2_ensure_motor_stop;
     FnState vehicle2_renew_vehicle_rotation_status;
