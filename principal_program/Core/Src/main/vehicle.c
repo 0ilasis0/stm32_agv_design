@@ -7,125 +7,14 @@
 #include "main/config.h"
 #include "main/map.h"
 
-int text_end = 0;
-void vehicle_main (void)
-{
-    if (adc_hall.sensor_node < adc_hall.strong_magnet_value) {
-        decide_move_mode();
 
-    } else {
-        if (map_data.status[map_data.current_count] == agv_next) {
-            map_data.current_count++ ;
-            agv_state.address_id = map_data.address_id[map_data.current_count];
-            agv_state.direction  = map_data.direction[map_data.current_count];
 
-        } else {
-            vehicle_track_mode();
-
-        }
-    }
-}
-
-/**
-  * @brief 決定移動MODE
-  */
-void decide_move_mode(void)
-{
-    switch(map_data.status[map_data.current_count])
-    {
-        case agv_straight:
-            motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
-            motor_set_speed_setpoint (&motor_left, VEHICLE_setpoint_straight);
-
-            // 改為agv_next，直到離開HALL，使else之後能renew status
-            map_data.status[map_data.current_count] = agv_next;
-            break;
-
-        case agv_rotate:
-            protect_over_hall();
-            vehicle_rotate_in_place();
-
-            // 改為agv_next，直到離開HALL，使else之後能renew status
-            map_data.status[map_data.current_count] = agv_next;
-            break;
-
-        case agv_end:
-            protect_over_hall();
-            init_map_data_direction_and_address(&map_data, map_data.address_id[map_data.current_count - 1], map_data.direction[map_data.current_count - 1]);
-            // 終止目前沒有要做甚麼所以先停止動作
-            while (1) {
-                vehicle2_ensure_motor_stop();
-                text_end = 1;
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-/**
-  * @brief 一般循跡模式控制
-  */
-void vehicle_track_mode(void)
-{
-    vehicle_breakdown_all_hall_lost();
-    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
-
-    if (
-           adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
-        ) {
-        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed_setpoint(&motor_right, 0);
-
-    } else if (
-           adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
-        ) {
-        motor_set_speed_setpoint(&motor_left, 0);
-        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
-
-    } else {
-        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
-
-    }
-}
-
-/**
-  * @brief AGV 原地旋轉直到對準方向
-  */
-void vehicle_rotate_in_place(void)
-{
-    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NO_MATCH;
-
-    MotionCommand rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
-
-    uint8_t renew_count = vehicle2_pass_magnetic_stripe_calculate(
-            rotate_direction_mode,
-            map_data.address_id[map_data.current_count],
-            map_data.direction[map_data.current_count - 1],
-            map_data.direction[map_data.current_count]
-            );
-
-    vehicle2_motion_and_speed_control(rotate_direction_mode, VEHICLE_setpoint_rotate);
-
-    vehicle2_renew_vehicle_rotation_status(renew_count);
-
-    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
-
-    uint32_t error_start = HAL_GetTick();
-    // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(adc_hall.sensor_node <= adc_hall.strong_magnet_value )
-    {
-        timeout_error(error_start, &error_state.vehicle_rotate_in_place_hall);
-    }
-}
+static int text_end = 0;
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
   */
-void vehicle_over_hall_fall_back(void)
+static void vehicle_over_hall_fall_back(void)
 {
     vehicle2_motion_and_speed_control(motion_backward, VEHICLE_setpoint_fall_back);
 
@@ -138,9 +27,74 @@ void vehicle_over_hall_fall_back(void)
 }
 
 /**
+  * @brief 在指定時間內，讓裝置順或逆旋轉，直到偵測到磁條，並停止
+  */
+static void vehicle_search_magnetic_path (MotionCommand search_direction, uint16_t time)
+{
+    if (!sys_run_switch.enable_search_magnetic_path) return;
+
+    vehicle2_motion_and_speed_control(search_direction, VEHICLE_setpoint_rotate);
+
+    uint32_t past_time = HAL_GetTick();
+    while (HAL_GetTick() - past_time <= time) {
+        // if hall sensor sensing magnetic force
+        if (
+               adc_hall.sensor_direction    < adc_hall.magnetic_stripe_value
+            || adc_hall.sensor_track_left   < adc_hall.magnetic_stripe_value
+            || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
+            || adc_hall.sensor_node         < adc_hall.magnetic_stripe_value
+        ) {
+            sys_run_switch.enable_search_magnetic_path = 0;
+            break;
+        }
+
+        timeout_error(past_time, &error_state.vehicle_search_magnetic_path);
+    }
+
+    vehicle2_ensure_motor_stop();
+}
+
+/**
+  * @brief AGV 強迫前進不進行循跡直到離開強力磁鐵
+  */
+static void agv_forward_leave_strong_magnet (void)
+{
+    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
+
+    uint32_t error_start = HAL_GetTick();
+    // 確保轉彎後能夠脫離強力磁鐵進入循跡
+    while(adc_hall.sensor_node <= adc_hall.strong_magnet_value )
+    {
+        timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
+    }
+}
+
+/* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
+static void protect_over_hall(void)
+{
+    if (!sys_run_switch.enable_debug_protect_over_hall) return;
+
+    vehicle2_ensure_motor_stop();
+
+    if (adc_hall.sensor_node < adc_hall.strong_magnet_value) return;
+
+    //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
+    if (map_data.status[map_data.current_count] == agv_rotate)
+    {
+        vehicle_over_hall_fall_back();
+    }
+
+    //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
+    if (map_data.status[map_data.current_count] == agv_end)
+    {
+        vehicle_over_hall_fall_back();
+    }
+}
+
+/**
   * @brief 當所有相關的霍爾感測器都失去磁條訊號時，嘗試重新搜尋並回到磁條路徑上
   */
-void vehicle_breakdown_all_hall_lost (void)
+static void breakdown_all_hall_lost (void)
 {
     if (!sys_run_switch.enable_debug_breakdown_all_hall_lost) return;
 
@@ -167,31 +121,91 @@ void vehicle_breakdown_all_hall_lost (void)
 }
 
 /**
-  * @brief 在指定時間內，讓裝置順或逆旋轉，直到偵測到磁條，並停止
+  * @brief AGV 原地旋轉直到對準方向
   */
-void vehicle_search_magnetic_path (MotionCommand search_direction, uint16_t time)
+static void rotate_in_place(void)
 {
-    if (!sys_run_switch.enable_search_magnetic_path) return;
+    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NO_MATCH;
 
-    vehicle2_motion_and_speed_control(search_direction, VEHICLE_setpoint_rotate);
+    MotionCommand rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
 
-    uint32_t past_time = HAL_GetTick();
-    while (HAL_GetTick() - past_time <= time) {
-        // if hall sensor sensing magnetic force
-        if (
-               adc_hall.sensor_direction    < adc_hall.magnetic_stripe_value
-            || adc_hall.sensor_track_left   < adc_hall.magnetic_stripe_value
-            || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
-            || adc_hall.sensor_node         < adc_hall.magnetic_stripe_value
+    uint8_t renew_count = vehicle2_pass_magnetic_stripe_calculate(
+            rotate_direction_mode,
+            map_data.address_id[map_data.current_count],
+            map_data.direction[map_data.current_count - 1],
+            map_data.direction[map_data.current_count]
+            );
+
+    vehicle2_motion_and_speed_control(rotate_direction_mode, VEHICLE_setpoint_rotate);
+
+    vehicle2_renew_vehicle_rotation_status(renew_count);
+
+    agv_forward_leave_strong_magnet();
+}
+
+/**
+  * @brief 一般循跡模式控制
+  */
+static void track_mode(void)
+{
+    breakdown_all_hall_lost();
+    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
+
+    if (
+           adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
+        && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
         ) {
-            sys_run_switch.enable_search_magnetic_path = 0;
-            break;
-        }
+        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_speed_setpoint(&motor_right, 0);
 
-        timeout_error(past_time, &error_state.vehicle_search_magnetic_path);
+    } else if (
+           adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
+        && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
+        ) {
+        motor_set_speed_setpoint(&motor_left, 0);
+        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
+
+    } else {
+        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
+
     }
+}
 
-    vehicle2_ensure_motor_stop();
+/**
+  * @brief 決定移動MODE
+  */
+static void decide_move_mode(void)
+{
+    switch(map_data.status[map_data.current_count])
+    {
+        case agv_straight:
+            agv_forward_leave_strong_magnet();
+
+            // 改為agv_next，直到離開HALL，使else之後能renew status
+            map_data.status[map_data.current_count] = agv_next;
+            break;
+
+        case agv_rotate:
+            protect_over_hall();
+            rotate_in_place();
+
+            // 改為agv_next，直到離開HALL，使else之後能renew status
+            map_data.status[map_data.current_count] = agv_next;
+            break;
+
+        case agv_end:
+            protect_over_hall();
+            init_map_data_direction_and_address(&map_data, map_data.address_id[map_data.current_count - 1], map_data.direction[map_data.current_count - 1]);
+            // 終止目前沒有要做甚麼所以先停止動作
+            while (1) {
+                vehicle2_ensure_motor_stop();
+                text_end = 1;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 /**
@@ -261,24 +275,20 @@ void vehicle_test_no_load_speed(uint16_t mile_sec)
     sys_run_switch.enable_PI = 1;
 }
 
-/* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
-void protect_over_hall(void)
+void vehicle_main (void)
 {
-    if (!sys_run_switch.enable_debug_protect_over_hall) return;
+    if (adc_hall.sensor_node < adc_hall.strong_magnet_value) {
+        decide_move_mode();
 
-    vehicle2_ensure_motor_stop();
+    } else {
+        if (map_data.status[map_data.current_count] == agv_next) {
+            map_data.current_count++ ;
+            agv_state.address_id = map_data.address_id[map_data.current_count];
+            agv_state.direction  = map_data.direction[map_data.current_count];
 
-    if (adc_hall.sensor_node < adc_hall.strong_magnet_value) return;
+        } else {
+            track_mode();
 
-    //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data.status[map_data.current_count] == agv_rotate)
-    {
-        vehicle_over_hall_fall_back();
-    }
-
-    //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data.status[map_data.current_count] == agv_end)
-    {
-        vehicle_over_hall_fall_back();
+        }
     }
 }

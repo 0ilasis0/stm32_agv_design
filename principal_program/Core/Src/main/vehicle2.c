@@ -71,7 +71,6 @@ void vehicle2_ensure_motor_stop(void) {
 /**
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
-
 uint8_t vehicle2_pass_magnetic_stripe_calculate(
     MotionCommand rotate_direction_mode,
     uint16_t current_id_input,
@@ -108,7 +107,7 @@ uint8_t vehicle2_pass_magnetic_stripe_calculate(
 /**
   * @brief 根據強磁計數更新 AGV 方向資料
   */
-uint8_t look_rotate_count = 0;
+static uint8_t look_rotate_count = 0;
 void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero)
 {
     //邊緣觸發判斷+時間預防
