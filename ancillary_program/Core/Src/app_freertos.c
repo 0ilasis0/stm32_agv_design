@@ -65,7 +65,14 @@ const osThreadAttr_t ArmTask_attributes = {
 osThreadId_t FdCanTaskHandle;
 const osThreadAttr_t FdCanTask_attributes = {
   .name = "FdCanTask",
-  .priority = (osPriority_t) osPriorityAboveNormal7,
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 256 * 4
+};
+/* Definitions for RfidTask */
+osThreadId_t RfidTaskHandle;
+const osThreadAttr_t RfidTask_attributes = {
+  .name = "RfidTask",
+  .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 256 * 4
 };
 
@@ -77,6 +84,7 @@ const osThreadAttr_t FdCanTask_attributes = {
 void StartDefaultTask(void *argument);
 void StartArmTask(void *argument);
 void StartFdCanTask(void *argument);
+void StartRfidTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -115,6 +123,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of FdCanTask */
   FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
+
+  /* creation of RfidTask */
+  RfidTaskHandle = osThreadNew(StartRfidTask, NULL, &RfidTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -178,6 +189,24 @@ __weak void StartFdCanTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartFdCanTask */
+}
+
+/* USER CODE BEGIN Header_StartRfidTask */
+/**
+* @brief Function implementing the RfidTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartRfidTask */
+__weak void StartRfidTask(void *argument)
+{
+  /* USER CODE BEGIN StartRfidTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartRfidTask */
 }
 
 /* Private application code --------------------------------------------------*/

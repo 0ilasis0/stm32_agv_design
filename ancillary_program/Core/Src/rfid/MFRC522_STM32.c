@@ -21,6 +21,9 @@ static const uint8_t MFRC522_firmware_referenceVx_B2[64] = {
     0x1E, 0xA9, 0x6D, 0xDA, 0xD4, 0xFD, 0xFE, 0xEB,
     0x6D, 0x85, 0x9C, 0xE6, 0x99, 0xF7, 0x1D, 0xD9
 };
+const RC522MIFARE_Key defaultKey = {
+	.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+};
 uint8_t rc522_version = 0;
 // Custom code End
 
@@ -604,15 +607,12 @@ StatusCode RC522_PICC_REQA_or_WUPA(
 	uint8_t *bufferATQA,	///< The buffer to store the ATQA (Answer to request) in
 	uint8_t *bufferSize		///< Buffer size, at least two bytes. Also number of bytes returned if STATUS_OK.
 ) {
-	uint8_t validBits;
-	StatusCode status;
-	
 	if (bufferATQA == NULL || *bufferSize < 2) {	// The ATQA response is 2 bytes long.
 		return STATUS_Code_NO_ROOM;
 	}
 	RC522_PCD_ClearRegisterBitMask(rc522_const, PCD_Reg_CollReg, 0x80);		// ValuesAfterColl=1 => Bits received after collision are cleared.
-	validBits = 7;									// For REQA and WUPA we need the short frame format - transmit only 7 bits of the last (and only) byte. TxLastBits = BitFramingReg[2..0]
-	status = RC522_PCD_TransceiveData(rc522_const, &command, 1, bufferATQA, bufferSize, &validBits, 0, false);
+	uint8_t validBits = 7;									// For REQA and WUPA we need the short frame format - transmit only 7 bits of the last (and only) byte. TxLastBits = BitFramingReg[2..0]
+	StatusCode status = RC522_PCD_TransceiveData(rc522_const, &command, 1, bufferATQA, bufferSize, &validBits, 0, false);
 	if (status != STATUS_Code_OK) {
 		return status;
 	}

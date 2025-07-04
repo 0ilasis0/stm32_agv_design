@@ -21,19 +21,6 @@
 #include "main/config.h"
 // Custom code End
 
-// Custon add
-typedef struct RC522Const
-{
-    SPI_HandleTypeDef* hspi;
-    GPIO_TypeDef* SDA_GPIOx;
-    uint16_t      SDA_GPIO_PIN_x;
-    GPIO_TypeDef* IRQ_GPIOx;
-    uint16_t      IRQ_GPIO_PIN_x;
-    GPIO_TypeDef* RST_GPIOx;
-    uint16_t      RST_GPIO_PIN_x;
-} RC522Const;
-// end
-
 #define MFRC522_SPICLOCK (4000000u)	// MFRC522 accept upto 10MHz, set to 4MHz.
 
 // Size of the MFRC522 FIFO
@@ -214,6 +201,22 @@ typedef struct RC522MIFARE_Key {
 
 // Member variables
 extern RC522Uid rc522_uid;			// Used by RC522_PICC_ReadCardSerial().
+
+// Custom code Start
+#include "spi.h"
+#include "main/config.h"
+typedef struct RC522Const
+{
+    SPI_HandleTypeDef* hspi;
+    GPIO_TypeDef* SDA_GPIOx;
+    uint16_t      SDA_GPIO_PIN_x;
+    GPIO_TypeDef* IRQ_GPIOx;
+    uint16_t      IRQ_GPIO_PIN_x;
+    GPIO_TypeDef* RST_GPIOx;
+    uint16_t      RST_GPIO_PIN_x;
+} RC522Const;
+extern const RC522MIFARE_Key defaultKey;
+// Custom code End
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Basic interface functions for communicating with the MFRC522

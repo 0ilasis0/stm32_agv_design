@@ -7,5 +7,3 @@
 
 extern const RC522Const rfid_const;
 
-void rc522_setup(void);
-void rc522_main(void);
