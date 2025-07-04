@@ -68,7 +68,7 @@
 #define UART_START_CODE         ((uint8_t) '>')
 #define UART_END_CODE           ((uint8_t) '\n')
 
-// #define ENABLE_CON_PKT_TEST
+#define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM
