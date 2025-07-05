@@ -25,10 +25,13 @@ typedef struct MotorConst
 typedef struct MotorParameter
 {
     const MotorConst* const_h;
+    // RPS setpoint
     Percentage rps_sepoint;
+    // real RPS setpoint (control by system)
     Percentage rps_setpoint_inner;
     uint16_t step_count;
     float rps_present;
+    // direction setpoint
     ROTATE_STATUS direction_setpoint;
     ROTATE_STATUS direction_present;
     Percentage duty;
