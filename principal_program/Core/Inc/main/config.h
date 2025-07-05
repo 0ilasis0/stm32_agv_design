@@ -33,7 +33,8 @@
 #define TIM4_ARR                65535       // MAX 65535
 #define TIM4_CH1_CCR            10          // 10us
 
-#define MOTOR_HTIM              &htim2
+#define MOTOR_HTIM1             &htim2
+#define MOTOR_HTIM2             &htim3
 #define MOTOR_MAX_SPEED         100
 #define MOTOR_PI_KP             0.25f    // 比例增益
 #define MOTOR_PI_KI             0.001f  // 積分增益
@@ -75,6 +76,8 @@
 // #define DISABLE_UART_RECV
 
 // ! SYSTEM config END ------------------------------
+
+typedef uint8_t Percentage;
 
 typedef int8_t FncState;
 #define FNC_CANCEL  -1

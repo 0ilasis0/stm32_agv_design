@@ -17,17 +17,17 @@ GlobalState global_state = {
 
 void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == MOTOR_HTIM)
+    if (htim == MOTOR_HTIM1) // 100us
     {
         if (motor_tim_tick % 10 == 0)
         {
             adc_renew();
         }
-        if (motor_tim_tick % 1000 == 0)
+        if (motor_tim_tick % 1000 == 0) // 1ms
         {
             motor_tim_tick = 0;
-            motor_speed_calculate(&motor_right, 0.1f);
-            motor_speed_calculate(&motor_left, 0.1f);
+            motor_rps_calculate(&motor_right, 0.1f);
+            motor_rps_calculate(&motor_left, 0.1f);
         }
         motor_tim_tick++;
     }
@@ -81,8 +81,8 @@ void StartDefaultTask(void *argument)
     /*測試用--------------------------------------*/
     // motor_set_duty(&motor_right, 80);
     // motor_set_duty(&motor_left,  80);
-    motor_set_speed_setpoint(&motor_left, 50);
-    motor_set_speed_setpoint(&motor_right, 50);
+    motor_set_speed(&motor_left, 50);
+    motor_set_speed(&motor_right, 50);
 
     // init_map_data_direction_and_address(&map_data, 11, 7);
     /*測試用--------------------------------------*/

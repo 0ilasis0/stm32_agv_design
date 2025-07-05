@@ -26,8 +26,8 @@ static const MotorConst motor_left_const = {
 };
 MotorParameter motor_left = {
     .const_h            = &motor_left_const,
-    .rotate_direction   = rotate_c_clockwise,
-    .current_step        = 7,
+    .direction_setpoint = rotate_c_clockwise,
+    .current_step       = -1,
 };
 
 static const MotorConst motor_right_const = {
@@ -41,38 +41,9 @@ static const MotorConst motor_right_const = {
 };
 MotorParameter motor_right = {
     .const_h            = &motor_right_const,
-    .rotate_direction   = rotate_clockwise,
-    .current_step        = 7,
+    .direction_setpoint = rotate_clockwise,
+    .current_step       = -1,
 };
-
-/**
-  * 啟動指定馬達之 PWM 定時器
-  *
-  * Start PWM timers for specified motor channels
-  */
-static void tim_setup(const MotorParameter *motor)
-{
-    const MotorConst* const_h = motor->const_h;
-    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
-    HAL_TIM_Base_Start_IT(const_h->htimx[0]);
-    // HAL_TIM_Base_Start_IT(const_h->htimx[1]);
-    // HAL_TIM_Base_Start_IT(const_h->htimx[2]);
-}
-
-/**
-  * 設定並初始化左右馬達參數
-  *
-  * Motor Initialization for both motors
-  */
-static void setup(void)
-{
-    tim_setup(&motor_right);
-    tim_setup(&motor_left);
-    motor_step_update(&motor_right);
-    motor_step_update(&motor_left);
-}
 
 /**
   * 執行馬達換相控制
@@ -87,7 +58,7 @@ static void step_commutate(const MotorParameter *motor)
     {
         if (SEQUENCE[current_step][i] == 1)
         {
-            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty_pcn);
+            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty);
             HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
         else if (SEQUENCE[current_step][i] == -1)
@@ -115,7 +86,7 @@ void motor_step_update(MotorParameter *motor)
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
-    if (motor->rotate_direction == rotate_c_clockwise)
+    if (motor->direction_present == rotate_c_clockwise)
     {
         switch(hallState)
         {
@@ -125,9 +96,10 @@ void motor_step_update(MotorParameter *motor)
             case 5: motor->current_step = 3; break;
             case 4: motor->current_step = 4; break;
             case 6: motor->current_step = 5; break;
+            default: return;
         }
     }
-    else if(motor->rotate_direction == rotate_clockwise)
+    else if(motor->direction_present == rotate_clockwise)
     {
         switch(hallState)
         {
@@ -137,9 +109,9 @@ void motor_step_update(MotorParameter *motor)
             case 2: motor->current_step = 3; break;
             case 3: motor->current_step = 4; break;
             case 1: motor->current_step = 5; break;
+            default: return;
         }
     }
-
     step_commutate(motor);
 }
 
@@ -148,28 +120,22 @@ void motor_step_update(MotorParameter *motor)
   *
   * Calculate actual speed from Hall counts and delta time
   */
-void motor_speed_calculate(MotorParameter *motor, float sec)
+void motor_rps_calculate(MotorParameter *motor, float sec)
 {
-    float real_speed = (float)motor->step_count / (6 * 3);
+    if (sec <= 0) return;
+    motor->rps_present = (float)motor->step_count / (6 * 3) / sec;
     motor->step_count = 0;
-    real_speed /= sec;
-    motor->speed_present = real_speed;
 }
 
-FnState motor_set_duty(MotorParameter *motor, int8_t value)
+FnState motor_set_duty(MotorParameter *motor, uint8_t value)
 {
     // 限制PWM最大值&&最小值
     if (value > 100)
     {
-        motor->duty_pcn = 100;
+        motor->duty = 100;
         return FNS_FAIL;
     }
-    else if (value < 0)
-    {
-        motor->duty_pcn = 0;
-        return FNS_FAIL;
-    }
-    motor->duty_pcn = value;
+    motor->duty = value;
     return FNS_OK;
 }
 
@@ -177,14 +143,14 @@ FnState motor_set_duty(MotorParameter *motor, int8_t value)
   * @brief 設定馬達速度目標值，限制範圍 0~100
   * @retval true：成功，false：超出範圍並已修正
   */
-bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value)
+bool motor_set_speed(MotorParameter* motor, Percentage value)
 {
     if (value > 100)
     {
-        motor->speed_sepoint_pcn = 100;
+        motor->rps_sepoint = 100;
         return false;
     }
-    motor->speed_sepoint_pcn = value;
+    motor->rps_sepoint = value;
     return true;
 }
 
@@ -193,12 +159,7 @@ bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value)
   */
 inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction)
 {
-    motor->rotate_direction = direction;
-}
-
-inline void motor_set_integral_record(MotorParameter *motor, float integral)
-{
-    motor->integral_record = integral;
+    motor->direction_present = direction;
 }
 
 inline void motor_add_step_count(MotorParameter *motor)
@@ -211,50 +172,87 @@ static void PI_control(MotorParameter *motor)
 {
     if (!sys_run_switch.enable_PI) return;
 
-    float setpoint = (float)max_speed * motor->speed_sepoint_pcn / 100;
-
     // 計算誤差
-    float error = setpoint - motor->speed_present;
-    float integral = motor->integral_record + error;
+    float error = 
+          (max_speed * motor->rps_setpoint_inner / 100.0f)
+        - motor->rps_present;
+    // 累積誤差
+    float integral =
+          motor->integral_record
+        + error;
     // 計算 P I 控制輸出
-    float output_pwm_Value = (float)MOTOR_PI_KP * error + MOTOR_PI_KI * integral;
-
-    reset_duty_if_speed_zero(motor);
+    float output_duty =
+          (float)motor->duty
+        + MOTOR_PI_KP * error
+        + MOTOR_PI_KI * integral;
 
     // 避免太大的error
-    if (motor_set_duty(motor, motor->duty_pcn + output_pwm_Value)) return;
-    motor_set_integral_record(motor, integral);
-}
-
-void reset_duty_if_speed_zero(MotorParameter *motor)
-{
-    if (
-        motor->speed_present == 0
-        && motor->speed_sepoint_pcn == 0
+    if (output_duty >= 0.0f)
+    {
+        if (
+               motor->rps_present == 0
+            && motor->rps_sepoint == 0
         ) {
+            output_duty = 0.0f;
+        }
+        motor_set_duty(motor, (uint8_t)output_duty);
+        motor->integral_record = integral;
+    }
+    else
+    {
         motor_set_duty(motor, 0);
     }
 }
 
+/**
+  * 啟動指定馬達之 PWM 定時器
+  *
+  * Start PWM timers for specified motor channels
+  */
+static inline void pwm_setup(const MotorParameter *motor)
+{
+    const MotorConst* const_h = motor->const_h;
+    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
+}
+
+static void speed_direc_update(MotorParameter *motor)
+{
+    if (motor->direction_setpoint != motor->direction_present)
+    {
+        motor->rps_setpoint_inner = 0;
+        if (motor->rps_present == 0)
+        {
+            motor->direction_setpoint = motor->direction_present;
+            motor->rps_setpoint_inner = motor->rps_sepoint;
+        }
+    }
+    else
+    {
+        motor->rps_setpoint_inner = motor->rps_sepoint;
+    }
+    PI_control(motor);
+    if (motor->rps_present == 0) motor_step_update(motor);
+}
+
 void StartMotorTask(void *argument)
 {
-    setup();
+    HAL_TIM_Base_Start_IT(MOTOR_HTIM1);
+    HAL_TIM_Base_Start_IT(MOTOR_HTIM2);
+    pwm_setup(&motor_right);
+    pwm_setup(&motor_left);
     uint16_t tick = 0;
     for(;;)
     {
-        if (tick % 10 == 0)
-        {
-            if (motor_right.speed_present == 0) motor_step_update(&motor_right);
-            if (motor_left.speed_present == 0) motor_step_update(&motor_left);
-            // us_sensor_enable(&us_sensor_head);
-        }
-        if (tick % 500 == 0)
+        speed_direc_update(&motor_right);
+        speed_direc_update(&motor_left);
+        // us_sensor_enable(&us_sensor_head);
+        if (tick % 100 == 0)
         {
             tick = 0;
-            PI_control(&motor_right);
-            PI_control(&motor_left);
         }
-        osDelay(1);
+        osDelay(10);
         tick++;
     }
 }

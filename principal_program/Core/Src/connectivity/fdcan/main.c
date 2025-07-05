@@ -203,17 +203,17 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     {
                         case CMD_B2_STOP:
                             value = 0;
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_FOWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_BACKWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         default:
                             last_error = FNS_NO_MATCH;
@@ -232,17 +232,17 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     {
                         case CMD_B2_STOP:
                             value = 0;
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_FOWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_BACKWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         default:
                             last_error = FNS_NO_MATCH;

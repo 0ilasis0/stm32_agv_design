@@ -31,8 +31,8 @@ void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value
             break;
     }
 
-    motor_set_speed_setpoint(&motor_right, sepoint_value);
-    motor_set_speed_setpoint(&motor_left , sepoint_value);
+    motor_set_speed(&motor_right, sepoint_value);
+    motor_set_speed(&motor_left , sepoint_value);
 }
 
 /**
@@ -58,11 +58,12 @@ void vehicle2_ensure_motor_stop(void) {
 
     agv_state.vehicle_currnet_mode = motion_stop;
 
-    motor_right.speed_sepoint_pcn = 0;
-    motor_left.speed_sepoint_pcn  = 0;
+    // Todo ?
+    // motor_right.rps_sepoint = 0;
+    // motor_left.rps_sepoint  = 0;
 
     uint32_t error_start = HAL_GetTick();
-    while(motor_right.speed_present != 0 || motor_left.speed_present != 0)
+    while(motor_right.rps_present != 0 || motor_left.rps_present != 0)
     {
         timeout_error(error_start, &error_state.vehicle2_ensure_motor_stop);
     }

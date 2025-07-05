@@ -155,19 +155,19 @@ static void track_mode(void)
            adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
         && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
         ) {
-        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed_setpoint(&motor_right, 0);
+        motor_set_speed(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_speed(&motor_right, 0);
 
     } else if (
            adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
         && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
         ) {
-        motor_set_speed_setpoint(&motor_left, 0);
-        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
+        motor_set_speed(&motor_left, 0);
+        motor_set_speed(&motor_right, VEHICLE_setpoint_straight);
 
     } else {
-        motor_set_speed_setpoint(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed_setpoint(&motor_right, VEHICLE_setpoint_straight);
+        motor_set_speed(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_speed(&motor_right, VEHICLE_setpoint_straight);
 
     }
 }
@@ -248,8 +248,8 @@ void vehicle_test_no_load_speed(uint16_t mile_sec)
     while (
         HAL_GetTick() - past_time < mile_sec || max_speed <= 10
     ) {
-        if (max_speed < motor_right.speed_present) {
-                max_speed = motor_right.speed_present;
+        if (max_speed < motor_right.rps_present) {
+                max_speed = motor_right.rps_present;
                 past_time = HAL_GetTick();
         }
 

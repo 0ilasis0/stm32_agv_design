@@ -25,12 +25,14 @@ typedef struct MotorConst
 typedef struct MotorParameter
 {
     const MotorConst* const_h;
-    uint8_t speed_sepoint_pcn;
-    uint8_t duty_pcn;
-    ROTATE_STATUS rotate_direction;
-    float integral_record;
+    Percentage rps_sepoint;
+    Percentage rps_setpoint_inner;
     uint16_t step_count;
-    uint16_t speed_present;
+    float rps_present;
+    ROTATE_STATUS direction_setpoint;
+    ROTATE_STATUS direction_present;
+    Percentage duty;
+    float integral_record;
     uint8_t current_step;
 } MotorParameter;
 
@@ -38,10 +40,8 @@ extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
 void motor_step_update(MotorParameter *motor);
-void motor_speed_calculate(MotorParameter *motor, float sec);
-FnState motor_set_duty(MotorParameter *motor, int8_t value);
-bool motor_set_speed_setpoint(MotorParameter* motor, uint8_t value);
+void motor_rps_calculate(MotorParameter *motor, float sec);
+FnState motor_set_duty(MotorParameter *motor, uint8_t value);
+bool motor_set_speed(MotorParameter* motor, Percentage value);
 void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction);
-void motor_set_integral_record(MotorParameter *motor, float integral);
 void motor_add_step_count(MotorParameter *motor);
-void reset_duty_if_speed_zero(MotorParameter *motor);
