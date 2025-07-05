@@ -45,11 +45,7 @@ extern AgvState agv_state;
 extern LOCATION locations_t[max_node];
 
 void map_setup(void);
-void init_map(void);
-AgvState init_agv_state_data (void);
+static AgvState init_agv_state_data (void);
 void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
-MAP_DATA init_map_data (void);
-void floyd_warshall(void);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);
-AGV_STATUS decide_vehicle_status(uint8_t count);

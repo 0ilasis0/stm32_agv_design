@@ -173,7 +173,7 @@ static void PI_control(MotorParameter *motor)
     if (!sys_run_switch.enable_PI) return;
 
     // 計算誤差
-    float error = 
+    float error =
           (max_speed * motor->rps_setpoint_inner / 100.0f)
         - motor->rps_present;
     // 累積誤差
@@ -233,7 +233,7 @@ static void speed_direc_update(MotorParameter *motor)
         motor->rps_setpoint_inner = motor->rps_sepoint;
     }
     PI_control(motor);
-    if (motor->rps_present == 0) motor_step_update(motor);
+    if (motor->rps_present == 0) motor_step_update(motor);     //motor_step_update？？
 }
 
 void StartMotorTask(void *argument)

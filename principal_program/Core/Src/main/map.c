@@ -1,8 +1,8 @@
 #include "main/map.h"
 
-int graph[max_node][max_node];
-int path[max_node][max_node];
-uint8_t final_node_count = 0;
+static int graph[max_node][max_node];
+static int path[max_node][max_node];
+static uint8_t final_node_count = 0;
 
 MAP_DATA map_data;
 AgvState agv_state;
@@ -19,29 +19,17 @@ LOCATION locations_t[max_node] = {
 
 
 
-void map_setup(void)
- {
-
-    init_map();
-
-    map_data = init_map_data();
-    floyd_warshall();
-
-    int text_from = get_index_by_id(5);
-    int text_to = get_index_by_id(14);
-    build_current_map_data(text_from, text_to);
-
-    agv_state = init_agv_state_data();
-
-    for (int i = 0; i <= final_node_count; i++) {
-        map_data.status[i] = decide_vehicle_status(i);
-
-    }
-
+static AgvState init_agv_state_data (void)
+{
+    AgvState agv_state_new;
+    agv_state_new.address_id = map_data.address_id[0];
+    agv_state_new.direction = map_data.direction[0];
+    agv_state_new.vehicle_currnet_mode = map_data.status[0];
+    return agv_state_new;
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
-void init_map(void)
+static void init_map(void)
  {
     for (int i = 0; i < max_node; i++) {
         for (int j = 0; j < max_node; j++) {
@@ -74,7 +62,7 @@ void init_map(void)
     }
 }
 
-MAP_DATA init_map_data (void)
+static MAP_DATA init_map_data (void)
 {
     MAP_DATA map_new;
 
@@ -90,23 +78,8 @@ MAP_DATA init_map_data (void)
     return map_new;
 }
 
-AgvState init_agv_state_data (void)
-{
-    AgvState agv_state_new;
-    agv_state_new.address_id = map_data.address_id[0];
-    agv_state_new.direction = map_data.direction[0];
-    agv_state_new.vehicle_currnet_mode = map_data.status[0];
-    return agv_state_new;
-}
-
-void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
-{
-    map_new->start_direction = init_direction;
-    map_new->start_address_id = init_address_id;
-}
-
 // Floyd-Warshall 演算法計算所有節點對間最短路徑
-void floyd_warshall(void)
+static void floyd_warshall(void)
  {
     for (int k = 0; k < max_node; k++) {
         for (int i = 0; i < max_node; i++) {
@@ -117,6 +90,28 @@ void floyd_warshall(void)
                 }
             }
         }
+    }
+}
+
+/*
+ * 決定agv當前狀態
+ */
+static AGV_STATUS decide_vehicle_status(uint8_t count)
+ {
+    if (count == 0 && map_data.direction[count] == no_data) return agv_end;
+    if (count == 0) return agv_straight;
+
+    if (map_data.direction[count] == map_data.direction[count - 1])
+    {
+        return agv_straight;
+    }
+    else if (map_data.direction[count] == no_data)
+    {
+        return agv_end;
+    }
+    else
+    {
+        return agv_rotate;
     }
 }
 
@@ -160,22 +155,27 @@ int get_index_by_id(int id)
     return -1;
 }
 
-/*
- * 決定agv當前狀態
- */
-AGV_STATUS decide_vehicle_status(uint8_t count)
+void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction)
+{
+    map_new->start_direction = init_direction;
+    map_new->start_address_id = init_address_id;
+}
+
+void map_setup(void)
  {
-    if (count == 0 && map_data.direction[count] == no_data) return agv_end;
-    if (count == 0) return agv_straight;
+    init_map();
 
-    if (map_data.direction[count] == map_data.direction[count - 1]) {
-        return agv_straight;
+    map_data = init_map_data();
+    floyd_warshall();
 
-    } else if (map_data.direction[count] == no_data){
-        return agv_end;
+    int text_from = get_index_by_id(5);
+    int text_to = get_index_by_id(14);
+    build_current_map_data(text_from, text_to);
 
-    } else {
-        return agv_rotate;
+    agv_state = init_agv_state_data();
 
+    for (int i = 0; i <= final_node_count; i++)
+    {
+        map_data.status[i] = decide_vehicle_status(i);
     }
 }
