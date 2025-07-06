@@ -51,6 +51,11 @@ static const int8_t SEQUENCE[6][3] = {
  */
 static const uint8_t hall_index[] = {-1, 5, 3, 4, 1, 0, 2, -1};
 
+#define GET_HALL_STATE()                                                                        \
+      (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)  \
+    | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)  \
+    | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[2], motor->const_h.Hall_GPIO_Pin_x[2])     )
+
 static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
     const MotorConst* const_h = &motor->const_h;
@@ -83,7 +88,6 @@ static void step_commutate(const MotorParameter *motor, uint8_t step)
 
 void motor_step_update(MotorParameter *motor)
 {
-    const MotorConst* const_h = &motor->const_h;
     // 鎖停
     // if (
     //        (motor->rps_inner == 0)
@@ -93,52 +97,28 @@ void motor_step_update(MotorParameter *motor)
     //     step_commutate(motor);
     //     return;
     // }
-    uint8_t hall_state =
-          (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2)
-        | (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1)
-        | (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
-    uint8_t old = hall_index[motor->hall_state];
-    uint8_t new = hall_index[hall_state];
-    uint8_t diff = (old + 6 - new) % 6;
-    switch (diff)
-    {
-        case 5:
-        {
-            motor->direction_present = MOTOR_ROTATE_CLW;
-            break;
-        }
-        case 0:
-        {
-            motor->direction_present = MOTOR_ROTATE_STOP;
-            break;
-        }
-        case 1:
-        {
-            motor->direction_present = MOTOR_ROTATE_CCLW;
-            break;
-        }
-        default: break;
-    }
-    motor->hall_state = hall_state;
+    motor->hall_state_last = motor->hall_state_present;
+    motor->hall_state_present = GET_HALL_STATE();
     uint8_t step_next;
     switch (motor->direction_inner)
     {
         case MOTOR_ROTATE_CLW:
         {
-            step_next = new;
+            step_next = hall_index[motor->hall_state_present];
             break;
         }
         case MOTOR_ROTATE_CCLW:
         {
-            step_next = (new + 3) % 6;
+            step_next = (hall_index[motor->hall_state_present] + 3) % 6;
             break;
         }
         default:
         {
-            step_next = old;
+            step_next = hall_index[motor->hall_state_last];
             break;
         }
     }
+    if (step_next == -1) return;
     // switch (motor->direction_inner)
     // {
     //     case MOTOR_ROTATE_CLW:
@@ -220,11 +200,31 @@ void PI_control(MotorParameter *motor, float ms)
     }
 }
 
-void motor_rps_calculate(MotorParameter *motor, float ms)
+void motor_state_update(MotorParameter *motor, float ms)
 {
     if (ms <= 0) return;
     motor->rps_present = (float)motor->step_count * 1000.0f / ((6 * 3) * ms);
     motor->step_count = 0;
+    uint8_t diff = (hall_index[motor->hall_state_last] + 6 - hall_index[motor->hall_state_present]) % 6;
+    switch (diff)
+    {
+        case 5:
+        {
+            motor->direction_present = MOTOR_ROTATE_CLW;
+            break;
+        }
+        case 0:
+        {
+            motor->direction_present = MOTOR_ROTATE_STOP;
+            break;
+        }
+        case 1:
+        {
+            motor->direction_present = MOTOR_ROTATE_CCLW;
+            break;
+        }
+        default: return;
+    }
 }
 
 bool motor_set_speed(MotorParameter* motor, Percentage value)

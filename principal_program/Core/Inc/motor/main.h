@@ -42,7 +42,8 @@ typedef struct MotorParameter
     RotateState direction_inner;
     RotateState direction_present;
 
-    uint8_t hall_state;
+    uint8_t hall_state_last;
+    uint8_t hall_state_present;
     uint16_t step_count;
 
     MotorState stop;
@@ -55,7 +56,7 @@ extern MotorParameter motor_left;
 void motor_step_update(MotorParameter *motor);
 void motor_set_duty(MotorParameter *motor, uint8_t value);
 void PI_control(MotorParameter *motor, float ms);
-void motor_rps_calculate(MotorParameter *motor, float ms);
+void motor_state_update(MotorParameter *motor, float ms);
 void motor_set_stop(MotorParameter *motor, bool stop);
 bool motor_set_speed(MotorParameter* motor, Percentage value);
 void motor_set_direction(MotorParameter *motor, RotateState direction);

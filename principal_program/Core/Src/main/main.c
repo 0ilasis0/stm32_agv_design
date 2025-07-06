@@ -26,8 +26,8 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (motor_tim_tick % 1000 == 0) // 100ms
         {
             motor_tim_tick = 0;
-            motor_rps_calculate(&motor_left, 100.0f);
-            motor_rps_calculate(&motor_right, 100.0f);
+            motor_state_update(&motor_left, 100.0f);
+            motor_state_update(&motor_right, 100.0f);
             PI_control(&motor_left, 100.0f);
             PI_control(&motor_right, 100.0f);
         }
