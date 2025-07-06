@@ -15,39 +15,37 @@ static const int8_t SEQUENCE[6][3] = {
   { 0, -1,  1}
 };
 
-static const MotorConst motor_left_const = {
-    .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
-    .Hall_GPIO_Pin_x    = { GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_15},
-    //                      PA0(L28)       PA1(L30)       PA4(L32)
-    .htimx              = { &htim2,        &htim2,        &htim3        },
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_2 },
-    .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
-    .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
-};
 MotorParameter motor_left = {
-    .const_h            = &motor_left_const,
+    .const_h = {
+        .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
+        .Hall_GPIO_Pin_x    = { GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_15},
+        //                      PA0(L28)       PA1(L30)       PA4(L32)
+        .htimx              = { &htim2,        &htim2,        &htim3        },
+        .TIM_CHANNEL_x      = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_2 },
+        .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
+        .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
+    },
     .direction_setpoint = rotate_c_clockwise,
     .current_step       = -1,
 };
 
-static const MotorConst motor_right_const = {
-    .Hall_GPIOx         = { GPIOA,      GPIOB,      GPIOB      },
-    .Hall_GPIO_Pin_x    = { GPIO_PIN_8, GPIO_PIN_4, GPIO_PIN_5 },
-    //                      PC8(R02)       PA6(R13)       PB10(R25)
-    .htimx              = { &htim3,        &htim3,        &htim2        },
-    .TIM_CHANNEL_x      = { TIM_CHANNEL_3, TIM_CHANNEL_1, TIM_CHANNEL_3 },
-    .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
-    .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
-};
 MotorParameter motor_right = {
-    .const_h            = &motor_right_const,
+    .const_h = {
+        .Hall_GPIOx         = { GPIOA,      GPIOB,      GPIOB      },
+        .Hall_GPIO_Pin_x    = { GPIO_PIN_8, GPIO_PIN_4, GPIO_PIN_5 },
+        //                      PC8(R02)       PA6(R13)       PB10(R25)
+        .htimx              = { &htim3,        &htim3,        &htim2        },
+        .TIM_CHANNEL_x      = { TIM_CHANNEL_3, TIM_CHANNEL_1, TIM_CHANNEL_3 },
+        .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
+        .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
+    },
     .direction_setpoint = rotate_clockwise,
     .current_step       = -1,
 };
 
 static void step_commutate(const MotorParameter *motor)
 {
-    const MotorConst* const_h = motor->const_h;
+    const MotorConst* const_h = &motor->const_h;
     const uint8_t current_step = motor->current_step;
     for (int i = 0; i < 3; i++)
     {
@@ -71,7 +69,7 @@ static void step_commutate(const MotorParameter *motor)
 
 void motor_step_update(MotorParameter *motor)
 {
-    const MotorConst* const_h = motor->const_h;
+    const MotorConst* const_h = &motor->const_h;
     uint8_t hallState =
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1) |
@@ -147,7 +145,7 @@ inline void motor_add_step_count(MotorParameter *motor)
 
 static inline void pwm_setup(const MotorParameter *motor)
 {
-    const MotorConst* const_h = motor->const_h;
+    const MotorConst* const_h = &motor->const_h;
     HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);

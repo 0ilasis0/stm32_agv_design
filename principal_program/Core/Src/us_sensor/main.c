@@ -1,15 +1,13 @@
 #include "us_sensor/main.h"
 #include "tim.h"
 
-static const USSConst us_sensor_head_const = {
-    .trig_GPIOx = GPIOC,
-    .trig_GPIO_Pin_x = GPIO_PIN_5,
-    .echo_GPIOx = GPIOC,
-    .echo_GPIO_Pin_x = GPIO_PIN_6,
-};
-
 USSensor us_sensor_head = {
-    .const_h = &us_sensor_head_const,
+    .const_h = {
+        .trig_GPIOx = GPIOC,
+        .trig_GPIO_Pin_x = GPIO_PIN_5,
+        .echo_GPIOx = GPIOC,
+        .echo_GPIO_Pin_x = GPIO_PIN_6,
+    },
     .state = USSS_STOP,
 };
 
@@ -24,8 +22,7 @@ static FnState uss_start_inner(USSensor* us_sensor)
 {
     if (us_sensor->state != USSS_WAITING) return FNS_INVALID;
     us_sensor->state = USSS_TRIGGER;
-    const USSConst* const_h = us_sensor->const_h;
-    HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_SET);
     return FNS_OK;
 }
 
@@ -33,8 +30,7 @@ static FnState uss_tri_off_inner(USSensor* us_sensor)
 {
     if (us_sensor->state != USSS_TRIGGER) return FNS_INVALID;
     us_sensor->state = USSS_RUNNING;
-    const USSConst* const_h = us_sensor->const_h;
-    HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
     return FNS_OK;
 }
 
@@ -42,8 +38,7 @@ static FnState uss_overflow_inner(USSensor* us_sensor)
 {
     if (us_sensor->state != USSS_RUNNING) return FNS_INVALID;
     us_sensor->state = USSS_STOP;
-    const USSConst* const_h = us_sensor->const_h;
-    HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
     us_sensor->time = 0xFFFF;
     us_sensor->distance = -1;
     return FNS_OK;
@@ -68,8 +63,7 @@ FnState us_sensor_stop(USSensor* us_sensor)
 {
     if (us_sensor->state != USSS_RUNNING) return FNS_INVALID;
     us_sensor->state = USSS_STOP;
-    const USSConst* const_h = us_sensor->const_h;
-    HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
     us_sensor->time = __HAL_TIM_GET_COUNTER(US_SENSOR_HTIM);
     us_sensor->distance = (float)us_sensor->time * 0.0343f / 2.0f;
     return FNS_OK;

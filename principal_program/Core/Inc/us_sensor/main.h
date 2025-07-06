@@ -19,7 +19,7 @@ typedef uint8_t USSState;
 
 typedef struct USSensor
 {
-    const USSConst* const_h;
+    const USSConst const_h;
     uint8_t state;
     uint16_t time;
     float distance;

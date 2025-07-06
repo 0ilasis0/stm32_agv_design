@@ -49,17 +49,17 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
-           (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_right.const_h->Hall_GPIO_Pin_x[2])
+           (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2])
     ) {
         motor_add_step_count(&motor_right);
         motor_step_update(&motor_right);
     }
     else if (
-           (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_left.const_h->Hall_GPIO_Pin_x[2])
+           (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2])
     ) {
         motor_add_step_count(&motor_left);
         motor_step_update(&motor_left);

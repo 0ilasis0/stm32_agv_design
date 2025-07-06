@@ -24,7 +24,7 @@ typedef struct MotorConst
 
 typedef struct MotorParameter
 {
-    const MotorConst* const_h;
+    const MotorConst const_h;
     // RPS setpoint
     Percentage rps_sepoint;
     // real RPS setpoint (control by system)
