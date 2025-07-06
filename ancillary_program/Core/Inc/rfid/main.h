@@ -16,5 +16,18 @@ typedef struct RC522State
     uint16_t secter1k_open;
 } RC522State;
 
-extern uint8_t data_store[];
-extern uint8_t date_write;
+typedef struct RfidTrcvBuf
+{
+    uint8_t sector;
+    uint8_t block;
+    uint8_t data[18];
+    uint16_t flags;
+    uint8_t send;
+    RC522MIFARE_Key key;
+} RfidTrcvBuf;
+
+extern RfidTrcvBuf rfid_trsm_buf;
+extern RfidTrcvBuf rfid_recv_buf;
+
+FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t block, uint8_t send);
+FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len);

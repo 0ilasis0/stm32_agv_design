@@ -418,43 +418,30 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
             {
                 case CMD_RFID_B1_SELECT:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
-                    return vec_byte_get_byte(vec_byte, 2, &date_write);
-                }
-                case CMD_RFID_B1_INP_DATA:
-                {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    uint8_t data[4];
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &data[0]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &data[1]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 5, &data[2]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 6, &data[3]));
+                    uint8_t secter, block;
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &secter));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &block));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &code));
                     switch (code)
                     {
-                        case 0x00:
+                        case CMD_RFID_B4_ONLY_SET:
                         {
-                            memcpy(data_store, data, 4);
-                            return FNS_OK;
+                            return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 0);
                         }
-                        case 0x01:
+                        case CMD_RFID_B4_SEND:
                         {
-                            memcpy(data_store + 4, data, 4);
-                            return FNS_OK;
-                        }
-                        case 0x02:
-                        {
-                            memcpy(data_store + 8, data, 4);
-                            return FNS_OK;
-                        }
-                        case 0x03:
-                        {
-                            memcpy(data_store + 12, data, 4);
-                            return FNS_OK;
+                            return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 1);
                         }
                         default: break;
                     }
                     break;
+                }
+                case CMD_RFID_B1_INP_DATA:
+                {
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 3));
+                    if (vec_byte->len < 4) return FNS_NO_MATCH;
+                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, vec_byte->data + vec_byte->head, 4);
                 }
                 default: break;
             }

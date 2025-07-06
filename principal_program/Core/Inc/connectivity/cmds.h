@@ -76,4 +76,3 @@
 #define CMD_B0_TEST             (uint8_t)0xFF
 
 #define CMD_B1_TEST0            (uint8_t)0x00
-

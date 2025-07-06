@@ -12,30 +12,75 @@ RC522State spi2_rfid = {
     },
 };
 
-uint8_t data_store[16] = {0};
-uint8_t date_write = 0;
+RfidTrcvBuf rfid_trsm_buf = {0};
+RfidTrcvBuf rfid_recv_buf = {0};
 
 RC522Status status;
 
-uint8_t dataBuf0[18];
-uint8_t dataBuf1[18];
+FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t block, uint8_t send)
+{
+    if (
+           sector >= 16
+        || block >= 3
+        || send > 2
+    ) return FNS_NO_MATCH;
+    trcv_buf->sector = sector;
+    trcv_buf->block = block;
+    trcv_buf->send = send;
+    return FNS_OK;
+}
 
-uint8_t tttt = 0;
+FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len)
+{
+    if (id + len > 16) return FNS_BUF_OVERFLOW;
+    memcpy(&trcv_buf->data[id], data, len);
+    uint8_t i;
+    for(i = 0; i < len; i++)
+    {
+        trcv_buf->flags |= ((uint16_t)1 << (id + i));
+    }
+    return FNS_OK;
+}
+
+static FnState secter_open(RC522State* state, RfidTrcvBuf* trcv_buf)
+{
+    if ((state->secter1k_open & SECTOR_MASK(trcv_buf->sector)) == 0)
+    {
+        if (RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector * 4, &trcv_buf->key, &state->uid) != STATUS_Code_OK) 
+            return FNS_FAIL;
+        state->secter1k_open |= SECTOR_MASK(trcv_buf->sector);
+    }
+    return FNS_OK;
+}
+
+static UNUSED_FNC FnState buf_write(RC522State* state, RfidTrcvBuf* trcv_buf)
+{
+    if (trcv_buf->send == 0) return FNS_INVALID;
+    ERROR_CHECK_FNS_RETURN(secter_open(state, trcv_buf));
+    if (RC522_MIFARE_Write(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, 16) != STATUS_Code_OK)
+        return FNS_FAIL;
+    trcv_buf->send = 0;
+    trcv_buf->flags = 0;
+    return FNS_OK;
+}
+
+static UNUSED_FNC FnState buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
+{
+    ERROR_CHECK_FNS_RETURN(secter_open(state, trcv_buf));
+    uint8_t size = 18;
+    memset(trcv_buf->data, 0, size);
+    if (RC522_MIFARE_Read(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, &size) != STATUS_Code_OK)
+        return FNS_FAIL;
+    return FNS_OK;
+}
 
 static UNUSED_FNC void rfid_init(void)
 {
     RC522_PCD_Init(&spi2_rfid.const_h);
+    memcpy(&rfid_trsm_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
+    memcpy(&rfid_recv_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     if (RC522_PCD_PerformSelfTest(&spi2_rfid.const_h))
     {
-        tttt = 1;
-    }
-}
-
-void test(RC522State* state)
-{
-    if ((state->secter1k_open & SECTOR_MASK()) != 0)
-    {
-        
     }
 }
 
@@ -55,29 +100,10 @@ void StartRfidTask(void *argument)
         spi2_rfid.secter1k_open = 0;
         memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
 
-        RC522MIFARE_Key key;
-        memcpy(&key, &rc522_default_key, sizeof(RC522MIFARE_Key));
-        uint8_t sector    = 1;              // 扇區號（0~15）
-        uint8_t blockAddr = sector * 4;
-        status = RC522_PCD_Authenticate(&spi2_rfid.const_h, PICC_CMD_MF_AUTH_KEY_A, blockAddr, &key, &rc522_uid);
-        if (status != STATUS_Code_OK)
-        {
-            osDelay(1);
-            continue;
-        }
-        spi2_rfid.secter1k_open |= SECTOR_MASK(sector);
-
-        uint8_t buf_size0 = sizeof(dataBuf0);
-        memset(&dataBuf0, 0, buf_size0);
-        status = RC522_MIFARE_Read(&spi2_rfid.const_h, blockAddr, dataBuf0, &buf_size0);
-        if (date_write)
-        {
-            date_write = 0;
-            status = RC522_MIFARE_Write(&spi2_rfid.const_h, blockAddr, data_store, sizeof(data_store));
-        }
-        uint8_t buf_size1 = sizeof(dataBuf1);
-        memset(&dataBuf1, 0, buf_size1);
-        status = RC522_MIFARE_Read(&spi2_rfid.const_h, blockAddr, dataBuf1, &buf_size1);
+        buf_write(&spi2_rfid, &rfid_trsm_buf);
+        rfid_recv_buf.sector = rfid_trsm_buf.sector;
+        rfid_recv_buf.block = rfid_trsm_buf.block;
+        buf_read(&spi2_rfid, &rfid_recv_buf);
 
         status = RC522_PICC_HaltA(&spi2_rfid.const_h);
         if (status != STATUS_Code_OK)
@@ -90,3 +116,4 @@ void StartRfidTask(void *argument)
         RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
     }
 }
+
