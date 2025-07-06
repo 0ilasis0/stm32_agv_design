@@ -35,29 +35,29 @@ void vehicle_set_motion(MotionCommand mode)
     {
         case motion_forward:
         {
-            motor_set_direction(&motor_left,  rotate_c_clockwise);
-            motor_set_direction(&motor_right, rotate_clockwise);
+            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
+            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
             vehicle_state.motion_present = motion_forward;
             break;
         }
         case motion_backward:
         {
-            motor_set_direction(&motor_left,  rotate_clockwise);
-            motor_set_direction(&motor_right, rotate_c_clockwise);
+            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
+            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
             vehicle_state.motion_present = motion_backward;
             break;
         }
         case motion_clockwise:
         {
-            motor_set_direction(&motor_left,  rotate_c_clockwise);
-            motor_set_direction(&motor_right, rotate_c_clockwise);
+            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
+            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
             vehicle_state.motion_present = motion_clockwise;
             break;
         }
         case motion_c_clockwise:
         {
-            motor_set_direction(&motor_left,  rotate_clockwise);
-            motor_set_direction(&motor_right, rotate_clockwise);
+            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
+            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
             vehicle_state.motion_present = motion_c_clockwise;
             break;
         }

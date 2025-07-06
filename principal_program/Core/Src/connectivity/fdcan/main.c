@@ -204,14 +204,14 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                         case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
-                            motor_set_direction(motor, rotate_clockwise);
+                            motor_set_direction(motor, MOTOR_ROTATE_CLW);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
-                            motor_set_direction(motor, rotate_c_clockwise);
+                            motor_set_direction(motor, MOTOR_ROTATE_CCLW);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
@@ -236,14 +236,14 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                         case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
-                            motor_set_direction(motor, rotate_clockwise);
+                            motor_set_direction(motor, MOTOR_ROTATE_CLW);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
-                            motor_set_direction(motor, rotate_c_clockwise);
+                            motor_set_direction(motor, MOTOR_ROTATE_CCLW);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
