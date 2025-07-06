@@ -131,12 +131,12 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
     switch (code)
     {
-        case CMD_B2_STOP:
+        case CMD_ARM_B2_STOP:
         {
             arm_set_tim(arm, arm->tim_current);
             return FNS_OK;
         }
-        case CMD_B2_SET:
+        case CMD_ARM_B2_SET:
         {
             arm_set_pos(arm, vec_byte->data[vec_byte->head]);
             return FNS_OK;
@@ -154,12 +154,12 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
     switch (code)
     {
         #ifdef PRINCIPAL_PROGRAM
-        case CMD_B0_VECH_CONTROL:
+        case CMD_VECH_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case CMD_B1_VEHICLE:
+                case CMD_VECH_B1_VEHICLE:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -167,19 +167,19 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     MotionCommand mode = motion_unchange;
                     switch (code)
                     {
-                        case CMD_B2_STOP:
+                        case CMD_ARM_B2_STOP:
                         {
                             value = 0;
                             vehicle2_motion_and_speed_control(mode, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_FOWARD:
+                        case CMD_VECH_B2_FOWARD:
                         {
                             mode = motion_forward;
                             vehicle2_motion_and_speed_control(mode, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_BACKWARD:
+                        case CMD_VECH_B2_BACKWARD:
                         {
                             mode = motion_backward;
                             vehicle2_motion_and_speed_control(mode, value);
@@ -189,7 +189,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_B1_LEFT_MOTOR:
+                case CMD_VECH_B1_LEFT_MOTOR:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -197,20 +197,20 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
-                        case CMD_B2_STOP:
+                        case CMD_ARM_B2_STOP:
                         {
                             value = 0;
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_FOWARD:
+                        case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_BACKWARD:
+                        case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
@@ -221,7 +221,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_B1_RIGHT_MOTOR:
+                case CMD_VECH_B1_RIGHT_MOTOR:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -229,20 +229,20 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     MotorParameter* motor = &motor_right;
                     switch (code)
                     {
-                        case CMD_B2_STOP:
+                        case CMD_ARM_B2_STOP:
                         {
                             value = 0;
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_FOWARD:
+                        case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_B2_BACKWARD:
+                        case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
@@ -259,17 +259,17 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
         }
         #endif
         #ifdef ANCILLARY_PROGRAM
-        case CMD_B0_ARM_CONTROL:
+        case CMD_ARM_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case CMD_B1_ARM:
+                case CMD_ARM_B1_ARM:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
-                        case CMD_B2_STOP:
+                        case CMD_ARM_B2_STOP:
                         {
                             arm_set_tim(&arm_bottom, arm_bottom.tim_current);
                             arm_set_tim(&arm_shoulder, arm_shoulder.tim_current);
@@ -283,32 +283,32 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_B1_BOTTOM:
+                case CMD_ARM_B1_BOTTOM:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_bottom))) break;
                     return FNS_OK;
                 }
-                case CMD_B1_SHOULDER:
+                case CMD_ARM_B1_SHOULDER:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_shoulder))) break;
                     return FNS_OK;
                 }
-                case CMD_B1_ELBOW_BTM:
+                case CMD_ARM_B1_ELBOW_BTM:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_btm))) break;
                     return FNS_OK;
                 }
-                case CMD_B1_ELBOW_TOP:
+                case CMD_ARM_B1_ELBOW_TOP:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_top))) break;
                     return FNS_OK;
                 }
-                case CMD_B1_WRIST:
+                case CMD_ARM_B1_WRIST:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_wrist))) break;
                     return FNS_OK;
                 }
-                case CMD_B1_FINGER:
+                case CMD_ARM_B1_FINGER:
                 {
                     if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_finger))) break;
                     return FNS_OK;
@@ -400,31 +400,36 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     switch (code)
     {
-        case CMD_B0_DATA_STOP:
+        case CMD_DATA_B0_STOP:
         {
             fdacn_data_trsm_ready = false;
             return FNS_OK;
         }
-        case CMD_B0_DATA_START:
+        case CMD_DATA_B0_START:
         {
             fdacn_data_trsm_ready = true;
             return FNS_OK;
         }
-        case CMD_B0_TEST:
+        #ifdef ANCILLARY_PROGRAM
+        case CMD_RFID_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case 0x01:
+                case CMD_RFID_B1_SELECT:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    if (code != 0x04) break;
-                    uint8_t data[4];
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &data[0]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 5, &data[1]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 6, &data[2]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 7, &data[3]));
+                    return vec_byte_get_byte(vec_byte, 2, &date_write);
+                }
+                case CMD_RFID_B1_INP_DATA:
+                {
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    uint8_t data[4];
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &data[0]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &data[1]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 5, &data[2]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 6, &data[3]));
                     switch (code)
                     {
                         case 0x00:
@@ -451,14 +456,11 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
                     }
                     break;
                 }
-                case 0x02:
-                {
-                    return vec_byte_get_byte(vec_byte, 2, &date_write);
-                }
                 default: break;
             }
             break;
         }
+        #endif
         default: break;
     }
     return FNS_NO_MATCH;

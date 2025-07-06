@@ -103,10 +103,10 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
         vec_rm_range(&vec_byte, 0, 1);
         switch (code)
         {
-            case CMD_B0_DATA_STOP:
+            case CMD_DATA_B0_STOP:
                 uart_data_trsm_ready = false;
                 break;
-            case CMD_B0_DATA_START:
+            case CMD_DATA_B0_START:
                 uart_data_trsm_ready = true;
                 break;
             default:

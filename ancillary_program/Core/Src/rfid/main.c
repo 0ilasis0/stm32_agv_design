@@ -10,6 +10,10 @@ const RC522Const rfid_const = {
     .RST_GPIO_PIN_x = GPIO_PIN_9,
 };
 
+RC522State spi2_rfid = {
+    .const_h = &rfid_const,
+};
+
 uint8_t data_store[16] = {0};
 uint8_t date_write = 0;
 
