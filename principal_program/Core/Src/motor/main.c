@@ -45,11 +45,6 @@ MotorParameter motor_right = {
     .current_step       = -1,
 };
 
-/**
-  * 執行馬達換相控制
-  *
-  * Execute motor commutation based on current step sequence
-  */
 static void step_commutate(const MotorParameter *motor)
 {
     const MotorConst* const_h = motor->const_h;
@@ -74,11 +69,6 @@ static void step_commutate(const MotorParameter *motor)
     }
 }
 
-/**
-  * 更新馬達轉速步數並依據霍爾感測器讀值決定下一換相步驟
-  *
-  * Update motor step count and determine next step from Hall sensor readings
-  */
 void motor_step_update(MotorParameter *motor)
 {
     const MotorConst* const_h = motor->const_h;
@@ -115,11 +105,6 @@ void motor_step_update(MotorParameter *motor)
     step_commutate(motor);
 }
 
-/**
-  * 基於霍爾感測與時間計算即時速度
-  *
-  * Calculate actual speed from Hall counts and delta time
-  */
 void motor_rps_calculate(MotorParameter *motor, float sec)
 {
     if (sec <= 0) return;
@@ -139,10 +124,6 @@ FnState motor_set_duty(MotorParameter *motor, uint8_t value)
     return FNS_OK;
 }
 
-/**
-  * @brief 設定馬達速度目標值，限制範圍 0~100
-  * @retval true：成功，false：超出範圍並已修正
-  */
 bool motor_set_speed(MotorParameter* motor, Percentage value)
 {
     if (value > 100)
@@ -154,9 +135,6 @@ bool motor_set_speed(MotorParameter* motor, Percentage value)
     return true;
 }
 
-/**
-  * @brief 設定馬達旋轉方向（rotate_direction）
-  */
 inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction)
 {
     motor->direction_present = direction;
@@ -167,7 +145,14 @@ inline void motor_add_step_count(MotorParameter *motor)
     motor->step_count++;
 }
 
-/* +PI speed control ------------------------------------------------*/
+static inline void pwm_setup(const MotorParameter *motor)
+{
+    const MotorConst* const_h = motor->const_h;
+    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
+}
+
 static void PI_control(MotorParameter *motor)
 {
     if (!sys_run_switch.enable_PI) return;
@@ -204,19 +189,6 @@ static void PI_control(MotorParameter *motor)
     }
 }
 
-/**
-  * 啟動指定馬達之 PWM 定時器
-  *
-  * Start PWM timers for specified motor channels
-  */
-static inline void pwm_setup(const MotorParameter *motor)
-{
-    const MotorConst* const_h = motor->const_h;
-    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
-}
-
 static void speed_direc_update(MotorParameter *motor)
 {
     if (motor->direction_setpoint != motor->direction_present)
@@ -233,7 +205,11 @@ static void speed_direc_update(MotorParameter *motor)
         motor->rps_setpoint_inner = motor->rps_sepoint;
     }
     PI_control(motor);
-    if (motor->rps_present == 0) motor_step_update(motor);     //motor_step_update？？
+    // 避免馬達應動未動
+    if (
+           motor->rps_present == 0
+        && motor->duty != 0
+    ) motor_step_update(motor);
 }
 
 void StartMotorTask(void *argument)

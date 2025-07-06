@@ -437,9 +437,11 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     return FNS_OK;
 }
 
-#ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
+    #ifdef DISABLE_FDCAN
+    osThreadExit();
+    #else
     fdcan_init();
     fdcan_set_filter(&hfdcan1);
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
@@ -463,5 +465,5 @@ void StartFdCanTask(void *argument)
         osDelay(10);
         tick++;
     }
+    #endif
 }
-#endif

@@ -21,7 +21,7 @@ static const uint8_t MFRC522_firmware_referenceVx_B2[64] = {
     0x1E, 0xA9, 0x6D, 0xDA, 0xD4, 0xFD, 0xFE, 0xEB,
     0x6D, 0x85, 0x9C, 0xE6, 0x99, 0xF7, 0x1D, 0xD9
 };
-const RC522MIFARE_Key defaultKey = {
+const RC522MIFARE_Key rc522_default_key = {
 	.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
 };
 uint8_t rc522_version = 0;
@@ -187,7 +187,7 @@ inline void RC522_PCD_ClearRegisterBitMask(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_PCD_CalculateCRC(
+RC522Status RC522_PCD_CalculateCRC(
 	const RC522Const* rc522_const,
 	uint8_t *data,		///< In: Pointer to the data to transfer to the FIFO for CRC calculation.
 	uint8_t length,		///< In: The number of bytes to transfer.
@@ -443,7 +443,7 @@ void RC522_PCD_SoftPowerUp(const RC522Const* rc522_const){
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_PCD_TransceiveData(
+inline RC522Status RC522_PCD_TransceiveData(
 	const RC522Const* rc522_const,
 	uint8_t *sendData,	///< Pointer to the data to transfer to the FIFO.
 	uint8_t sendLen,	///< Number of bytes to transfer to the FIFO.
@@ -463,7 +463,7 @@ inline StatusCode RC522_PCD_TransceiveData(
  *
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_PCD_CommunicateWithPICC(
+RC522Status RC522_PCD_CommunicateWithPICC(
 	const RC522Const* rc522_const,
 	uint8_t command,	///< The command to execute. One of the PCD_Command enums.
 	uint8_t waitIRq,	///< The bits in the ComIrqReg register that signals successful completion of the command.
@@ -555,7 +555,7 @@ StatusCode RC522_PCD_CommunicateWithPICC(
 		}
 		// Verify CRC_A - do our own calculation and store the control in controlBuffer.
 		uint8_t controlBuffer[2];
-		StatusCode status = RC522_PCD_CalculateCRC(rc522_const, &backData[0], *backLen - 2, &controlBuffer[0]);
+		RC522Status status = RC522_PCD_CalculateCRC(rc522_const, &backData[0], *backLen - 2, &controlBuffer[0]);
 		if (status != STATUS_Code_OK) {
 			return status;
 		}
@@ -573,7 +573,7 @@ StatusCode RC522_PCD_CommunicateWithPICC(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_PICC_RequestA(
+inline RC522Status RC522_PICC_RequestA(
 	const RC522Const* rc522_const,
 	uint8_t *bufferATQA,	///< The buffer to store the ATQA (Answer to request) in
 	uint8_t *bufferSize		///< Buffer size, at least two bytes. Also number of bytes returned if STATUS_OK.
@@ -587,7 +587,7 @@ inline StatusCode RC522_PICC_RequestA(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_PICC_WakeupA(
+inline RC522Status RC522_PICC_WakeupA(
 	const RC522Const* rc522_const,
 	uint8_t *bufferATQA,	///< The buffer to store the ATQA (Answer to request) in
 	uint8_t *bufferSize		///< Buffer size, at least two bytes. Also number of bytes returned if STATUS_OK.
@@ -601,7 +601,7 @@ inline StatusCode RC522_PICC_WakeupA(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */ 
-StatusCode RC522_PICC_REQA_or_WUPA(
+RC522Status RC522_PICC_REQA_or_WUPA(
 	const RC522Const* rc522_const,
 	uint8_t command, 		///< The command to send - PICC_CMD_REQA or PICC_CMD_WUPA
 	uint8_t *bufferATQA,	///< The buffer to store the ATQA (Answer to request) in
@@ -612,7 +612,7 @@ StatusCode RC522_PICC_REQA_or_WUPA(
 	}
 	RC522_PCD_ClearRegisterBitMask(rc522_const, PCD_Reg_CollReg, 0x80);		// ValuesAfterColl=1 => Bits received after collision are cleared.
 	uint8_t validBits = 7;									// For REQA and WUPA we need the short frame format - transmit only 7 bits of the last (and only) byte. TxLastBits = BitFramingReg[2..0]
-	StatusCode status = RC522_PCD_TransceiveData(rc522_const, &command, 1, bufferATQA, bufferSize, &validBits, 0, false);
+	RC522Status status = RC522_PCD_TransceiveData(rc522_const, &command, 1, bufferATQA, bufferSize, &validBits, 0, false);
 	if (status != STATUS_Code_OK) {
 		return status;
 	}
@@ -639,7 +639,7 @@ StatusCode RC522_PICC_REQA_or_WUPA(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_PICC_Select(
+RC522Status RC522_PICC_Select(
 	const RC522Const* rc522_const,
 	RC522Uid *uid,			///< Pointer to Uid struct. Normally output, but can also be used to supply a known UID.
 	uint8_t validBits		///< The number of known UID bits supplied in *uid. Normally 0. If set you must also supply uid->size.
@@ -648,7 +648,7 @@ StatusCode RC522_PICC_Select(
 	bool selectDone;
 	bool useCascadeTag;
 	uint8_t cascadeLevel = 1;
-	StatusCode result;
+	RC522Status result;
 	uint8_t count;
 	uint8_t checkBit;
 	uint8_t index;
@@ -858,8 +858,8 @@ StatusCode RC522_PICC_Select(
  *
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */ 
-StatusCode RC522_PICC_HaltA(const RC522Const* rc522_const) {
-	StatusCode result;
+RC522Status RC522_PICC_HaltA(const RC522Const* rc522_const) {
+	RC522Status result;
 	uint8_t buffer[4];
 	
 	// Build command buffer
@@ -902,7 +902,7 @@ StatusCode RC522_PICC_HaltA(const RC522Const* rc522_const) {
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise. Probably STATUS_TIMEOUT if you supply the wrong key.
  */
-StatusCode RC522_PCD_Authenticate(
+RC522Status RC522_PCD_Authenticate(
 	const RC522Const* rc522_const,
 	uint8_t command,		///< PICC_CMD_MF_AUTH_KEY_A or PICC_CMD_MF_AUTH_KEY_B
 	uint8_t blockAddr, 		///< The block number. See numbering in the comments in the .h file.
@@ -955,13 +955,13 @@ inline void RC522_PCD_StopCrypto1(const RC522Const* rc522_const) {
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_Read(
+RC522Status RC522_MIFARE_Read(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr, 	///< MIFARE Classic: The block (0-0xff) number. MIFARE Ultralight: The first page to return data from.
 	uint8_t *buffer,	///< The buffer to store the data in
 	uint8_t *bufferSize	///< Buffer size, at least 18 bytes. Also number of bytes returned if STATUS_OK.
 ) {
-	StatusCode result;
+	RC522Status result;
 	
 	// Sanity check
 	if (buffer == NULL || *bufferSize < 18) {
@@ -992,13 +992,13 @@ StatusCode RC522_MIFARE_Read(
  * * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_Write(
+RC522Status RC522_MIFARE_Write(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr, ///< MIFARE Classic: The block (0-0xff) number. MIFARE Ultralight: The page (2-15) to write to.
 	uint8_t *buffer,	///< The 16 bytes to write to the PICC
 	uint8_t bufferSize	///< Buffer size, must be at least 16 bytes. Exactly 16 bytes are written.
 ) {
-	StatusCode result;
+	RC522Status result;
 	
 	// Sanity check
 	if (buffer == NULL || bufferSize < 16) {
@@ -1029,13 +1029,13 @@ StatusCode RC522_MIFARE_Write(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_Ultralight_Write(
+RC522Status RC522_MIFARE_Ultralight_Write(
 	const RC522Const* rc522_const,
 	uint8_t page, 		///< The page (2-15) to write to.
 	uint8_t *buffer,	///< The 4 bytes to write to the PICC
 	uint8_t bufferSize	///< Buffer size, must be at least 4 bytes. Exactly 4 bytes are written.
 ) {
-	StatusCode result;
+	RC522Status result;
 	
 	// Sanity check
 	if (buffer == NULL || bufferSize < 4) {
@@ -1064,7 +1064,7 @@ StatusCode RC522_MIFARE_Ultralight_Write(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_MIFARE_Decrement(
+inline RC522Status RC522_MIFARE_Decrement(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr, ///< The block (0-0xff) number.
 	int32_t delta		///< This number is subtracted from the value of block blockAddr.
@@ -1080,7 +1080,7 @@ inline StatusCode RC522_MIFARE_Decrement(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_MIFARE_Increment(
+inline RC522Status RC522_MIFARE_Increment(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr, ///< The block (0-0xff) number.
 	int32_t delta		///< This number is added to the value of block blockAddr.
@@ -1096,7 +1096,7 @@ inline StatusCode RC522_MIFARE_Increment(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-inline StatusCode RC522_MIFARE_Restore(
+inline RC522Status RC522_MIFARE_Restore(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr ///< The block (0-0xff) number.
 ) {
@@ -1110,13 +1110,13 @@ inline StatusCode RC522_MIFARE_Restore(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_TwoStepHelper(
+RC522Status RC522_MIFARE_TwoStepHelper(
 	const RC522Const* rc522_const,
 	uint8_t command,	///< The command to use
 	uint8_t blockAddr,	///< The block (0-0xff) number.
 	int32_t data	///< The data to transfer in step 2
 ) {
-	StatusCode result;
+	RC522Status result;
 	uint8_t cmdBuffer[2]; // We only need room for 2 bytes.
 	
 	// Step 1: Tell the PICC the command and block address
@@ -1143,11 +1143,11 @@ StatusCode RC522_MIFARE_TwoStepHelper(
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_Transfer(
+RC522Status RC522_MIFARE_Transfer(
 	const RC522Const* rc522_const,
 	uint8_t blockAddr ///< The block (0-0xff) number.
 ) {
-	StatusCode result;
+	RC522Status result;
 	uint8_t cmdBuffer[2]; // We only need room for 2 bytes.
 	
 	// Tell the PICC we want to transfer the result into block blockAddr.
@@ -1171,8 +1171,8 @@ StatusCode RC522_MIFARE_Transfer(
  * @param[out]  value       Current value of the Value Block.
  * @return STATUS_OK on success, STATUS_??? otherwise.
   */
-StatusCode RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t *value) {
-	StatusCode status;
+RC522Status RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t *value) {
+	RC522Status status;
 	uint8_t buffer[18];
 	uint8_t size = sizeof(buffer);
 	
@@ -1199,7 +1199,7 @@ StatusCode RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAdd
  * @param[in]   value       New value of the Value Block.
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t value) {
+RC522Status RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t value) {
 	uint8_t buffer[18];
 	
 	// Translate the int32_t into 4 bytes; repeated 2x in value block
@@ -1229,12 +1229,12 @@ StatusCode RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAdd
  * @param[in]   pACK       result success???.
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t* passWord, uint8_t pACK[]) //Authenticate with 32bit password
+RC522Status RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t* passWord, uint8_t pACK[]) //Authenticate with 32bit password
 {
 	// TODO: Fix cmdBuffer length and rxlength. They really should match.
 	//       (Better still, rxlength should not even be necessary.)
 
-	StatusCode result;
+	RC522Status result;
 	uint8_t cmdBuffer[18]; // We need room for 16 bytes data and 2 bytes CRC_A.
 	
 	cmdBuffer[0] = 0x1B; //Comando de autentificacion
@@ -1275,13 +1275,13 @@ StatusCode RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t* passWo
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-StatusCode RC522_PCD_MIFARE_Transceive(
+RC522Status RC522_PCD_MIFARE_Transceive(
 	const RC522Const* rc522_const,
 	uint8_t *sendData,	///< Pointer to the data to transfer to the FIFO. Do NOT include the CRC_A.
 	uint8_t sendLen,	///< Number of bytes in sendData.
 	bool acceptTimeout	///< True => A timeout is also success
 ) {
-	StatusCode result;
+	RC522Status result;
 	uint8_t cmdBuffer[18]; // We need room for 16 bytes data and 2 bytes CRC_A.
 	
 	// Sanity check
@@ -1364,7 +1364,7 @@ bool RC522_MIFARE_OpenUidBackdoor(const RC522Const* rc522_const) {
 						  this will contain amount of valid response bits. */
 	uint8_t response[32]; // Card's response is written here
 	uint8_t received = sizeof(response);
-	StatusCode status = RC522_PCD_TransceiveData(rc522_const, &cmd, 1, response, &received, &validBits, 0, false); // 40
+	RC522Status status = RC522_PCD_TransceiveData(rc522_const, &cmd, 1, response, &received, &validBits, 0, false); // 40
 	if(status != STATUS_Code_OK) {
 		// if(logErrors) {
 		// 	Serial.println(F("Card did not respond to 0x40 after HALT command. Are you sure it is a UID changeable one?"));
@@ -1431,7 +1431,7 @@ bool RC522_MIFARE_SetUid(const RC522Const* rc522_const, uint8_t *newUid, uint8_t
 	RC522MIFARE_Key key = {
 		.keyByte = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 	};
-	StatusCode status = RC522_PCD_Authenticate(rc522_const, PICC_CMD_MF_AUTH_KEY_A, 1, &key, &rc522_uid);
+	RC522Status status = RC522_PCD_Authenticate(rc522_const, PICC_CMD_MF_AUTH_KEY_A, 1, &key, &rc522_uid);
 	if (status != STATUS_Code_OK) {
 		
 		if (status == STATUS_Code_TIMEOUT) {
@@ -1520,7 +1520,7 @@ bool RC522_MIFARE_UnbrickUidSector(const RC522Const* rc522_const) {
 	uint8_t block0_buffer[] = {0x01, 0x02, 0x03, 0x04, 0x04, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};	
 	
 	// Write modified block 0 back to card
-	StatusCode status = RC522_MIFARE_Write(rc522_const, 0, block0_buffer, 16);
+	RC522Status status = RC522_MIFARE_Write(rc522_const, 0, block0_buffer, 16);
 	if (status != STATUS_Code_OK) {
 		// if (logErrors) {
 		// 	Serial.print(F("MIFARE_Write() failed: "));
@@ -1552,7 +1552,7 @@ bool RC522_PICC_IsNewCardPresent(const RC522Const* rc522_const)
 	// Reset ModWidthReg
 	RC522_PCD_WriteRegister(rc522_const, PCD_Reg_ModWidthReg, 0x26);
 
-	StatusCode result = RC522_PICC_RequestA(rc522_const, bufferATQA, &bufferSize);
+	RC522Status result = RC522_PICC_RequestA(rc522_const, bufferATQA, &bufferSize);
 	return (result == STATUS_Code_OK || result == STATUS_Code_COLLISION);
 } // End RC522_PICC_IsNewCardPresent()
 
@@ -1566,6 +1566,6 @@ bool RC522_PICC_IsNewCardPresent(const RC522Const* rc522_const)
  */
 inline bool RC522_PICC_ReadCardSerial(const RC522Const* rc522_const)
 {
-	StatusCode result = RC522_PICC_Select(rc522_const, &rc522_uid, 0);
+	RC522Status result = RC522_PICC_Select(rc522_const, &rc522_uid, 0);
 	return (result == STATUS_Code_OK);
 } // End 

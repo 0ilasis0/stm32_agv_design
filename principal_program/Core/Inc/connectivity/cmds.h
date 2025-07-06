@@ -29,8 +29,10 @@
 #define CMD_B1_RIGHT_MOTOR      (uint8_t)0x50   // 右馬達
 
 #define CMD_B2_STOP             (uint8_t)0x00   // 停止
-#define CMD_B2_FOWARD           (uint8_t)0x10   // 前進/正轉
-#define CMD_B2_BACKWARD         (uint8_t)0x20   // 後退/反轉
+#define CMD_B2_FOWARD           (uint8_t)0x01   // 車輛前進/馬達正轉
+#define CMD_B2_BACKWARD         (uint8_t)0x02   // 車輛後退/馬達反轉
+#define CMD_B2_C_CLOCK          (uint8_t)0x03   // 車輛原地左旋
+#define CMD_B2_CLOCK            (uint8_t)0x04   // 車輛原地右旋
 
 #define CMD_B3_VALUE            (uint8_t)0x00   // 速度0-100
 
@@ -49,3 +51,9 @@
 #define CMD_B2_SET              (uint8_t)0x10   // 方位設定
 
 #define CMD_B3_VALUE            (uint8_t)0x00   // 方位值0-100
+
+//--------------------------------------------------
+#define CMD_B0_TEST             (uint8_t)0xFF
+
+#define CMD_B1_TEST0            (uint8_t)0x00
+

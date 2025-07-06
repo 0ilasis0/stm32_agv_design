@@ -118,9 +118,11 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     return FNS_OK;
 }
 
-#ifndef DISABLE_UART
 void StartUartTask(void *argument)
 {
+    #ifdef DISABLE_UART
+    osThreadExit();
+    #else
     uart_setup();
     if (uart_enable_recv == FNC_ENABLE)
     {
@@ -140,5 +142,5 @@ void StartUartTask(void *argument)
         osDelay(10);
         tick++;
     }
+    #endif
 }
-#endif

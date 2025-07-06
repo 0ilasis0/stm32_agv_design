@@ -176,16 +176,16 @@ typedef uint8_t PICC_Type;
 
 // Return codes from the functions in this class. Remember to update GetStatusCodeName() if you add more.
 // last value set to 0xff, then compiler uses less ram, it seems some optimisations are triggered
-typedef uint8_t StatusCode;
-#define STATUS_Code_OK				((StatusCode)(0))		// Success
-#define STATUS_Code_ERROR			((StatusCode)(1))		// Error in communication
-#define STATUS_Code_COLLISION		((StatusCode)(2))		// Collission detected
-#define STATUS_Code_TIMEOUT			((StatusCode)(3))		// Timeout in communication.
-#define STATUS_Code_NO_ROOM			((StatusCode)(4))		// A buffer is not big enough.
-#define STATUS_Code_INTERNAL_ERROR	((StatusCode)(5))		// Internal error in the code. Should not happen ;-)
-#define STATUS_Code_INVALID			((StatusCode)(6))		// Invalid argument.
-#define STATUS_Code_CRC_WRONG		((StatusCode)(7))		// The CRC_A does not match
-#define STATUS_Code_MIFARE_NACK		((StatusCode)(0xff))	// A MIFARE PICC responded with NAK.
+typedef uint8_t RC522Status;
+#define STATUS_Code_OK				((RC522Status)(0))		// Success
+#define STATUS_Code_ERROR			((RC522Status)(1))		// Error in communication
+#define STATUS_Code_COLLISION		((RC522Status)(2))		// Collission detected
+#define STATUS_Code_TIMEOUT			((RC522Status)(3))		// Timeout in communication.
+#define STATUS_Code_NO_ROOM			((RC522Status)(4))		// A buffer is not big enough.
+#define STATUS_Code_INTERNAL_ERROR	((RC522Status)(5))		// Internal error in the code. Should not happen ;-)
+#define STATUS_Code_INVALID			((RC522Status)(6))		// Invalid argument.
+#define STATUS_Code_CRC_WRONG		((RC522Status)(7))		// The CRC_A does not match
+#define STATUS_Code_MIFARE_NACK		((RC522Status)(0xff))	// A MIFARE PICC responded with NAK.
 
 // A struct used for passing the UID of a PICC.
 typedef struct RC522Uid {
@@ -215,7 +215,8 @@ typedef struct RC522Const
     GPIO_TypeDef* RST_GPIOx;
     uint16_t      RST_GPIO_PIN_x;
 } RC522Const;
-extern const RC522MIFARE_Key defaultKey;
+extern const RC522MIFARE_Key rc522_default_key;
+extern uint8_t rc522_version;
 // Custom code End
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +228,7 @@ uint8_t RC522_PCD_ReadRegister(const RC522Const* rc522_const, PCD_Register reg);
 void RC522_PCD_ReadRegister_full(const RC522Const* rc522_const, PCD_Register reg, uint8_t count, uint8_t *values, uint8_t rxAlign); // defalt: rxAlign = 0
 void RC522_PCD_SetRegisterBitMask(const RC522Const* rc522_const, PCD_Register reg, uint8_t mask);
 void RC522_PCD_ClearRegisterBitMask(const RC522Const* rc522_const, PCD_Register reg, uint8_t mask);
-StatusCode RC522_PCD_CalculateCRC(const RC522Const* rc522_const, uint8_t *data, uint8_t length, uint8_t *result);
+RC522Status RC522_PCD_CalculateCRC(const RC522Const* rc522_const, uint8_t *data, uint8_t length, uint8_t *result);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for manipulating the MFRC522
@@ -251,44 +252,44 @@ void RC522_PCD_SoftPowerUp(const RC522Const* rc522_const);
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for communicating with PICCs
 /////////////////////////////////////////////////////////////////////////////////////
-StatusCode RC522_PCD_TransceiveData(
+RC522Status RC522_PCD_TransceiveData(
 	const RC522Const* rc522_const, uint8_t *sendData, uint8_t sendLen, uint8_t *backData, uint8_t *backLen,
 	uint8_t *validBits, uint8_t rxAlign, bool checkCRC
 ); // defalt: *validBits = nullptr, rxAlign = 0, checkCRC = false
-StatusCode RC522_PCD_CommunicateWithPICC(
+RC522Status RC522_PCD_CommunicateWithPICC(
 	const RC522Const* rc522_const, uint8_t command, uint8_t waitIRq, uint8_t *sendData, uint8_t sendLen,
 	uint8_t *backData, uint8_t *backLen, uint8_t *validBits, uint8_t rxAlign, bool checkCRC
 ); // defalt: *backData = nullptr, *backLen = nullptr, *validBits = nullptr, rxAlign = 0, checkCRC = false
-StatusCode RC522_PICC_RequestA(const RC522Const* rc522_const, uint8_t *bufferATQA, uint8_t *bufferSize);
-StatusCode RC522_PICC_WakeupA(const RC522Const* rc522_const, uint8_t *bufferATQA, uint8_t *bufferSize);
-StatusCode RC522_PICC_REQA_or_WUPA(const RC522Const* rc522_const, uint8_t command, uint8_t *bufferATQA, uint8_t *bufferSize);
-StatusCode RC522_PICC_Select(const RC522Const* rc522_const, RC522Uid *uid, uint8_t validBits); // defalt: validBits = 0
-StatusCode RC522_PICC_HaltA(const RC522Const* rc522_const);
+RC522Status RC522_PICC_RequestA(const RC522Const* rc522_const, uint8_t *bufferATQA, uint8_t *bufferSize);
+RC522Status RC522_PICC_WakeupA(const RC522Const* rc522_const, uint8_t *bufferATQA, uint8_t *bufferSize);
+RC522Status RC522_PICC_REQA_or_WUPA(const RC522Const* rc522_const, uint8_t command, uint8_t *bufferATQA, uint8_t *bufferSize);
+RC522Status RC522_PICC_Select(const RC522Const* rc522_const, RC522Uid *uid, uint8_t validBits); // defalt: validBits = 0
+RC522Status RC522_PICC_HaltA(const RC522Const* rc522_const);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for communicating with MIFARE PICCs
 /////////////////////////////////////////////////////////////////////////////////////
-StatusCode RC522_PCD_Authenticate(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, RC522MIFARE_Key *key, RC522Uid *uid);
+RC522Status RC522_PCD_Authenticate(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, RC522MIFARE_Key *key, RC522Uid *uid);
 void RC522_PCD_StopCrypto1(const RC522Const* rc522_const);
-StatusCode RC522_MIFARE_Read(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t *bufferSize);
-StatusCode RC522_MIFARE_Write(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t bufferSize);
-StatusCode RC522_MIFARE_Ultralight_Write(const RC522Const* rc522_const, uint8_t page, uint8_t *buffer, uint8_t bufferSize);
-StatusCode RC522_MIFARE_Decrement(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
-StatusCode RC522_MIFARE_Increment(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
-StatusCode RC522_MIFARE_Restore(const RC522Const* rc522_const, uint8_t blockAddr);
-StatusCode RC522_MIFARE_TwoStepHelper(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, int32_t data);
-StatusCode RC522_MIFARE_Transfer(const RC522Const* rc522_const, uint8_t blockAddr);
-StatusCode RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t *value);
-StatusCode RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t value);
-StatusCode RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t *passWord, uint8_t pACK[]);
+RC522Status RC522_MIFARE_Read(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t *bufferSize);
+RC522Status RC522_MIFARE_Write(const RC522Const* rc522_const, uint8_t blockAddr, uint8_t *buffer, uint8_t bufferSize);
+RC522Status RC522_MIFARE_Ultralight_Write(const RC522Const* rc522_const, uint8_t page, uint8_t *buffer, uint8_t bufferSize);
+RC522Status RC522_MIFARE_Decrement(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
+RC522Status RC522_MIFARE_Increment(const RC522Const* rc522_const, uint8_t blockAddr, int32_t delta);
+RC522Status RC522_MIFARE_Restore(const RC522Const* rc522_const, uint8_t blockAddr);
+RC522Status RC522_MIFARE_TwoStepHelper(const RC522Const* rc522_const, uint8_t command, uint8_t blockAddr, int32_t data);
+RC522Status RC522_MIFARE_Transfer(const RC522Const* rc522_const, uint8_t blockAddr);
+RC522Status RC522_MIFARE_GetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t *value);
+RC522Status RC522_MIFARE_SetValue(const RC522Const* rc522_const, uint8_t blockAddr, int32_t value);
+RC522Status RC522_PCD_NTAG216_AUTH(const RC522Const* rc522_const, uint8_t *passWord, uint8_t pACK[]);
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Support functions
 /////////////////////////////////////////////////////////////////////////////////////
-StatusCode RC522_PCD_MIFARE_Transceive(const RC522Const* rc522_const, uint8_t *sendData, uint8_t sendLen, bool acceptTimeout); // defalt: acceptTimeout = false
+RC522Status RC522_PCD_MIFARE_Transceive(const RC522Const* rc522_const, uint8_t *sendData, uint8_t sendLen, bool acceptTimeout); // defalt: acceptTimeout = false
 // old function used too much memory, now name moved to flash; if you need char, copy from flash to memory
 // const char *GetStatusCodeName(byte code);
-// const char *RC522_GetStatusCodeName(const RC522Const* rc522_const, StatusCode code);
+// const char *RC522_GetStatusCodeName(const RC522Const* rc522_const, RC522Status code);
 // PICC_Type RC522_PICC_GetType(const RC522Const* rc522_const, uint8_t sak);
 // old function used too much memory, now name moved to flash; if you need char, copy from flash to memory
 // const char *PICC_GetTypeName(byte type);

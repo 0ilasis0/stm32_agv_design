@@ -203,17 +203,17 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     {
                         case CMD_B2_STOP:
                             value = 0;
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_FOWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_BACKWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         default:
                             last_error = FNS_NO_MATCH;
@@ -232,17 +232,17 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     {
                         case CMD_B2_STOP:
                             value = 0;
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_FOWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         case CMD_B2_BACKWARD:
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
-                            motor_set_speed_setpoint(motor, value);
+                            motor_set_speed(motor, value);
                             break;
                         default:
                             last_error = FNS_NO_MATCH;
@@ -437,9 +437,11 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     return FNS_OK;
 }
 
-#ifndef DISABLE_FDCAN
 void StartFdCanTask(void *argument)
 {
+    #ifdef DISABLE_FDCAN
+    osThreadExit();
+    #else
     fdcan_init();
     fdcan_set_filter(&hfdcan1);
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
@@ -463,5 +465,5 @@ void StartFdCanTask(void *argument)
         osDelay(10);
         tick++;
     }
+    #endif
 }
-#endif
