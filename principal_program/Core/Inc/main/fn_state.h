@@ -14,7 +14,7 @@ extern FnState last_error;
 #define FNS_TIMEOUT         2
 #define FNS_BUF_EMPTY       3
 #define FNS_BUF_NOT_ENOU    4
-#define FNS_BUF_OVERFLOW    5
+#define FNS_OVERFLOW        5
 #define FNS_NO_MATCH        6
 #define FNS_NOT_MOVE        7
 #define FNS_ERR_OOM         8
@@ -85,7 +85,7 @@ typedef struct FnState_h
     FnState vehicle_over_hall_fall_back;
     FnState agv_forward_leave_strong_magnet;
     FnState vehicle_search_magnetic_path;
-    FnState vehicle2_ensure_motor_stop;
+    FnState vehicle_ensure_stop;
     FnState vehicle2_renew_vehicle_rotation_status;
     FnState rotate_in_place__map_data_current_count;
     FnState breakdown_all_hall_lost__path_not_found;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main/config.h"
-#include "main/vehicle2.h"
+#include "vehicle/vehicle2.h"
 
 #define INF 99999
 #define max_node 10

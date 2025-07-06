@@ -2,13 +2,13 @@
 #include "main/config.h"
 #include "main/adc.h"
 #include "main/it.h"
-#include "main/vehicle.h"
+#include "vehicle/vehicle.h"
 #include "main/map.h"
 #include "motor/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
-static uint16_t motor_tim_tick = 0;
+static size_t motor_tim_tick = 0;
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
@@ -19,15 +19,17 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == MOTOR_HTIM1) // 100us
     {
-        if (motor_tim_tick % 10 == 0)
+        if (motor_tim_tick % 10 == 0) // 1ms
         {
             adc_renew();
         }
-        if (motor_tim_tick % 1000 == 0) // 1ms
+        if (motor_tim_tick % 1000 == 0) // 100ms
         {
             motor_tim_tick = 0;
-            motor_rps_calculate(&motor_right, 0.1f);
-            motor_rps_calculate(&motor_left, 0.1f);
+            motor_rps_calculate(&motor_left, 100.0f);
+            motor_rps_calculate(&motor_right, 100.0f);
+            PI_control(&motor_left, 100.0f);
+            PI_control(&motor_right, 100.0f);
         }
         motor_tim_tick++;
     }

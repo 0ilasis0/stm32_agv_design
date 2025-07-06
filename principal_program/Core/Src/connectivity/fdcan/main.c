@@ -3,7 +3,7 @@
 #include "connectivity/cmds.h"
 
 #ifdef PRINCIPAL_PROGRAM
-#include "main/vehicle2.h"
+#include "vehicle/vehicle2.h"
 #include "motor/main.h"
 #endif
 #ifdef ANCILLARY_PROGRAM
@@ -164,25 +164,23 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
-                    MotionCommand mode = motion_unchange;
                     switch (code)
                     {
                         case CMD_ARM_B2_STOP:
                         {
-                            value = 0;
-                            vehicle2_motion_and_speed_control(mode, value);
+                            vehicle_set_speed(0);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_FOWARD:
                         {
-                            mode = motion_forward;
-                            vehicle2_motion_and_speed_control(mode, value);
+                            vehicle_set_motion(motion_forward);
+                            vehicle_set_speed(value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_BACKWARD:
                         {
-                            mode = motion_backward;
-                            vehicle2_motion_and_speed_control(mode, value);
+                            vehicle_set_motion(motion_backward);
+                            vehicle_set_speed(value);
                             return FNS_OK;
                         }
                         default: break;

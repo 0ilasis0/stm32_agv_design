@@ -1,39 +1,7 @@
-#include "main/vehicle2.h"
+#include "vehicle/vehicle2.h"
 #include "main/fn_state.h"
 #include "main/map.h"
-
-/**
-  * @brief 根據運動模式控制馬達旋轉方向與設定速度
-  */
-void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value)
-{
-    if (mode != agv_state.vehicle_currnet_mode) vehicle2_ensure_motor_stop();
-    switch(mode) {
-        case motion_forward:
-            motor_set_direction(&motor_right, rotate_clockwise);
-            motor_set_direction(&motor_left,  rotate_c_clockwise);
-            agv_state.vehicle_currnet_mode = motion_forward;
-            break;
-        case motion_backward:
-            motor_set_direction(&motor_right, rotate_c_clockwise);
-            motor_set_direction(&motor_left,  rotate_clockwise);
-            agv_state.vehicle_currnet_mode = motion_backward;
-            break;
-        case motion_clockwise:
-            motor_set_direction(&motor_right, rotate_c_clockwise);
-            motor_set_direction(&motor_left,  rotate_c_clockwise);
-            agv_state.vehicle_currnet_mode = motion_clockwise;
-            break;
-        case motion_c_clockwise:
-            motor_set_direction(&motor_right, rotate_clockwise);
-            motor_set_direction(&motor_left,  rotate_clockwise);
-            agv_state.vehicle_currnet_mode = motion_c_clockwise;
-            break;
-    }
-
-    motor_set_speed(&motor_right, sepoint_value);
-    motor_set_speed(&motor_left , sepoint_value);
-}
+#include "main/adc.h"
 
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
@@ -48,24 +16,6 @@ MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir)
     } else {
         return motion_c_clockwise;
 
-    }
-}
-
-/**
-  * @brief 等待左右馬達完全停止
-  */
-void vehicle2_ensure_motor_stop(void) {
-
-    agv_state.vehicle_currnet_mode = motion_stop;
-
-    // Todo ?
-    // motor_right.rps_sepoint = 0;
-    // motor_left.rps_sepoint  = 0;
-
-    uint32_t error_start = HAL_GetTick();
-    while(motor_right.rps_present != 0 || motor_left.rps_present != 0)
-    {
-        timeout_error(error_start, &error_state.vehicle2_ensure_motor_stop);
     }
 }
 
@@ -128,5 +78,5 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero)
 
         timeout_error(time_out, &error_state.vehicle2_renew_vehicle_rotation_status);
     }
-    vehicle2_ensure_motor_stop();
+    vehicle_ensure_stop();
 }

@@ -1,7 +1,7 @@
 #include "motor/main.h"
 #include "tim.h"
 #include "us_sensor/main.h"
-#include "main/vehicle.h"
+#include "vehicle/vehicle.h"
 
 float max_speed = MOTOR_MAX_SPEED;
 
@@ -74,7 +74,7 @@ void motor_step_update(MotorParameter *motor)
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2) |
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1) |
         (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
-    if (motor->direction_present == rotate_c_clockwise)
+    if (motor->direction_inner == rotate_c_clockwise)
     {
         switch(hallState)
         {
@@ -87,7 +87,7 @@ void motor_step_update(MotorParameter *motor)
             default: return;
         }
     }
-    else if(motor->direction_present == rotate_clockwise)
+    else if(motor->direction_inner == rotate_clockwise)
     {
         switch(hallState)
         {
@@ -103,39 +103,78 @@ void motor_step_update(MotorParameter *motor)
     step_commutate(motor);
 }
 
-void motor_rps_calculate(MotorParameter *motor, float sec)
+void motor_set_duty(MotorParameter *motor, uint8_t value)
 {
-    if (sec <= 0) return;
-    motor->rps_present = (float)motor->step_count / (6 * 3) / sec;
-    motor->step_count = 0;
+    if (value > 100) motor->duty = 100;
+    motor->duty = value;
 }
 
-FnState motor_set_duty(MotorParameter *motor, uint8_t value)
+void PI_control(MotorParameter *motor, float ms)
 {
-    // 限制PWM最大值&&最小值
-    if (value > 100)
-    {
-        motor->duty = 100;
-        return FNS_FAIL;
+    if (!sys_run_switch.enable_PI) return;
+    if (
+           (motor->rps_present < MOTOR_STOP_GATE)
+        && (motor->rps_inner == 0)
+    ) {
+        motor_set_duty(motor, 0);
+        motor->integral_record = 0;
+        return;
     }
-    motor->duty = value;
-    return FNS_OK;
+    // 計算誤差
+    float error =
+          (max_speed * motor->rps_inner / 100.0f)
+        - motor->rps_present;
+    // 累積誤差 error*秒
+    float integral =
+          motor->integral_record
+        + error * ms / 1000.0f;
+    // 計算 PI 控制輸出
+    float output =
+          (float)motor->duty
+        + MOTOR_PI_KP * error
+        + MOTOR_PI_KI * integral;
+    // 避免積分風暴
+    if (output < 0.0f)
+    {
+        motor_set_duty(motor, 0);
+    }
+    else if (output > 100.0f)
+    {
+        motor_set_duty(motor, 100);
+    }
+    else
+    {
+        motor_set_duty(motor, (uint8_t)output);
+        motor->integral_record = integral;
+    }
+}
+
+void motor_rps_calculate(MotorParameter *motor, float ms)
+{
+    if (ms <= 0) return;
+    motor->rps_present = (float)motor->step_count * 1000.0f / ((6 * 3) * ms);
+    motor->step_count = 0;
 }
 
 bool motor_set_speed(MotorParameter* motor, Percentage value)
 {
     if (value > 100)
     {
-        motor->rps_sepoint = 100;
+        motor->rps_setpoint = 100;
         return false;
     }
-    motor->rps_sepoint = value;
+    motor->rps_setpoint = value;
     return true;
 }
 
 inline void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction)
 {
-    motor->direction_present = direction;
+    motor->direction_setpoint = direction;
+}
+
+inline void motor_set_stop(MotorParameter *motor, bool stop)
+{
+    motor->stop = stop;
 }
 
 inline void motor_add_step_count(MotorParameter *motor)
@@ -151,58 +190,25 @@ static inline void pwm_setup(const MotorParameter *motor)
     HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
 }
 
-static void PI_control(MotorParameter *motor)
-{
-    if (!sys_run_switch.enable_PI) return;
-
-    // 計算誤差
-    float error =
-          (max_speed * motor->rps_setpoint_inner / 100.0f)
-        - motor->rps_present;
-    // 累積誤差
-    float integral =
-          motor->integral_record
-        + error;
-    // 計算 P I 控制輸出
-    float output_duty =
-          (float)motor->duty
-        + MOTOR_PI_KP * error
-        + MOTOR_PI_KI * integral;
-
-    // 避免太大的error
-    if (output_duty >= 0.0f)
-    {
-        if (
-               motor->rps_present == 0
-            && motor->rps_sepoint == 0
-        ) {
-            output_duty = 0.0f;
-        }
-        motor_set_duty(motor, (uint8_t)output_duty);
-        motor->integral_record = integral;
-    }
-    else
-    {
-        motor_set_duty(motor, 0);
-    }
-}
-
 static void speed_direc_update(MotorParameter *motor)
 {
-    if (motor->direction_setpoint != motor->direction_present)
+    if (motor->direction_inner != motor->direction_setpoint)
     {
-        motor->rps_setpoint_inner = 0;
-        if (motor->rps_present == 0)
+        motor->rps_inner = 0;
+        if (motor->rps_present < MOTOR_STOP_GATE)
         {
-            motor->direction_setpoint = motor->direction_present;
-            motor->rps_setpoint_inner = motor->rps_sepoint;
+            motor->direction_inner = motor->direction_setpoint;
+            motor->rps_inner = motor->rps_setpoint;
         }
+    }
+    else if (motor->stop == 1)
+    {
+        motor->rps_inner = 0;
     }
     else
     {
-        motor->rps_setpoint_inner = motor->rps_sepoint;
+        motor->rps_inner = motor->rps_setpoint;
     }
-    PI_control(motor);
     // 避免馬達應動未動
     if (
            motor->rps_present == 0

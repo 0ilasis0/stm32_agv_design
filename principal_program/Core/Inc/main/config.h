@@ -36,8 +36,9 @@
 #define MOTOR_HTIM1             &htim2
 #define MOTOR_HTIM2             &htim3
 #define MOTOR_MAX_SPEED         100
-#define MOTOR_PI_KP             0.25f    // 比例增益
-#define MOTOR_PI_KI             0.001f  // 積分增益
+#define MOTOR_PI_KP             0.25f       // 比例增益
+#define MOTOR_PI_KI             0.001f      // 積分增益
+#define MOTOR_STOP_GATE         0.1f
 
 #define ADC_COUNT                   4
 #define ADC_NEED_LEN                9

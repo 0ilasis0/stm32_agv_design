@@ -3,18 +3,8 @@
 #include "motor/main.h"
 #include "main/config.h"
 #include "adc.h"
+#include "vehicle/main.h"
 
-typedef enum {
-    motion_unchange,
-    motion_forward,
-    motion_backward,
-    motion_clockwise,
-    motion_c_clockwise,
-    motion_stop,
-} MotionCommand;
-
-void vehicle2_motion_and_speed_control(MotionCommand mode, uint8_t sepoint_value);
-void vehicle2_ensure_motor_stop(void);
 MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir);
 void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero);
 uint8_t vehicle2_pass_magnetic_stripe_calculate(

@@ -1,4 +1,4 @@
-#include "main/vehicle.h"
+#include "vehicle/vehicle.h"
 #include <math.h>
 #include "tim.h"
 #include "stm32g4xx_hal.h"
@@ -6,8 +6,7 @@
 #include "main/fn_state.h"
 #include "main/config.h"
 #include "main/map.h"
-
-
+#include "main/adc.h"
 
 static int text_end = 0;
 
@@ -16,14 +15,15 @@ static int text_end = 0;
   */
 static void vehicle_over_hall_fall_back(void)
 {
-    vehicle2_motion_and_speed_control(motion_backward, VEHICLE_setpoint_fall_back);
+    vehicle_set_motion(motion_backward);
+    vehicle_set_speed(VEHICLE_setpoint_fall_back);
 
     uint32_t error_start = HAL_GetTick();
     while(adc_hall.sensor_node >= adc_hall.strong_magnet_value) {
         timeout_error(error_start, &error_state.vehicle_over_hall_fall_back);
     }
 
-    vehicle2_ensure_motor_stop();
+    vehicle_ensure_stop();
 }
 
 /**
@@ -33,7 +33,8 @@ static void vehicle_search_magnetic_path (MotionCommand search_direction, uint16
 {
     if (!sys_run_switch.enable_search_magnetic_path) return;
 
-    vehicle2_motion_and_speed_control(search_direction, VEHICLE_setpoint_rotate);
+    vehicle_set_motion(search_direction);
+    vehicle_set_speed(VEHICLE_setpoint_rotate);
 
     uint32_t past_time = HAL_GetTick();
     while (HAL_GetTick() - past_time <= time) {
@@ -51,7 +52,7 @@ static void vehicle_search_magnetic_path (MotionCommand search_direction, uint16
         timeout_error(past_time, &error_state.vehicle_search_magnetic_path);
     }
 
-    vehicle2_ensure_motor_stop();
+    vehicle_ensure_stop();
 }
 
 /**
@@ -59,7 +60,8 @@ static void vehicle_search_magnetic_path (MotionCommand search_direction, uint16
   */
 static void agv_forward_leave_strong_magnet (void)
 {
-    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
+    vehicle_set_motion(motion_forward);
+    vehicle_set_speed(VEHICLE_setpoint_straight);
 
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
@@ -74,7 +76,7 @@ static void protect_over_hall(void)
 {
     if (!sys_run_switch.enable_debug_protect_over_hall) return;
 
-    vehicle2_ensure_motor_stop();
+    vehicle_ensure_stop();
 
     if (adc_hall.sensor_node < adc_hall.strong_magnet_value) return;
 
@@ -104,7 +106,7 @@ static void breakdown_all_hall_lost (void)
         &&  adc_hall.sensor_track_right > adc_hall.magnetic_stripe_value
         &&  adc_hall.sensor_track_left  > adc_hall.magnetic_stripe_value
     ) {
-        vehicle2_ensure_motor_stop();
+        vehicle_ensure_stop();
         vehicle_search_magnetic_path (motion_clockwise, 3000);
         vehicle_search_magnetic_path (motion_c_clockwise, 6000);
         if (sys_run_switch.enable_search_magnetic_path == 1)
@@ -136,7 +138,8 @@ static void rotate_in_place(void)
             map_data.direction[map_data.current_count]
             );
 
-    vehicle2_motion_and_speed_control(rotate_direction_mode, VEHICLE_setpoint_rotate);
+    vehicle_set_motion(rotate_direction_mode);
+    vehicle_set_speed(VEHICLE_setpoint_rotate);
 
     vehicle2_renew_vehicle_rotation_status(renew_count);
 
@@ -149,7 +152,8 @@ static void rotate_in_place(void)
 static void track_mode(void)
 {
     breakdown_all_hall_lost();
-    vehicle2_motion_and_speed_control(motion_forward, VEHICLE_setpoint_straight);
+    vehicle_set_motion(motion_forward);
+    vehicle_set_speed(VEHICLE_setpoint_straight);
 
     if (
            adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
@@ -199,7 +203,7 @@ static void decide_move_mode(void)
             init_map_data_direction_and_address(&map_data, map_data.address_id[map_data.current_count - 1], map_data.direction[map_data.current_count - 1]);
             // 終止目前沒有要做甚麼所以先停止動作
             while (1) {
-                vehicle2_ensure_motor_stop();
+                vehicle_ensure_stop();
                 text_end = 1;
             }
             break;
@@ -216,7 +220,8 @@ void vehicle_adjust_startup_heading (void)
     if (map_data.start_address_id == no_data) return;
 
     MotionCommand rotate_direction_mode = vehicle2_get_rotate_direction(map_data.start_direction, map_data.direction[0]);
-    vehicle2_motion_and_speed_control(rotate_direction_mode, VEHICLE_setpoint_rotate);
+    vehicle_set_motion(rotate_direction_mode);
+    vehicle_set_speed(VEHICLE_setpoint_rotate);
 
     uint8_t renew_count = vehicle2_pass_magnetic_stripe_calculate(
         rotate_direction_mode,
@@ -226,53 +231,6 @@ void vehicle_adjust_startup_heading (void)
         );
     vehicle2_renew_vehicle_rotation_status(renew_count);
 
-}
-
-/**
-  * @brief 測試空載情況下的馬達最大速度
-  * 僅使用右邊測試空載轉速
-  */
-void vehicle_test_no_load_speed(uint16_t mile_sec)
-{
-    if (!sys_run_switch.enable_debug_test_no_load_speed) return;
-
-    sys_run_switch.enable_PI = 0;
-    // 確定正轉
-    vehicle2_motion_and_speed_control(motion_forward, 0);
-
-    uint32_t past_time = HAL_GetTick()
-            ,previous_time_dif = past_time;
-    motor_set_duty(&motor_left,  100);
-    motor_set_duty(&motor_right, 100);
-
-    while (
-        HAL_GetTick() - past_time < mile_sec || max_speed <= 10
-    ) {
-        if (max_speed < motor_right.rps_present) {
-                max_speed = motor_right.rps_present;
-                past_time = HAL_GetTick();
-        }
-
-        timeout_error(previous_time_dif, &error_state.vehicle_test_no_load_speed);
-    }
-
-    motor_set_duty(&motor_left,  0);
-    motor_set_duty(&motor_right, 0);
-    previous_time_dif = HAL_GetTick() - previous_time_dif;
-
-    vehicle2_motion_and_speed_control(motion_backward, 0);
-    vehicle2_ensure_motor_stop();
-    HAL_Delay(1000);
-    motor_set_duty(&motor_left,  100);
-    motor_set_duty(&motor_right, 100);
-    past_time = HAL_GetTick();
-    while(HAL_GetTick() - past_time <= previous_time_dif) {
-        timeout_error(past_time, &error_state.vehicle_test_no_load_speed);
-    }
-    motor_set_duty(&motor_left,  0);
-    motor_set_duty(&motor_right, 0);
-    vehicle2_ensure_motor_stop();
-    sys_run_switch.enable_PI = 1;
 }
 
 void vehicle_main (void)

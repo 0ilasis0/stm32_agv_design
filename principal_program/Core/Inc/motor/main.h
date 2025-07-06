@@ -26,14 +26,15 @@ typedef struct MotorParameter
 {
     const MotorConst const_h;
     // RPS setpoint
-    Percentage rps_sepoint;
+    Percentage rps_setpoint;
     // real RPS setpoint (control by system)
-    Percentage rps_setpoint_inner;
+    Percentage rps_inner;
+    bool stop;
     uint16_t step_count;
     float rps_present;
     // direction setpoint
     ROTATE_STATUS direction_setpoint;
-    ROTATE_STATUS direction_present;
+    ROTATE_STATUS direction_inner;
     Percentage duty;
     float integral_record;
     uint8_t current_step;
@@ -43,8 +44,10 @@ extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
 void motor_step_update(MotorParameter *motor);
-void motor_rps_calculate(MotorParameter *motor, float sec);
-FnState motor_set_duty(MotorParameter *motor, uint8_t value);
+void motor_set_duty(MotorParameter *motor, uint8_t value);
+void PI_control(MotorParameter *motor, float ms);
+void motor_rps_calculate(MotorParameter *motor, float ms);
+void motor_set_stop(MotorParameter *motor, bool stop);
 bool motor_set_speed(MotorParameter* motor, Percentage value);
 void motor_set_direction(MotorParameter *motor, ROTATE_STATUS direction);
 void motor_add_step_count(MotorParameter *motor);

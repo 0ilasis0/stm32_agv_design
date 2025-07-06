@@ -32,7 +32,7 @@ FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t blo
 
 FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len)
 {
-    if (id + len > 16) return FNS_BUF_OVERFLOW;
+    if (id + len > 16) return FNS_OVERFLOW;
     memcpy(&trcv_buf->data[id], data, len);
     uint8_t i;
     for(i = 0; i < len; i++)
