@@ -7,6 +7,7 @@
 
 extern float max_speed;
 
+
 typedef int8_t RotateState;
 #define MOTOR_ROTATE_CLW    1
 #define MOTOR_ROTATE_STOP   0
@@ -41,7 +42,7 @@ typedef struct MotorParameter
     RotateState direction_inner;
     RotateState direction_present;
 
-    uint8_t step_state;
+    uint8_t hall_state;
     uint16_t step_count;
 
     MotorState stop;

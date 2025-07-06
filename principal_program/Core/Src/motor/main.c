@@ -5,16 +5,6 @@
 
 float max_speed = MOTOR_MAX_SPEED;
 
-// Commutation right_SEQUENCE for 120 degree control
-static const int8_t SEQUENCE[6][3] = {
-  { 1, -1,  0},
-  { 1,  0, -1},
-  { 0,  1, -1},
-  {-1,  1,  0},
-  {-1,  0,  1},
-  { 0, -1,  1}
-};
-
 MotorParameter motor_left = {
     .const_h = {
         .Hall_GPIOx         = { GPIOD,      GPIOC,       GPIOA     },
@@ -25,8 +15,6 @@ MotorParameter motor_left = {
         .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
     },
-    .direction_setpoint = MOTOR_ROTATE_CCLW,
-    .step_state       = -1,
 };
 
 MotorParameter motor_right = {
@@ -39,30 +27,56 @@ MotorParameter motor_right = {
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
     },
-    .direction_setpoint = MOTOR_ROTATE_CLW,
-    .step_state       = -1,
 };
 
-static void step_commutate(const MotorParameter *motor)
+#define HIGH_PASS   1
+#define NONE_PASS   0
+#define LOW_PASS   -1
+// Commutation right_SEQUENCE for 120 degree control
+static const int8_t SEQUENCE[6][3] = {
+  { HIGH_PASS, LOW_PASS,  NONE_PASS },
+  { HIGH_PASS, NONE_PASS, LOW_PASS  },
+  { NONE_PASS, HIGH_PASS, LOW_PASS  },
+  { LOW_PASS,  HIGH_PASS, NONE_PASS },
+  { LOW_PASS,  NONE_PASS, HIGH_PASS },
+  { NONE_PASS, LOW_PASS,  HIGH_PASS }
+};
+
+/**
+ * STEP -> HALL
+ * static const uint8_t  cw[6] = {4, 3, 5, 1, 2, 0};
+ * static const uint8_t ccw[6] = {4, 0, 2, 1, 5, 3};
+ * 
+ * HALL -> STEP
+ */
+static const uint8_t hall_index[] = {-1, 5, 3, 4, 1, 0, 2, -1};
+
+static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
     const MotorConst* const_h = &motor->const_h;
-    const uint8_t step_state = motor->step_state;
-    for (int i = 0; i < 3; i++)
+    uint8_t i;
+    for (i = 0; i < 3; i++)
     {
-        if (SEQUENCE[step_state][i] == 1)
+        switch (SEQUENCE[step][i])
         {
-            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty);
-            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
-        }
-        else if (SEQUENCE[step_state][i] == -1)
-        {
-            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
-        }
-        else
-        {
-            __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
-            HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+            case HIGH_PASS:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->duty);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+                break;
+            }
+            case LOW_PASS:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
+                break;
+            }
+            default:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+                break;
+            }
         }
     }
 }
@@ -79,47 +93,85 @@ void motor_step_update(MotorParameter *motor)
     //     step_commutate(motor);
     //     return;
     // }
-    uint8_t hallState =
-        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2) |
-        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1) |
-        (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
+    uint8_t hall_state =
+          (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[0], const_h->Hall_GPIO_Pin_x[0]) << 2)
+        | (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[1], const_h->Hall_GPIO_Pin_x[1]) << 1)
+        | (HAL_GPIO_ReadPin(const_h->Hall_GPIOx[2], const_h->Hall_GPIO_Pin_x[2])     );
+    uint8_t old = hall_index[motor->hall_state];
+    uint8_t new = hall_index[hall_state];
+    uint8_t diff = (old + 6 - new) % 6;
+    switch (diff)
+    {
+        case 5:
+        {
+            motor->direction_present = MOTOR_ROTATE_CLW;
+            break;
+        }
+        case 0:
+        {
+            motor->direction_present = MOTOR_ROTATE_STOP;
+            break;
+        }
+        case 1:
+        {
+            motor->direction_present = MOTOR_ROTATE_CCLW;
+            break;
+        }
+        default: break;
+    }
+    motor->hall_state = hall_state;
     uint8_t step_next;
     switch (motor->direction_inner)
     {
         case MOTOR_ROTATE_CLW:
         {
-            switch(hallState)
-            {
-                case 5: step_next = 0; break;
-                case 4: step_next = 1; break;
-                case 6: step_next = 2; break;
-                case 2: step_next = 3; break;
-                case 3: step_next = 4; break;
-                case 1: step_next = 5; break;
-                default: return;
-            }
+            step_next = new;
             break;
         }
         case MOTOR_ROTATE_CCLW:
         {
-            switch(hallState)
-            {
-                case 5: step_next = 3; break;
-                case 1: step_next = 2; break;
-                case 3: step_next = 1; break;
-                case 2: step_next = 0; break;
-                case 6: step_next = 5; break;
-                case 4: step_next = 4; break;
-                default: return;
-            }
+            step_next = (new + 3) % 6;
             break;
         }
-        default: return;
+        default:
+        {
+            step_next = old;
+            break;
+        }
     }
-    // if      (step_next == (motor->step_state + 1) % 6) motor->direction_present = MOTOR_ROTATE_CLW;
-    // else if (step_next == (motor->step_state + 5) % 6) motor->direction_present = MOTOR_ROTATE_CCLW;
-    motor->step_state = step_next;
-    step_commutate(motor);
+    // switch (motor->direction_inner)
+    // {
+    //     case MOTOR_ROTATE_CLW:
+    //     {
+    //         switch(hall_state)
+    //         {
+    //             case 5: step_next = 0; break;
+    //             case 4: step_next = 1; break;
+    //             case 6: step_next = 2; break;
+    //             case 2: step_next = 3; break;
+    //             case 3: step_next = 4; break;
+    //             case 1: step_next = 5; break;
+    //             default: return;
+    //         }
+    //         break;
+    //     }
+    //     case MOTOR_ROTATE_CCLW:
+    //     {
+    //         switch(hall_state)
+    //         {
+    //             case 5: step_next = 3; break;
+    //             case 1: step_next = 2; break;
+    //             case 3: step_next = 1; break;
+    //             case 2: step_next = 0; break;
+    //             case 6: step_next = 5; break;
+    //             case 4: step_next = 4; break;
+    //             default: return;
+    //         }
+    //         break;
+    //     }
+    //     default: return;
+    // }
+    step_commutate(motor, step_next);
 }
 
 void motor_set_duty(MotorParameter *motor, uint8_t value)
