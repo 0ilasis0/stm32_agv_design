@@ -54,8 +54,8 @@ static UNUSED_FNC void fdcan_set_filter(FDCAN_HandleTypeDef *hfdcan)
         .FilterIndex = 0,
         .FilterType = FDCAN_FILTER_RANGE,
         .FilterConfig = FDCAN_FILTER_TO_RXFIFO0_HP,
-        .FilterID1 = FDCAN_FILTER_ID_MIN,
-        .FilterID2 = FDCAN_FILTER_ID_MIN + 3,
+        .FilterID1 = FDCAN_FILTER0_ID_MIN,
+        .FilterID2 = FDCAN_FILTER0_ID_MAX,
     };
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(hfdcan, &sFilter0));
     FDCAN_FilterTypeDef sFilter1 = {
@@ -63,8 +63,8 @@ static UNUSED_FNC void fdcan_set_filter(FDCAN_HandleTypeDef *hfdcan)
         .FilterIndex = 1,
         .FilterType = FDCAN_FILTER_RANGE,
         .FilterConfig = FDCAN_FILTER_TO_RXFIFO1,
-        .FilterID1 = FDCAN_FILTER_ID_MIN + 4,
-        .FilterID2 = FDCAN_FILTER_ID_MAX,
+        .FilterID1 = FDCAN_FILTER1_ID_MIN,
+        .FilterID2 = FDCAN_FILTER1_ID_MAX,
     };
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(hfdcan, &sFilter1));
 }
@@ -127,27 +127,22 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
+    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
     switch (code)
     {
         case CMD_B2_STOP:
         {
             arm_set_tim(arm, arm->tim_current);
-            break;
+            return FNS_OK;
         }
         case CMD_B2_SET:
         {
             arm_set_pos(arm, vec_byte->data[vec_byte->head]);
-            break;
+            return FNS_OK;
         }
-        default:
-        {
-            last_error = FNS_NO_MATCH;
-            return FNS_NO_MATCH;
-        }
+        default: break;
     }
-    return FNS_OK;
+    return FNS_NO_MATCH;
 }
 #endif
 
@@ -155,106 +150,109 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
 {
     uint8_t code;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
     switch (code)
     {
         #ifdef PRINCIPAL_PROGRAM
         case CMD_B0_VECH_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-            ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_B1_VEHICLE:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
-                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
                     MotionCommand mode = motion_unchange;
                     switch (code)
                     {
                         case CMD_B2_STOP:
+                        {
                             value = 0;
                             vehicle2_motion_and_speed_control(mode, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_FOWARD:
+                        {
                             mode = motion_forward;
                             vehicle2_motion_and_speed_control(mode, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_BACKWARD:
+                        {
                             mode = motion_backward;
                             vehicle2_motion_and_speed_control(mode, value);
-                            break;
-                        default:
-                            last_error = FNS_NO_MATCH;
-                            break;
+                            return FNS_OK;
+                        }
+                        default: break;
                     }
                     break;
                 }
                 case CMD_B1_LEFT_MOTOR:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
-                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
                         case CMD_B2_STOP:
+                        {
                             value = 0;
                             motor_set_speed(motor, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_FOWARD:
+                        {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_BACKWARD:
+                        {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
                             motor_set_speed(motor, value);
-                            break;
-                        default:
-                            last_error = FNS_NO_MATCH;
-                            break;
+                            return FNS_OK;
+                        }
+                        default: break;
                     }
                     break;
                 }
                 case CMD_B1_RIGHT_MOTOR:
                 {
                     uint8_t value;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &value));
-                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 2));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
                     MotorParameter* motor = &motor_right;
                     switch (code)
                     {
                         case CMD_B2_STOP:
+                        {
                             value = 0;
                             motor_set_speed(motor, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_FOWARD:
+                        {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
-                            break;
+                            return FNS_OK;
+                        }
                         case CMD_B2_BACKWARD:
+                        {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
                             motor_set_speed(motor, value);
-                            break;
-                        default:
-                            last_error = FNS_NO_MATCH;
-                            break;
+                            return FNS_OK;
+                        }
+                        default: break;
                     }
                     break;
                 }
-                default:
-                {
-                    last_error = FNS_NO_MATCH;
-                    return FNS_NO_MATCH;
-                }
+                default: break;
             }
             break;
         }
@@ -262,14 +260,12 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
         #ifdef ANCILLARY_PROGRAM
         case CMD_B0_ARM_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-            ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_B1_ARM:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
                         case CMD_B2_STOP:
@@ -280,62 +276,50 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                             arm_set_tim(&arm_elbow_top, arm_elbow_top.tim_current);
                             arm_set_tim(&arm_wrist, arm_wrist.tim_current);
                             arm_set_tim(&arm_finger, arm_finger.tim_current);
-                            break;
+                            return FNS_OK;
                         }
-                        default:
-                        {
-                            last_error = FNS_NO_MATCH;
-                            return FNS_NO_MATCH;
-                        }
+                        default: break;
                     }
                     break;
                 }
                 case CMD_B1_BOTTOM:
                 {
-                    proc_arm_set(vec_byte, &arm_bottom);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_bottom))) break;
+                    return FNS_OK;
                 }
                 case CMD_B1_SHOULDER:
                 {
-                    proc_arm_set(vec_byte, &arm_shoulder);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_shoulder))) break;
+                    return FNS_OK;
                 }
                 case CMD_B1_ELBOW_BTM:
                 {
-                    proc_arm_set(vec_byte, &arm_elbow_btm);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_btm))) break;
+                    return FNS_OK;
                 }
                 case CMD_B1_ELBOW_TOP:
                 {
-                    proc_arm_set(vec_byte, &arm_elbow_top);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_top))) break;
+                    return FNS_OK;
                 }
                 case CMD_B1_WRIST:
                 {
-                    proc_arm_set(vec_byte, &arm_wrist);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_wrist))) break;
+                    return FNS_OK;
                 }
                 case CMD_B1_FINGER:
                 {
-                    proc_arm_set(vec_byte, &arm_finger);
-                    break;
+                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_finger))) break;
+                    return FNS_OK;
                 }
-                default:
-                {
-                    last_error = FNS_NO_MATCH;
-                    return FNS_NO_MATCH;
-                }
+                default: break;
             }
             break;
         }
         #endif
-        default:
-        {
-            last_error = FNS_NO_MATCH;
-            return FNS_NO_MATCH;
-        }
+        default: break;
     }
-    return FNS_OK;
+    return FNS_NO_MATCH;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -345,7 +329,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         vec_rm_all(&fdcan_recv0_buf);
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcanRxHeader, fdcan_recv0_buf.data));
         fdcan_recv0_buf.len = fdcanRxHeader.DataLength;
-        fifo0_recv_pkt_proc(&fdcan_recv0_buf);
+        last_error = fifo0_recv_pkt_proc(&fdcan_recv0_buf);
     }
 }
 
@@ -356,7 +340,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
         vec_rm_all(&fdcan_recv1_buf);
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &fdcanRxHeader, fdcan_recv1_buf.data));
         fdcan_recv1_buf.len = fdcanRxHeader.DataLength;
-        fdcan_trcv_buf_push(&fdcan_recv_pkt_buf, &fdcan_recv1_buf, fdcanRxHeader.Identifier);
+        last_error = fdcan_trcv_buf_push(&fdcan_recv_pkt_buf, &fdcan_recv1_buf, fdcanRxHeader.Identifier);
     }
 }
 
@@ -365,9 +349,7 @@ static UNUSED_FNC FnState pkt_transmit(void)
     vec_rm_all(&fdcan_trsm_buf);
     ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_pop(&fdcan_trsm_pkt_buf, &fdcan_trsm_buf, &fdcanTxHeader.Identifier));
     fdcanTxHeader.DataLength = fdcan_trsm_buf.len;
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcanTxHeader, fdcan_trsm_buf.data) == HAL_OK)
-    {
-    }
+    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcanTxHeader, fdcan_trsm_buf.data);
     return FNS_OK;
 }
 
@@ -383,13 +365,27 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
         #else
         #ifdef PRINCIPAL_PROGRAM
         ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        #endif
+        #ifdef ANCILLARY_PROGRAM
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_bottom(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_shoulder(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_elbow_btm(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_elbow_top(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_wrist(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_finger(&vec_byte),
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
         #endif
         #endif
     }
@@ -401,26 +397,25 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
 {
     uint8_t code;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
-    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 1));
     switch (code)
     {
         case CMD_B0_DATA_STOP:
         {
             fdacn_data_trsm_ready = false;
-            break;
+            return FNS_OK;
         }
         case CMD_B0_DATA_START:
         {
             fdacn_data_trsm_ready = true;
-            break;
+            return FNS_OK;
         }
-        default:
+        case CMD_B0_TEST:
         {
-            last_error = FNS_NO_MATCH;
-            return FNS_NO_MATCH;
+            return FNS_OK;
         }
+        default: break;
     }
-    return FNS_OK;
+    return FNS_NO_MATCH;
 }
 
 static UNUSED_FNC FnState recv_pkt_proc(size_t count)
@@ -431,7 +426,7 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     for (size_t i = 0; i < count; i++)
     {
         if (ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id))) break;
-        recv_pkt_proc_inner(&vec_byte);
+        last_error = recv_pkt_proc_inner(&vec_byte);
     }
     vec_byte_free(&vec_byte);
     return FNS_OK;
@@ -455,12 +450,12 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
-        pkt_transmit();
-        recv_pkt_proc(5);
+        last_error = pkt_transmit();
+        last_error = recv_pkt_proc(5);
         if (tick % 50 == 0)
         {
             tick = 0;
-            trsm_pkt_proc();
+            last_error = trsm_pkt_proc();
         }
         osDelay(10);
         tick++;

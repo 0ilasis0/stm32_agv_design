@@ -8,7 +8,7 @@ static const ArmConst arm_bottom_const = {
     .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_bottom = {
-    .arm_const = &arm_bottom_const,
+    .const_h = &arm_bottom_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
@@ -21,7 +21,7 @@ static const ArmConst arm_shoulder_const = {
     .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_shoulder = {
-    .arm_const = &arm_shoulder_const,
+    .const_h = &arm_shoulder_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
@@ -34,7 +34,7 @@ static const ArmConst arm_elbow_btm_const = {
     .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_elbow_btm = {
-    .arm_const = &arm_elbow_btm_const,
+    .const_h = &arm_elbow_btm_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
@@ -47,7 +47,7 @@ static const ArmConst arm_elbow_top_const = {
     .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_elbow_top = {
-    .arm_const = &arm_elbow_top_const,
+    .const_h = &arm_elbow_top_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
@@ -60,7 +60,7 @@ static const ArmConst arm_wrist_const = {
     .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_wrist = {
-    .arm_const = &arm_wrist_const,
+    .const_h = &arm_wrist_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
@@ -73,16 +73,16 @@ static const ArmConst arm_finger_const = {
     .tim_max = ARM_TIM_MAX / 2,
 };
 ArmParameter arm_finger = {
-    .arm_const = &arm_finger_const,
+    .const_h = &arm_finger_const,
     .tim_current = 150,
     .tim_setpoint = 150,
 };
 
 void arm_set_tim(ArmParameter* arm, ArmTim tim)
 {
-    const ArmConst* arm_const = arm->arm_const;
-    if      (tim < arm_const->tim_min) arm->tim_setpoint = arm_const->tim_min;
-    else if (tim > arm_const->tim_max) arm->tim_setpoint = arm_const->tim_max;
+    const ArmConst* const_h = arm->const_h;
+    if      (tim < const_h->tim_min) arm->tim_setpoint = const_h->tim_min;
+    else if (tim > const_h->tim_max) arm->tim_setpoint = const_h->tim_max;
     arm->tim_setpoint = tim;
 }
 
@@ -94,8 +94,8 @@ inline void arm_set_pos(ArmParameter* arm, uint8_t pos)
 
 static void arm_setup(ArmParameter* arm)
 {
-    const ArmConst* arm_const = arm->arm_const;
-    HAL_TIM_PWM_Start(arm_const->htimx, arm_const->TIM_CHANNEL_x);
+    const ArmConst* const_h = arm->const_h;
+    HAL_TIM_PWM_Start(const_h->htimx, const_h->TIM_CHANNEL_x);
 }
 
 static void arm_turn(ArmParameter* arm)
@@ -105,12 +105,12 @@ static void arm_turn(ArmParameter* arm)
     if      (dtim >  ARM_TIM_STEP)  arm->tim_current += ARM_TIM_STEP;
     else if (dtim < -ARM_TIM_STEP)  arm->tim_current -= ARM_TIM_STEP;
     else                            arm->tim_current  = arm->tim_setpoint;
-    // const ArmConst* arm_const = arm->arm_const;
-    // if (arm->tim_current < arm_const->tim_min)
-    //     arm->tim_current = arm_const->tim_min;
-    // else if (arm->tim_current > arm_const->tim_max)
-    //     arm->tim_current = arm_const->tim_max;
-    __HAL_TIM_SET_COMPARE(arm->arm_const->htimx, arm->arm_const->TIM_CHANNEL_x, arm->tim_current);
+    // const ArmConst* const_h = arm->const_h;
+    // if (arm->tim_current < const_h->tim_min)
+    //     arm->tim_current = const_h->tim_min;
+    // else if (arm->tim_current > const_h->tim_max)
+    //     arm->tim_current = const_h->tim_max;
+    __HAL_TIM_SET_COMPARE(arm->const_h->htimx, arm->const_h->TIM_CHANNEL_x, arm->tim_current);
 }
 
 void StartArmTask(void *argument)

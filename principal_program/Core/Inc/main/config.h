@@ -56,12 +56,14 @@
 #define TRCV_BUF_MAX_CAP        10
 
 #define FDCAN_FILTER_COUNT      2
-#define FDCAN_FILTER_ID_MIN     0x020
-#define FDCAN_FILTER_ID_MAX     0x02F
+#define FDCAN_FILTER0_ID_MIN    0x020
+#define FDCAN_FILTER0_ID_MAX    0x021
+#define FDCAN_FILTER1_ID_MIN    0x022
+#define FDCAN_FILTER1_ID_MAX    0x023
 #define FDCAN_VEC_BYTE_CAP      8
 #define FDCAN_TRCV_BUF_CAP      10
-#define FDCAN_TEST_ID           0x01
-#define FDCAN_MOTOR_DATA_ID     0x01
+#define FDCAN_TEST_ID           0x001
+#define FDCAN_MOTOR_DATA_ID     0x012
 
 #define UART_BAUDRATE           115200
 #define UART_VEC_BYTE_CAP       128

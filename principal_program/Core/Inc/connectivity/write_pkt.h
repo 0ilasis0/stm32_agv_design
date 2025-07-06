@@ -11,3 +11,12 @@ FnState pkt_right_speed(VecByte* vec_byte);
 FnState pkt_left_duty(VecByte* vec_byte);
 FnState pkt_right_duty(VecByte* vec_byte);
 #endif
+
+#ifdef ANCILLARY_PROGRAM
+FnState pkt_arm_bottom(VecByte* vec_byte);
+FnState pkt_arm_shoulder(VecByte* vec_byte);
+FnState pkt_arm_elbow_btm(VecByte* vec_byte);
+FnState pkt_arm_elbow_top(VecByte* vec_byte);
+FnState pkt_arm_wrist(VecByte* vec_byte);
+FnState pkt_arm_finger(VecByte* vec_byte);
+#endif

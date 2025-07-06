@@ -9,17 +9,23 @@
 #define CMD_B0_DATA_STOP        (uint8_t)0x01   // 資料收集停止(can)
 #define CMD_B0_DATA_START       (uint8_t)0x02   // 資料收集開始(can)
 
+#define CMD_B1_VECH_POSI        (uint8_t)0x00   // 車輛位置 NEW
 #define CMD_B1_LEFT_SPEED       (uint8_t)0x10   // 左馬達速度f32
 #define CMD_B1_RIGHT_SPEED      (uint8_t)0x11   // 右馬達速度f32
 #define CMD_B1_LEFT_DUTY        (uint8_t)0x20   // 左馬達功率u8
 #define CMD_B1_RIGHT_DUTY       (uint8_t)0x21   // 右馬達功率u8
-#define CMD_B1_VECH_POSI        (uint8_t)0x80   // 車輛位置
+#define CMD_B1_ARM_BOTTOM       (uint8_t)0x40   // 手臂馬達 基座左右 NEW
+#define CMD_B1_ARM_SHOULDER     (uint8_t)0x41   // 手臂馬達 基座上下 NEW
+#define CMD_B1_ARM_ELBOW_BTM    (uint8_t)0x42   // 手臂馬達 NEW
+#define CMD_B1_ARM_ELBOW_TOP    (uint8_t)0x43   // 手臂馬達 NEW
+#define CMD_B1_ARM_WRIST        (uint8_t)0x44   // 手臂馬達 NEW
+#define CMD_B1_ARM_FINGER       (uint8_t)0x45   // 手臂馬達 NEW
 
 #define CMD_B2_TOTAL            (uint8_t)0x00   // 資料包總計(can)
-#define CMD_B2_POS              (uint8_t)0x00   // 位置ID
+#define CMD_B2_POS              (uint8_t)0x00   // 位置ID(車輛位置)
 
 #define CMD_B3_NUMBER           (uint8_t)0x00   // 資料包編號(can)
-#define CMD_B3_FACING           (uint8_t)0x00   // 目標ID
+#define CMD_B3_FACING           (uint8_t)0x00   // 目標ID(車輛位置)
 
 //--------------------------------------------------
 #define CMD_B0_VECH_CONTROL     (uint8_t)0x10   // 車輛控制

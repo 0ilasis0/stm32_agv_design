@@ -21,26 +21,29 @@
 
 #define ANCILLARY_PROGRAM
 
-#define TIM2_PSC     1700
-#define TIM2_ARR     2000
-#define TIM3_PSC      170
-#define TIM3_ARR    20000
+#define TIM2_PSC        1700
+#define TIM2_ARR        2000
+#define TIM3_PSC        170
+#define TIM3_ARR        20000
 
-#define VEC_BYTE_MAX_CAP 256
-#define TRCV_BUF_MAX_CAP 10
+#define VEC_BYTE_MAX_CAP        256
+#define TRCV_BUF_MAX_CAP        10
 
-#define FDCAN_FILTER_COUNT  2
-#define FDCAN_FILTER_ID_MIN 0x030
-#define FDCAN_FILTER_ID_MAX 0x03F
-#define FDCAN_VEC_BYTE_CAP  8
-#define FDCAN_TRCV_BUF_CAP  10
-#define FDCAN_TEST_ID       0x02
+#define FDCAN_FILTER_COUNT      2
+#define FDCAN_FILTER0_ID_MIN    0x030
+#define FDCAN_FILTER0_ID_MAX    0x031
+#define FDCAN_FILTER1_ID_MIN    0x032
+#define FDCAN_FILTER1_ID_MAX    0x033
+#define FDCAN_VEC_BYTE_CAP      8
+#define FDCAN_TRCV_BUF_CAP      10
+#define FDCAN_TEST_ID           0x002
+#define FDCAN_ARM_DATA_ID       0x013
 
-#define UART_BAUDRATE       115200
-#define UART_VEC_BYTE_CAP   128
-#define UART_TRCV_BUF_CAP   10
-#define UART_START_CODE     ((uint8_t) '>')
-#define UART_END_CODE       ((uint8_t) '\n')
+#define UART_BAUDRATE           115200
+#define UART_VEC_BYTE_CAP       128
+#define UART_TRCV_BUF_CAP       10
+#define UART_START_CODE         ((uint8_t) '>')
+#define UART_END_CODE           ((uint8_t) '\n')
 
 #define SPI2_RFID_SDA   
 #define SPI2_RFID_SCK
@@ -49,7 +52,7 @@
 #define SPI2_RFID_IRQ
 #define SPI2_RFID_RST
 
-#define ENABLE_CON_PKT_TEST
+// #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM
