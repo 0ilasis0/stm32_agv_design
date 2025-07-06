@@ -8,6 +8,7 @@
 #endif
 #ifdef ANCILLARY_PROGRAM
 #include "robotic_arm/main.h"
+#include "rfid/main.h"
 #endif
 
 FncState fdacn_data_trsm_ready = FNC_DISABLE;
@@ -411,7 +412,52 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
         }
         case CMD_B0_TEST:
         {
-            return FNS_OK;
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            switch (code)
+            {
+                case 0x01:
+                {
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    if (code != 0x04) break;
+                    uint8_t data[4];
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &data[0]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 5, &data[1]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 6, &data[2]));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 7, &data[3]));
+                    switch (code)
+                    {
+                        case 0x00:
+                        {
+                            memcpy(data_store, data, 4);
+                            return FNS_OK;
+                        }
+                        case 0x01:
+                        {
+                            memcpy(data_store + 4, data, 4);
+                            return FNS_OK;
+                        }
+                        case 0x02:
+                        {
+                            memcpy(data_store + 8, data, 4);
+                            return FNS_OK;
+                        }
+                        case 0x03:
+                        {
+                            memcpy(data_store + 12, data, 4);
+                            return FNS_OK;
+                        }
+                        default: break;
+                    }
+                    break;
+                }
+                case 0x02:
+                {
+                    return vec_byte_get_byte(vec_byte, 2, &date_write);
+                }
+                default: break;
+            }
+            break;
         }
         default: break;
     }

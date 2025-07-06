@@ -10,26 +10,28 @@ const RC522Const rfid_const = {
     .RST_GPIO_PIN_x = GPIO_PIN_9,
 };
 
+uint8_t data_store[16] = {0};
+uint8_t date_write = 0;
+
 RC522Status status;
+
 uint8_t dataBuf0[18];
 uint8_t dataBuf1[18];
-uint8_t dataBuf2[16] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-};
 
 uint8_t tttt = 0;
 
-void StartRfidTask(void *argument)
+static UNUSED_FNC void rfid_init(void)
 {
     RC522_PCD_Init(&rfid_const);
     if (RC522_PCD_PerformSelfTest(&rfid_const))
     {
         tttt = 1;
     }
+}
 
+void StartRfidTask(void *argument)
+{
+    rfid_init();
     for(;;)
     {
         if (
@@ -53,8 +55,11 @@ void StartRfidTask(void *argument)
         uint8_t buf_size0 = sizeof(dataBuf0);
         memset(&dataBuf0, 0, buf_size0);
         status = RC522_MIFARE_Read(&rfid_const, blockAddr, dataBuf0, &buf_size0);
-        dataBuf2[3]++;
-        status = RC522_MIFARE_Write(&rfid_const, blockAddr, dataBuf2, sizeof(dataBuf2));
+        if (date_write)
+        {
+            date_write = 0;
+            status = RC522_MIFARE_Write(&rfid_const, blockAddr, data_store, sizeof(data_store));
+        }
         uint8_t buf_size1 = sizeof(dataBuf1);
         memset(&dataBuf1, 0, buf_size1);
         status = RC522_MIFARE_Read(&rfid_const, blockAddr, dataBuf1, &buf_size1);
