@@ -3,8 +3,6 @@
 #include "us_sensor/main.h"
 #include "vehicle/vehicle.h"
 
-float motors_max_rps = MOTOR_MAX_SPEED;
-
 #define HIGH_PASS   1
 #define NONE_PASS   0
 #define LOW_PASS   -1

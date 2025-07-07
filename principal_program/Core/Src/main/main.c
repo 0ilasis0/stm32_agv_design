@@ -73,7 +73,7 @@ void StartDefaultTask(void *argument)
     adc_setup();
     map_setup();
 
-    // vehicle_test_no_load_speed(1000);
+    // vehicle_test_no_load_rps(1000);
 
     /*測試用--------------------------------------*/
     // motor_set_duty(&motor_right, 80);

@@ -2,40 +2,37 @@
 
 /**
   * @brief 測試空載情況下的馬達最大速度
-  * 僅使用右邊測試空載轉速
   */
-void vehicle_test_no_load_speed(uint32_t ms)
+void vehicle_test_no_load_rps(uint32_t ms)
 {
     if (!sys_run_switch.enable_debug_test_no_load_speed) return;
 
     sys_run_switch.enable_rps_control = 0;
-    
+
     vehicle_set_motion(motion_forward);
     uint32_t past_time = HAL_GetTick(), time_diff = past_time;
     motor_set_duty(&motor_left,  100);
     motor_set_duty(&motor_right, 100);
-    float left = 0, right = 0;
     for(;;)
     {
         if (HAL_GetTick() - past_time > ms) break;
-        if (left < motor_left.rps_present)
+        if (motor_left.rps_present > motor_left.rps_max)
         {
-            left = motor_left.rps_present;
+            motor_set_max_rps(&motor_left, motor_left.rps_present);
             past_time = HAL_GetTick();
         }
-        if (right < motor_right.rps_present)
+        if (motor_right.rps_present > motor_right.rps_max)
         {
-            right = motor_right.rps_present;
+            motor_set_max_rps(&motor_right, motor_right.rps_present);
             past_time = HAL_GetTick();
         }
         osDelay(10);
-        // timeout_error(previous_time_diff, &error_state.vehicle_test_no_load_speed);
+        // timeout_error(previous_time_diff, &error_state.vehicle_test_no_load_rps);
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);
-    if (left > right) left = right;
-    motor_set_max_rps(&motor_left, left);
-    motor_set_max_rps(&motor_right, left);
+    if (motor_left.rps_max > motor_right.rps_max) motor_set_max_rps(&motor_left, motor_right.rps_max);
+    else motor_set_max_rps(&motor_right, motor_left.rps_max);
     time_diff = HAL_GetTick() - time_diff;
     vehicle_ensure_stop();
     osDelay(1000);
@@ -48,11 +45,11 @@ void vehicle_test_no_load_speed(uint32_t ms)
     {
         if (HAL_GetTick() - past_time >= time_diff) break;
         osDelay(10);
-        // timeout_error(past_time, &error_state.vehicle_test_no_load_speed);
+        // timeout_error(past_time, &error_state.vehicle_test_no_load_rps);
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);
     vehicle_ensure_stop();
-    
+
     sys_run_switch.enable_rps_control = 1;
 }

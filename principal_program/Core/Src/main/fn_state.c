@@ -6,7 +6,7 @@ FnState last_error = FNS_INVALID;
 #ifdef PRINCIPAL_PROGRAM
 
 FnState_h error_state = {
-    .vehicle_test_no_load_speed                 = FNS_INVALID,
+    .vehicle_test_no_load_rps                 = FNS_INVALID,
     .vehicle_over_hall_fall_back                = FNS_INVALID,
     .agv_forward_leave_strong_magnet            = FNS_INVALID,
     .vehicle_search_magnetic_path               = FNS_INVALID,
