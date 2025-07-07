@@ -4,7 +4,13 @@
 
 void direction_update(void)
 {
-    if (vehicle_state.motion_inner != vehicle_state.motion) vehicle_ensure_stop();
+    if (vehicle_state.motion_inner == vehicle_state.motion) return;
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    if (
+            (motor_left.rps_present != 0)
+        || (motor_right.rps_present != 0)
+    ) return;
     vehicle_state.motion_inner = vehicle_state.motion;
     switch(vehicle_state.motion_inner)
     {
@@ -38,6 +44,8 @@ void direction_update(void)
         }
         default: break;
     }
+    motor_set_state(&motor_left, MOTOR_STATE_FREE);
+    motor_set_state(&motor_right, MOTOR_STATE_FREE);
 }
 
 void StartVehicleTask(void *argument)

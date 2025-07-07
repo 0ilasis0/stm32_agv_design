@@ -192,14 +192,12 @@ static void pwm_setup(const MotorParameter *motor)
 
 static void direction_update(MotorParameter *motor)
 {
-    if (motor->direction_inner != motor->direction_setpoint)
+    if (motor->direction_inner == motor->direction_setpoint) return;
+    motor_set_state(motor, MOTOR_STATE_SLOW);
+    if (motor->rps_present < MOTOR_STOP_GATE)
     {
-        motor->state = MOTOR_STATE_SLOW;
-        if (motor->rps_present < MOTOR_STOP_GATE)
-        {
-            motor->direction_inner = motor->direction_setpoint;
-            motor->state = MOTOR_STATE_FREE;
-        }
+        motor->direction_inner = motor->direction_setpoint;
+        motor_set_state(motor, MOTOR_STATE_FREE);
     }
 }
 
