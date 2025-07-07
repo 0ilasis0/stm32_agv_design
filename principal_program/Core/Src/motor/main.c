@@ -192,18 +192,21 @@ static void pwm_setup(const MotorParameter *motor)
 
 static void state_update(MotorParameter *motor)
 {
-    if (motor->direction_inner != motor->direction)
-    {
-        motor->state_inner = MOTOR_STATE_SLOW;
-        if (motor->rps_present > MOTOR_STOP_GATE) return;
-        motor->direction_inner = motor->direction;
-    }
-    motor->state_inner = motor->state;
     // 避免馬達應動未動
     if (
            motor->rps_present == 0
         && motor->pwm_duty != 0
     ) motor_step_update(motor);
+
+    if (
+           (motor->state != MOTOR_STATE_LOCK)
+        && (motor->direction_inner != motor->direction)
+    ) {
+        motor->state_inner = MOTOR_STATE_SLOW;
+        if (motor->rps_present > MOTOR_STOP_GATE) return;
+        motor->direction_inner = motor->direction;
+    }
+    motor->state_inner = motor->state;
 }
 
 static void datas_update(MotorParameter *motor, float ms)
@@ -258,6 +261,7 @@ static void rotate_control(MotorParameter *motor, float ms)
         case MOTOR_STATE_LOCK:
         {
             motor_set_duty(motor, 20);
+            motor->rps_pcn_inner = 0;
             motor->direction_inner = MOTOR_DIRECTION_STOP;
             motor->integral_record = 0;
             return;
