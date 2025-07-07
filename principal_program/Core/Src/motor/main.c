@@ -59,12 +59,12 @@ void motor_set_max_rps(MotorParameter* motor, float value)
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value)
 {
     if (value > 100) value = 100;
-    motor->rps_pcn_setpoint = value;
+    motor->rps_pcn = value;
 }
 
-void motor_set_direction(MotorParameter *motor, RotateState direction)
+void motor_set_direction(MotorParameter *motor, MotorDirection direction)
 {
-    motor->direction_setpoint = direction;
+    motor->direction = direction;
 }
 
 void motor_set_state(MotorParameter *motor, MotorState state)
@@ -123,17 +123,17 @@ static void motor_step_update(MotorParameter *motor)
     uint8_t step_next;
     switch (motor->direction_inner)
     {
-        case MOTOR_ROTATE_CLW:
+        case MOTOR_DIRECTION_CLW:
         {
             step_next = hall_index[motor->hall_present];
             break;
         }
-        case MOTOR_ROTATE_CCLW:
+        case MOTOR_DIRECTION_CCLW:
         {
             step_next = (hall_index[motor->hall_present] + 3) % 6;
             break;
         }
-        case MOTOR_ROTATE_STOP:
+        case MOTOR_DIRECTION_STOP:
         {
             step_next = hall_index[motor->hall_last];
             break;
@@ -143,7 +143,7 @@ static void motor_step_update(MotorParameter *motor)
     if (step_next == 0xFF) return;
     // switch (motor->direction_inner)
     // {
-    //     case MOTOR_ROTATE_CLW:
+    //     case MOTOR_DIRECTION_CLW:
     //     {
     //         switch(hall_state)
     //         {
@@ -157,7 +157,7 @@ static void motor_step_update(MotorParameter *motor)
     //         }
     //         break;
     //     }
-    //     case MOTOR_ROTATE_CCLW:
+    //     case MOTOR_DIRECTION_CCLW:
     //     {
     //         switch(hall_state)
     //         {
@@ -190,46 +190,83 @@ static void pwm_setup(const MotorParameter *motor)
     HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
 }
 
-static void direction_update(MotorParameter *motor)
+static void state_update(MotorParameter *motor)
 {
-    if (motor->direction_inner == motor->direction_setpoint) return;
-    motor_set_state(motor, MOTOR_STATE_SLOW);
-    if (motor->rps_present < MOTOR_STOP_GATE)
+    if (motor->direction_inner != motor->direction)
     {
-        motor->direction_inner = motor->direction_setpoint;
-        motor_set_state(motor, MOTOR_STATE_FREE);
+        motor->state_inner = MOTOR_STATE_SLOW;
+        if (motor->rps_present > MOTOR_STOP_GATE) return;
+        motor->direction_inner = motor->direction;
+    }
+    motor->state_inner = motor->state;
+    // 避免馬達應動未動
+    if (
+           motor->rps_present == 0
+        && motor->pwm_duty != 0
+    ) motor_step_update(motor);
+}
+
+static void datas_update(MotorParameter *motor, float ms)
+{
+    if (ms <= 0) return;
+    motor->rps_present = (float)motor->step_count * 1000.0f / ((6 * 3) * ms);
+    motor->step_count = 0;
+    uint8_t diff = (hall_index[motor->hall_last] + 6 - hall_index[motor->hall_present]) % 6;
+    switch (diff)
+    {
+        case 5:
+        {
+            motor->direction_present = MOTOR_DIRECTION_CLW;
+            break;
+        }
+        case 0:
+        {
+            motor->direction_present = MOTOR_DIRECTION_STOP;
+            break;
+        }
+        case 1:
+        {
+            motor->direction_present = MOTOR_DIRECTION_CCLW;
+            break;
+        }
+        default: return;
     }
 }
 
-static void rps_control(MotorParameter *motor, float ms)
+static void rotate_control(MotorParameter *motor, float ms)
 {
-    Percentage rps_pcn = motor->rps_pcn_setpoint;
-    switch (motor->state)
+    switch (motor->state_inner)
     {
+        case MOTOR_STATE_CONTROL:
+        {
+            motor->rps_pcn_inner = motor->rps_pcn;
+            break;
+        }
+        case MOTOR_STATE_FREE: return;
         case MOTOR_STATE_SLOW:
         {
-            rps_pcn = 0;
+            motor->rps_pcn_inner = 0;
             break;
         }
         case MOTOR_STATE_COAST:
         {
             motor_set_duty(motor, 0);
+            motor->rps_pcn_inner = 0;
             motor->integral_record = 0;
             return;
         }
         case MOTOR_STATE_LOCK:
         {
             motor_set_duty(motor, 20);
-            motor->direction_inner = MOTOR_ROTATE_STOP;
+            motor->direction_inner = MOTOR_DIRECTION_STOP;
             motor->integral_record = 0;
             return;
         }
         default: break;
     }
-    if (!runtime_switch.rps_control) return;
     if (
         (motor->rps_present < MOTOR_STOP_GATE)
-        && (rps_pcn == 0)
+        && (motor->rps_pcn_inner == 0)
     ) {
         motor_set_duty(motor, 0);
         motor->integral_record = 0;
@@ -238,7 +275,7 @@ static void rps_control(MotorParameter *motor, float ms)
     // PI 控制
     // 計算誤差
     float error =
-        (motor->rps_max * rps_pcn / 100.0f)
+        (motor->rps_max * motor->rps_pcn_inner / 100.0f)
         - motor->rps_present;
     // 累積誤差 error*秒
     float integral =
@@ -261,38 +298,6 @@ static void rps_control(MotorParameter *motor, float ms)
     return;
 }
 
-static void motor_state_update(MotorParameter *motor, float ms)
-{
-    if (ms <= 0) return;
-    motor->rps_present = (float)motor->step_count * 1000.0f / ((6 * 3) * ms);
-    motor->step_count = 0;
-    uint8_t diff = (hall_index[motor->hall_last] + 6 - hall_index[motor->hall_present]) % 6;
-    switch (diff)
-    {
-        case 5:
-        {
-            motor->direction_present = MOTOR_ROTATE_CLW;
-            break;
-        }
-        case 0:
-        {
-            motor->direction_present = MOTOR_ROTATE_STOP;
-            break;
-        }
-        case 1:
-        {
-            motor->direction_present = MOTOR_ROTATE_CCLW;
-            break;
-        }
-        default: return;
-    }
-    // 避免馬達應動未動
-    if (
-           motor->rps_present == 0
-        && motor->pwm_duty != 0
-    ) motor_step_update(motor);
-}
-
 #define MOTOR_TASK_DELAY_MS     50
 void StartMotorTask(void *argument)
 {
@@ -304,12 +309,12 @@ void StartMotorTask(void *argument)
     uint32_t next_wake = osKernelGetTickCount() + osPeriod;
     for(;;)
     {
-        motor_state_update(&motor_left, MOTOR_TASK_DELAY_MS);
-        motor_state_update(&motor_right, MOTOR_TASK_DELAY_MS);
-        rps_control(&motor_left, MOTOR_TASK_DELAY_MS);
-        rps_control(&motor_right, MOTOR_TASK_DELAY_MS);
-        direction_update(&motor_left);
-        direction_update(&motor_right);
+        state_update(&motor_left);
+        state_update(&motor_right);
+        datas_update(&motor_left, MOTOR_TASK_DELAY_MS);
+        datas_update(&motor_right, MOTOR_TASK_DELAY_MS);
+        rotate_control(&motor_left, MOTOR_TASK_DELAY_MS);
+        rotate_control(&motor_right, MOTOR_TASK_DELAY_MS);
         // us_sensor_enable(&us_sensor_head);
         osDelayUntil(next_wake);
         next_wake += osPeriod;

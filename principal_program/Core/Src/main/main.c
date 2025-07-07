@@ -75,11 +75,13 @@ void StartDefaultTask(void *argument)
     // vehicle_test_no_load_rps(1000);
 
     /*測試用--------------------------------------*/
+    // motor_set_state(&motor_left, MOTOR_STATE_FREE);
+    // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_duty(&motor_right, 80);
     // motor_set_duty(&motor_left,  80);
-    motor_set_direction(&motor_left, MOTOR_ROTATE_CLW);
+    motor_set_direction(&motor_left, MOTOR_DIRECTION_CLW);
     motor_set_rps_pcn(&motor_left, 50);
-    motor_set_direction(&motor_left, MOTOR_ROTATE_CCLW);
+    motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
     motor_set_rps_pcn(&motor_right, 50);
 
     // init_map_data_direction_and_address(&map_data, 11, 7);

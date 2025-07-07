@@ -16,29 +16,29 @@ void direction_update(void)
     {
         case motion_forward:
         {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
+            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CCLW);
+            motor_set_direction(&motor_right, MOTOR_DIRECTION_CLW);
             vehicle_state.motion = motion_forward;
             break;
         }
         case motion_backward:
         {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
+            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CLW);
+            motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
             vehicle_state.motion = motion_backward;
             break;
         }
         case motion_clockwise:
         {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
+            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CCLW);
+            motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
             vehicle_state.motion = motion_clockwise;
             break;
         }
         case motion_c_clockwise:
         {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
+            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CLW);
+            motor_set_direction(&motor_right, MOTOR_DIRECTION_CLW);
             vehicle_state.motion = motion_c_clockwise;
             break;
         }
@@ -226,4 +226,3 @@ void vehicle_loop(void)
         default: break;
     }
 }
-
