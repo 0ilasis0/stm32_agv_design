@@ -42,7 +42,7 @@ void direction_update(void)
 
 void StartVehicleTask(void *argument)
 {
-    uint16_t tick = 0;
+    size_t tick = 0;
     for(;;)
     {
         direction_update();
@@ -139,7 +139,7 @@ static void track_mode(void)
 
 static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 {
-    if (!runtime_switch.search_magnetic_path) return;
+    if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
 
     vehicle_set_motion(motion_clockwise);
     vehicle_set_speed(speed);

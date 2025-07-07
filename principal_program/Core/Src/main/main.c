@@ -26,7 +26,6 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (motor_tick % 500 == 0) // 50ms
         {
             motor_tick = 0;
-            motor_tim_tick(50.0f);
         }
         motor_tick++;
     }
@@ -52,14 +51,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1])
         || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2])
     ) {
-        motor_hall_exti(&motor_right);
+        motor_HALL_EXTI(&motor_right);
     }
     else if (
            (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0])
         || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1])
         || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2])
     ) {
-        motor_hall_exti(&motor_left);
+        motor_HALL_EXTI(&motor_left);
     }
     // else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
     // {

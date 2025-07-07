@@ -11,6 +11,8 @@
 #include <string.h>
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #include "cmsis_os.h"
 
 #define UNUSED_FNC __attribute__((unused))

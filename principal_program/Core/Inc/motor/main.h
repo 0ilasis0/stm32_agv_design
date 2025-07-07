@@ -54,5 +54,4 @@ void motor_set_duty(MotorParameter *motor, uint8_t value);
 void motor_set_state(MotorParameter *motor, MotorState state);
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value);
 void motor_set_direction(MotorParameter *motor, RotateState direction);
-void motor_tim_tick(float ms);
-void motor_hall_exti(MotorParameter *motor);
+void motor_HALL_EXTI(MotorParameter *motor);

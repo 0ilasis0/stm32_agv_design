@@ -72,9 +72,13 @@ void motor_set_state(MotorParameter *motor, MotorState state)
     motor->state = state;
 }
 
-// #define GET_HALL_STATE()                                                                        \
-//       (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)  \
-//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)  \
+void motor_set_duty(MotorParameter *motor, uint8_t value)
+{
+    motor->pwm_duty = (value > 100 ? 100 : value);
+}
+
+//       (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)
+//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)
 //     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[2], motor->const_h.Hall_GPIO_Pin_x[2])     )
 static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
@@ -172,9 +176,31 @@ static void motor_step_update(MotorParameter *motor)
     step_commutate(motor, step_next);
 }
 
-void motor_set_duty(MotorParameter *motor, uint8_t value)
+void motor_HALL_EXTI(MotorParameter *motor)
 {
-    motor->pwm_duty = (value > 100 ? 100 : value);
+    motor->step_count++;
+    motor_step_update(motor);
+}
+
+static void pwm_setup(const MotorParameter *motor)
+{
+    const MotorConst* const_h = &motor->const_h;
+    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
+}
+
+static void direction_update(MotorParameter *motor)
+{
+    if (motor->direction_inner != motor->direction_setpoint)
+    {
+        motor->state = MOTOR_STATE_SLOW;
+        if (motor->rps_present < MOTOR_STOP_GATE)
+        {
+            motor->direction_inner = motor->direction_setpoint;
+            motor->state = MOTOR_STATE_FREE;
+        }
+    }
 }
 
 static void rps_control(MotorParameter *motor, float ms)
@@ -269,58 +295,26 @@ static void motor_state_update(MotorParameter *motor, float ms)
     ) motor_step_update(motor);
 }
 
-void motor_tim_tick(float ms)
-{
-    motor_state_update(&motor_left, ms);
-    motor_state_update(&motor_right, ms);
-    rps_control(&motor_left, ms);
-    rps_control(&motor_right, ms);
-}
-
-void motor_hall_exti(MotorParameter *motor)
-{
-    motor->step_count++;
-    motor_step_update(motor);
-}
-
-static void pwm_setup(const MotorParameter *motor)
-{
-    const MotorConst* const_h = &motor->const_h;
-    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
-}
-
-static void direction_update(MotorParameter *motor)
-{
-    if (motor->direction_inner != motor->direction_setpoint)
-    {
-        motor->state = MOTOR_STATE_SLOW;
-        if (motor->rps_present < MOTOR_STOP_GATE)
-        {
-            motor->direction_inner = motor->direction_setpoint;
-            motor->state = MOTOR_STATE_FREE;
-        }
-    }
-}
-
+#define MOTOR_TASK_DELAY_MS     50
 void StartMotorTask(void *argument)
 {
     HAL_TIM_Base_Start_IT(MOTOR_HTIM1);
     HAL_TIM_Base_Start_IT(MOTOR_HTIM2);
     pwm_setup(&motor_right);
     pwm_setup(&motor_left);
-    uint16_t tick = 0;
+    const uint32_t osPeriod = pdMS_TO_TICKS(MOTOR_TASK_DELAY_MS);
+    uint32_t next_wake = osKernelGetTickCount() + osPeriod;
     for(;;)
     {
-        direction_update(&motor_right);
+        motor_state_update(&motor_left, MOTOR_TASK_DELAY_MS);
+        motor_state_update(&motor_right, MOTOR_TASK_DELAY_MS);
+        rps_control(&motor_left, MOTOR_TASK_DELAY_MS);
+        rps_control(&motor_right, MOTOR_TASK_DELAY_MS);
         direction_update(&motor_left);
+        direction_update(&motor_right);
         // us_sensor_enable(&us_sensor_head);
-        if (tick % 100 == 0)
-        {
-            tick = 0;
-        }
-        osDelay(10);
-        tick++;
+        osDelayUntil(next_wake);
+        next_wake += osPeriod;
     }
+    osThreadExit();
 }

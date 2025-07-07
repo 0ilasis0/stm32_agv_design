@@ -58,28 +58,28 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t UartTaskHandle;
 const osThreadAttr_t UartTask_attributes = {
   .name = "UartTask",
-  .priority = (osPriority_t) osPriorityAboveNormal,
+  .priority = (osPriority_t) osPriorityAboveNormal7,
   .stack_size = 256 * 4
 };
 /* Definitions for MotorTask */
 osThreadId_t MotorTaskHandle;
 const osThreadAttr_t MotorTask_attributes = {
   .name = "MotorTask",
-  .priority = (osPriority_t) osPriorityHigh,
+  .priority = (osPriority_t) osPriorityRealtime,
   .stack_size = 128 * 4
 };
 /* Definitions for FdCanTask */
 osThreadId_t FdCanTaskHandle;
 const osThreadAttr_t FdCanTask_attributes = {
   .name = "FdCanTask",
-  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .priority = (osPriority_t) osPriorityHigh,
   .stack_size = 256 * 4
 };
 /* Definitions for VehicleTask */
 osThreadId_t VehicleTaskHandle;
 const osThreadAttr_t VehicleTask_attributes = {
   .name = "VehicleTask",
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityHigh7,
   .stack_size = 128 * 4
 };
 
