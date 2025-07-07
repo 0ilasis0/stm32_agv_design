@@ -6,9 +6,9 @@
 
 #include "main/config.h"
 
-typedef int FnState;
+typedef uint8_t FnState;
 extern FnState last_error;
-#define FNS_INVALID        -1
+#define FNS_INVALID         0xFF
 #define FNS_OK              0
 #define FNS_FAIL            1
 #define FNS_TIMEOUT         2

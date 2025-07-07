@@ -67,7 +67,7 @@ static void sort(uint16_t* values, size_t count) {
 // renew adc senser
 void adc_renew (void)
 {
-    if (!sys_run_switch.enable_adc) return;
+    if (!runtime_switch.adc) return;
 
     // uint32_t sum[4] = {0};
     uint16_t adc_1[ADC_NEED_LEN], adc_2[ADC_NEED_LEN], adc_3[ADC_NEED_LEN], adc_4[ADC_NEED_LEN];

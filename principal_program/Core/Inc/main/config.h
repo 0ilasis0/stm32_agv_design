@@ -87,15 +87,15 @@ typedef int8_t FncState;
 #define FNC_DISABLE 0
 #define FNC_ENABLE  1
 
-typedef struct SYSTEM_RUNTIME_SWITCH
+typedef struct RuntimeSwitch
 {
-    bool enable_adc;
-    bool enable_rps_control;
-    bool enable_search_magnetic_path;
-    bool enable_timeout_error;
+    FncState adc;
+    FncState rps_control;
+    FncState search_magnetic_path;
+    FncState timeout;
 
-    bool enable_debug_breakdown_all_hall_lost;
-    bool enable_debug_protect_over_hall;
-    bool enable_debug_test_no_load_speed;
-} SYSTEM_RUNTIME_SWITCH;
-extern SYSTEM_RUNTIME_SWITCH sys_run_switch;
+    FncState debug_breakdown_all_hall_lost;
+    FncState debug_protect_over_hall;
+    FncState debug_test_no_load_speed;
+} RuntimeSwitch;
+extern RuntimeSwitch runtime_switch;

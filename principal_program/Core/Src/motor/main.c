@@ -202,7 +202,7 @@ static void rps_control(MotorParameter *motor, float ms)
         }
         default: break;
     }
-    if (!sys_run_switch.enable_rps_control) return;
+    if (!runtime_switch.rps_control) return;
     if (
         (motor->rps_present < MOTOR_STOP_GATE)
         && (rps_pcn == 0)

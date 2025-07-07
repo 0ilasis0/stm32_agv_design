@@ -31,7 +31,7 @@ static void vehicle_over_hall_fall_back(void)
   */
 static void vehicle_search_magnetic_path (VehicleMotion search_direction, uint16_t time)
 {
-    if (!sys_run_switch.enable_search_magnetic_path) return;
+    if (!runtime_switch.search_magnetic_path) return;
 
     vehicle_set_motion(search_direction);
     vehicle_set_speed(VEHICLE_setpoint_rotate);
@@ -45,7 +45,7 @@ static void vehicle_search_magnetic_path (VehicleMotion search_direction, uint16
             || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
             || adc_hall.sensor_node         < adc_hall.magnetic_stripe_value
         ) {
-            sys_run_switch.enable_search_magnetic_path = 0;
+            runtime_switch.search_magnetic_path = 0;
             break;
         }
 
@@ -74,7 +74,7 @@ static void agv_forward_leave_strong_magnet (void)
 /* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
 static void protect_over_hall(void)
 {
-    if (!sys_run_switch.enable_debug_protect_over_hall) return;
+    if (!runtime_switch.debug_protect_over_hall) return;
 
     vehicle_ensure_stop();
 
@@ -98,7 +98,7 @@ static void protect_over_hall(void)
   */
 static void breakdown_all_hall_lost (void)
 {
-    if (!sys_run_switch.enable_debug_breakdown_all_hall_lost) return;
+    if (!runtime_switch.debug_breakdown_all_hall_lost) return;
 
     if (
             adc_hall.sensor_direction   > adc_hall.magnetic_stripe_value
@@ -109,7 +109,7 @@ static void breakdown_all_hall_lost (void)
         vehicle_ensure_stop();
         vehicle_search_magnetic_path (motion_clockwise, 3000);
         vehicle_search_magnetic_path (motion_c_clockwise, 6000);
-        if (sys_run_switch.enable_search_magnetic_path == 1)
+        if (runtime_switch.search_magnetic_path == 1)
         {
             while (true)
             {
@@ -118,7 +118,7 @@ static void breakdown_all_hall_lost (void)
             }
         }
 
-        sys_run_switch.enable_search_magnetic_path = 1;
+        runtime_switch.search_magnetic_path = 1;
     }
 }
 

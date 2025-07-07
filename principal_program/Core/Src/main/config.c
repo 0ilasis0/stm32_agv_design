@@ -1,12 +1,12 @@
 #include "main/config.h"
 
-SYSTEM_RUNTIME_SWITCH sys_run_switch = {
-    .enable_adc = 1,
-    .enable_rps_control = 1,
-    .enable_search_magnetic_path = 1,
-    .enable_timeout_error = 0,
+RuntimeSwitch runtime_switch = {
+    .adc = FNC_ENABLE,
+    .rps_control = FNC_ENABLE,
+    .search_magnetic_path = FNC_ENABLE,
+    .timeout = FNC_DISABLE,
 
-    .enable_debug_breakdown_all_hall_lost = 0,
-    .enable_debug_protect_over_hall = 0,
-    .enable_debug_test_no_load_speed = 0,
+    .debug_breakdown_all_hall_lost = FNC_DISABLE,
+    .debug_protect_over_hall = FNC_DISABLE,
+    .debug_test_no_load_speed = FNC_DISABLE,
 };

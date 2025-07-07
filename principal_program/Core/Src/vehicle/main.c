@@ -60,9 +60,9 @@ void StartVehicleTask(void *argument)
   */
 void vehicle_test_no_load_rps(uint32_t ms)
 {
-    if (!sys_run_switch.enable_debug_test_no_load_speed) return;
+    if (!runtime_switch.debug_test_no_load_speed) return;
 
-    sys_run_switch.enable_rps_control = 0;
+    runtime_switch.rps_control = 0;
 
     vehicle_set_motion(motion_forward);
     uint32_t past_time = HAL_GetTick(), time_diff = past_time;
@@ -106,7 +106,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     motor_set_duty(&motor_right, 0);
     vehicle_ensure_stop();
 
-    sys_run_switch.enable_rps_control = 1;
+    runtime_switch.rps_control = 1;
 }
 
 /**
@@ -139,7 +139,7 @@ static void track_mode(void)
 
 static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 {
-    if (!sys_run_switch.enable_search_magnetic_path) return;
+    if (!runtime_switch.search_magnetic_path) return;
 
     vehicle_set_motion(motion_clockwise);
     vehicle_set_speed(speed);
