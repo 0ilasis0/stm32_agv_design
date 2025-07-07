@@ -7,27 +7,36 @@
 void vehicle_test_no_load_speed(uint32_t ms)
 {
     if (!sys_run_switch.enable_debug_test_no_load_speed) return;
-    sys_run_switch.enable_rps_control = 0;
 
+    sys_run_switch.enable_rps_control = 0;
+    
     vehicle_set_motion(motion_forward);
-    uint32_t past_time = HAL_GetTick()
-            ,previous_time_dif = past_time;
+    uint32_t past_time = HAL_GetTick(), time_diff = past_time;
     motor_set_duty(&motor_left,  100);
     motor_set_duty(&motor_right, 100);
-    while (
-        HAL_GetTick() - past_time < ms || motors_max_rps <= 10
-    ) {
-        if (motors_max_rps < motor_right.rps_present) {
-                motors_max_rps = motor_right.rps_present;
-                past_time = HAL_GetTick();
+    float left = 0, right = 0;
+    for(;;)
+    {
+        if (HAL_GetTick() - past_time > ms) break;
+        if (left < motor_left.rps_present)
+        {
+            left = motor_left.rps_present;
+            past_time = HAL_GetTick();
         }
-
-        timeout_error(previous_time_dif, &error_state.vehicle_test_no_load_speed);
+        if (right < motor_right.rps_present)
+        {
+            right = motor_right.rps_present;
+            past_time = HAL_GetTick();
+        }
+        osDelay(10);
+        // timeout_error(previous_time_diff, &error_state.vehicle_test_no_load_speed);
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);
-    previous_time_dif = HAL_GetTick() - previous_time_dif;
-
+    if (left > right) left = right;
+    motor_set_max_rps(&motor_left, left);
+    motor_set_max_rps(&motor_right, left);
+    time_diff = HAL_GetTick() - time_diff;
     vehicle_ensure_stop();
     osDelay(1000);
 
@@ -35,8 +44,11 @@ void vehicle_test_no_load_speed(uint32_t ms)
     past_time = HAL_GetTick();
     motor_set_duty(&motor_left,  100);
     motor_set_duty(&motor_right, 100);
-    while(HAL_GetTick() - past_time <= previous_time_dif) {
-        timeout_error(past_time, &error_state.vehicle_test_no_load_speed);
+    for(;;)
+    {
+        if (HAL_GetTick() - past_time >= time_diff) break;
+        osDelay(10);
+        // timeout_error(past_time, &error_state.vehicle_test_no_load_speed);
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);

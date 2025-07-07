@@ -79,9 +79,9 @@ void StartDefaultTask(void *argument)
     // motor_set_duty(&motor_right, 80);
     // motor_set_duty(&motor_left,  80);
     motor_set_direction(&motor_left, MOTOR_ROTATE_CLW);
-    motor_set_speed(&motor_left, 50);
+    motor_set_rps_pcn(&motor_left, 50);
     motor_set_direction(&motor_left, MOTOR_ROTATE_CCLW);
-    motor_set_speed(&motor_right, 50);
+    motor_set_rps_pcn(&motor_right, 50);
 
     // init_map_data_direction_and_address(&map_data, 11, 7);
     /*測試用--------------------------------------*/

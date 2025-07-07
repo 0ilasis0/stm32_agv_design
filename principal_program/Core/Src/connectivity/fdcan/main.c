@@ -198,21 +198,21 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                         case CMD_ARM_B2_STOP:
                         {
                             value = 0;
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, MOTOR_ROTATE_CLW);
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, MOTOR_ROTATE_CCLW);
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         default: break;
@@ -230,21 +230,21 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                         case CMD_ARM_B2_STOP:
                         {
                             value = 0;
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, MOTOR_ROTATE_CLW);
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         case CMD_VECH_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, MOTOR_ROTATE_CCLW);
-                            motor_set_speed(motor, value);
+                            motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
                         default: break;

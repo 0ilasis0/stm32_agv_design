@@ -159,19 +159,19 @@ static void track_mode(void)
            adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
         && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
         ) {
-        motor_set_speed(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed(&motor_right, 0);
+        motor_set_rps_pcn(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_rps_pcn(&motor_right, 0);
 
     } else if (
            adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
         && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
         ) {
-        motor_set_speed(&motor_left, 0);
-        motor_set_speed(&motor_right, VEHICLE_setpoint_straight);
+        motor_set_rps_pcn(&motor_left, 0);
+        motor_set_rps_pcn(&motor_right, VEHICLE_setpoint_straight);
 
     } else {
-        motor_set_speed(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_speed(&motor_right, VEHICLE_setpoint_straight);
+        motor_set_rps_pcn(&motor_left, VEHICLE_setpoint_straight);
+        motor_set_rps_pcn(&motor_right, VEHICLE_setpoint_straight);
 
     }
 }

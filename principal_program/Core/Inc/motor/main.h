@@ -51,9 +51,10 @@ typedef struct MotorParameter
 extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
+void motor_set_max_rps(MotorParameter* motor, float value);
 void motor_set_duty(MotorParameter *motor, uint8_t value);
 void motor_set_state(MotorParameter *motor, MotorState state);
-bool motor_set_speed(MotorParameter* motor, Percentage value);
+bool motor_set_rps_pcn(MotorParameter* motor, Percentage value);
 void motor_set_direction(MotorParameter *motor, RotateState direction);
 void motor_tim_tick(float ms);
 void motor_hall_exti(MotorParameter *motor);

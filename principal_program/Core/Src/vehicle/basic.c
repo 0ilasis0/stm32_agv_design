@@ -67,6 +67,6 @@ void vehicle_set_motion(MotionCommand mode)
 
 void vehicle_set_speed(uint8_t value)
 {
-    motor_set_speed(&motor_right, value);
-    motor_set_speed(&motor_left , value);
+    motor_set_rps_pcn(&motor_right, value);
+    motor_set_rps_pcn(&motor_left , value);
 }

@@ -37,6 +37,7 @@ MotorParameter motor_left = {
         .Coil_GPIOx         = { GPIOB,      GPIOC,      GPIOC      },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_7, GPIO_PIN_2, GPIO_PIN_3 },
     },
+    .rps_max = MOTOR_MAX_SPEED,
 };
 
 MotorParameter motor_right = {
@@ -49,17 +50,22 @@ MotorParameter motor_right = {
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_15, GPIO_PIN_14, GPIO_PIN_13 },
     },
+    .rps_max = MOTOR_MAX_SPEED,
 };
 
-bool motor_set_speed(MotorParameter* motor, Percentage value)
+void motor_set_max_rps(MotorParameter* motor, float value)
+{
+    motor->rps_max = value;
+}
+
+void motor_set_rps_pcn(MotorParameter* motor, Percentage value)
 {
     if (value > 100)
     {
         motor->rps_pcn_setpoint = 100;
-        return false;
+        return;
     }
     motor->rps_pcn_setpoint = value;
-    return true;
 }
 
 void motor_set_direction(MotorParameter *motor, RotateState direction)
