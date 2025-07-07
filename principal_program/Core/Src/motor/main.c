@@ -51,10 +51,10 @@ static const int8_t SEQUENCE[6][3] = {
  */
 static const uint8_t hall_index[] = {-1, 5, 3, 4, 1, 0, 2, -1};
 
-#define GET_HALL_STATE()                                                                        \
-      (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)  \
-    | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)  \
-    | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[2], motor->const_h.Hall_GPIO_Pin_x[2])     )
+// #define GET_HALL_STATE()                                                                        \
+//       (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)  \
+//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)  \
+//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[2], motor->const_h.Hall_GPIO_Pin_x[2])     )
 
 static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
@@ -97,8 +97,13 @@ void motor_step_update(MotorParameter *motor)
     //     step_commutate(motor);
     //     return;
     // }
+    uint8_t hall_state = 
+          ((motor->const_h.Hall_GPIOx[0]->IDR & motor->const_h.Hall_GPIO_Pin_x[0]) ? 4U : 0U)
+        | ((motor->const_h.Hall_GPIOx[1]->IDR & motor->const_h.Hall_GPIO_Pin_x[1]) ? 2U : 0U)
+        | ((motor->const_h.Hall_GPIOx[2]->IDR & motor->const_h.Hall_GPIO_Pin_x[2]) ? 1U : 0U);
+    if (hall_state == 0 || hall_state == 7) return;
     motor->hall_state_last = motor->hall_state_present;
-    motor->hall_state_present = GET_HALL_STATE();
+    motor->hall_state_present = hall_state;
     uint8_t step_next;
     switch (motor->direction_inner)
     {
