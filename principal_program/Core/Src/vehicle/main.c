@@ -7,7 +7,7 @@
 void vehicle_test_no_load_speed(uint32_t ms)
 {
     if (!sys_run_switch.enable_debug_test_no_load_speed) return;
-    sys_run_switch.enable_PI = 0;
+    sys_run_switch.enable_rps_control = 0;
 
     vehicle_set_motion(motion_forward);
     uint32_t past_time = HAL_GetTick()
@@ -15,10 +15,10 @@ void vehicle_test_no_load_speed(uint32_t ms)
     motor_set_duty(&motor_left,  100);
     motor_set_duty(&motor_right, 100);
     while (
-        HAL_GetTick() - past_time < ms || max_speed <= 10
+        HAL_GetTick() - past_time < ms || motors_max_rps <= 10
     ) {
-        if (max_speed < motor_right.rps_present) {
-                max_speed = motor_right.rps_present;
+        if (motors_max_rps < motor_right.rps_present) {
+                motors_max_rps = motor_right.rps_present;
                 past_time = HAL_GetTick();
         }
 
@@ -42,5 +42,5 @@ void vehicle_test_no_load_speed(uint32_t ms)
     motor_set_duty(&motor_right, 0);
     vehicle_ensure_stop();
     
-    sys_run_switch.enable_PI = 1;
+    sys_run_switch.enable_rps_control = 1;
 }

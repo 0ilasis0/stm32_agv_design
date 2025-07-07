@@ -7,8 +7,8 @@ VehicleState vehicle_state;
   */
 void vehicle_ensure_stop(void)
 {
-    motor_set_stop(&motor_right, 1);
-    motor_set_stop(&motor_left, 1);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
     uint32_t error_start = HAL_GetTick();
     for(;;)
     {
@@ -16,13 +16,13 @@ void vehicle_ensure_stop(void)
         {
         }
         if (
-               (motor_right.rps_present != 0)
-            && (motor_left.rps_present != 0)
+               (motor_right.rps_present == 0)
+            && (motor_left.rps_present == 0)
         ) break;
-        osDelay(1);
+        osDelay(50);
     }
-    motor_set_stop(&motor_right, 0);
-    motor_set_stop(&motor_left, 0);
+    motor_set_state(&motor_right, MOTOR_STATE_FREE);
+    motor_set_state(&motor_left, MOTOR_STATE_FREE);
 }
 
 /**

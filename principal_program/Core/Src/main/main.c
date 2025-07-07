@@ -8,7 +8,7 @@
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
-static size_t motor_tim_tick = 0;
+static size_t motor_tick = 0;
 
 GlobalState global_state = {
     .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
@@ -19,19 +19,16 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == MOTOR_HTIM1) // 100us
     {
-        if (motor_tim_tick % 10 == 0) // 1ms
+        if (motor_tick % 10 == 0) // 1ms
         {
             adc_renew();
         }
-        if (motor_tim_tick % 1000 == 0) // 100ms
+        if (motor_tick % 500 == 0) // 50ms
         {
-            motor_tim_tick = 0;
-            motor_state_update(&motor_left, 100.0f);
-            motor_state_update(&motor_right, 100.0f);
-            PI_control(&motor_left, 100.0f);
-            PI_control(&motor_right, 100.0f);
+            motor_tick = 0;
+            motor_tim_tick(50.0f);
         }
-        motor_tim_tick++;
+        motor_tick++;
     }
     // else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
     // {
@@ -55,16 +52,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1])
         || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2])
     ) {
-        motor_add_step_count(&motor_right);
-        motor_step_update(&motor_right);
+        motor_hall_exti(&motor_right);
     }
     else if (
            (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0])
         || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1])
         || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2])
     ) {
-        motor_add_step_count(&motor_left);
-        motor_step_update(&motor_left);
+        motor_hall_exti(&motor_left);
     }
     // else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
     // {
@@ -83,7 +78,9 @@ void StartDefaultTask(void *argument)
     /*測試用--------------------------------------*/
     // motor_set_duty(&motor_right, 80);
     // motor_set_duty(&motor_left,  80);
+    motor_set_direction(&motor_left, MOTOR_ROTATE_CLW);
     motor_set_speed(&motor_left, 50);
+    motor_set_direction(&motor_left, MOTOR_ROTATE_CCLW);
     motor_set_speed(&motor_right, 50);
 
     // init_map_data_direction_and_address(&map_data, 11, 7);

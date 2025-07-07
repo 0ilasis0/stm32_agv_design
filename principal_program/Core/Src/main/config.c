@@ -2,7 +2,7 @@
 
 SYSTEM_RUNTIME_SWITCH sys_run_switch = {
     .enable_adc = 1,
-    .enable_PI = 1,
+    .enable_rps_control = 1,
     .enable_search_magnetic_path = 1,
     .enable_timeout_error = 0,
 

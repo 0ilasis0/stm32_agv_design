@@ -90,7 +90,7 @@ typedef int8_t FncState;
 typedef struct SYSTEM_RUNTIME_SWITCH
 {
     bool enable_adc;
-    bool enable_PI;
+    bool enable_rps_control;
     bool enable_search_magnetic_path;
     bool enable_timeout_error;
 
