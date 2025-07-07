@@ -70,9 +70,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
+    osDelay(5000);
     adc_setup();
     map_setup();
-
     // vehicle_test_no_load_rps(1000);
 
     /*測試用--------------------------------------*/
@@ -89,8 +89,7 @@ void StartDefaultTask(void *argument)
     // vehicle_adjust_startup_heading();
     for(;;)
     {
-        // vehicle_main();
-
+        // vehicle_loop();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

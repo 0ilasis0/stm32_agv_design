@@ -29,7 +29,7 @@ static void vehicle_over_hall_fall_back(void)
 /**
   * @brief 在指定時間內，讓裝置順或逆旋轉，直到偵測到磁條，並停止
   */
-static void vehicle_search_magnetic_path (MotionCommand search_direction, uint16_t time)
+static void vehicle_search_magnetic_path (VehicleMotion search_direction, uint16_t time)
 {
     if (!sys_run_switch.enable_search_magnetic_path) return;
 
@@ -127,9 +127,9 @@ static void breakdown_all_hall_lost (void)
   */
 static void rotate_in_place(void)
 {
-    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NO_MATCH;
+    if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NOT_FOUND;
 
-    MotionCommand rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
+    VehicleMotion rotate_direction_mode = vehicle2_get_rotate_direction(map_data.direction[map_data.current_count - 1], map_data.direction[map_data.current_count]);
 
     uint8_t renew_count = vehicle2_pass_magnetic_stripe_calculate(
             rotate_direction_mode,
@@ -146,35 +146,6 @@ static void rotate_in_place(void)
     agv_forward_leave_strong_magnet();
 }
 
-/**
-  * @brief 一般循跡模式控制
-  */
-static void track_mode(void)
-{
-    breakdown_all_hall_lost();
-    vehicle_set_motion(motion_forward);
-    vehicle_set_speed(VEHICLE_setpoint_straight);
-
-    if (
-           adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
-        ) {
-        motor_set_rps_pcn(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_rps_pcn(&motor_right, 0);
-
-    } else if (
-           adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
-        ) {
-        motor_set_rps_pcn(&motor_left, 0);
-        motor_set_rps_pcn(&motor_right, VEHICLE_setpoint_straight);
-
-    } else {
-        motor_set_rps_pcn(&motor_left, VEHICLE_setpoint_straight);
-        motor_set_rps_pcn(&motor_right, VEHICLE_setpoint_straight);
-
-    }
-}
 
 /**
   * @brief 決定移動MODE
@@ -219,7 +190,7 @@ void vehicle_adjust_startup_heading (void)
 {
     if (map_data.start_address_id == no_data) return;
 
-    MotionCommand rotate_direction_mode = vehicle2_get_rotate_direction(map_data.start_direction, map_data.direction[0]);
+    VehicleMotion rotate_direction_mode = vehicle2_get_rotate_direction(map_data.start_direction, map_data.direction[0]);
     vehicle_set_motion(rotate_direction_mode);
     vehicle_set_speed(VEHICLE_setpoint_rotate);
 

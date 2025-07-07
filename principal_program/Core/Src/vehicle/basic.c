@@ -25,48 +25,20 @@ void vehicle_ensure_stop(void)
     motor_set_state(&motor_left, MOTOR_STATE_FREE);
 }
 
-/**
-  * @brief 根據運動模式控制馬達旋轉方向與設定速度
-  */
-void vehicle_set_motion(MotionCommand mode)
+void vehicle_set_mode(VehicleMode mode)
 {
-    vehicle_ensure_stop();
-    switch(mode)
-    {
-        case motion_forward:
-        {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
-            vehicle_state.motion_present = motion_forward;
-            break;
-        }
-        case motion_backward:
-        {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
-            vehicle_state.motion_present = motion_backward;
-            break;
-        }
-        case motion_clockwise:
-        {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CCLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CCLW);
-            vehicle_state.motion_present = motion_clockwise;
-            break;
-        }
-        case motion_c_clockwise:
-        {
-            motor_set_direction(&motor_left,  MOTOR_ROTATE_CLW);
-            motor_set_direction(&motor_right, MOTOR_ROTATE_CLW);
-            vehicle_state.motion_present = motion_c_clockwise;
-            break;
-        }
-        default: break;
-    }
+    vehicle_state.mode = mode;
 }
 
-void vehicle_set_speed(uint8_t value)
+void vehicle_set_motion(VehicleMotion motion)
 {
+    vehicle_state.motion = motion;
+}
+
+void vehicle_set_speed(Percentage value)
+{
+    if (value > 100) value = 100;
+    vehicle_state.speed = value;
     motor_set_rps_pcn(&motor_right, value);
     motor_set_rps_pcn(&motor_left , value);
 }

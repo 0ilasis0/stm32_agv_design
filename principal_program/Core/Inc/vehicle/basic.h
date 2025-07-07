@@ -5,19 +5,30 @@
 #include "motor/main.h"
 
 typedef enum {
-    motion_unchange,
     motion_forward,
     motion_backward,
     motion_clockwise,
     motion_c_clockwise,
     motion_stop,
-} MotionCommand;
+} VehicleMotion;
+
+typedef uint8_t VehicleMode;
+#define VEHICLE_MODE_FREE       0
+#define VEHICLE_MODE_TRACK      1
+#define VEHICLE_MODE_SEARCH     2
 
 typedef struct VehicleState
 {
-    MotionCommand motion_present;
+    Percentage speed;
+    VehicleMode mode;
+    VehicleMode mode_inner;
+    VehicleMotion motion;
+    VehicleMotion motion_inner;
 } VehicleState;
 
+extern VehicleState vehicle_state;
+
 void vehicle_ensure_stop(void);
-void vehicle_set_motion(MotionCommand mode);
-void vehicle_set_speed(uint8_t value);
+void vehicle_set_mode(VehicleMode mode);
+void vehicle_set_motion(VehicleMotion mode);
+void vehicle_set_speed(Percentage value);

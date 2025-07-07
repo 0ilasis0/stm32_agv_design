@@ -6,7 +6,7 @@
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir)
+VehicleMotion vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir)
 {
     int8_t diff = (end_dir - start_dir + 8) % 8;
 
@@ -23,7 +23,7 @@ MotionCommand vehicle2_get_rotate_direction(int8_t start_dir, int8_t end_dir)
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
 uint8_t vehicle2_pass_magnetic_stripe_calculate(
-    MotionCommand rotate_direction_mode,
+    VehicleMotion rotate_direction_mode,
     uint16_t current_id_input,
     uint8_t from_dir,
     uint8_t to_dir

@@ -58,11 +58,7 @@ void motor_set_max_rps(MotorParameter* motor, float value)
 
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value)
 {
-    if (value > 100)
-    {
-        motor->rps_pcn_setpoint = 100;
-        return;
-    }
+    if (value > 100) value = 100;
     motor->rps_pcn_setpoint = value;
 }
 
@@ -295,7 +291,7 @@ static void pwm_setup(const MotorParameter *motor)
     HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
 }
 
-static void speed_direc_update(MotorParameter *motor)
+static void direction_update(MotorParameter *motor)
 {
     if (motor->direction_inner != motor->direction_setpoint)
     {
@@ -317,11 +313,11 @@ void StartMotorTask(void *argument)
     uint16_t tick = 0;
     for(;;)
     {
+        direction_update(&motor_right);
+        direction_update(&motor_left);
         // us_sensor_enable(&us_sensor_head);
         if (tick % 100 == 0)
         {
-            speed_direc_update(&motor_right);
-            speed_direc_update(&motor_left);
             tick = 0;
         }
         osDelay(10);

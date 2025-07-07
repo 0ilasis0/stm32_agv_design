@@ -143,7 +143,7 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
         }
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 #endif
 
@@ -318,7 +318,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -461,7 +461,7 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 
 static UNUSED_FNC FnState recv_pkt_proc(size_t count)

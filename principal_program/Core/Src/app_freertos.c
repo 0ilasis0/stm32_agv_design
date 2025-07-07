@@ -75,6 +75,13 @@ const osThreadAttr_t FdCanTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal1,
   .stack_size = 256 * 4
 };
+/* Definitions for VehicleTask */
+osThreadId_t VehicleTaskHandle;
+const osThreadAttr_t VehicleTask_attributes = {
+  .name = "VehicleTask",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 128 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -85,6 +92,7 @@ void StartDefaultTask(void *argument);
 void StartUartTask(void *argument);
 void StartMotorTask(void *argument);
 void StartFdCanTask(void *argument);
+void StartVehicleTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -126,6 +134,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of FdCanTask */
   FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
+
+  /* creation of VehicleTask */
+  VehicleTaskHandle = osThreadNew(StartVehicleTask, NULL, &VehicleTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -207,6 +218,24 @@ __weak void StartFdCanTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartFdCanTask */
+}
+
+/* USER CODE BEGIN Header_StartVehicleTask */
+/**
+* @brief Function implementing the VehicleTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVehicleTask */
+__weak void StartVehicleTask(void *argument)
+{
+  /* USER CODE BEGIN StartVehicleTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartVehicleTask */
 }
 
 /* Private application code --------------------------------------------------*/

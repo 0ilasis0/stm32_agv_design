@@ -110,7 +110,7 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
                 uart_data_trsm_ready = true;
                 break;
             default:
-                last_error = FNS_NO_MATCH;
+                last_error = FNS_NOT_FOUND;
                 break;
         }
     }
