@@ -147,7 +147,7 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
 }
 #endif
 
-static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
+static FnState instant_recv_proc(VecByte* vec_byte)
 {
     uint8_t code;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
@@ -356,7 +356,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         vec_rm_all(&fdcan_recv0_buf);
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcanRxHeader, fdcan_recv0_buf.data));
         fdcan_recv0_buf.len = fdcanRxHeader.DataLength;
-        last_error = fifo0_recv_pkt_proc(&fdcan_recv0_buf);
+        last_error = instant_recv_proc(&fdcan_recv0_buf);
     }
 }
 
