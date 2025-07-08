@@ -245,7 +245,11 @@ static void rps_control(MotorParameter *motor, float ms)
             motor->rps_pcn_inner = motor->rps_pcn;
             break;
         }
-        case MOTOR_STATE_FREE: return;
+        case MOTOR_STATE_FREE:
+        {
+            // motor_set_duty(motor, motor->rps_pcn);
+            return;
+        }
         case MOTOR_STATE_SLOW:
         {
             motor->rps_pcn_inner = 0;

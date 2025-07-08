@@ -28,6 +28,7 @@ typedef struct VehicleState
 
 extern VehicleState vehicle_state;
 
+void vehicle_ensure_stop_inner(void);
 void vehicle_ensure_stop(void);
 void vehicle_set_mode(VehicleMode mode);
 void vehicle_set_motion(VehicleMotion mode);

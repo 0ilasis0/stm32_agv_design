@@ -2,17 +2,9 @@
 #include "vehicle/vehicle.h"
 #include "main/adc.h"
 
-void direction_update(void)
+static void vehicle_direction_set_inner(VehicleMotion motion)
 {
-    if (vehicle_state.motion_inner == vehicle_state.motion) return;
-    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
-    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
-    if (
-            (motor_left.rps_present != 0)
-        || (motor_right.rps_present != 0)
-    ) return;
-    vehicle_state.motion_inner = vehicle_state.motion;
-    switch(vehicle_state.motion_inner)
+    switch(motion)
     {
         case motion_forward:
         {
@@ -44,8 +36,21 @@ void direction_update(void)
         }
         default: break;
     }
-    motor_set_state(&motor_left, MOTOR_STATE_FREE);
-    motor_set_state(&motor_right, MOTOR_STATE_FREE);
+}
+
+static void direction_update(void)
+{
+    if (vehicle_state.motion_inner == vehicle_state.motion) return;
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    if (
+            (motor_left.rps_present != 0)
+        || (motor_right.rps_present != 0)
+    ) return;
+    vehicle_state.motion_inner = vehicle_state.motion;
+    vehicle_direction_set_inner(vehicle_state.motion_inner);
+    motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
+    motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
 
 void StartVehicleTask(void *argument)
@@ -64,17 +69,23 @@ void StartVehicleTask(void *argument)
 }
 
 /**
-  * @brief 測試空載情況下的馬達最大速度
-  */
+ * @brief 測試空載情況下的馬達最大速度
+ */
+uint32_t time_diff;
 void vehicle_test_no_load_rps(uint32_t ms)
 {
-    if (!runtime_switch.debug_test_no_load_speed) return;
+    // if (!runtime_switch.debug_test_no_load_speed) return;
+    // runtime_switch.rps_control = 0;
 
-    runtime_switch.rps_control = 0;
+    motor_set_max_rps(&motor_left, 0);
+    motor_set_max_rps(&motor_right, 0);
+    motor_set_state(&motor_left, MOTOR_STATE_FREE);
+    motor_set_state(&motor_right, MOTOR_STATE_FREE);
 
-    vehicle_set_motion(motion_forward);
-    uint32_t past_time = HAL_GetTick(), time_diff = past_time;
-    motor_set_duty(&motor_left,  100);
+    vehicle_direction_set_inner(motion_forward);
+    uint32_t past_time = HAL_GetTick();
+    time_diff = past_time;
+    motor_set_duty(&motor_left, 100);
     motor_set_duty(&motor_right, 100);
     for(;;)
     {
@@ -97,10 +108,10 @@ void vehicle_test_no_load_rps(uint32_t ms)
     if (motor_left.rps_max > motor_right.rps_max) motor_set_max_rps(&motor_left, motor_right.rps_max);
     else motor_set_max_rps(&motor_right, motor_left.rps_max);
     time_diff = HAL_GetTick() - time_diff;
-    vehicle_ensure_stop();
+    vehicle_ensure_stop_inner();
     osDelay(1000);
 
-    vehicle_set_motion(motion_backward);
+    vehicle_direction_set_inner(motion_backward);
     past_time = HAL_GetTick();
     motor_set_duty(&motor_left,  100);
     motor_set_duty(&motor_right, 100);
@@ -112,9 +123,11 @@ void vehicle_test_no_load_rps(uint32_t ms)
     }
     motor_set_duty(&motor_left,  0);
     motor_set_duty(&motor_right, 0);
-    vehicle_ensure_stop();
+    vehicle_ensure_stop_inner();
 
-    runtime_switch.rps_control = 1;
+    motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
+    motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+    // runtime_switch.rps_control = 1;
 }
 
 /**
