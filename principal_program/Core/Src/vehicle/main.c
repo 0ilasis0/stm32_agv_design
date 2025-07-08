@@ -59,6 +59,7 @@ void StartVehicleTask(void *argument)
     for(;;)
     {
         direction_update();
+        
         if (tick % 100 == 0)
         {
             tick = 0;
