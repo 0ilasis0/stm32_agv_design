@@ -190,25 +190,6 @@ static void pwm_setup(const MotorParameter *motor)
     HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
 }
 
-static void state_update(MotorParameter *motor)
-{
-    // 避免馬達應動未動
-    if (
-           motor->rps_present == 0
-        && motor->pwm_duty != 0
-    ) motor_step_update(motor);
-
-    if (
-           (motor->state != MOTOR_STATE_LOCK)
-        && (motor->direction_inner != motor->direction)
-    ) {
-        motor->state_inner = MOTOR_STATE_SLOW;
-        if (motor->rps_present > MOTOR_STOP_GATE) return;
-        motor->direction_inner = motor->direction;
-    }
-    motor->state_inner = motor->state;
-}
-
 static void datas_update(MotorParameter *motor, float ms)
 {
     if (ms <= 0) return;
@@ -236,7 +217,26 @@ static void datas_update(MotorParameter *motor, float ms)
     }
 }
 
-static void rotate_control(MotorParameter *motor, float ms)
+static void state_update(MotorParameter *motor)
+{
+    // 避免馬達應動未動
+    if (
+           motor->rps_present == 0
+        && motor->pwm_duty != 0
+    ) motor_step_update(motor);
+
+    if (
+           (motor->state != MOTOR_STATE_LOCK)
+        && (motor->direction_inner != motor->direction)
+    ) {
+        motor->state_inner = MOTOR_STATE_SLOW;
+        if (motor->rps_present > MOTOR_STOP_GATE) return;
+        motor->direction_inner = motor->direction;
+    }
+    motor->state_inner = motor->state;
+}
+
+static void rps_control(MotorParameter *motor, float ms)
 {
     switch (motor->state_inner)
     {
@@ -313,12 +313,12 @@ void StartMotorTask(void *argument)
     uint32_t next_wake = osKernelGetTickCount() + osPeriod;
     for(;;)
     {
-        state_update(&motor_left);
-        state_update(&motor_right);
         datas_update(&motor_left, MOTOR_TASK_DELAY_MS);
         datas_update(&motor_right, MOTOR_TASK_DELAY_MS);
-        rotate_control(&motor_left, MOTOR_TASK_DELAY_MS);
-        rotate_control(&motor_right, MOTOR_TASK_DELAY_MS);
+        state_update(&motor_left);
+        state_update(&motor_right);
+        rps_control(&motor_left, MOTOR_TASK_DELAY_MS);
+        rps_control(&motor_right, MOTOR_TASK_DELAY_MS);
         // us_sensor_enable(&us_sensor_head);
         osDelayUntil(next_wake);
         next_wake += osPeriod;
