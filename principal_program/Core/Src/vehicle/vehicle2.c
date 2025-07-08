@@ -64,13 +64,15 @@ void vehicle2_renew_vehicle_rotation_status (uint8_t count_until_zero)
     //邊緣觸發判斷+時間預防
     bool triggered = false;
     uint32_t time_out = HAL_GetTick();
+    uint32_t triggered_time;
 
     while (count_until_zero != 0){
         if (adc_hall.sensor_direction <= adc_hall.magnetic_stripe_value  && !triggered) {
             count_until_zero --;
+            triggered_time = HAL_GetTick();
             triggered = true;
         }
-        if (adc_hall.sensor_direction > adc_hall.magnetic_stripe_value && time_out - HAL_GetTick() > 500) {
+        if (adc_hall.sensor_direction > adc_hall.magnetic_stripe_value && triggered_time - HAL_GetTick() > 200) {
             triggered = false;
         }
 

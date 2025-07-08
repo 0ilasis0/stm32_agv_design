@@ -219,8 +219,7 @@ void vehicle_loop(void)
     // vehicle_main();
     // vehicle_set_motion(motion_forward);
     // vehicle_set_speed(20);
-    // vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_state.mode = VEHICLE_MODE_TRACK;
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
     switch (vehicle_state.mode)
     {
         case VEHICLE_MODE_TRACK:
