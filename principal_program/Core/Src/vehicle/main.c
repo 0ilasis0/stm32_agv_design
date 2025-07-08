@@ -121,7 +121,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
         osDelay(10);
         // timeout_error(past_time, &error_state.vehicle_test_no_load_rps);
     }
-    motor_set_duty(&motor_left,  0);
+    motor_set_duty(&motor_left, 0);
     motor_set_duty(&motor_right, 0);
     vehicle_ensure_stop_inner();
 
@@ -151,10 +151,10 @@ static void track_mode(void)
     }
     else
     {
-        motor_set_state(&motor_left, MOTOR_STATE_FREE);
-        motor_set_rps_pcn(&motor_left, vehicle_state.speed);
-        motor_set_state(&motor_left, MOTOR_STATE_FREE);
-        motor_set_rps_pcn(&motor_right, vehicle_state.speed);
+        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
+        // motor_set_rps_pcn(&motor_left, vehicle_state.speed);
+        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
+        // motor_set_rps_pcn(&motor_right, vehicle_state.speed);
     }
 }
 

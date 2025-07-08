@@ -77,9 +77,6 @@ void motor_set_duty(MotorParameter *motor, uint8_t value)
     motor->pwm_duty = (value > 100 ? 100 : value);
 }
 
-//       (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[0], motor->const_h.Hall_GPIO_Pin_x[0]) << 2)
-//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[1], motor->const_h.Hall_GPIO_Pin_x[1]) << 1)
-//     | (HAL_GPIO_ReadPin(motor->const_h.Hall_GPIOx[2], motor->const_h.Hall_GPIO_Pin_x[2])     )
 static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
     const MotorConst* const_h = &motor->const_h;
@@ -112,7 +109,7 @@ static void step_commutate(const MotorParameter *motor, uint8_t step)
 
 static void motor_step_update(MotorParameter *motor)
 {
-    uint8_t hall_state = 
+    uint8_t hall_state =
           ((motor->const_h.Hall_GPIOx[0]->IDR & motor->const_h.Hall_GPIO_Pin_x[0]) ? 4U : 0U)
         | ((motor->const_h.Hall_GPIOx[1]->IDR & motor->const_h.Hall_GPIO_Pin_x[1]) ? 2U : 0U)
         | ((motor->const_h.Hall_GPIOx[2]->IDR & motor->const_h.Hall_GPIO_Pin_x[2]) ? 1U : 0U);
@@ -141,38 +138,6 @@ static void motor_step_update(MotorParameter *motor)
         default: return;
     }
     if (step_next == 0xFF) return;
-    // switch (motor->direction_inner)
-    // {
-    //     case MOTOR_DIRECTION_CLW:
-    //     {
-    //         switch(hall_state)
-    //         {
-    //             case 5: step_next = 0; break;
-    //             case 4: step_next = 1; break;
-    //             case 6: step_next = 2; break;
-    //             case 2: step_next = 3; break;
-    //             case 3: step_next = 4; break;
-    //             case 1: step_next = 5; break;
-    //             default: return;
-    //         }
-    //         break;
-    //     }
-    //     case MOTOR_DIRECTION_CCLW:
-    //     {
-    //         switch(hall_state)
-    //         {
-    //             case 5: step_next = 3; break;
-    //             case 1: step_next = 2; break;
-    //             case 3: step_next = 1; break;
-    //             case 2: step_next = 0; break;
-    //             case 6: step_next = 5; break;
-    //             case 4: step_next = 4; break;
-    //             default: return;
-    //         }
-    //         break;
-    //     }
-    //     default: return;
-    // }
     step_commutate(motor, step_next);
 }
 
