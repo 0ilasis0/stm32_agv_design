@@ -71,9 +71,9 @@ void StartDefaultTask(void *argument)
 {
     defalt_running++;
     osDelay(1000);
-    // adc_setup();
+    adc_setup();
     // map_setup();
-    vehicle_test_no_load_rps(1000);
+    // vehicle_test_no_load_rps(1000);
 
     /*測試用--------------------------------------*/
     // motor_set_state(&motor_left, MOTOR_STATE_FREE);
@@ -91,7 +91,7 @@ void StartDefaultTask(void *argument)
     // vehicle_adjust_startup_heading();
     for(;;)
     {
-        // vehicle_loop();
+        vehicle_loop();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

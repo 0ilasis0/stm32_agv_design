@@ -216,7 +216,7 @@ void vehicle_main (void)
             agv_state.direction  = map_data.direction[map_data.current_count];
 
         } else {
-            track_mode();
+            vehicle_state.mode = VEHICLE_MODE_TRACK;
 
         }
     }

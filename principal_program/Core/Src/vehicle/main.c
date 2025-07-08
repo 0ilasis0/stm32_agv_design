@@ -59,7 +59,7 @@ void StartVehicleTask(void *argument)
     for(;;)
     {
         direction_update();
-        
+
         if (tick % 100 == 0)
         {
             tick = 0;
@@ -220,6 +220,7 @@ void vehicle_loop(void)
     // vehicle_set_motion(motion_forward);
     // vehicle_set_speed(20);
     // vehicle_set_mode(VEHICLE_MODE_TRACK);
+    vehicle_state.mode = VEHICLE_MODE_TRACK;
     switch (vehicle_state.mode)
     {
         case VEHICLE_MODE_TRACK:

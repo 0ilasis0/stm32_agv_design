@@ -64,6 +64,20 @@ static void sort(uint16_t* values, size_t count) {
     }
 }
 
+
+// void fil(uint16_t *adc, uint16_t len)
+// {
+//     float alpha = 0.1f;
+//     uint16_t y_prev = adc[0];
+//     for (int i = 1; i < len; i++) {
+//         float x = adc[i];
+//         float y = alpha * x + (1 - alpha) * y_prev;
+//         adc[i] = y;   // 直接覆蓋原始陣列
+//         y_prev = y;
+//     }
+// }
+
+
 // renew adc senser
 void adc_renew (void)
 {
@@ -80,6 +94,11 @@ void adc_renew (void)
         adc_4[i] = ADC_Values[i*ADC_COUNT+3];
     }
 
+    // fil(adc_1, ADC_NEED_LEN);
+    // fil(adc_2, ADC_NEED_LEN);
+    // fil(adc_3, ADC_NEED_LEN);
+    // fil(adc_4, ADC_NEED_LEN);
+
     sort(adc_1, ADC_NEED_LEN);
     sort(adc_2, ADC_NEED_LEN);
     sort(adc_3, ADC_NEED_LEN);
@@ -90,9 +109,11 @@ void adc_renew (void)
     adc_hall.sensor_node = adc_3[ADC_NEED_LEN/2];
     adc_hall.sensor_direction = adc_4[ADC_NEED_LEN/2];
 
-    if (HAL_GetTick() < 5000) return;
+    if (HAL_GetTick() < 3000) return;
     text_cal(adc_hall.sensor_track_right,   &text_max[0], &text_min[0]);
     text_cal(adc_hall.sensor_track_left,    &text_max[1], &text_min[1]);
     text_cal(adc_hall.sensor_node,          &text_max[2], &text_min[2]);
     text_cal(adc_hall.sensor_direction,     &text_max[3], &text_min[3]);
 }
+
+
