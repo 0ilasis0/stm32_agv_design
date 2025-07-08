@@ -143,7 +143,7 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
         }
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 #endif
 
@@ -154,12 +154,12 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
     switch (code)
     {
         #ifdef PRINCIPAL_PROGRAM
-        case CMD_VECH_B0_CONTROL:
+        case CMD_VEHI_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case CMD_VECH_B1_VEHICLE:
+                case CMD_VEHI_B1_VEHICLE:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -173,13 +173,13 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                             vehicle2_motion_and_speed_control(mode, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_FOWARD:
+                        case CMD_VEHI_B2_FOWARD:
                         {
                             mode = motion_forward;
                             vehicle2_motion_and_speed_control(mode, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_BACKWARD:
+                        case CMD_VEHI_B2_BACKWARD:
                         {
                             mode = motion_backward;
                             vehicle2_motion_and_speed_control(mode, value);
@@ -189,7 +189,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_VECH_B1_LEFT_MOTOR:
+                case CMD_VEHI_B1_LEFT_MOTOR:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -203,14 +203,14 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_FOWARD:
+                        case CMD_VEHI_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_BACKWARD:
+                        case CMD_VEHI_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
@@ -221,7 +221,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_VECH_B1_RIGHT_MOTOR:
+                case CMD_VEHI_B1_RIGHT_MOTOR:
                 {
                     uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -235,14 +235,14 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_FOWARD:
+                        case CMD_VEHI_B2_FOWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_clockwise);
                             motor_set_speed(motor, value);
                             return FNS_OK;
                         }
-                        case CMD_VECH_B2_BACKWARD:
+                        case CMD_VEHI_B2_BACKWARD:
                         {
                             // ? need check direction
                             motor_set_direction(motor, rotate_c_clockwise);
@@ -320,7 +320,7 @@ static FnState fifo0_recv_pkt_proc(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -428,7 +428,7 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
                         {
                             return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 0);
                         }
-                        case CMD_RFID_B4_SEND:
+                        case CMD_RFID_B4_WRITE:
                         {
                             return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 1);
                         }
@@ -440,7 +440,7 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 3));
-                    if (vec_byte->len < 4) return FNS_NO_MATCH;
+                    if (vec_byte->len < 4) return FNS_NOT_FOUND;
                     return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, vec_byte->data + vec_byte->head, 4);
                 }
                 default: break;
@@ -450,7 +450,7 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NO_MATCH;
+    return FNS_NOT_FOUND;
 }
 
 static UNUSED_FNC FnState recv_pkt_proc(size_t count)

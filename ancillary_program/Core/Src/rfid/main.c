@@ -23,7 +23,7 @@ FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t blo
            sector >= 16
         || block >= 3
         || send > 2
-    ) return FNS_NO_MATCH;
+    ) return FNS_NOT_FOUND;
     trcv_buf->sector = sector;
     trcv_buf->block = block;
     trcv_buf->send = send;

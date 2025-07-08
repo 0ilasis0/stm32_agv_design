@@ -60,6 +60,8 @@
 
 // ! SYSTEM config END ------------------------------
 
+typedef uint8_t Percentage;
+
 typedef int8_t FncState;
 #define FNC_CANCEL  -1
 #define FNC_DISABLE 0

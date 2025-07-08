@@ -9,7 +9,7 @@
 #define CMD_DATA_B0_STOP            (uint8_t)0x01   // 資料收集停止(can)
 #define CMD_DATA_B0_START           (uint8_t)0x02   // 資料收集開始(can)
 
-#define CMD_DATA_B1_VECH_POSI       (uint8_t)0x00   // 車輛位置
+#define CMD_DATA_B1_VEHI_POSI       (uint8_t)0x00   // 車輛位置
 #define CMD_DATA_B1_LEFT_SPEED      (uint8_t)0x10   // 左馬達速度f32
 #define CMD_DATA_B1_RIGHT_SPEED     (uint8_t)0x11   // 右馬達速度f32
 #define CMD_DATA_B1_LEFT_DUTY       (uint8_t)0x20   // 左馬達功率u8
@@ -21,29 +21,30 @@
 #define CMD_DATA_B1_ARM_WRIST       (uint8_t)0x44   // 手臂馬達
 #define CMD_DATA_B1_ARM_FINGER      (uint8_t)0x45   // 手臂馬達
 
-//      CMD_DATA_B2_TOTAL                           // 資料包總計(can)
-//      CMD_DATA_B2_VECH_POS                        // 位置ID(車輛位置)
+//      CMD_DATA_B2_TOTAL                           // 資料總計
+//      CMD_DATA_B2_VEHI_POS                        // 位置ID(車輛位置)
 
-//      CMD_DATA_B3_VECH_NUMBER                     // 資料包編號(can)
-//      CMD_DATA_B3_VECH_FACING                     // 目標ID(車輛位置)
+//      CMD_DATA_B3_VEHI_NUMBER                     // 資料編號(can)
+//      CMD_DATA_B3_VEHI_FACING                     // 目標ID(車輛位置)
 
 //----------------------------------------------------------------------------------------------------
-#define CMD_VECH_B0_CONTROL         (uint8_t)0x10   // 車輛控制
+#define CMD_VEHI_B0_CONTROL         (uint8_t)0x10   // 車輛控制
 
-#define CMD_VECH_B1_VEHICLE         (uint8_t)0x00   // 車輛
-#define CMD_VECH_B1_LEFT_MOTOR      (uint8_t)0x40   // 左馬達
-#define CMD_VECH_B1_RIGHT_MOTOR     (uint8_t)0x50   // 右馬達
+#define CMD_VEHI_B1_VEHICLE         (uint8_t)0x00   // 車輛
+#define CMD_VEHI_B1_LEFT_MOTOR      (uint8_t)0x40   // 左馬達
+#define CMD_VEHI_B1_RIGHT_MOTOR     (uint8_t)0x50   // 右馬達
 
-#define CMD_VECH_B2_STOP            (uint8_t)0x00   // 停止
-#define CMD_VECH_B2_FOWARD          (uint8_t)0x01   // 車輛前進/馬達正轉
-#define CMD_VECH_B2_BACKWARD        (uint8_t)0x02   // 車輛後退/馬達反轉
-#define CMD_VECH_B2_C_CLOCK         (uint8_t)0x03   // 車輛原地左旋
-#define CMD_VECH_B2_CLOCK           (uint8_t)0x04   // 車輛原地右旋
-#define CMD_VECH_B2_VEHICLE         (uint8_t)0x10   // 車輛模式
+#define CMD_VEHI_B2_STOP            (uint8_t)0x00   // 停止
+#define CMD_VEHI_B2_FOWARD          (uint8_t)0x01   // 車輛前進/馬達正轉
+#define CMD_VEHI_B2_BACKWARD        (uint8_t)0x02   // 車輛後退/馬達反轉
+#define CMD_VEHI_B2_C_CLOCK         (uint8_t)0x03   // 車輛原地左旋
+#define CMD_VEHI_B2_CLOCK           (uint8_t)0x04   // 車輛原地右旋
+#define CMD_VEHI_B2_MODE            (uint8_t)0x10   // 車輛模式
 
-//      CMD_VECH_B3_VALUE                           // 速度0-100
-#define CMD_VECH_B3_TRACK           (uint8_t)0x00   // 循跡模式(前進至站點) NEW
-#define CMD_VECH_B3_SEARCH          (uint8_t)0x01   // 尋找模式 NEW
+//      CMD_VEHI_B3_VALUE                           // 速度0-100
+#define CMD_VEHI_B3_FREE            (uint8_t)0x00
+#define CMD_VEHI_B3_TRACK           (uint8_t)0x01   // 循跡模式(前進至站點) NEW
+#define CMD_VEHI_B3_SEARCH          (uint8_t)0x02   // 尋找模式 NEW
 
 //----------------------------------------------------------------------------------------------------
 #define CMD_ARM_B0_CONTROL          (uint8_t)0x20   // 手臂控制
@@ -74,6 +75,8 @@
 //      CMD_RFID_(B3-B6)_DATA                       // 4 byte DATA
 
 //      CMD_RFID_B4_CONFIRM                         // 直接送出 0 或 1
+#define CMD_RFID_B4_ONLY_SET        (uint8_t)0x00
+#define CMD_RFID_B4_WRITE           (uint8_t)0x01
 
 //----------------------------------------------------------------------------------------------------
 #define CMD_B0_TEST             (uint8_t)0xFF
