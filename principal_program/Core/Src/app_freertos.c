@@ -58,28 +58,35 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t UartTaskHandle;
 const osThreadAttr_t UartTask_attributes = {
   .name = "UartTask",
-  .priority = (osPriority_t) osPriorityAboveNormal7,
+  .priority = (osPriority_t) osPriorityHigh,
   .stack_size = 256 * 4
 };
 /* Definitions for MotorTask */
 osThreadId_t MotorTaskHandle;
 const osThreadAttr_t MotorTask_attributes = {
   .name = "MotorTask",
-  .priority = (osPriority_t) osPriorityRealtime,
+  .priority = (osPriority_t) osPriorityRealtime2,
   .stack_size = 128 * 4
 };
 /* Definitions for FdCanTask */
 osThreadId_t FdCanTaskHandle;
 const osThreadAttr_t FdCanTask_attributes = {
   .name = "FdCanTask",
-  .priority = (osPriority_t) osPriorityHigh,
+  .priority = (osPriority_t) osPriorityHigh1,
   .stack_size = 256 * 4
 };
 /* Definitions for VehicleTask */
 osThreadId_t VehicleTaskHandle;
 const osThreadAttr_t VehicleTask_attributes = {
   .name = "VehicleTask",
-  .priority = (osPriority_t) osPriorityHigh7,
+  .priority = (osPriority_t) osPriorityRealtime,
+  .stack_size = 128 * 4
+};
+/* Definitions for AdcTask */
+osThreadId_t AdcTaskHandle;
+const osThreadAttr_t AdcTask_attributes = {
+  .name = "AdcTask",
+  .priority = (osPriority_t) osPriorityRealtime1,
   .stack_size = 128 * 4
 };
 
@@ -93,6 +100,7 @@ void StartUartTask(void *argument);
 void StartMotorTask(void *argument);
 void StartFdCanTask(void *argument);
 void StartVehicleTask(void *argument);
+void StartAdcTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -137,6 +145,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of VehicleTask */
   VehicleTaskHandle = osThreadNew(StartVehicleTask, NULL, &VehicleTask_attributes);
+
+  /* creation of AdcTask */
+  AdcTaskHandle = osThreadNew(StartAdcTask, NULL, &AdcTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -236,6 +247,24 @@ __weak void StartVehicleTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartVehicleTask */
+}
+
+/* USER CODE BEGIN Header_StartAdcTask */
+/**
+* @brief Function implementing the AdcTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartAdcTask */
+__weak void StartAdcTask(void *argument)
+{
+  /* USER CODE BEGIN StartAdcTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartAdcTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -1,6 +1,6 @@
 #include "main/main.h"
 #include "main/config.h"
-#include "main/adc.h"
+#include "adc/main.h"
 #include "vehicle/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
@@ -64,19 +64,15 @@ size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     defalt_running++;
-    adc_setup();
     // map_setup();
-
     osDelay(1000);
 
     /*測試用--------------------------------------*/
     // vehicle_test_no_load_rps(1000);
     // motor_set_state(&motor_left, MOTOR_STATE_FREE);
-    // motor_set_duty(&motor_left,  100);
-    // motor_set_state(&motor_right, MOTOR_STATE_FREE);
-    // motor_set_duty(&motor_right, 100);
     // motor_set_direction(&motor_left, MOTOR_DIRECTION_CLW);
     // motor_set_rps_pcn(&motor_left, 50);
+    // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
     vehicle_set_mode(VEHICLE_MODE_TRACK);

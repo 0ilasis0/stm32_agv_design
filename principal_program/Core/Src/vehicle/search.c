@@ -1,6 +1,6 @@
 #include "vehicle/search.h"
 #include "vehicle/basic.h"
-#include "main/adc.h"
+#include "adc/main.h"
 
 
 

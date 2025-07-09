@@ -4,10 +4,8 @@
 #include "vehicle/search.h"
 #include "main/fn_state.h"
 #include "main/map.h"
-#include "main/adc.h"
+#include "adc/main.h"
 #include "main/config.h"
-
-
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應

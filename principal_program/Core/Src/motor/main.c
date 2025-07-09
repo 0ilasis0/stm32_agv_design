@@ -72,11 +72,6 @@ void motor_set_state(MotorParameter *motor, MotorState state)
     motor->state = state;
 }
 
-void motor_set_duty(MotorParameter *motor, uint8_t value)
-{
-    motor->pwm_duty = (value > 100 ? 100 : value);
-}
-
 static void step_commutate(const MotorParameter *motor, uint8_t step)
 {
     const MotorConst* const_h = &motor->const_h;
@@ -212,7 +207,7 @@ static void rps_control(MotorParameter *motor, float ms)
         }
         case MOTOR_STATE_FREE:
         {
-            // motor_set_duty(motor, motor->rps_pcn);
+            motor->pwm_duty = motor->rps_pcn;
             return;
         }
         case MOTOR_STATE_SLOW:
@@ -222,14 +217,14 @@ static void rps_control(MotorParameter *motor, float ms)
         }
         case MOTOR_STATE_COAST:
         {
-            motor_set_duty(motor, 0);
+            motor->pwm_duty = 0;
             motor->rps_pcn_inner = 0;
             motor->integral_record = 0;
             return;
         }
         case MOTOR_STATE_LOCK:
         {
-            motor_set_duty(motor, 20);
+            motor->pwm_duty = 20;
             motor->rps_pcn_inner = 0;
             motor->direction_inner = MOTOR_DIRECTION_STOP;
             motor->integral_record = 0;
@@ -241,7 +236,7 @@ static void rps_control(MotorParameter *motor, float ms)
         (motor->rps_present < MOTOR_STOP_GATE)
         && (motor->rps_pcn_inner == 0)
     ) {
-        motor_set_duty(motor, 0);
+        motor->pwm_duty = 0;
         motor->integral_record = 0;
         return;
     }
@@ -261,11 +256,11 @@ static void rps_control(MotorParameter *motor, float ms)
         + MOTOR_PI_KP * error
         + MOTOR_PI_KI * integral;
     // 避免積分風暴
-    if      (output < 0.0f  ) motor_set_duty(motor, 0);
-    else if (output > 100.0f) motor_set_duty(motor, 100);
+    if      (output < 0.0f  ) motor->pwm_duty = 0;
+    else if (output > 100.0f) motor->pwm_duty = 100;
     else
     {
-        motor_set_duty(motor, (uint8_t)output);
+        motor->pwm_duty = (Percentage)output;
         motor->integral_record = integral;
     }
     return;

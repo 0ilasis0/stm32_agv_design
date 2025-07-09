@@ -2,7 +2,7 @@
 #include "vehicle/rotate.h"
 #include "main/fn_state.h"
 #include "main/map.h"
-#include "main/adc.h"
+#include "adc/main.h"
 
 
 

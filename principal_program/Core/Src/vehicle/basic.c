@@ -1,5 +1,5 @@
 #include "vehicle/basic.h"
-#include "main/adc.h"
+#include "adc/main.h"
 
 
 VehicleState vehicle_state;

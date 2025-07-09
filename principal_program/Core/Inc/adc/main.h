@@ -20,8 +20,3 @@ extern AdcHall adchall_track_left;
 extern AdcHall adchall_track_right;
 extern AdcHall adchall_node;
 extern AdcHall adchall_direction;
-
-
-
-void adc_setup(void);
-void adc_renew(void);

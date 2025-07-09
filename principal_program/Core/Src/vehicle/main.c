@@ -1,7 +1,7 @@
 #include "vehicle/main.h"
 #include "vehicle/navigation.h"
 #include "vehicle/search.h"
-#include "main/adc.h"
+#include "adc/main.h"
 
 static void direction_set_inner(VehicleMotion motion)
 {
@@ -60,7 +60,6 @@ static void direction_update(void)
 // static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 // {
 //     if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
-
 //     vehicle_set_motion(motion_clockwise);
 //     vehicle_set_speed(speed);
 //     uint32_t past_time = HAL_GetTick();
@@ -115,67 +114,60 @@ static void direction_update(void)
 uint32_t time_diff;
 void vehicle_test_no_load_rps(uint32_t ms)
 {
-    // if (!runtime_switch.debug_test_no_load_speed) return;
-    // runtime_switch.rps_control = 0;
-
     motor_set_max_rps(&motor_left, 0);
     motor_set_max_rps(&motor_right, 0);
     motor_set_state(&motor_left, MOTOR_STATE_FREE);
     motor_set_state(&motor_right, MOTOR_STATE_FREE);
 
     direction_set_inner(motion_forward);
-    uint32_t past_time = HAL_GetTick();
-    time_diff = past_time;
-    motor_set_duty(&motor_left, 100);
-    motor_set_duty(&motor_right, 100);
+    uint32_t loop_start = HAL_GetTick();
+    time_diff = loop_start;
+    motor_set_rps_pcn(&motor_left, 100);
+    motor_set_rps_pcn(&motor_right, 100);
     for(;;)
     {
-        if (HAL_GetTick() - past_time > ms) break;
+        if (HAL_GetTick() - loop_start > ms) break;
         if (motor_left.rps_present > motor_left.rps_max)
         {
             motor_set_max_rps(&motor_left, motor_left.rps_present);
-            past_time = HAL_GetTick();
+            loop_start = HAL_GetTick();
         }
         if (motor_right.rps_present > motor_right.rps_max)
         {
             motor_set_max_rps(&motor_right, motor_right.rps_present);
-            past_time = HAL_GetTick();
+            loop_start = HAL_GetTick();
         }
         osDelay(10);
-        // timeout_error(previous_time_diff, &error_state.vehicle_test_no_load_rps);
     }
-    motor_set_duty(&motor_left,  0);
-    motor_set_duty(&motor_right, 0);
+    motor_set_rps_pcn(&motor_left,  0);
+    motor_set_rps_pcn(&motor_right, 0);
     if (motor_left.rps_max > motor_right.rps_max) motor_set_max_rps(&motor_left, motor_right.rps_max);
     else motor_set_max_rps(&motor_right, motor_left.rps_max);
     time_diff = HAL_GetTick() - time_diff;
     vehicle_ensure_stop_inner();
     osDelay(1000);
-
+    // Todo test
     direction_set_inner(motion_backward);
-    past_time = HAL_GetTick();
-    motor_set_duty(&motor_left,  100);
-    motor_set_duty(&motor_right, 100);
+    loop_start = HAL_GetTick();
+    motor_set_rps_pcn(&motor_left,  100);
+    motor_set_rps_pcn(&motor_right, 100);
     for(;;)
     {
-        if (HAL_GetTick() - past_time >= time_diff) break;
+        if (HAL_GetTick() - loop_start >= time_diff) break;
         osDelay(10);
-        // timeout_error(past_time, &error_state.vehicle_test_no_load_rps);
     }
-    motor_set_duty(&motor_left, 0);
-    motor_set_duty(&motor_right, 0);
+    motor_set_rps_pcn(&motor_left, 0);
+    motor_set_rps_pcn(&motor_right, 0);
     vehicle_ensure_stop_inner();
 
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
-    // runtime_switch.rps_control = 1;
 }
 
 void StartVehicleTask(void *argument)
 {
     for(;;)
     {
-        adc_renew();
         direction_update();
         osDelay(50);
     }
@@ -184,8 +176,6 @@ void StartVehicleTask(void *argument)
 void vehicle_main(void)
 {
     // vehicle_navigation();
-    // vehicle_set_motion(motion_forward);
-    // vehicle_set_speed(20);
 
     switch (vehicle_state.mode)
     {
