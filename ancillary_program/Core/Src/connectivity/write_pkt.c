@@ -137,6 +137,7 @@ FnState pkt_vehi_set_state(VecByte* vec_byte, VehicleMotion motion, Percentage v
         }
         default: break;
     }
+    return FNS_FAIL;
 }
 
 FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode)
@@ -162,6 +163,7 @@ FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode)
         }
         default: break;
     }
+    return FNS_FAIL;
 }
 
 #endif

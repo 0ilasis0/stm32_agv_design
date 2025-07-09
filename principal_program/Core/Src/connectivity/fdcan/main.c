@@ -47,7 +47,7 @@ static UNUSED_FNC void fdcan_init(void)
     ERROR_CHECK_FNS_HANDLE(fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
 }
 
-static UNUSED_FNC void fdcan_set_filter(FDCAN_HandleTypeDef *hfdcan)
+static UNUSED_FNC void set_filter(FDCAN_HandleTypeDef *hfdcan)
 {
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(hfdcan, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
     FDCAN_FilterTypeDef sFilter0 = {
@@ -70,7 +70,7 @@ static UNUSED_FNC void fdcan_set_filter(FDCAN_HandleTypeDef *hfdcan)
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(hfdcan, &sFilter1));
 }
 
-static UNUSED_FNC void fdcan_set_notification(FDCAN_HandleTypeDef *hfdcan)
+static UNUSED_FNC void set_notification(FDCAN_HandleTypeDef *hfdcan)
 {
     ERROR_CHECK_HAL_HANDLE(
         HAL_FDCAN_ActivateNotification(hfdcan,
@@ -325,33 +325,27 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_ARM_B1_BOTTOM:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_bottom))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_bottom);
                 }
                 case CMD_ARM_B1_SHOULDER:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_shoulder))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_shoulder);
                 }
                 case CMD_ARM_B1_ELBOW_BTM:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_btm))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_elbow_btm);
                 }
                 case CMD_ARM_B1_ELBOW_TOP:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_top))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_elbow_top);
                 }
                 case CMD_ARM_B1_WRIST:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_wrist))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_wrist);
                 }
                 case CMD_ARM_B1_FINGER:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_finger))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_finger);
                 }
                 default: break;
             }
@@ -451,50 +445,37 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
             return FNS_OK;
         }
         #ifdef ANCILLARY_PROGRAM
-        case CMD_B0_TEST:
+        case CMD_RFID_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case 0x01:
+                case CMD_RFID_B1_SELECT:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    if (code != 0x04) break;
-                    uint8_t data[4];
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &data[0]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 5, &data[1]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 6, &data[2]));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 7, &data[3]));
+                    uint8_t secter, block;
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &secter));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &block));
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &code));
                     switch (code)
                     {
-                        case 0x00:
+                        case CMD_RFID_B4_ONLY_SET:
                         {
-                            memcpy(data_store, data, 4);
-                            return FNS_OK;
+                            return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 0);
                         }
-                        case 0x01:
+                        case CMD_RFID_B4_WRITE:
                         {
-                            memcpy(data_store + 4, data, 4);
-                            return FNS_OK;
-                        }
-                        case 0x02:
-                        {
-                            memcpy(data_store + 8, data, 4);
-                            return FNS_OK;
-                        }
-                        case 0x03:
-                        {
-                            memcpy(data_store + 12, data, 4);
-                            return FNS_OK;
+                            return rfid_trcv_buf_setaddr(&rfid_trsm_buf, secter, block, 1);
                         }
                         default: break;
                     }
                     break;
                 }
-                case 0x02:
+                case CMD_RFID_B1_INP_DATA:
                 {
-                    return vec_byte_get_byte(vec_byte, 2, &date_write);
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 3));
+                    if (vec_byte->len < 4) return FNS_NOT_FOUND;
+                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, vec_byte->data + vec_byte->head, 4);
                 }
                 default: break;
             }
@@ -526,9 +507,9 @@ void StartFdCanTask(void *argument)
     osThreadExit();
     #else
     fdcan_init();
-    fdcan_set_filter(&hfdcan1);
+    set_filter(&hfdcan1);
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
-    fdcan_set_notification(&hfdcan1);
+    set_notification(&hfdcan1);
     size_t tick = 0;
     for(;;)
     {
