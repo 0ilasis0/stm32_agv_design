@@ -85,7 +85,6 @@ typedef struct FnState_h
     FnState vehicle_over_hall_fall_back;
     FnState agv_forward_leave_strong_magnet;
     // FnState vehicle_search_magnetic_path;
-    FnState vehicle_ensure_stop;
     FnState renew_vehicle_rotation_status;
     FnState rotate_in_place__map_data_current_count;
     // FnState breakdown_all_hall_lost__path_not_found;

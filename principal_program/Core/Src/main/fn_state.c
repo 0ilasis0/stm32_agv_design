@@ -10,8 +10,7 @@ FnState_h error_state = {
     .vehicle_over_hall_fall_back                = FNS_INVALID,
     .agv_forward_leave_strong_magnet            = FNS_INVALID,
     // .vehicle_search_magnetic_path               = FNS_INVALID,
-    .vehicle_ensure_stop                        = FNS_INVALID,
-    .renew_vehicle_rotation_status     = FNS_INVALID,
+    .renew_vehicle_rotation_status              = FNS_INVALID,
     .rotate_in_place__map_data_current_count    = FNS_INVALID,
     // .breakdown_all_hall_lost__path_not_found    = FNS_INVALID,
 };

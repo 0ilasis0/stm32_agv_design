@@ -1,5 +1,8 @@
 #include "main/config.h"
 
+//FNC_DISABLE
+//FNC_ENABLE
+
 RuntimeSwitch runtime_switch = {
     .adc = FNC_ENABLE,
     .rps_control = FNC_ENABLE,

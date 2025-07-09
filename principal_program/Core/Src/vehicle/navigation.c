@@ -6,7 +6,7 @@
 #include "main/adc.h"
 #include "main/config.h"
 
-static int text_end = 0;
+
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
@@ -74,6 +74,7 @@ void track_mode(void)
 /**
   * @brief 決定移動MODE
   */
+static int text_end = 0;
 static void decide_move_mode(void)
 {
     switch(map_data.status[map_data.current_count])
@@ -84,7 +85,6 @@ static void decide_move_mode(void)
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;
             break;
-
         case agv_rotate:
             protect_over_hall();
             rotate_in_place();
@@ -92,12 +92,15 @@ static void decide_move_mode(void)
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;
             break;
-
         case agv_end:
             protect_over_hall();
-            init_map_data_direction_and_address(&map_data, map_data.address_id[map_data.current_count - 1], map_data.direction[map_data.current_count - 1]);
+            init_map_data_direction_and_address(
+                &map_data, map_data.address_id[map_data.current_count - 1],
+                map_data.direction[map_data.current_count - 1]
+                );
             // 終止目前沒有要做甚麼所以先停止動作
-            while (1) {
+            while (1)
+            {
                 vehicle_ensure_stop();
                 text_end = 1;
             }
