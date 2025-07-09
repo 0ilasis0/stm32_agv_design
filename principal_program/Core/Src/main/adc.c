@@ -3,6 +3,15 @@
 #include "motor/main.h"
 #include "main/config.h"
 
+#define SWAP(a,b)       \
+do {                    \
+    uint16_t temp = a;  \
+    a = b;              \
+    b = temp;           \
+} while(0)
+
+uint16_t hall_max[4] = {0};
+uint16_t hall_min[4] = {2000, 2000, 2000, 2000};
 AdcHall adc_hall;
 
 static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0};                                 // adc儲存位置
@@ -20,28 +29,11 @@ static AdcHall adc_hall_init (void)
     return adc_hall_new;
 }
 
-/* +setup -----------------------------------------------------------*/
-void adc_setup (void)
-{
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT * ADC_NEED_LEN);
-    adc_hall = adc_hall_init();
-}
-
-uint16_t text_max[4] = {0};
-uint16_t text_min[4] = {2000, 2000, 2000, 2000};
-
-void text_cal (uint16_t temp, uint16_t *max, uint16_t *min)
+static void max_min (uint16_t temp, uint16_t *max, uint16_t *min)
 {
     if(temp > *max) *max = temp;
     if(temp < *min && temp > 1000) *min = temp;
 }
-
-#define SWAP(a,b)       \
-do {                    \
-    uint16_t temp = a;  \
-    a = b;              \
-    b = temp;           \
-} while(0)
 
 static void quick_sort(uint16_t* arr, int left, int right) {
     if (left >= right) return;
@@ -65,55 +57,72 @@ static void sort(uint16_t* values, size_t count) {
 }
 
 
-// void fil(uint16_t *adc, uint16_t len)
-// {
-//     float alpha = 0.1f;
-//     uint16_t y_prev = adc[0];
-//     for (int i = 1; i < len; i++) {
-//         float x = adc[i];
-//         float y = alpha * x + (1 - alpha) * y_prev;
-//         adc[i] = y;   // 直接覆蓋原始陣列
-//         y_prev = y;
-//     }
-// }
+/*text*/
+static KalmanFilter kf[4];
 
+static void Kalman_Init(KalmanFilter *kf, float Q, float R) {
+    kf->x_est = 0;
+    kf->P = 1;
+    kf->Q = Q;
+    kf->R = R;
+}
+
+static float Kalman_Update(KalmanFilter *kf, float z) {
+    kf->P += kf->Q;
+    float K = kf->P / (kf->P + kf->R);
+    kf->x_est += K * (z - kf->x_est);
+    kf->P *= (1 - K);
+    return kf->x_est;
+}
+
+static void Kalman_set(void)
+{
+    for(int i = 0; i < 4; i++)
+    {
+        Kalman_Init(&kf[i], 0.01f, 5.0f);
+    }
+}
+/*text*/
+
+
+void adc_setup (void)
+{
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT * ADC_NEED_LEN);
+    adc_hall = adc_hall_init();
+    Kalman_set();
+}
 
 // renew adc senser
 void adc_renew (void)
 {
     if (!runtime_switch.adc) return;
 
-    // uint32_t sum[4] = {0};
-    uint16_t adc_1[ADC_NEED_LEN], adc_2[ADC_NEED_LEN], adc_3[ADC_NEED_LEN], adc_4[ADC_NEED_LEN];
+    uint16_t adc[ADC_COUNT][ADC_NEED_LEN] = {0};
 
-    for(int i = 0; i < ADC_NEED_LEN; i++)
-    {
-        adc_1[i] = ADC_Values[i*ADC_COUNT];
-        adc_2[i] = ADC_Values[i*ADC_COUNT+1];
-        adc_3[i] = ADC_Values[i*ADC_COUNT+2];
-        adc_4[i] = ADC_Values[i*ADC_COUNT+3];
-    }
+    // for (int i = 0; i < ADC_COUNT; i++)
+    // {
+    //     for (int j = 0; j < ADC_NEED_LEN; j++)
+    //     {
+    //         adc[i][j] = ADC_Values[j * ADC_COUNT + i];
+    //     }
+    //     sort(adc[i], ADC_NEED_LEN);
+    // }
 
-    // fil(adc_1, ADC_NEED_LEN);
-    // fil(adc_2, ADC_NEED_LEN);
-    // fil(adc_3, ADC_NEED_LEN);
-    // fil(adc_4, ADC_NEED_LEN);
+    // adc_hall.sensor_track_right   = adc[0][ADC_NEED_LEN/2];
+    // adc_hall.sensor_track_left    = adc[1][ADC_NEED_LEN/2];
+    // adc_hall.sensor_node          = adc[2][ADC_NEED_LEN/2];
+    // adc_hall.sensor_direction     = adc[3][ADC_NEED_LEN/2];
 
-    sort(adc_1, ADC_NEED_LEN);
-    sort(adc_2, ADC_NEED_LEN);
-    sort(adc_3, ADC_NEED_LEN);
-    sort(adc_4, ADC_NEED_LEN);
-
-    adc_hall.sensor_track_right = adc_1[ADC_NEED_LEN/2];
-    adc_hall.sensor_track_left = adc_2[ADC_NEED_LEN/2];
-    adc_hall.sensor_node = adc_3[ADC_NEED_LEN/2];
-    adc_hall.sensor_direction = adc_4[ADC_NEED_LEN/2];
+    adc_hall.sensor_track_right  = Kalman_Update(&kf[0], adc[0][ADC_NEED_LEN - 1]);
+    adc_hall.sensor_track_left   = Kalman_Update(&kf[1], adc[1][ADC_NEED_LEN - 1]);
+    adc_hall.sensor_node         = Kalman_Update(&kf[2], adc[2][ADC_NEED_LEN - 1]);
+    adc_hall.sensor_direction    = Kalman_Update(&kf[3], adc[3][ADC_NEED_LEN - 1]);
 
     if (HAL_GetTick() < 3000) return;
-    text_cal(adc_hall.sensor_track_right,   &text_max[0], &text_min[0]);
-    text_cal(adc_hall.sensor_track_left,    &text_max[1], &text_min[1]);
-    text_cal(adc_hall.sensor_node,          &text_max[2], &text_min[2]);
-    text_cal(adc_hall.sensor_direction,     &text_max[3], &text_min[3]);
+    max_min(adc_hall.sensor_track_right,   &hall_max[0], &hall_min[0]);
+    max_min(adc_hall.sensor_track_left,    &hall_max[1], &hall_min[1]);
+    max_min(adc_hall.sensor_node,          &hall_max[2], &hall_min[2]);
+    max_min(adc_hall.sensor_direction,     &hall_max[3], &hall_min[3]);
 }
 
 
