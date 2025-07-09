@@ -96,7 +96,7 @@ typedef struct RuntimeSwitch
     FncState search_magnetic_path;
     FncState timeout;
 
-    FncState debug_breakdown_all_hall_lost;
+    // FncState debug_breakdown_all_hall_lost;
     FncState debug_protect_over_hall;
     FncState debug_test_no_load_speed;
 } RuntimeSwitch;

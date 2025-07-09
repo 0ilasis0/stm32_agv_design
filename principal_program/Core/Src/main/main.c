@@ -1,10 +1,7 @@
 #include "main/main.h"
 #include "main/config.h"
 #include "main/adc.h"
-#include "main/it.h"
-#include "vehicle/vehicle.h"
-#include "main/map.h"
-#include "motor/main.h"
+#include "vehicle/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
@@ -91,7 +88,7 @@ void StartDefaultTask(void *argument)
     // vehicle_adjust_startup_heading();
     for(;;)
     {
-        vehicle_loop();
+        vehicle_main();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

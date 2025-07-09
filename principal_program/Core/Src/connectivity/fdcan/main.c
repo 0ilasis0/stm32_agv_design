@@ -3,7 +3,8 @@
 #include "connectivity/cmds.h"
 
 #ifdef PRINCIPAL_PROGRAM
-#include "vehicle/vehicle2.h"
+// #include "vehicle/vehicle2.h"
+#include "vehicle/basic.h"
 #include "motor/main.h"
 #endif
 #ifdef ANCILLARY_PROGRAM

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "main/config.h"
-#include "vehicle/vehicle2.h"
+#include "vehicle/basic.h"
+
 
 #define INF 99999
 #define max_node 10
@@ -45,7 +46,6 @@ extern AgvState agv_state;
 extern LOCATION locations_t[max_node];
 
 void map_setup(void);
-static AgvState init_agv_state_data (void);
 void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
 void build_current_map_data(int from, int to);
 int get_index_by_id(int id);

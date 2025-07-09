@@ -1,7 +1,7 @@
 #include "motor/main.h"
 #include "tim.h"
 #include "us_sensor/main.h"
-#include "vehicle/vehicle.h"
+
 
 #define HIGH_PASS   1
 #define NONE_PASS   0
@@ -20,7 +20,7 @@ static const int8_t SEQUENCE[6][3] = {
  * STEP -> HALL
  * static const uint8_t  cw[6] = {4, 3, 5, 1, 2, 0};
  * static const uint8_t ccw[6] = {4, 0, 2, 1, 5, 3};
- * 
+ *
  * HALL -> STEP
  */
 static const uint8_t hall_index[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
