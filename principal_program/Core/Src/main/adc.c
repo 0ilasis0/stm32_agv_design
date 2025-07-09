@@ -17,7 +17,7 @@ static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0};                     
 AdcHall adchall_track_left = {
     .const_h = {
         .id = 0,
-        .magnetic_value = 1870,
+        .magnetic_value = 1860,
     },
     .min = 4095,
 };
@@ -25,7 +25,7 @@ AdcHall adchall_track_left = {
 AdcHall adchall_track_right = {
     .const_h = {
         .id = 1,
-        .magnetic_value = 1840,
+        .magnetic_value = 1830,
     },
     .min = 4095,
 };

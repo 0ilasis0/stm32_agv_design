@@ -15,7 +15,7 @@ static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
     {
         if (HAL_GetTick() - past_time >= ms)
         {
-            vehicle_set_speed(0);
+            vehicle_set_motion(motion_stop);
             vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }
@@ -36,7 +36,7 @@ static FnState walk_until_on_path(Percentage speed, uint32_t ms)
     {
         if (HAL_GetTick() - past_time >= ms)
         {
-            vehicle_set_speed(0);
+            vehicle_set_motion(motion_stop);
             vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }
