@@ -33,7 +33,7 @@ FnState pkt_left_duty(VecByte* vec_byte)
 {
     vec_rm_all(vec_byte);
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_DATA_B0, CMD_DATA_B1_LEFT_DUTY, 0x01, 0x00}, 4));
-    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, motor_left.duty));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, motor_left.pwm_duty));
     return FNS_OK;
 }
 
@@ -41,7 +41,7 @@ FnState pkt_right_duty(VecByte* vec_byte)
 {
     vec_rm_all(vec_byte);
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_DATA_B0, CMD_DATA_B1_RIGHT_DUTY, 0x01, 0x00}, 4));
-    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, motor_right.duty));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, motor_right.pwm_duty));
     return FNS_OK;
 }
 #endif

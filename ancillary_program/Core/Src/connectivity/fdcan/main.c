@@ -325,33 +325,27 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_ARM_B1_BOTTOM:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_bottom))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_bottom);
                 }
                 case CMD_ARM_B1_SHOULDER:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_shoulder))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_shoulder);
                 }
                 case CMD_ARM_B1_ELBOW_BTM:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_btm))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_elbow_btm);
                 }
                 case CMD_ARM_B1_ELBOW_TOP:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_elbow_top))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_elbow_top);
                 }
                 case CMD_ARM_B1_WRIST:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_wrist))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_wrist);
                 }
                 case CMD_ARM_B1_FINGER:
                 {
-                    if (ERROR_CHECK_FNS_RAW(proc_arm_set(vec_byte, &arm_finger))) break;
-                    return FNS_OK;
+                    return proc_arm_set(vec_byte, &arm_finger);
                 }
                 default: break;
             }

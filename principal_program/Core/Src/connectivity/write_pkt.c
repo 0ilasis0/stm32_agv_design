@@ -47,6 +47,7 @@ FnState pkt_right_duty(VecByte* vec_byte)
 #endif
 
 #ifdef ANCILLARY_PROGRAM
+#include "connectivity/vehicle.h"
 #include "robotic_arm/main.h"
 
 FnState pkt_arm_bottom(VecByte* vec_byte)
@@ -96,4 +97,71 @@ FnState pkt_arm_finger(VecByte* vec_byte)
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, (arm_finger.tim_current - ARM_TIM_MIN)));
     return FNS_OK;
 }
+
+FnState pkt_vehi_set_state(VecByte* vec_byte, VehicleMotion motion, Percentage value)
+{
+    if (value > 100) value = 100;
+    vec_rm_all(vec_byte);
+    ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_VEHICLE}, 2));
+    switch (motion)
+    {
+        case motion_forward:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_FOWARD));
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+            return FNS_OK;
+        }
+        case motion_backward:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_BACKWARD));
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+            return FNS_OK;
+        }
+        case motion_clockwise:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_CLOCK));
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+            return FNS_OK;
+        }
+        case motion_c_clockwise:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_C_CLOCK));
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+            return FNS_OK;
+        }
+        case motion_stop:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_STOP));
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+            return FNS_OK;
+        }
+        default: break;
+    }
+}
+
+FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode)
+{
+    vec_rm_all(vec_byte);
+    ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_VEHICLE, CMD_VEHI_B2_MODE}, 3));
+    switch (mode)
+    {
+        case VEHICLE_MODE_FREE:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B3_FREE));
+            return FNS_OK;
+        }
+        case VEHICLE_MODE_TRACK:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B3_TRACK));
+            return FNS_OK;
+        }
+        case VEHICLE_MODE_SEARCH:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B3_SEARCH));
+            return FNS_OK;
+        }
+        default: break;
+    }
+}
+
 #endif
