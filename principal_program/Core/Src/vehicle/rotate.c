@@ -126,7 +126,7 @@ void vehicle_adjust_startup_heading (void)
 /**
   * @brief AGV 原地旋轉直到對準方向
   */
-void rotate_in_place(void)
+void vehicle_rotate_in_place(void)
 {
     if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NOT_FOUND;
 

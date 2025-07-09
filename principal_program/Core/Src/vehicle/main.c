@@ -194,7 +194,7 @@ void vehicle_main(void)
     {
         case VEHICLE_MODE_TRACK:
         {
-            track_mode();
+            vehicle_track_mode();
             return;
         }
         case VEHICLE_MODE_SEARCH:
