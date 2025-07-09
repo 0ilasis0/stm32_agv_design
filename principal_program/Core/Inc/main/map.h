@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
     uint16_t        address_id;
     int8_t          direction;
-    VehicleMotion   vehicle_currnet_mode;
+    VehicleDirect   vehicle_currnet_mode;
 } AgvState;
 
 extern MAP_DATA map_data;

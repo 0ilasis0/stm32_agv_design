@@ -70,13 +70,13 @@ void StartDefaultTask(void *argument)
     /*測試用--------------------------------------*/
     // vehicle_test_no_load_rps(1000);
     // motor_set_state(&motor_left, MOTOR_STATE_FREE);
-    // motor_set_direction(&motor_left, MOTOR_DIRECTION_CLW);
+    // motor_set_direct(&motor_left, MOTOR_DIRECTION_CLW);
     // motor_set_rps_pcn(&motor_left, 50);
     // motor_set_state(&motor_right, MOTOR_STATE_FREE);
-    // motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
+    // motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
     vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_motion(motion_forward);
+    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(20);
     // init_map_data_direction_and_address(&map_data, 11, 7);
     /*測試用--------------------------------------*/

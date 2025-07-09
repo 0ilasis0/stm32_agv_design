@@ -9,15 +9,15 @@
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-static VehicleMotion get_rotate_direction(int8_t start_dir, int8_t end_dir)
+static VehicleDirect get_rotate_direction(int8_t start_dir, int8_t end_dir)
 {
     int8_t diff = (end_dir - start_dir + 8) % 8;
 
     if (diff <= 3) {
-        return motion_clockwise;
+        return VEHICLE_DIRECT_CLOCKWISE;
 
     } else {
-        return motion_c_clockwise;
+        return VEHICLE_DIRECT_C_CLOCKWISE;
 
     }
 }
@@ -26,7 +26,7 @@ static VehicleMotion get_rotate_direction(int8_t start_dir, int8_t end_dir)
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
 static uint8_t pass_magnetic_stripe_calculate(
-    VehicleMotion rotate_direction_mode,
+    VehicleDirect rotate_direction_mode,
     uint16_t current_id_input,
     uint8_t from_dir,
     uint8_t to_dir
@@ -37,7 +37,7 @@ static uint8_t pass_magnetic_stripe_calculate(
     // 取得目前節點（node）在 locations_t 中的索引值
     int current_id = get_index_by_id(current_id_input);
 
-    if (rotate_direction_mode == motion_clockwise) {
+    if (rotate_direction_mode == VEHICLE_DIRECT_CLOCKWISE) {
         for (int i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
         {
             if (locations_t[current_id].connect[i].distance != 0)
@@ -104,12 +104,12 @@ void vehicle_adjust_startup_heading (void)
 {
     if (map_data.start_address_id == no_data) return;
 
-    VehicleMotion rotate_direction_mode = get_rotate_direction(
+    VehicleDirect rotate_direction_mode = get_rotate_direction(
         map_data.start_direction,
         map_data.direction[0]
         );
 
-    vehicle_set_motion(rotate_direction_mode);
+    vehicle_set_direct(rotate_direction_mode);
     vehicle_set_speed(VEHICLE_setpoint_rotate);
 
     uint8_t renew_count = pass_magnetic_stripe_calculate(
@@ -130,7 +130,7 @@ void vehicle_rotate_in_place(void)
 {
     if (map_data.current_count == 0) error_state.rotate_in_place__map_data_current_count = FNS_NOT_FOUND;
 
-    VehicleMotion rotate_direction_mode = get_rotate_direction(
+    VehicleDirect rotate_direction_mode = get_rotate_direction(
         map_data.direction[map_data.current_count - 1],
         map_data.direction[map_data.current_count]
         );
@@ -142,7 +142,7 @@ void vehicle_rotate_in_place(void)
             map_data.direction[map_data.current_count]
             );
 
-    vehicle_set_motion(rotate_direction_mode);
+    vehicle_set_direct(rotate_direction_mode);
     vehicle_set_speed(VEHICLE_setpoint_rotate);
 
     renew_vehicle_rotation_status(renew_count);

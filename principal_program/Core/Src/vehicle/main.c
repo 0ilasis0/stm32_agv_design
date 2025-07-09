@@ -3,56 +3,55 @@
 #include "vehicle/search.h"
 #include "adc/main.h"
 
-static void direction_set_inner(VehicleMotion motion)
+static void direct_update_inner(VehicleDirect direction)
 {
-    switch(motion)
+    vehicle_parameter.direction_inner = direction;
+    switch(direction)
     {
-        case motion_stop:
+        case VEHICLE_DIRECT_STOP:
         {
-            motor_set_direction(&motor_left,  MOTOR_DIRECTION_STOP);
-            motor_set_direction(&motor_right, MOTOR_DIRECTION_STOP);
-            break;
+            motor_set_direct(&motor_left,  MOTOR_DIRECTION_STOP);
+            motor_set_direct(&motor_right, MOTOR_DIRECTION_STOP);
+            return;
         }
-        case motion_forward:
+        case VEHICLE_DIRECT_FORWARD:
         {
-            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CCLW);
-            motor_set_direction(&motor_right, MOTOR_DIRECTION_CLW);
-            break;
+            motor_set_direct(&motor_left,  MOTOR_DIRECTION_CCLW);
+            motor_set_direct(&motor_right, MOTOR_DIRECTION_CLW);
+            return;
         }
-        case motion_backward:
+        case VEHICLE_DIRECT_BACKWARD:
         {
-            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CLW);
-            motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
-            break;
+            motor_set_direct(&motor_left,  MOTOR_DIRECTION_CLW);
+            motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
+            return;
         }
-        case motion_clockwise:
+        case VEHICLE_DIRECT_CLOCKWISE:
         {
-            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CCLW);
-            motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
-            break;
+            motor_set_direct(&motor_left,  MOTOR_DIRECTION_CCLW);
+            motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
+            return;
         }
-        case motion_c_clockwise:
+        case VEHICLE_DIRECT_C_CLOCKWISE:
         {
-            motor_set_direction(&motor_left,  MOTOR_DIRECTION_CLW);
-            motor_set_direction(&motor_right, MOTOR_DIRECTION_CLW);
-            break;
+            motor_set_direct(&motor_left,  MOTOR_DIRECTION_CLW);
+            motor_set_direct(&motor_right, MOTOR_DIRECTION_CLW);
+            return;
         }
         default: break;
     }
-    vehicle_state.motion = motion;
 }
 
-static void direction_update(void)
+static void direct_update(void)
 {
-    if (vehicle_state.motion_inner == vehicle_state.motion) return;
+    if (vehicle_parameter.direction_inner == vehicle_parameter.direction) return;
     motor_set_state(&motor_left, MOTOR_STATE_SLOW);
     motor_set_state(&motor_right, MOTOR_STATE_SLOW);
     if (
             (motor_left.rps_present != 0)
         || (motor_right.rps_present != 0)
     ) return;
-    vehicle_state.motion_inner = vehicle_state.motion;
-    direction_set_inner(vehicle_state.motion_inner);
+    direct_update_inner(vehicle_parameter.direction_inner);
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
@@ -119,7 +118,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     motor_set_state(&motor_left, MOTOR_STATE_FREE);
     motor_set_state(&motor_right, MOTOR_STATE_FREE);
 
-    direction_set_inner(motion_forward);
+    direct_update_inner(VEHICLE_DIRECT_FORWARD);
     uint32_t loop_start = HAL_GetTick();
     time_diff = loop_start;
     motor_set_rps_pcn(&motor_left, 100);
@@ -146,8 +145,8 @@ void vehicle_test_no_load_rps(uint32_t ms)
     time_diff = HAL_GetTick() - time_diff;
     vehicle_ensure_stop_inner();
     osDelay(1000);
-    // Todo test
-    direction_set_inner(motion_backward);
+    // Todo FIX
+    direct_update_inner(VEHICLE_DIRECT_BACKWARD);
     loop_start = HAL_GetTick();
     motor_set_rps_pcn(&motor_left,  100);
     motor_set_rps_pcn(&motor_right, 100);
@@ -168,7 +167,7 @@ void StartVehicleTask(void *argument)
 {
     for(;;)
     {
-        direction_update();
+        direct_update();
         osDelay(50);
     }
 }
@@ -177,7 +176,7 @@ void vehicle_main(void)
 {
     // vehicle_navigation();
 
-    switch (vehicle_state.mode)
+    switch (vehicle_parameter.mode)
     {
         case VEHICLE_MODE_TRACK:
         {

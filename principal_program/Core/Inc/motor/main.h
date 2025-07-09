@@ -23,7 +23,7 @@ typedef uint8_t MotorState;
 #define MOTOR_STATE_BREAK       4
 #define MOTOR_STATE_LOCK        5
 
-typedef int8_t MotorDirection;
+typedef int8_t MotorDirect;
 #define MOTOR_DIRECTION_CLW     1
 #define MOTOR_DIRECTION_STOP    0
 #define MOTOR_DIRECTION_CCLW   -1
@@ -40,9 +40,9 @@ typedef struct MotorParameter
     float rps_present;
     Percentage pwm_duty;
     // direction setpoint
-    MotorDirection direction;
-    MotorDirection direction_inner;
-    MotorDirection direction_present;
+    MotorDirect direction;
+    MotorDirect direction_inner;
+    MotorDirect direction_present;
     uint8_t hall_last;
     uint8_t hall_present;
     uint32_t step_count;
@@ -55,5 +55,5 @@ extern MotorParameter motor_left;
 void motor_set_max_rps(MotorParameter* motor, float value);
 void motor_set_state(MotorParameter *motor, MotorState state);
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value);
-void motor_set_direction(MotorParameter *motor, MotorDirection direction);
+void motor_set_direct(MotorParameter *motor, MotorDirect direction);
 void motor_HALL_EXTI(MotorParameter *motor);

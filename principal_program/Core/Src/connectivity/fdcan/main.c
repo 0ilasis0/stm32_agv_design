@@ -168,35 +168,35 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                         case CMD_VEHI_B2_STOP:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_stop);
+                            vehicle_set_direct(VEHICLE_DIRECT_STOP);
                             // vehicle_set_speed(0);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_FOWARD:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_forward);
+                            vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
                             vehicle_set_speed(value);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_BACKWARD:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_backward);
+                            vehicle_set_direct(VEHICLE_DIRECT_BACKWARD);
                             vehicle_set_speed(value);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_C_CLOCK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_c_clockwise);
+                            vehicle_set_direct(VEHICLE_DIRECT_C_CLOCKWISE);
                             vehicle_set_speed(value);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_CLOCK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_clockwise);
+                            vehicle_set_direct(VEHICLE_DIRECT_CLOCKWISE);
                             vehicle_set_speed(value);
                             return FNS_OK;
                         }
@@ -243,7 +243,7 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                         {
                             // ? need check direction
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CLW);
+                            motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                             motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
@@ -251,7 +251,7 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                         {
                             // ? need check direction
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CCLW);
+                            motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                             motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
@@ -277,7 +277,7 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                         {
                             // ? need check direction
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CLW);
+                            motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                             motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }
@@ -285,7 +285,7 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                         {
                             // ? need check direction
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CCLW);
+                            motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                             motor_set_rps_pcn(motor, value);
                             return FNS_OK;
                         }

@@ -51,7 +51,7 @@
 
 #define VEHICLE_setpoint_straight  40   // 循跡速度目標
 #define VEHICLE_setpoint_rotate    30   // 原地旋轉速度目標
-#define VEHICLE_setpoint_fall_back 20   // 倒退速度目標
+#define VEHICLE_SETPOINT_FALL_BACK 20   // 倒退速度目標
 
 #define VEC_BYTE_MAX_CAP        256
 #define TRCV_BUF_MAX_CAP        10

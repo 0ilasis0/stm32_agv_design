@@ -8,14 +8,14 @@ static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 {
     if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
 
-    vehicle_set_motion(motion_clockwise);
+    vehicle_set_direct(VEHICLE_DIRECT_CLOCKWISE);
     vehicle_set_speed(speed);
     uint32_t past_time = HAL_GetTick();
     for(;;)
     {
         if (HAL_GetTick() - past_time >= ms)
         {
-            vehicle_set_motion(motion_stop);
+            vehicle_set_direct(VEHICLE_DIRECT_STOP);
             vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }
@@ -29,14 +29,14 @@ static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 
 static FnState walk_until_on_path(Percentage speed, uint32_t ms)
 {
-    vehicle_set_motion(motion_forward);
+    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(speed);
     uint32_t past_time = HAL_GetTick();
     for(;;)
     {
         if (HAL_GetTick() - past_time >= ms)
         {
-            vehicle_set_motion(motion_stop);
+            vehicle_set_direct(VEHICLE_DIRECT_STOP);
             vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }

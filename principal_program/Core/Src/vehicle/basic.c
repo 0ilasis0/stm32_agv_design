@@ -2,7 +2,7 @@
 #include "adc/main.h"
 
 
-VehicleState vehicle_state;
+VehicleParameter vehicle_parameter;
 
 void vehicle_ensure_stop_inner(void)
 {
@@ -25,7 +25,7 @@ void vehicle_ensure_stop_inner(void)
   */
 void agv_forward_leave_strong_magnet (void)
 {
-    vehicle_set_motion(motion_forward);
+    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(VEHICLE_setpoint_straight);
 
     uint32_t error_start = HAL_GetTick();
@@ -54,23 +54,23 @@ void vehicle_set_mode(VehicleMode mode)
     {
         case VEHICLE_MODE_TRACK:
         {
-            vehicle_state.on_mag_last_tick = HAL_GetTick();
+            vehicle_parameter.last_tick_on_mag = HAL_GetTick();
             break;
         }
         default: break;
     }
-    vehicle_state.mode = mode;
+    vehicle_parameter.mode = mode;
 }
 
-void vehicle_set_motion(VehicleMotion motion)
+void vehicle_set_direct(VehicleDirect direction)
 {
-    vehicle_state.motion = motion;
+    vehicle_parameter.direction = direction;
 }
 
 void vehicle_set_speed(Percentage value)
 {
     if (value > 100) value = 100;
-    vehicle_state.speed = value;
+    vehicle_parameter.speed = value;
     motor_set_rps_pcn(&motor_right, value);
     motor_set_rps_pcn(&motor_left , value);
 }
