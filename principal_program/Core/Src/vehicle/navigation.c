@@ -1,6 +1,7 @@
 #include "tim.h"
 #include "vehicle/navigation.h"
 #include "vehicle/rotate.h"
+#include "vehicle/search.h"
 #include "main/fn_state.h"
 #include "main/map.h"
 #include "main/adc.h"
@@ -17,7 +18,7 @@ static void vehicle_over_hall_fall_back(void)
     vehicle_set_speed(VEHICLE_setpoint_fall_back);
 
     uint32_t error_start = HAL_GetTick();
-    while(adc_hall.sensor_node >= adc_hall.strong_magnet_value) {
+    while(adchall_node.value >= adchall_node.const_h.magnetic_value) {
         timeout_error(error_start, &error_state.vehicle_over_hall_fall_back);
     }
 
@@ -31,7 +32,7 @@ static void protect_over_hall(void)
 
     vehicle_ensure_stop();
 
-    if (adc_hall.sensor_node < adc_hall.strong_magnet_value) return;
+    if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
     if (map_data.status[map_data.current_count] == agv_rotate)
@@ -85,34 +86,68 @@ static void decide_move_mode(void)
     }
 }
 
+static uint32_t signal_start_time = 0;
+static void vehicle_search(void)
+{
+    uint32_t now = HAL_GetTick();
+
+    if (   
+           adchall_direction.value   > adchall_direction.const_h.magnetic_value
+        && adchall_track_left.value  > adchall_track_left.const_h.magnetic_value
+        && adchall_track_right.value > adchall_track_right.const_h.magnetic_value
+        ) 
+        {
+        if (signal_start_time == 0) {
+            signal_start_time = now;
+        }
+        else if ((now - signal_start_time) >= 1000) {
+            signal_start_time = 0;
+            vehicle_set_mode(VEHICLE_MODE_SEARCH);
+        }
+    }
+    else {
+        signal_start_time = 0;
+    }
+}
+
+#define UNFIND_MAG_TIME 5000
 void vehicle_track_mode(void)
 {
-    // breakdown_all_hall_lost();
+    // vehicle_search();
+
     if (
-           adc_hall.sensor_track_right <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_left  >  adc_hall.magnetic_stripe_value
+           adchall_track_left.value  >  adchall_track_left.const_h.magnetic_value
+        && adchall_track_right.value <= adchall_track_right.const_h.magnetic_value
     ) {
+        vehicle_state.on_mag_last_tick = HAL_GetTick();
+        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
         motor_set_state(&motor_right, MOTOR_STATE_SLOW);
     }
     else if
     (
-           adc_hall.sensor_track_left  <= adc_hall.magnetic_stripe_value
-        && adc_hall.sensor_track_right >  adc_hall.magnetic_stripe_value
+           adchall_track_left.value  <= adchall_track_left.const_h.magnetic_value
+        && adchall_track_right.value >  adchall_track_right.const_h.magnetic_value
     ) {
+        vehicle_state.on_mag_last_tick = HAL_GetTick();
         motor_set_state(&motor_left, MOTOR_STATE_SLOW);
+        motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
     }
     else
     {
+        if (adchall_direction.value <= adchall_direction.const_h.magnetic_value)
+            vehicle_state.on_mag_last_tick = HAL_GetTick();
         motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
-        // motor_set_rps_pcn(&motor_left, vehicle_state.speed);
-        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
-        // motor_set_rps_pcn(&motor_right, vehicle_state.speed);
+        motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+    }
+    if (HAL_GetTick() - vehicle_state.on_mag_last_tick >= UNFIND_MAG_TIME)
+    {
+        vehicle_set_mode(VEHICLE_MODE_SEARCH);
     }
 }
 
 void vehicle_navigation (void)
 {
-    if (adc_hall.sensor_node < adc_hall.strong_magnet_value)
+    if (adchall_node.value < adchall_node.const_h.magnetic_value)
     {
         decide_move_mode();
     }
@@ -139,10 +174,9 @@ void vehicle_navigation (void)
 //     if (!runtime_switch.debug_breakdown_all_hall_lost) return;
 
 //     if (
-//             adc_hall.sensor_direction   > adc_hall.magnetic_stripe_value
-//         &&  adc_hall.sensor_node        > adc_hall.magnetic_stripe_value
-//         &&  adc_hall.sensor_track_right > adc_hall.magnetic_stripe_value
-//         &&  adc_hall.sensor_track_left  > adc_hall.magnetic_stripe_value
+//             adchall_direction.value   > adchall_direction.magnetic_value
+//         &&  adchall_track_right.value > adchall_track_right.magnetic_value
+//         &&  adchall_track_left.value  > adchall_track_left.magnetic_value
 //     ) {
 //         vehicle_ensure_stop();
 //         vehicle_search_magnetic_path (motion_clockwise, 3000);
@@ -173,12 +207,7 @@ void vehicle_navigation (void)
 //     uint32_t past_time = HAL_GetTick();
 //     while (HAL_GetTick() - past_time <= time) {
 //         // if hall sensor sensing magnetic force
-//         if (
-//                adc_hall.sensor_direction    < adc_hall.magnetic_stripe_value
-//             || adc_hall.sensor_track_left   < adc_hall.magnetic_stripe_value
-//             || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
-//             || adc_hall.sensor_node         < adc_hall.magnetic_stripe_value
-//         ) {
+//         if (adchall_direction.value < adchall_direction.magnetic_value) {
 //             runtime_switch.search_magnetic_path = 0;
 //             break;
 //         }

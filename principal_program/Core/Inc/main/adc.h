@@ -1,25 +1,27 @@
 #pragma once
 
-#include <stdint.h>
+#include "main/config.h"
 
-typedef struct
+typedef struct AdcHallConst
 {
-    uint16_t sensor_track_right;
-    uint16_t sensor_track_left;
-    uint16_t sensor_node;
-    uint16_t sensor_direction;
-    uint16_t magnetic_stripe_value;         // 判斷磁條強度大小
-    uint16_t strong_magnet_value;           // 判斷強力磁鐵強度大小
+    uint8_t id;
+    uint16_t magnetic_value;
+} AdcHallConst;
+
+typedef struct AdcHall
+{
+    const AdcHallConst const_h;
+    uint16_t value;
+    uint16_t max;
+    uint16_t min;
 } AdcHall;
 
-typedef struct {
-    float x_est;  // 狀態估計值
-    float P;      // 誤差協方差
-    float Q;      // 過程噪聲
-    float R;      // 量測噪聲
-} KalmanFilter;
+extern AdcHall adchall_track_left;
+extern AdcHall adchall_track_right;
+extern AdcHall adchall_node;
+extern AdcHall adchall_direction;
 
-extern AdcHall adc_hall;
+
 
 void adc_setup(void);
 void adc_renew(void);

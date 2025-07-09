@@ -76,14 +76,14 @@ static void renew_vehicle_rotation_status (uint8_t count_until_zero)
     uint32_t triggered_time;
 
     while (count_until_zero != 0){
-        if (adc_hall.sensor_direction <= adc_hall.magnetic_stripe_value  && !triggered)
+        if (adchall_direction.value <= adchall_direction.const_h.magnetic_value  && !triggered)
         {
             count_until_zero --;
             triggered_time = HAL_GetTick();
             triggered = true;
         }
         if (
-            adc_hall.sensor_direction > adc_hall.magnetic_stripe_value
+            adchall_direction.value > adchall_direction.const_h.magnetic_value
             && triggered_time - HAL_GetTick() > 200
             )
         {

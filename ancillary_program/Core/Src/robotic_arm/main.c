@@ -1,11 +1,11 @@
 #include "robotic_arm/main.h"
 
 static const ArmConst arm_bottom_const = {
-    // PA0(L28) 
-    .htimx = &htim2,
-    .TIM_CHANNEL_x = TIM_CHANNEL_1,
+    // PB0(L34)
+    .htimx = &htim3,
+    .TIM_CHANNEL_x = TIM_CHANNEL_3,
     .tim_min = ARM_TIM_MIN,
-    .tim_max = ARM_TIM_MAX,
+    .tim_max = ARM_TIM_MAX / 2,
 };
 ArmParameter arm_bottom = {
     .const_h = &arm_bottom_const,
@@ -14,8 +14,8 @@ ArmParameter arm_bottom = {
 };
 
 static const ArmConst arm_shoulder_const = {
-    // PA1(L30)
-    .htimx = &htim2,
+    // PA4(L32)
+    .htimx = &htim3,
     .TIM_CHANNEL_x = TIM_CHANNEL_2,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
@@ -27,9 +27,9 @@ ArmParameter arm_shoulder = {
 };
 
 static const ArmConst arm_elbow_btm_const = {
-    // PB10(R25)
+    // PA1(L30)
     .htimx = &htim2,
-    .TIM_CHANNEL_x = TIM_CHANNEL_3,
+    .TIM_CHANNEL_x = TIM_CHANNEL_2,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
 };
@@ -40,9 +40,9 @@ ArmParameter arm_elbow_btm = {
 };
 
 static const ArmConst arm_elbow_top_const = {
-    // PA6(R13)
-    .htimx = &htim3,
-    .TIM_CHANNEL_x = TIM_CHANNEL_1,
+    // PB10(R25)
+    .htimx = &htim2,
+    .TIM_CHANNEL_x = TIM_CHANNEL_3,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
 };
@@ -53,9 +53,9 @@ ArmParameter arm_elbow_top = {
 };
 
 static const ArmConst arm_wrist_const = {
-    // PA4(L32)
+    // PA6(R13)
     .htimx = &htim3,
-    .TIM_CHANNEL_x = TIM_CHANNEL_2,
+    .TIM_CHANNEL_x = TIM_CHANNEL_1,
     .tim_min = ARM_TIM_MIN,
     .tim_max = ARM_TIM_MAX,
 };
@@ -66,11 +66,11 @@ ArmParameter arm_wrist = {
 };
 
 static const ArmConst arm_finger_const = {
-    // PB0(L34)
-    .htimx = &htim3,
-    .TIM_CHANNEL_x = TIM_CHANNEL_3,
+    // PA0(L28) 
+    .htimx = &htim2,
+    .TIM_CHANNEL_x = TIM_CHANNEL_1,
     .tim_min = ARM_TIM_MIN,
-    .tim_max = ARM_TIM_MAX / 2,
+    .tim_max = ARM_TIM_MAX,
 };
 ArmParameter arm_finger = {
     .const_h = &arm_finger_const,

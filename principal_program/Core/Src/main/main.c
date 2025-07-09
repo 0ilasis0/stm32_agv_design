@@ -16,13 +16,10 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == MOTOR_HTIM1) // 100us
     {
-        if (motor_tick % 10 == 0) // 1ms
-        {
-            adc_renew();
-        }
         if (motor_tick % 500 == 0) // 50ms
         {
             motor_tick = 0;
+            
         }
         motor_tick++;
     }
@@ -67,21 +64,24 @@ size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     defalt_running++;
-    osDelay(1000);
     adc_setup();
     // map_setup();
-    // vehicle_test_no_load_rps(1000);
+
+    osDelay(1000);
 
     /*測試用--------------------------------------*/
+    // vehicle_test_no_load_rps(1000);
     // motor_set_state(&motor_left, MOTOR_STATE_FREE);
+    // motor_set_duty(&motor_left,  100);
     // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_duty(&motor_right, 100);
-    // motor_set_duty(&motor_left,  100);
     // motor_set_direction(&motor_left, MOTOR_DIRECTION_CLW);
     // motor_set_rps_pcn(&motor_left, 50);
     // motor_set_direction(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
-
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
+    vehicle_set_motion(motion_forward);
+    vehicle_set_speed(20);
     // init_map_data_direction_and_address(&map_data, 11, 7);
     /*測試用--------------------------------------*/
 

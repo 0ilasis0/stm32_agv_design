@@ -30,7 +30,7 @@ void agv_forward_leave_strong_magnet (void)
 
     uint32_t error_start = HAL_GetTick();
     // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(adc_hall.sensor_node <= adc_hall.strong_magnet_value )
+    while(adchall_node.value <= adchall_node.const_h.magnetic_value )
     {
         timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
     }
@@ -50,6 +50,15 @@ void vehicle_ensure_stop(void)
 
 void vehicle_set_mode(VehicleMode mode)
 {
+    switch (mode)
+    {
+        case VEHICLE_MODE_TRACK:
+        {
+            vehicle_state.on_mag_last_tick = HAL_GetTick();
+            break;
+        }
+        default: break;
+    }
     vehicle_state.mode = mode;
 }
 

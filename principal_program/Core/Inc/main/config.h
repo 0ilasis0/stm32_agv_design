@@ -43,9 +43,7 @@
 #define MOTOR_STOP_GATE         0.1f
 
 #define ADC_COUNT                   4
-#define ADC_NEED_LEN               30
-#define ADC_MAGNETIC_STRIPE_VALUE 1850
-#define ADC_STRONG_MAGNET_VALUE   1650
+#define ADC_NEED_LEN              127
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1

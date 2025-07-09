@@ -2,4 +2,4 @@
 
 #include "main/fn_state.h"
 
-FnState search_mode(void);
+FnState vehicle_search_mode(void);

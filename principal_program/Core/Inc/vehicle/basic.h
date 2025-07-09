@@ -5,11 +5,11 @@
 #include "motor/main.h"
 
 typedef enum {
+    motion_stop,
     motion_forward,
     motion_backward,
     motion_clockwise,
     motion_c_clockwise,
-    motion_stop,
 } VehicleMotion;
 
 typedef uint8_t VehicleMode;
@@ -24,6 +24,7 @@ typedef struct VehicleState
     VehicleMode mode_inner;
     VehicleMotion motion;
     VehicleMotion motion_inner;
+    uint32_t on_mag_last_tick;
 } VehicleState;
 
 extern VehicleState vehicle_state;

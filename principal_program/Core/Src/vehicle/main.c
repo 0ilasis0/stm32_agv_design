@@ -69,7 +69,7 @@ static void direction_update(void)
 //             vehicle_ensure_stop();
 //             return FNS_NOT_FOUND;
 //         }
-//         if (adc_hall.sensor_direction < adc_hall.magnetic_stripe_value) break;
+//         if (adchall_direction.value < adchall_direction.magnetic_value) break;
 //         osDelay(10);
 //     }
 //     vehicle_set_speed(0);
@@ -91,8 +91,8 @@ static void direction_update(void)
 //             return FNS_NOT_FOUND;
 //         }
 //         if (
-//                adc_hall.sensor_track_left   < adc_hall.magnetic_stripe_value
-//             || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
+//                adchall_track_left.value   < adchall_track_left.magnetic_value
+//             || adchall_track_right.value  < adchall_track_right.magnetic_value
 //         ) break;
 //         osDelay(10);
 //     }
@@ -101,7 +101,7 @@ static void direction_update(void)
 //     return FNS_OK;
 // }
 
-// static FnState search_mode(void)
+// static FnState vehicle_search_mode(void)
 // {
 //     ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 10000));
 //     ERROR_CHECK_FNS_RETURN(walk_until_on_path(10, 3000));
@@ -170,17 +170,11 @@ void vehicle_test_no_load_rps(uint32_t ms)
 
 void StartVehicleTask(void *argument)
 {
-    size_t tick = 0;
     for(;;)
     {
+        adc_renew();
         direction_update();
-
-        if (tick % 100 == 0)
-        {
-            tick = 0;
-        }
         osDelay(50);
-        tick++;
     }
 }
 
@@ -189,7 +183,7 @@ void vehicle_main(void)
     // vehicle_navigation();
     // vehicle_set_motion(motion_forward);
     // vehicle_set_speed(20);
-    vehicle_set_mode(VEHICLE_MODE_TRACK);
+
     switch (vehicle_state.mode)
     {
         case VEHICLE_MODE_TRACK:
@@ -199,7 +193,7 @@ void vehicle_main(void)
         }
         case VEHICLE_MODE_SEARCH:
         {
-            if (ERROR_CHECK_FNS_RAW(search_mode()))
+            if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
             {
                 vehicle_set_mode(VEHICLE_MODE_FREE);
                 return;

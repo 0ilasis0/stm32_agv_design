@@ -19,7 +19,7 @@ static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
             vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }
-        if (adc_hall.sensor_direction < adc_hall.magnetic_stripe_value) break;
+        if (adchall_direction.value < adchall_direction.const_h.magnetic_value) break;
         osDelay(10);
     }
     vehicle_set_speed(0);
@@ -41,8 +41,8 @@ static FnState walk_until_on_path(Percentage speed, uint32_t ms)
             return FNS_NOT_FOUND;
         }
         if (
-               adc_hall.sensor_track_left   < adc_hall.magnetic_stripe_value
-            || adc_hall.sensor_track_right  < adc_hall.magnetic_stripe_value
+               adchall_track_left.value   < adchall_track_left.const_h.magnetic_value
+            || adchall_track_right.value  < adchall_track_right.const_h.magnetic_value
         ) break;
         osDelay(10);
     }
@@ -51,10 +51,10 @@ static FnState walk_until_on_path(Percentage speed, uint32_t ms)
     return FNS_OK;
 }
 
-FnState search_mode(void)
+FnState vehicle_search_mode(void)
 {
-    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 10000));
+    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 5000));
     ERROR_CHECK_FNS_RETURN(walk_until_on_path(10, 3000));
-    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 10000));
+    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 5000));
     return FNS_OK;
 }
