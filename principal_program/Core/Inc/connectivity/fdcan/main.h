@@ -1,10 +1,5 @@
 #pragma once
 
-#include "main/config.h"
-#include "connectivity/fdcan/trcv_buffer.h"
+#include "connectivity/fdcan/basic.h"
 
-extern FncState fdcan_enable;
-extern FncState fdacn_data_trsm_ready;
-
-extern FdcanByteTrcvBuf fdcan_trsm_pkt_buf;
-extern FdcanByteTrcvBuf fdcan_recv_pkt_buf;
+FnState instant_recv_proc(VecByte* vec_byte);

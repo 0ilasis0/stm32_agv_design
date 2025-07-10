@@ -13,6 +13,7 @@ FnState pkt_right_duty(VecByte* vec_byte);
 #endif
 
 #ifdef ANCILLARY_PROGRAM
+#include "connectivity/vehicle.h"
 FnState pkt_arm_bottom(VecByte* vec_byte);
 FnState pkt_arm_shoulder(VecByte* vec_byte);
 FnState pkt_arm_elbow_btm(VecByte* vec_byte);

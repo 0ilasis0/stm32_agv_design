@@ -47,7 +47,6 @@ FnState pkt_right_duty(VecByte* vec_byte)
 #endif
 
 #ifdef ANCILLARY_PROGRAM
-#include "connectivity/vehicle.h"
 #include "robotic_arm/main.h"
 
 FnState pkt_arm_bottom(VecByte* vec_byte)
@@ -165,6 +164,7 @@ FnState pkt_vehi_set_speed(VecByte* vec_byte, Percentage value)
 {
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_VEHICLE, CMD_VEHI_B2_SPEED}, 3));
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+    return FNS_OK;
 }
 
 #endif
