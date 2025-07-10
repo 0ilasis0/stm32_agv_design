@@ -1,5 +1,6 @@
 #include "main/main.h"
 #include "main/config.h"
+#include "main/map.h"
 #include "adc/main.h"
 #include "vehicle/main.h"
 #include "us_sensor/main.h"
@@ -19,7 +20,7 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (motor_tick % 500 == 0) // 50ms
         {
             motor_tick = 0;
-            
+
         }
         motor_tick++;
     }
@@ -65,6 +66,8 @@ void StartDefaultTask(void *argument)
 {
     defalt_running++;
     // map_setup();
+    agv_state_data_setup();
+
     osDelay(1000);
 
     /*測試用--------------------------------------*/
@@ -78,10 +81,11 @@ void StartDefaultTask(void *argument)
     vehicle_set_mode(VEHICLE_MODE_TRACK);
     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(20);
-    // init_map_data_direction_and_address(&map_data, 11, 7);
+    // map_bulid(5, 14);
+    // init_map_data_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
-    // vehicle_adjust_startup_heading();
+    // map_adjust_startup_heading();
     for(;;)
     {
         vehicle_main();

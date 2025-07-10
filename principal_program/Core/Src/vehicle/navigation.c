@@ -7,6 +7,8 @@
 #include "adc/main.h"
 #include "main/config.h"
 
+AgvState agv_state;
+
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
   */
@@ -61,7 +63,11 @@ static void decide_move_mode(void)
             break;
         case agv_rotate:
             protect_over_hall();
-            vehicle_rotate_in_place();
+            vehicle_rotate_in_place(
+                map_data.real_rotate_count[map_data.current_count],
+                map_data.direction_c[map_data.current_count],
+                VEHICLE_setpoint_rotate
+                );
 
             // 改為agv_next，直到離開HALL，使else之後能renew status
             map_data.status[map_data.current_count] = agv_next;
@@ -69,8 +75,9 @@ static void decide_move_mode(void)
         case agv_end:
             protect_over_hall();
             init_map_data_direction_and_address(
-                &map_data, map_data.address_id[map_data.current_count - 1],
-                map_data.direction[map_data.current_count - 1]
+                &map_data_start,
+                map_data.address_id[map_data.current_count - 1],
+                map_data.direction_8[map_data.current_count - 1]
                 );
             // 終止目前沒有要做甚麼所以先停止動作
             while (1)
@@ -82,6 +89,13 @@ static void decide_move_mode(void)
         default:
             break;
     }
+}
+
+void agv_state_data_setup(void)
+{
+    agv_state.address_id =  map_data.address_id[0];
+    agv_state.direction_8 = map_data.direction_8[0];
+    agv_state.vehicle_currnet_mode = map_data.status[0];
 }
 
 /**
@@ -133,7 +147,7 @@ void vehicle_navigation(void)
         {
             map_data.current_count++ ;
             agv_state.address_id = map_data.address_id[map_data.current_count];
-            agv_state.direction  = map_data.direction[map_data.current_count];
+            agv_state.direction_8  = map_data.direction_8[map_data.current_count];
         }
         else
         {
