@@ -5,8 +5,11 @@
 
 
 #define INF 99999
-#define max_node 10
-#define no_data -1
+#define MAX_NODE 10
+#define NO_DATA -1
+
+typedef int16_t MapIdF;
+typedef int8_t  MapDirF;
 
 typedef enum {
     agv_straight,                                   // 循跡狀態mode
@@ -14,38 +17,43 @@ typedef enum {
     agv_end,                                        // 直行mode
     agv_next,
     agv_idle,                                       //初始化或待命
-} AGV_STATUS;
+} AgvStatus;
 
 typedef struct {
-    int id;
+    MapIdF id;
     int distance;
-} CONNECTION;
+} Connection;
 
-typedef struct {
-    int local_id;
-    CONNECTION connect[8];
-} LOCATION;
+typedef struct{
+    MapIdF local_id;
+    Connection connect[8];
+} Location;
 
-typedef struct {
-    int8_t          start_direction;
-    int8_t          start_address_id;
+typedef struct{
     int8_t          current_count;
-    int8_t          direction[max_node];
-    uint16_t        address_id[max_node];
-    AGV_STATUS      status[max_node];
-} MAP_DATA;
+    VehicleDirect   currnet_mode[MAX_NODE];
+    MapDirF         direction[MAX_NODE];
+    MapDirF         real_rotate_count[MAX_NODE];
+    MapIdF          address_id[MAX_NODE];
+    AgvStatus       status[MAX_NODE];
+} MapData;
 
-typedef struct {
-    uint16_t        address_id;
-    int8_t          direction;
-    VehicleDirect   vehicle_currnet_mode;
-} AgvState;
+typedef struct  {
+    MapIdF        address_id;
+    MapDirF       direction;
+    VehicleDirect currnet_mode;
+    MapDirF       real_rotate_count;
+    AgvStatus     status;
+} MapDataStart;
 
-extern MAP_DATA map_data;
-extern AgvState agv_state;
-extern LOCATION locations_t[max_node];
+extern Location locations_t[MAX_NODE];
+extern MapData map_data;
+extern MapDataStart map_data_start;
 
 void map_setup(void);
-void init_map_data_direction_and_address (MAP_DATA *map_new, int8_t init_address_id, int8_t init_direction);
-void build_current_map_data(int from, int to);
-int get_index_by_id(int id);
+void map_bulid(MapIdF from, MapIdF to);
+void init_map_data_direction_and_address (
+    MapDataStart *map_new,
+    MapIdF init_address_id,
+    int8_t init_direction);
+void map_adjust_startup_heading (void);

@@ -1,7 +1,9 @@
 #include "main/main.h"
 #include "main/config.h"
+#include "main/map.h"
 #include "adc/main.h"
 #include "vehicle/main.h"
+#include "vehicle/navigation.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
@@ -19,7 +21,7 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (motor_tick % 500 == 0) // 50ms
         {
             motor_tick = 0;
-            
+
         }
         motor_tick++;
     }
@@ -64,7 +66,8 @@ size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     defalt_running++;
-    // map_setup();
+    map_setup();
+
     osDelay(1000);
 
     /*測試用--------------------------------------*/
@@ -78,10 +81,18 @@ void StartDefaultTask(void *argument)
     vehicle_set_mode(VEHICLE_MODE_TRACK);
     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(20);
-    // init_map_data_direction_and_address(&map_data, 11, 7);
+    map_bulid(5, 14);
+    // init_map_data_direction_and_address(&map_data_start, 11, 7);
+    agv_state_renew(
+        map_data.address_id[map_data.current_count],
+        map_data.direction[map_data.current_count],
+        map_data.currnet_mode[map_data.current_count],
+        map_data.real_rotate_count[map_data.current_count],
+        map_data.status[map_data.current_count]
+    );
     /*測試用--------------------------------------*/
 
-    // vehicle_adjust_startup_heading();
+    // map_adjust_startup_heading();
     for(;;)
     {
         vehicle_main();
