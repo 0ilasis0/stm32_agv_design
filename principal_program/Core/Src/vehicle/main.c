@@ -45,13 +45,18 @@ static void direct_update_inner(VehicleDirect direction)
 static void direct_update(void)
 {
     if (vehicle_parameter.direction_inner == vehicle_parameter.direction) return;
+    else if (vehicle_parameter.direction == VEHICLE_DIRECT_UNKNOWN)
+    {
+        vehicle_parameter.direction_inner = VEHICLE_DIRECT_UNKNOWN;
+        return;
+    }
     motor_set_state(&motor_left, MOTOR_STATE_SLOW);
     motor_set_state(&motor_right, MOTOR_STATE_SLOW);
     if (
-            (motor_left.rps_present != 0)
-        || (motor_right.rps_present != 0)
+            (motor_left.rps_present > MOTOR_STOP_GATE)
+        || (motor_right.rps_present > MOTOR_STOP_GATE)
     ) return;
-    direct_update_inner(vehicle_parameter.direction_inner);
+    direct_update_inner(vehicle_parameter.direction);
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
@@ -188,6 +193,7 @@ void vehicle_main(void)
             if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
             {
                 vehicle_set_mode(VEHICLE_MODE_FREE);
+                vehicle_set_direct(VEHICLE_DIRECT_STOP);
                 return;
             }
             vehicle_set_mode(VEHICLE_MODE_TRACK);

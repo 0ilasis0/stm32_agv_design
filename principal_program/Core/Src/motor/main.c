@@ -104,24 +104,25 @@ static void step_commutate(const MotorParameter *motor, uint8_t step)
 
 static void motor_step_update(MotorParameter *motor)
 {
+    motor->hall_last = motor->hall_present;
     uint8_t hall_state =
           ((motor->const_h.Hall_GPIOx[0]->IDR & motor->const_h.Hall_GPIO_Pin_x[0]) ? 4U : 0U)
         | ((motor->const_h.Hall_GPIOx[1]->IDR & motor->const_h.Hall_GPIO_Pin_x[1]) ? 2U : 0U)
         | ((motor->const_h.Hall_GPIOx[2]->IDR & motor->const_h.Hall_GPIO_Pin_x[2]) ? 1U : 0U);
     if (hall_state == 0 || hall_state == 7) return;
-    motor->hall_last = motor->hall_present;
-    motor->hall_present = hall_state;
 
     uint8_t step_next;
     switch (motor->direction_inner)
     {
         case MOTOR_DIRECTION_CLW:
         {
+            motor->hall_present = hall_state;
             step_next = hall_index[motor->hall_present];
             break;
         }
         case MOTOR_DIRECTION_CCLW:
         {
+            motor->hall_present = hall_state;
             step_next = (hall_index[motor->hall_present] + 3) % 6;
             break;
         }
@@ -233,8 +234,9 @@ static void rps_control(MotorParameter *motor, float ms)
         default: break;
     }
     if (
-        (motor->rps_present < MOTOR_STOP_GATE)
-        && (motor->rps_pcn_inner == 0)
+           (motor->direction_inner == MOTOR_DIRECTION_STOP)
+        || (   (motor->rps_present < MOTOR_STOP_GATE)
+            && (motor->rps_pcn_inner == 0))
     ) {
         motor->pwm_duty = 0;
         motor->integral_record = 0;

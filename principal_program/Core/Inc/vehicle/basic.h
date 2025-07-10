@@ -10,6 +10,7 @@ typedef uint8_t VehicleDirect;
 #define VEHICLE_DIRECT_BACKWARD     2
 #define VEHICLE_DIRECT_CLOCKWISE    3
 #define VEHICLE_DIRECT_C_CLOCKWISE  4
+#define VEHICLE_DIRECT_UNKNOWN      0xFF
 
 typedef uint8_t VehicleMode;
 #define VEHICLE_MODE_FREE       0

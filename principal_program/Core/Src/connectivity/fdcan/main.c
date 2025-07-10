@@ -84,27 +84,31 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             {
                                 case CMD_VEHI_B3_STOP:
                                 {
-                                    // vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_FOWARD:
                                 {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_BACKWARD:
                                 {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_BACKWARD);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_C_CLOCK:
                                 {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_C_CLOCKWISE);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_CLOCK:
                                 {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_CLOCKWISE);
                                     return FNS_OK;
                                 }
@@ -115,6 +119,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         case CMD_VEHI_B2_SPEED:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_speed(code);
                             return FNS_OK;
                         }
@@ -163,18 +168,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_VEHI_B3_STOP:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_FOWARD:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_BACKWARD:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
@@ -196,7 +204,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 case CMD_VEHI_B1_RIGHT_MOTOR:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    MotorParameter* motor = &motor_left;
+                    MotorParameter* motor = &motor_right;
                     switch (code)
                     {
                         case CMD_VEHI_B2_MODE:
@@ -234,18 +242,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_VEHI_B3_STOP:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_FOWARD:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_BACKWARD:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }

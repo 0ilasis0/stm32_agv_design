@@ -13,3 +13,5 @@ RuntimeSwitch runtime_switch = {
     .debug_protect_over_hall = FNC_DISABLE,
     .debug_test_no_load_speed = FNC_DISABLE,
 };
+
+size_t ticking = 0;
