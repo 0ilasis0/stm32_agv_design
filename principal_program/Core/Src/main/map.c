@@ -66,14 +66,12 @@ static MapData init_map_data (void)
 {
     MapData map_new;
 
-    map_new.start_direction     = NO_DATA;
-    map_new.start_address_id    = NO_DATA;
     map_new.current_count       = 0;
-    map_new.real_rotate_count   = NO_DATA;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
-        map_new.direction[i]    = NO_DATA;
-        map_new.address_id[i]   = NO_DATA;
-        map_new.status[i]       = agv_idle;
+        map_new.real_rotate_count[i]    = NO_DATA;
+        map_new.direction[i]            = NO_DATA;
+        map_new.address_id[i]           = NO_DATA;
+        map_new.status[i]               = agv_idle;
     }
 
     return map_new;
@@ -99,14 +97,14 @@ static void floyd_warshall(void)
  */
 static AgvStatus decide_vehicle_status(uint8_t count)
  {
-    if (count == 0 && map_data.direction_8[count] == NO_DATA) return agv_end;
+    if (count == 0 && map_data.direction[count] == NO_DATA) return agv_end;
     if (count == 0) return agv_straight;
 
-    if (map_data.direction_8[count] == map_data.direction_8[count - 1])
+    if (map_data.direction[count] == map_data.direction[count - 1])
     {
         return agv_straight;
     }
-    else if (map_data.direction_8[count] == NO_DATA)
+    else if (map_data.direction[count] == NO_DATA)
     {
         return agv_end;
     }
@@ -193,13 +191,13 @@ static void build_current_map_data(int from, int to)
             }
         }
 
-        map_data.direction_8[count] = direction_index;
+        map_data.direction[count] = direction_index;
         from = next_node;
         count++;
     }
 
     map_data.address_id[count] = locations_t[to].local_id;
-    map_data.direction_8[count] = NO_DATA;
+    map_data.direction[count] = NO_DATA;
 
     // 紀錄路徑節點數（不含終點）
     final_node_count = count;
@@ -233,16 +231,16 @@ void map_bulid(MapIdF from, MapIdF to)
 
         if (i > 0)
         {
-            map_data.direction_c[i] = get_rotate_direction(
-                map_data.direction_8[i - 1],
-                map_data.direction_8[i]
+            map_data.currnet_mode[i] = get_rotate_direction(
+                map_data.direction[i - 1],
+                map_data.direction[i]
             );
 
             map_data.real_rotate_count[i] = decide_pass_magnetic_stripe_calculate(
-                map_data.direction_c[i],
+                map_data.currnet_mode[i],
                 map_data.address_id[i],
-                map_data.direction_8[i - 1],
-                map_data.direction_8[i]
+                map_data.direction[i - 1],
+                map_data.direction[i]
             );
         }
     }
@@ -255,22 +253,24 @@ void map_adjust_startup_heading (void)
 {
     if (map_data_start.address_id == NO_DATA) return;
 
-    VehicleDirect rotate_direction_mode = get_rotate_direction(
-        map_data_start.direction_8,
-        map_data.direction_8[0]
+    map_data_start.currnet_mode = get_rotate_direction(
+        map_data_start.direction,
+        map_data.direction[0]
         );
 
-    vehicle_set_direct(rotate_direction_mode);
-    vehicle_set_speed(VEHICLE_setpoint_rotate);
-
-    uint8_t renew_count = decide_pass_magnetic_stripe_calculate(
-        rotate_direction_mode,
+    map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
+        map_data_start.currnet_mode,
         map_data.address_id[0],
-        map_data_start.direction_8,
-        map_data.direction_8[0]
+        map_data_start.direction,
+        map_data.direction[0]
         );
 
-
-    renew_vehicle_rotation_status(renew_count);
-
+    // To do
+    agv_state_renew(
+        map_data_start.address_id,
+        map_data_start.direction,
+        map_data_start.currnet_mode,
+        map_data_start.real_rotate_count,
+        map_data_start.status
+        );
 }

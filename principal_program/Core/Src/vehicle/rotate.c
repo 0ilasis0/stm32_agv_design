@@ -105,8 +105,8 @@ static void renew_vehicle_rotation_status (MapDirF count_until_zero)
 //     if (map_data_start.address_id == NO_DATA) return;
 
 //     VehicleDirect rotate_direction_mode = get_rotate_direction(
-//         map_data_start.direction_8,
-//         map_data.direction_8[0]
+//         map_data_start.direction,
+//         map_data.direction[0]
 //         );
 
 //     vehicle_set_direct(rotate_direction_mode);
@@ -115,8 +115,8 @@ static void renew_vehicle_rotation_status (MapDirF count_until_zero)
 //     uint8_t renew_count = decide_pass_magnetic_stripe_calculate(
 //         rotate_direction_mode,
 //         map_data.address_id[0],
-//         map_data_start.direction_8,
-//         map_data.direction_8[0]
+//         map_data_start.direction,
+//         map_data.direction[0]
 //         );
 
 //     renew_vehicle_rotation_status(renew_count);
@@ -126,21 +126,21 @@ static void renew_vehicle_rotation_status (MapDirF count_until_zero)
 /**
   * @brief AGV 原地旋轉直到對準方向
   */
-void vehicle_rotate_in_place(MapDirF count, VehicleDirect direction_c, Percentage setpoint_speed)
+void vehicle_rotate_in_place(MapDirF count, VehicleDirect currnet_mode, Percentage setpoint_speed)
 {
     // VehicleDirect rotate_direction_mode = get_rotate_direction(
-    //     map_data.direction_8[map_data.current_count - 1],
-    //     map_data.direction_8[map_data.current_count]
+    //     map_data.direction[map_data.current_count - 1],
+    //     map_data.direction[map_data.current_count]
     //     );
 
     // uint8_t renew_count = decide_pass_magnetic_stripe_calculate(
     //         rotate_direction_mode,
     //         map_data.address_id[map_data.current_count],
-    //         map_data.direction_8[map_data.current_count - 1],
-    //         map_data.direction_8[map_data.current_count]
+    //         map_data.direction[map_data.current_count - 1],
+    //         map_data.direction[map_data.current_count]
     //         );
 
-    vehicle_set_direct(direction_c);
+    vehicle_set_direct(currnet_mode);
     vehicle_set_speed(setpoint_speed);
 
     renew_vehicle_rotation_status(count);

@@ -1,7 +1,10 @@
 #include "vehicle/main.h"
 #include "vehicle/navigation.h"
 #include "vehicle/search.h"
+#include "vehicle/rotate.h"
+#include "vehicle/basic.h"
 #include "adc/main.h"
+#include "main/fn_state.h"
 
 static void direct_update_inner(VehicleDirect direction)
 {
@@ -191,6 +194,15 @@ void vehicle_main(void)
                 return;
             }
             vehicle_set_mode(VEHICLE_MODE_TRACK);
+            return;
+        }
+        case VEHICLE_MODE_ROTATE:
+        {
+            vehicle_rotate_in_place(
+                agv_state.real_rotate_count,
+                agv_state.currnet_mode,
+                VEHICLE_setpoint_rotate
+                );
             return;
         }
         default: break;

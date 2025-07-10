@@ -15,6 +15,7 @@ typedef uint8_t VehicleMode;
 #define VEHICLE_MODE_FREE       0
 #define VEHICLE_MODE_TRACK      1
 #define VEHICLE_MODE_SEARCH     2
+#define VEHICLE_MODE_ROTATE     3
 
 typedef struct VehicleParameter
 {

@@ -30,20 +30,20 @@ typedef struct{
 } Location;
 
 typedef struct{
-    MapDirF         start_direction;
-    MapIdF          start_address_id;
     int8_t          current_count;
-    VehicleDirect   direction_c[MAX_NODE];
-    MapDirF         direction_8[MAX_NODE];
-    int8_t          real_rotate_count[MAX_NODE];
+    VehicleDirect   currnet_mode[MAX_NODE];
+    MapDirF         direction[MAX_NODE];
+    MapDirF         real_rotate_count[MAX_NODE];
     MapIdF          address_id[MAX_NODE];
     AgvStatus       status[MAX_NODE];
 } MapData;
 
 typedef struct  {
-    MapDirF direction_8;
-    MapIdF  address_id;
-    int8_t  real_rotate_count;
+    MapIdF        address_id;
+    MapDirF       direction;
+    VehicleDirect currnet_mode;
+    MapDirF       real_rotate_count;
+    AgvStatus     status;
 } MapDataStart;
 
 extern Location locations_t[MAX_NODE];
@@ -52,5 +52,8 @@ extern MapDataStart map_data_start;
 
 void map_setup(void);
 void map_bulid(MapIdF from, MapIdF to);
-void init_map_data_direction_and_address (MapData *map_new, MapIdF init_address_id, MapDirF init_direction);
+void init_map_data_direction_and_address (
+    MapDataStart *map_new,
+    MapIdF init_address_id,
+    int8_t init_direction);
 void map_adjust_startup_heading (void);

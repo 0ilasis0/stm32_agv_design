@@ -62,10 +62,11 @@ static void decide_move_mode(void)
             map_data.status[map_data.current_count] = agv_next;
             break;
         case agv_rotate:
+
             protect_over_hall();
             vehicle_rotate_in_place(
                 map_data.real_rotate_count[map_data.current_count],
-                map_data.direction_c[map_data.current_count],
+                map_data.currnet_mode[map_data.current_count],
                 VEHICLE_setpoint_rotate
                 );
 
@@ -77,7 +78,7 @@ static void decide_move_mode(void)
             init_map_data_direction_and_address(
                 &map_data_start,
                 map_data.address_id[map_data.current_count - 1],
-                map_data.direction_8[map_data.current_count - 1]
+                map_data.direction[map_data.current_count - 1]
                 );
             // 終止目前沒有要做甚麼所以先停止動作
             while (1)
@@ -91,11 +92,19 @@ static void decide_move_mode(void)
     }
 }
 
-void agv_state_data_setup(void)
+void agv_state_renew (
+    MapIdF address_id,
+    MapDirF direction,
+    VehicleDirect currnet_mode,
+    MapDirF real_rotate_count,
+    AgvStatus status
+)
 {
-    agv_state.address_id =  map_data.address_id[0];
-    agv_state.direction_8 = map_data.direction_8[0];
-    agv_state.vehicle_currnet_mode = map_data.status[0];
+    agv_state.address_id = address_id;
+    agv_state.direction = direction;
+    agv_state.currnet_mode = currnet_mode;
+    agv_state.real_rotate_count = real_rotate_count;
+    agv_state.status = status;
 }
 
 /**
@@ -146,8 +155,14 @@ void vehicle_navigation(void)
         if (map_data.status[map_data.current_count] == agv_next)
         {
             map_data.current_count++ ;
-            agv_state.address_id = map_data.address_id[map_data.current_count];
-            agv_state.direction_8  = map_data.direction_8[map_data.current_count];
+
+            agv_state_renew(
+                map_data.address_id[map_data.current_count],
+                map_data.direction[map_data.current_count],
+                map_data.currnet_mode[map_data.current_count],
+                map_data.real_rotate_count[map_data.current_count],
+                map_data.status[map_data.current_count]
+            );
         }
         else
         {
