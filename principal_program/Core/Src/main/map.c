@@ -20,7 +20,7 @@ Location locations_t[MAX_NODE] = {
 
 
 // 尋找節點 ID 對應的陣列索引
-static int get_index_by_id(MapIdF id)
+static MapIdF get_index_by_id(MapIdF id)
  {
     for (int i = 0; i < MAX_NODE; i++) {
         if (locations_t[i].local_id == id) return i;
@@ -39,7 +39,6 @@ static void init_map(void)
             } else {
                 graph[i][j] = INF;
             }
-            // graph[i][j] = (i == j) ? 0 : INF; //to do delete
             path[i][j] = NO_DATA;                   // 初始化路徑為無路徑 (-1)
         }
     }
@@ -47,10 +46,10 @@ static void init_map(void)
     // 依據 locations_t 中的連線設定距離與路徑
     for (int i = 0; i < MAX_NODE; i++) {
         for (int d = 0; d < 8; d++) {
-            int id_to = locations_t[i].connect[d].id;
+            MapIdF id_to = locations_t[i].connect[d].id;
             int distance = locations_t[i].connect[d].distance;
             if (distance > 0) {
-                int to_index = get_index_by_id(id_to);
+                MapIdF to_index = get_index_by_id(id_to);
                 if (to_index != -1) {
                     graph[i][to_index] = distance;
                     graph[to_index][i] = distance;
@@ -66,11 +65,12 @@ static MapData init_map_data (void)
 {
     MapData map_new;
 
-    map_new.current_count       = 0;
+    map_new.current_count = 0;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
         map_new.real_rotate_count[i]    = NO_DATA;
         map_new.direction[i]            = NO_DATA;
         map_new.address_id[i]           = NO_DATA;
+        map_new.currnet_mode[i]         = NO_DATA;
         map_new.status[i]               = agv_idle;
     }
 
@@ -119,15 +119,23 @@ static AgvStatus decide_vehicle_status(uint8_t count)
   */
 static VehicleDirect get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
 {
-    int8_t diff = (end_dir - start_dir + 8) % 8;
+    if (end_dir == NO_DATA) return VEHICLE_DIRECT_STOP;
 
-    if (diff <= 3) {
-        return VEHICLE_DIRECT_CLOCKWISE;
+    MapDirF diff = (end_dir - start_dir + 8) % 8;
 
-    } else {
-        return VEHICLE_DIRECT_C_CLOCKWISE;
-
+    if (diff == 0)
+    {
+        return VEHICLE_DIRECT_FORWARD;
     }
+    else if (diff >= 4)
+    {
+        return VEHICLE_DIRECT_C_CLOCKWISE;
+    }
+    else
+    {
+        return VEHICLE_DIRECT_CLOCKWISE;
+    }
+
 }
 
 /**
@@ -143,9 +151,10 @@ static int8_t decide_pass_magnetic_stripe_calculate(
     uint8_t count = 0;
 
     // 取得目前節點（node）在 locations_t 中的索引值
-    int current_id = get_index_by_id(current_id_input);
+    MapIdF current_id = get_index_by_id(current_id_input);
 
-    if (rotate_direction_mode == VEHICLE_DIRECT_CLOCKWISE) {
+    if (rotate_direction_mode == VEHICLE_DIRECT_CLOCKWISE)
+    {
         for (int i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
         {
             if (locations_t[current_id].connect[i].distance != 0)
@@ -153,7 +162,9 @@ static int8_t decide_pass_magnetic_stripe_calculate(
                 count++;
             }
         }
-    } else {
+    }
+    else if (rotate_direction_mode == VEHICLE_DIRECT_C_CLOCKWISE)
+    {
         for (int i = (from_dir - 1 + 8) % 8; i != (to_dir - 1 + 8) % 8; i = (i - 1 + 8) % 8)
         {
             if (locations_t[current_id].connect[i].distance != 0)
@@ -161,6 +172,10 @@ static int8_t decide_pass_magnetic_stripe_calculate(
                 count++;
             }
         }
+    }
+    else
+    {
+        return NO_DATA;
     }
 
     //若原方向上也有磁條，表示會需加一次

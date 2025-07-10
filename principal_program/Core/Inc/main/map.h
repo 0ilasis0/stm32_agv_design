@@ -20,12 +20,12 @@ typedef enum {
 } AgvStatus;
 
 typedef struct {
-    int id;
+    MapIdF id;
     int distance;
 } Connection;
 
 typedef struct{
-    int local_id;
+    MapIdF local_id;
     Connection connect[8];
 } Location;
 
