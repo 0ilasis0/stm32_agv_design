@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main/config.h"
-#include "vehicle.h"
+#include "main/vehicle.h"
 
 
 #define INF 99999
