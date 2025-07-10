@@ -84,31 +84,27 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             {
                                 case CMD_VEHI_B3_STOP:
                                 {
-                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    // vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_FOWARD:
                                 {
-                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_BACKWARD:
                                 {
-                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_BACKWARD);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_C_CLOCK:
                                 {
-                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_C_CLOCKWISE);
                                     return FNS_OK;
                                 }
                                 case CMD_VEHI_B3_CLOCK:
                                 {
-                                    vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_direct(VEHICLE_DIRECT_CLOCKWISE);
                                     return FNS_OK;
                                 }
@@ -119,7 +115,6 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         case CMD_VEHI_B2_SPEED:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_speed(code);
                             return FNS_OK;
                         }

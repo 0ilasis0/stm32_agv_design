@@ -34,14 +34,14 @@
 #define CMD_VEHI_B1_LEFT_MOTOR      (uint8_t)0x40   // 左馬達
 #define CMD_VEHI_B1_RIGHT_MOTOR     (uint8_t)0x50   // 右馬達
 
-#define CMD_VEHI_B2_MODE            (uint8_t)0x00   // 車輛模式
-#define CMD_VEHI_B2_DIRECT          (uint8_t)0x10   // 車輛方向
-#define CMD_VEHI_B2_SPEED           (uint8_t)0x20   // 車輛速度
+#define CMD_VEHI_B2_MODE            (uint8_t)0x00   // 模式
+#define CMD_VEHI_B2_DIRECT          (uint8_t)0x10   // 方向
+#define CMD_VEHI_B2_SPEED           (uint8_t)0x20   // 速度
 
 //      CMD_VEHI_B3_VALUE                           // 速度0-100
-#define CMD_VEHI_B3_STOP            (uint8_t)0x00   // 自由模式/停止
-#define CMD_VEHI_B3_FOWARD          (uint8_t)0x01   // 循跡模式/車輛前進/馬達正轉
-#define CMD_VEHI_B3_BACKWARD        (uint8_t)0x02   // 尋找模式/車輛後退/馬達反轉
+#define CMD_VEHI_B3_STOP            (uint8_t)0x00   // 車輛自由模式/停止    // 馬達rps控制模式 /停止
+#define CMD_VEHI_B3_FOWARD          (uint8_t)0x01   // 車輛循跡模式/前進    // 馬達duty自由模式/正轉
+#define CMD_VEHI_B3_BACKWARD        (uint8_t)0x02   // 車輛尋找模式/後退    // 馬達減速模式    /反轉
 #define CMD_VEHI_B3_C_CLOCK         (uint8_t)0x03   // 車輛原地左旋
 #define CMD_VEHI_B3_CLOCK           (uint8_t)0x04   // 車輛原地右旋
 
