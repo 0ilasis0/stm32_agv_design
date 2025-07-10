@@ -20,5 +20,6 @@ FnState pkt_arm_elbow_top(VecByte* vec_byte);
 FnState pkt_arm_wrist(VecByte* vec_byte);
 FnState pkt_arm_finger(VecByte* vec_byte);
 FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode);
-FnState pkt_vehi_set_direct(VecByte* vec_byte, VehicleDirect direction, Percentage value);
+FnState pkt_vehi_set_direct(VecByte* vec_byte, VehicleDirect direction);
+FnState pkt_vehi_set_speed(VecByte* vec_byte, Percentage value);
 #endif

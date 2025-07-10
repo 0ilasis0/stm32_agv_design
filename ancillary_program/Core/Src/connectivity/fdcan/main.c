@@ -160,60 +160,26 @@ static FnState instant_recv_proc(VecByte* vec_byte)
             {
                 case CMD_VEHI_B1_VEHICLE:
                 {
-                    uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
                     switch (code)
                     {
-                        case CMD_VEHI_B2_STOP:
-                        {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_stop);
-                            // vehicle_set_speed(0);
-                            return FNS_OK;
-                        }
-                        case CMD_VEHI_B2_FOWARD:
-                        {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_forward);
-                            vehicle_set_speed(value);
-                            return FNS_OK;
-                        }
-                        case CMD_VEHI_B2_BACKWARD:
-                        {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_backward);
-                            vehicle_set_speed(value);
-                            return FNS_OK;
-                        }
-                        case CMD_VEHI_B2_C_CLOCK:
-                        {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_c_clockwise);
-                            vehicle_set_speed(value);
-                            return FNS_OK;
-                        }
-                        case CMD_VEHI_B2_CLOCK:
-                        {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(motion_clockwise);
-                            vehicle_set_speed(value);
-                            return FNS_OK;
-                        }
                         case CMD_VEHI_B2_MODE:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
-                                case CMD_VEHI_B3_TRACK:
+                                case CMD_VEHI_B3_STOP:
                                 {
-                                    vehicle_set_speed(value);
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
                                     vehicle_set_mode(VEHICLE_MODE_TRACK);
                                     return FNS_OK;
                                 }
-                                case CMD_VEHI_B3_SEARCH:
+                                case CMD_VEHI_B3_BACKWARD:
                                 {
-                                    vehicle_set_speed(value);
                                     vehicle_set_mode(VEHICLE_MODE_SEARCH);
                                     return FNS_OK;
                                 }
@@ -221,38 +187,121 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
+                        case CMD_VEHI_B2_DIRECT:
+                        {
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            switch (code)
+                            {
+                                case CMD_VEHI_B3_STOP:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_STOP);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_BACKWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_BACKWARD);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_C_CLOCK:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_C_CLOCKWISE);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_CLOCK:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    vehicle_set_direct(VEHICLE_DIRECT_CLOCKWISE);
+                                    return FNS_OK;
+                                }
+                                default: break;
+                            }
+                            break;
+                        }
+                        case CMD_VEHI_B2_SPEED:
+                        {
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            vehicle_set_mode(VEHICLE_MODE_FREE);
+                            vehicle_set_speed(code);
+                            return FNS_OK;
+                        }
                         default: break;
                     }
                     break;
                 }
                 case CMD_VEHI_B1_LEFT_MOTOR:
                 {
-                    uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
-                        case CMD_VEHI_B2_STOP:
+                        case CMD_VEHI_B2_MODE:
                         {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_rps_pcn(motor, 0);
-                            return FNS_OK;
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            switch (code)
+                            {
+                                case CMD_VEHI_B3_STOP:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_CONTROL);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_FREE);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_BACKWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_SLOW);
+                                    return FNS_OK;
+                                }
+                                default: break;
+                            }
+                            break;
                         }
-                        case CMD_VEHI_B2_FOWARD:
+                        case CMD_VEHI_B2_DIRECT:
                         {
-                            // ? need check direction
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CLW);
-                            motor_set_rps_pcn(motor, value);
-                            return FNS_OK;
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            switch (code)
+                            {
+                                case CMD_VEHI_B3_STOP:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_STOP);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_BACKWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_CLW);
+                                    return FNS_OK;
+                                }
+                                default: break;
+                            }
+                            break;
                         }
-                        case CMD_VEHI_B2_BACKWARD:
+                        case CMD_VEHI_B2_SPEED:
                         {
-                            // ? need check direction
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CCLW);
-                            motor_set_rps_pcn(motor, value);
+                            motor_set_rps_pcn(motor, code);
                             return FNS_OK;
                         }
                         default: break;
@@ -261,32 +310,69 @@ static FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_VEHI_B1_RIGHT_MOTOR:
                 {
-                    uint8_t value;
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &value));
-                    MotorParameter* motor = &motor_right;
+                    MotorParameter* motor = &motor_left;
                     switch (code)
                     {
-                        case CMD_VEHI_B2_STOP:
+                        case CMD_VEHI_B2_MODE:
                         {
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_rps_pcn(motor, 0);
-                            return FNS_OK;
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            switch (code)
+                            {
+                                case CMD_VEHI_B3_STOP:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_CONTROL);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_FREE);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_BACKWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_state(motor, MOTOR_STATE_SLOW);
+                                    return FNS_OK;
+                                }
+                                default: break;
+                            }
+                            break;
                         }
-                        case CMD_VEHI_B2_FOWARD:
+                        case CMD_VEHI_B2_DIRECT:
                         {
-                            // ? need check direction
-                            vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CLW);
-                            motor_set_rps_pcn(motor, value);
-                            return FNS_OK;
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            switch (code)
+                            {
+                                case CMD_VEHI_B3_STOP:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_STOP);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_FOWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_CLW);
+                                    return FNS_OK;
+                                }
+                                case CMD_VEHI_B3_BACKWARD:
+                                {
+                                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                                    motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
+                                    return FNS_OK;
+                                }
+                                default: break;
+                            }
+                            break;
                         }
-                        case CMD_VEHI_B2_BACKWARD:
+                        case CMD_VEHI_B2_SPEED:
                         {
-                            // ? need check direction
+                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            motor_set_direction(motor, MOTOR_DIRECTION_CCLW);
-                            motor_set_rps_pcn(motor, value);
+                            motor_set_rps_pcn(motor, code);
                             return FNS_OK;
                         }
                         default: break;
