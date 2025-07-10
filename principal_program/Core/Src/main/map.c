@@ -1,10 +1,18 @@
 #include "main/map.h"
+#include "vehicle/navigation.h"
 
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 static uint8_t final_node_count = 0;
 
 MapData map_data;
+MapDataCurrent map_data_start = {
+    .address_id         = NO_DATA,
+    .direction          = NO_DATA,
+    .real_rotate_count  = NO_DATA,
+    .currnet_mode       = VEHICLE_DIRECT_UNKNOWN,
+    .status             = VEHICLE_MODE_IDLE,
+};
 
 
 Location locations_t[MAX_NODE] = {
@@ -71,7 +79,7 @@ static MapData init_map_data (void)
         map_new.direction[i]            = NO_DATA;
         map_new.address_id[i]           = NO_DATA;
         map_new.currnet_mode[i]         = NO_DATA;
-        map_new.status[i]               = agv_idle;
+        map_new.status[i]               = VEHICLE_MODE_IDLE;
     }
 
     return map_new;
@@ -95,22 +103,22 @@ static void floyd_warshall(void)
 /*
  * 決定agv當前狀態
  */
-static AgvStatus decide_vehicle_status(uint8_t count)
+static VehicleMode decide_vehicle_status(uint8_t count)
  {
-    if (count == 0 && map_data.direction[count] == NO_DATA) return agv_end;
-    if (count == 0) return agv_straight;
+    if (count == 0 && map_data.direction[count] == NO_DATA) return VEHICLE_MODE_END;
+    if (count == 0) return VEHICLE_DIRECT_FORWARD;
 
     if (map_data.direction[count] == map_data.direction[count - 1])
     {
-        return agv_straight;
+        return VEHICLE_MODE_TRACK;
     }
     else if (map_data.direction[count] == NO_DATA)
     {
-        return agv_end;
+        return VEHICLE_MODE_END;
     }
     else
     {
-        return agv_rotate;
+        return VEHICLE_MODE_ROTATE;
     }
 }
 
@@ -218,19 +226,33 @@ static void build_current_map_data(int from, int to)
     final_node_count = count;
 }
 
-void init_map_data_direction_and_address (MapDataStart *map_new, MapIdF init_address_id, int8_t init_direction)
+/**
+  * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
+  */
+static void map_adjust_start (void)
+{
+    if (map_data_start.address_id == NO_DATA) return;
+
+    map_data_start.currnet_mode = get_rotate_direction(
+        map_data_start.direction,
+        map_data.direction[0]
+        );
+
+    map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
+        map_data_start.currnet_mode,
+        map_data.address_id[0],
+        map_data_start.direction,
+        map_data.direction[0]
+        );
+
+    map_data.currnet_mode[0] = map_data_start.currnet_mode;
+    map_data.real_rotate_count[0] = map_data_start.real_rotate_count;
+}
+
+void map_data_renew_direction_and_address (MapDataCurrent *map_new, MapIdF init_address_id, int8_t init_direction)
 {
     map_new->direction = init_direction;
     map_new->address_id = init_address_id;
-}
-
-void map_setup(void)
- {
-    init_map();
-
-    map_data = init_map_data();
-
-    floyd_warshall();
 }
 
 void map_bulid(MapIdF from, MapIdF to)
@@ -259,33 +281,23 @@ void map_bulid(MapIdF from, MapIdF to)
             );
         }
     }
+
+    map_adjust_start();
+
+    agv_state_renew(
+        map_data.address_id[0],
+        map_data.direction[0],
+        map_data.currnet_mode[0],
+        map_data.real_rotate_count[0],
+        map_data.status[0]
+    );
 }
 
-/**
-  * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
-  */
-void map_adjust_startup_heading (void)
-{
-    if (map_data_start.address_id == NO_DATA) return;
+void map_setup(void)
+ {
+    init_map();
 
-    map_data_start.currnet_mode = get_rotate_direction(
-        map_data_start.direction,
-        map_data.direction[0]
-        );
+    map_data = init_map_data();
 
-    map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
-        map_data_start.currnet_mode,
-        map_data.address_id[0],
-        map_data_start.direction,
-        map_data.direction[0]
-        );
-
-    // To do
-    agv_state_renew(
-        map_data_start.address_id,
-        map_data_start.direction,
-        map_data_start.currnet_mode,
-        map_data_start.real_rotate_count,
-        map_data_start.status
-        );
+    floyd_warshall();
 }

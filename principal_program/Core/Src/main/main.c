@@ -1,9 +1,9 @@
+#include "vehicle/main.h"
+#include "vehicle/navigation.h"
 #include "main/main.h"
 #include "main/config.h"
 #include "main/map.h"
 #include "adc/main.h"
-#include "vehicle/main.h"
-#include "vehicle/navigation.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
 
@@ -67,6 +67,7 @@ void StartDefaultTask(void *argument)
 {
     defalt_running++;
     map_setup();
+    map_bulid(5, 14);
 
     osDelay(1000);
 
@@ -78,21 +79,14 @@ void StartDefaultTask(void *argument)
     // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
-    vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
-    vehicle_set_speed(20);
-    map_bulid(5, 14);
-    // init_map_data_direction_and_address(&map_data_start, 11, 7);
-    agv_state_renew(
-        map_data.address_id[map_data.current_count],
-        map_data.direction[map_data.current_count],
-        map_data.currnet_mode[map_data.current_count],
-        map_data.real_rotate_count[map_data.current_count],
-        map_data.status[map_data.current_count]
-    );
+    // vehicle_set_mode(VEHICLE_MODE_TRACK);
+    // vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+    // vehicle_set_speed(20);
+    // map_data_renew_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
-    // map_adjust_startup_heading();
+    vehicle_set_mode(agv_state.currnet_mode);
+
     for(;;)
     {
         vehicle_main();

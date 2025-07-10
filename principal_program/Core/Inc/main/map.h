@@ -11,14 +11,6 @@
 typedef int16_t MapIdF;
 typedef int8_t  MapDirF;
 
-typedef enum {
-    agv_straight,                                   // 循跡狀態mode
-    agv_rotate,                                     // 原地旋轉mode
-    agv_end,                                        // 直行mode
-    agv_next,
-    agv_idle,                                       //初始化或待命
-} AgvStatus;
-
 typedef struct {
     MapIdF id;
     int distance;
@@ -35,25 +27,24 @@ typedef struct{
     MapDirF         direction[MAX_NODE];
     MapDirF         real_rotate_count[MAX_NODE];
     MapIdF          address_id[MAX_NODE];
-    AgvStatus       status[MAX_NODE];
+    VehicleMode     status[MAX_NODE];
 } MapData;
 
-typedef struct  {
+typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
     VehicleDirect currnet_mode;
     MapDirF       real_rotate_count;
-    AgvStatus     status;
-} MapDataStart;
+    VehicleMode   status;
+} MapDataCurrent;
 
 extern Location locations_t[MAX_NODE];
 extern MapData map_data;
-extern MapDataStart map_data_start;
+extern MapDataCurrent map_data_start;
 
 void map_setup(void);
 void map_bulid(MapIdF from, MapIdF to);
-void init_map_data_direction_and_address (
-    MapDataStart *map_new,
+void map_data_renew_direction_and_address (
+    MapDataCurrent *map_new,
     MapIdF init_address_id,
     int8_t init_direction);
-void map_adjust_startup_heading (void);

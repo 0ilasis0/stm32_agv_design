@@ -3,11 +3,10 @@
 #include "vehicle/rotate.h"
 #include "vehicle/search.h"
 #include "main/fn_state.h"
-#include "main/map.h"
 #include "adc/main.h"
 #include "main/config.h"
 
-AgvState agv_state;
+MapDataCurrent agv_state;
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
@@ -35,69 +34,69 @@ static void protect_over_hall(void)
     if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data.status[map_data.current_count] == agv_rotate)
+    if (map_data.status[map_data.current_count] == VEHICLE_MODE_ROTATE)
     {
         vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data.status[map_data.current_count] == agv_end)
+    if (map_data.status[map_data.current_count] == VEHICLE_MODE_END)
     {
         vehicle_over_hall_fall_back();
     }
 }
 
-/**
-  * @brief 決定移動MODE
-  */
-static int text_end = 0;
-static void decide_move_mode(void)
-{
-    switch(map_data.status[map_data.current_count])
-    {
-        case agv_straight:
-            agv_forward_leave_strong_magnet();
+// /**
+//   * @brief 決定移動MODE
+//   */
+// static int text_end = 0;
+// static void decide_move_mode(void)
+// {
+//     switch(map_data.status[map_data.current_count])
+//     {
+//         case agv_straight:
+//             agv_forward_leave_strong_magnet();
 
-            // 改為agv_next，直到離開HALL，使else之後能renew status
-            map_data.status[map_data.current_count] = agv_next;
-            break;
-        case agv_rotate:
+//             // 改為agv_next，直到離開HALL，使else之後能renew status
+//             map_data.status[map_data.current_count] = agv_next;
+//             break;
+//         case agv_rotate:
 
-            protect_over_hall();
-            vehicle_rotate_in_place(
-                map_data.real_rotate_count[map_data.current_count],
-                map_data.currnet_mode[map_data.current_count],
-                VEHICLE_setpoint_rotate
-                );
+//             // protect_over_hall();
+//             vehicle_rotate_in_place(
+//                 map_data.real_rotate_count[map_data.current_count],
+//                 map_data.currnet_mode[map_data.current_count],
+//                 VEHICLE_setpoint_rotate
+//                 );
 
-            // 改為agv_next，直到離開HALL，使else之後能renew status
-            map_data.status[map_data.current_count] = agv_next;
-            break;
-        case agv_end:
-            protect_over_hall();
-            init_map_data_direction_and_address(
-                &map_data_start,
-                map_data.address_id[map_data.current_count - 1],
-                map_data.direction[map_data.current_count - 1]
-                );
-            // 終止目前沒有要做甚麼所以先停止動作
-            while (1)
-            {
-                vehicle_ensure_stop();
-                text_end = 1;
-            }
-            break;
-        default:
-            break;
-    }
-}
+//             // 改為agv_next，直到離開HALL，使else之後能renew status
+//             map_data.status[map_data.current_count] = agv_next;
+//             break;
+//         case agv_end:
+//             // protect_over_hall();
+//             map_data_renew_direction_and_address(
+//                 &map_data_start,
+//                 map_data.address_id[map_data.current_count - 1],
+//                 map_data.direction[map_data.current_count - 1]
+//                 );
+//             // 終止目前沒有要做甚麼所以先停止動作
+//             while (1)
+//             {
+//                 vehicle_ensure_stop();
+//                 text_end = 1;
+//             }
+//             break;
+//         default:
+//             break;
+//     }
+// }
 
 void agv_state_renew (
     MapIdF address_id,
     MapDirF direction,
     VehicleDirect currnet_mode,
     MapDirF real_rotate_count,
-    AgvStatus status
+    VehicleMode status
 )
 {
     agv_state.address_id = address_id;
@@ -110,7 +109,7 @@ void agv_state_renew (
 /**
  * @brief 循跡模式
  */
-void vehicle_track_mode(void)
+void vehicle_track_mode()
 {
     if (
            adchall_track_left.value  >  adchall_track_left.const_h.magnetic_value
@@ -144,29 +143,36 @@ void vehicle_track_mode(void)
     }
 }
 
+static void renew_agv_state_another_stm32 (void)
+{
+    map_data.current_count ++;
+    agv_state_renew(
+        map_data.address_id[map_data.current_count],
+        map_data.direction[map_data.current_count],
+        map_data.currnet_mode[map_data.current_count],
+        map_data.real_rotate_count[map_data.current_count],
+        map_data.status[map_data.current_count]
+    );
+}
+
+bool navigation_triggered = false;
 void vehicle_navigation(void)
 {
-    if (adchall_node.value < adchall_node.const_h.magnetic_value)
+    if (adchall_node.value < adchall_node.const_h.magnetic_value && navigation_triggered == false)
     {
-        decide_move_mode();
-    }
-    else
-    {
-        if (map_data.status[map_data.current_count] == agv_next)
-        {
-            map_data.current_count++ ;
+        renew_agv_state_another_stm32();
+        vehicle_set_mode(agv_state.status);
 
-            agv_state_renew(
-                map_data.address_id[map_data.current_count],
-                map_data.direction[map_data.current_count],
-                map_data.currnet_mode[map_data.current_count],
-                map_data.real_rotate_count[map_data.current_count],
-                map_data.status[map_data.current_count]
-            );
-        }
-        else
-        {
-            vehicle_set_mode(VEHICLE_MODE_TRACK);
-        }
+        navigation_triggered = true;
+    }
+    else if (adchall_node.value > adchall_node.const_h.magnetic_value && navigation_triggered == true)
+    {
+        navigation_triggered = false;
+    }
+
+    if (agv_state.status == VEHICLE_MODE_TRACK)
+    {
+        vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+        vehicle_set_speed(VEHICLE_setpoint_straight);
     }
 }

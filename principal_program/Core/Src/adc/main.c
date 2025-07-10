@@ -5,9 +5,9 @@
 
 static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0}; // adc儲存位置
 
-// PB12(R16)     PB1(R24)     PB11(R18)      PB0(L34)
 AdcHall adchall_track_left = {
     .const_h = {
+        // PB12(R16)
         .id = 0,
         .magnetic_value = 1860,
     },
@@ -16,22 +16,25 @@ AdcHall adchall_track_left = {
 
 AdcHall adchall_track_right = {
     .const_h = {
-        .id = 1,
-        .magnetic_value = 1830,
-    },
-    .min = 4095,
-};
-
-AdcHall adchall_node = {
-    .const_h = {
+        // PB11(R18)
         .id = 2,
-        .magnetic_value = 1800,
+        .magnetic_value = 1830,
     },
     .min = 4095,
 };
 
 AdcHall adchall_direction = {
     .const_h = {
+        // PB1(R24)
+        .id = 1,
+        .magnetic_value = 1800,
+    },
+    .min = 4095,
+};
+
+AdcHall adchall_node = {
+    .const_h = {
+        // PB0(L34)
         .id = 3,
         .magnetic_value = 1800,
     },

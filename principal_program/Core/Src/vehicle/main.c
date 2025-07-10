@@ -56,67 +56,13 @@ static void direct_update(void)
     motor_set_state(&motor_left, MOTOR_STATE_SLOW);
     motor_set_state(&motor_right, MOTOR_STATE_SLOW);
     if (
-            (motor_left.rps_present > MOTOR_STOP_GATE)
+           (motor_left.rps_present > MOTOR_STOP_GATE)
         || (motor_right.rps_present > MOTOR_STOP_GATE)
     ) return;
     direct_update_inner(vehicle_parameter.direction);
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
-
-// static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
-// {
-//     if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
-//     vehicle_set_motion(motion_clockwise);
-//     vehicle_set_speed(speed);
-//     uint32_t past_time = HAL_GetTick();
-//     for(;;)
-//     {
-//         if (HAL_GetTick() - past_time >= ms)
-//         {
-//             vehicle_set_speed(0);
-//             vehicle_ensure_stop();
-//             return FNS_NOT_FOUND;
-//         }
-//         if (adchall_direction.value < adchall_direction.magnetic_value) break;
-//         osDelay(10);
-//     }
-//     vehicle_set_speed(0);
-//     vehicle_ensure_stop();
-//     return FNS_OK;
-// }
-
-// static FnState walk_until_on_path(Percentage speed, uint32_t ms)
-// {
-//     vehicle_set_motion(motion_forward);
-//     vehicle_set_speed(speed);
-//     uint32_t past_time = HAL_GetTick();
-//     for(;;)
-//     {
-//         if (HAL_GetTick() - past_time >= ms)
-//         {
-//             vehicle_set_speed(0);
-//             vehicle_ensure_stop();
-//             return FNS_NOT_FOUND;
-//         }
-//         if (
-//                adchall_track_left.value   < adchall_track_left.magnetic_value
-//             || adchall_track_right.value  < adchall_track_right.magnetic_value
-//         ) break;
-//         osDelay(10);
-//     }
-//     vehicle_set_speed(0);
-//     vehicle_ensure_stop();
-//     return FNS_OK;
-// }
-
-// static FnState vehicle_search_mode(void)
-// {
-//     ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 10000));
-//     ERROR_CHECK_FNS_RETURN(walk_until_on_path(10, 3000));
-//     ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 10000));
-//     return FNS_OK;
-// }
 
 uint32_t time_diff;
 void vehicle_test_no_load_rps(uint32_t ms)
@@ -180,9 +126,10 @@ void StartVehicleTask(void *argument)
     }
 }
 
-void vehicle_main(void)
+static bool text_end = 0;
+void vehicle_main (void)
 {
-    // vehicle_navigation();
+    vehicle_navigation();
 
     switch (vehicle_parameter.mode)
     {
@@ -195,8 +142,8 @@ void vehicle_main(void)
         {
             if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
             {
-                vehicle_set_mode(VEHICLE_MODE_FREE);
                 vehicle_set_direct(VEHICLE_DIRECT_STOP);
+                vehicle_set_mode(VEHICLE_MODE_FREE);
                 return;
             }
             vehicle_set_mode(VEHICLE_MODE_TRACK);
@@ -209,6 +156,22 @@ void vehicle_main(void)
                 agv_state.currnet_mode,
                 VEHICLE_setpoint_rotate
                 );
+            return;
+        }
+        case VEHICLE_MODE_END:
+        {
+            map_data_renew_direction_and_address(
+                &map_data_start,
+                map_data.address_id[map_data.current_count - 1],
+                map_data.direction[map_data.current_count - 1]
+                );
+            // 終止目前沒有要做甚麼所以先停止動作
+            while (1)
+            {
+                vehicle_ensure_stop();
+                text_end = 1;
+                osDelay(100);
+            }
             return;
         }
         default: break;
