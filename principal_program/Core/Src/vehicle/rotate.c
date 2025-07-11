@@ -1,7 +1,8 @@
 #include <stdint.h>
+#include "vehicle/basic.h"
 #include "vehicle/rotate.h"
+#include "vehicle/navigation.h"
 #include "main/fn_state.h"
-#include "main/map.h"
 #include "adc/main.h"
 
 
@@ -41,7 +42,5 @@ void vehicle_rotate_in_place(MapDirF count, VehicleDirect currnet_direction, Per
         timeout_error(time_out, &error_state.vehicle_rotate_in_place);
     }
     vehicle_ensure_stop();
-    vehicle_set_mode(VEHICLE_MODE_TRACK);
-
-    // agv_forward_leave_strong_magnet();
+    agv_state.mode = VEHICLE_MODE_TRACK;
 }

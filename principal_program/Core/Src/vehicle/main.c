@@ -129,7 +129,7 @@ void StartVehicleTask(void *argument)
 static bool text_end = 0;
 void vehicle_main (void)
 {
-    vehicle_navigation();
+    // vehicle_navigation();
 
     switch (vehicle_parameter.mode)
     {
@@ -162,8 +162,8 @@ void vehicle_main (void)
         {
             map_data_renew_direction_and_address(
                 &map_data_start,
-                map_data.address_id[map_data.current_count - 1],
-                map_data.direction[map_data.current_count - 1]
+                map_data_all.map_data[map_data_all.current_count - 1].address_id,
+                map_data_all.map_data[map_data_all.current_count - 1].direction
                 );
             // 終止目前沒有要做甚麼所以先停止動作
             while (1)

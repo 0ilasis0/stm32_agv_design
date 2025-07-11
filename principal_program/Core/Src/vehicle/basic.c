@@ -1,7 +1,6 @@
 #include "vehicle/basic.h"
 #include "adc/main.h"
 
-
 VehicleParameter vehicle_parameter;
 
 void vehicle_ensure_stop_inner(void)

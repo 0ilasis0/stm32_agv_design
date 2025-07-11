@@ -5,13 +5,14 @@ static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 static uint8_t final_node_count = 0;
 
-MapData map_data;
-MapDataCurrent map_data_start = {
+MapDataAll map_data_all;
+
+MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .real_rotate_count  = NO_DATA,
-    .vehicle_direction       = VEHICLE_DIRECT_STOP,
-    .mode             = VEHICLE_MODE_IDLE,
+    .vehicle_direction  = VEHICLE_DIRECT_STOP,
+    .mode               = VEHICLE_MODE_ROTATE,
 };
 
 
@@ -69,17 +70,17 @@ static void init_map(void)
     }
 }
 
-static MapData init_map_data (void)
+static MapDataAll init_map_data (void)
 {
-    MapData map_new;
+    MapDataAll map_new;
 
     map_new.current_count = 0;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
-        map_new.real_rotate_count[i]    = NO_DATA;
-        map_new.direction[i]            = NO_DATA;
-        map_new.address_id[i]           = NO_DATA;
-        map_new.vehicle_direction[i]         = NO_DATA;
-        map_new.mode[i]               = VEHICLE_MODE_IDLE;
+        map_new.map_data[i].real_rotate_count  = NO_DATA;
+        map_new.map_data[i].direction          = NO_DATA;
+        map_new.map_data[i].address_id         = NO_DATA;
+        map_new.map_data[i].vehicle_direction  = NO_DATA;
+        map_new.map_data[i].mode               = VEHICLE_MODE_IDLE;
     }
 
     return map_new;
@@ -105,14 +106,14 @@ static void floyd_warshall(void)
  */
 static VehicleMode decide_vehicle_status(uint8_t count)
  {
-    if (count == 0 && map_data.direction[count] == NO_DATA) return VEHICLE_MODE_END;
+    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA) return VEHICLE_MODE_END;
     if (count == 0) return VEHICLE_DIRECT_FORWARD;
 
-    if (map_data.direction[count] == map_data.direction[count - 1])
+    if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {
         return VEHICLE_MODE_TRACK;
     }
-    else if (map_data.direction[count] == NO_DATA)
+    else if (map_data_all.map_data[count].direction == NO_DATA)
     {
         return VEHICLE_MODE_END;
     }
@@ -202,7 +203,7 @@ static void build_current_map_data(int from, int to)
     // 根據 path 矩陣追蹤從 from 到 to 的節點路徑
     while (from != to && count < MAX_NODE) {
         int next_node = path[from][to];
-        map_data.address_id[count] = locations_t[from].local_id;
+        map_data_all.map_data[count].address_id = locations_t[from].local_id;
 
         int direction_index = NO_DATA;
 
@@ -214,13 +215,13 @@ static void build_current_map_data(int from, int to)
             }
         }
 
-        map_data.direction[count] = direction_index;
+        map_data_all.map_data[count].direction = direction_index;
         from = next_node;
         count++;
     }
 
-    map_data.address_id[count] = locations_t[to].local_id;
-    map_data.direction[count] = NO_DATA;
+    map_data_all.map_data[count].address_id = locations_t[to].local_id;
+    map_data_all.map_data[count].direction = NO_DATA;
 
     // 紀錄路徑節點數（不含終點）
     final_node_count = count;
@@ -235,21 +236,32 @@ static void map_adjust_start (void)
 
     map_data_start.vehicle_direction = get_rotate_direction(
         map_data_start.direction,
-        map_data.direction[0]
+        map_data_all.map_data[0].direction
         );
 
     map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
         map_data_start.vehicle_direction,
-        map_data.address_id[0],
+        map_data_all.map_data[0].address_id,
         map_data_start.direction,
-        map_data.direction[0]
+        map_data_all.map_data[0].direction
         );
 
-    map_data.vehicle_direction[0] = map_data_start.vehicle_direction;
-    map_data.real_rotate_count[0] = map_data_start.real_rotate_count;
+    if (map_data_start.direction != map_data_all.map_data[0].direction)
+    {
+        map_data_all.map_data[0] = map_data_start;
+    }
 }
 
-void map_data_renew_direction_and_address (MapDataCurrent *map_new, MapIdF init_address_id, int8_t init_direction)
+void map_setup(void)
+ {
+    init_map();
+
+    map_data_all = init_map_data();
+
+    floyd_warshall();
+}
+
+void map_data_renew_direction_and_address (MapData *map_new, MapIdF init_address_id, MapDirF init_direction)
 {
     map_new->direction = init_direction;
     map_new->address_id = init_address_id;
@@ -264,40 +276,25 @@ void map_bulid(MapIdF from, MapIdF to)
 
     for (int i = 0; i <= final_node_count; i++)
     {
-        map_data.mode[i] = decide_vehicle_status(i);
+        map_data_all.map_data[i].mode = decide_vehicle_status(i);
 
         if (i > 0)
         {
-            map_data.vehicle_direction[i] = get_rotate_direction(
-                map_data.direction[i - 1],
-                map_data.direction[i]
+            map_data_all.map_data[i].vehicle_direction = get_rotate_direction(
+                map_data_all.map_data[i - 1].direction,
+                map_data_all.map_data[i].direction
             );
 
-            map_data.real_rotate_count[i] = decide_pass_magnetic_stripe_calculate(
-                map_data.vehicle_direction[i],
-                map_data.address_id[i],
-                map_data.direction[i - 1],
-                map_data.direction[i]
+            map_data_all.map_data[i].real_rotate_count = decide_pass_magnetic_stripe_calculate(
+                map_data_all.map_data[i].vehicle_direction,
+                map_data_all.map_data[i].address_id,
+                map_data_all.map_data[i - 1].direction,
+                map_data_all.map_data[i].direction
             );
         }
     }
 
     map_adjust_start();
 
-    agv_state_renew(
-        map_data.address_id[0],
-        map_data.direction[0],
-        map_data.vehicle_direction[0],
-        map_data.real_rotate_count[0],
-        map_data.mode[0]
-    );
-}
-
-void map_setup(void)
- {
-    init_map();
-
-    map_data = init_map_data();
-
-    floyd_warshall();
+    agv_state = map_data_all.map_data[0];
 }

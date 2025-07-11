@@ -1,12 +1,13 @@
-#include "vehicle/navigation.h"
 #include "tim.h"
+#include "vehicle/basic.h"
+#include "vehicle/navigation.h"
 #include "vehicle/rotate.h"
 #include "vehicle/search.h"
 #include "main/fn_state.h"
 #include "adc/main.h"
 #include "main/config.h"
 
-MapDataCurrent agv_state;
+MapData agv_state;
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
@@ -34,62 +35,17 @@ static void protect_over_hall(void)
     if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data.mode[map_data.current_count] == VEHICLE_MODE_ROTATE)
+    if (map_data_all.map_data[map_data_all.current_count].mode == VEHICLE_MODE_ROTATE)
     {
         vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data.mode[map_data.current_count] == VEHICLE_MODE_END)
+    if (map_data_all.map_data[map_data_all.current_count].mode == VEHICLE_MODE_END)
     {
         vehicle_over_hall_fall_back();
     }
 }
-
-// /**
-//   * @brief 決定移動MODE
-//   */
-// static int text_end = 0;
-// static void decide_move_mode(void)
-// {
-//     switch(map_data.mode[map_data.current_count])
-//     {
-//         case agv_straight:
-//             agv_forward_leave_strong_magnet();
-
-//             // 改為agv_next，直到離開HALL，使else之後能renew state
-//             map_data.mode[map_data.current_count] = agv_next;
-//             break;
-//         case agv_rotate:
-
-//             // protect_over_hall();
-//             vehicle_rotate_in_place(
-//                 map_data.real_rotate_count[map_data.current_count],
-//                 map_data.vehicle_direction[map_data.current_count],
-//                 VEHICLE_setpoint_rotate
-//                 );
-
-//             // 改為agv_next，直到離開HALL，使else之後能renew state
-//             map_data.mode[map_data.current_count] = agv_next;
-//             break;
-//         case agv_end:
-//             // protect_over_hall();
-//             map_data_renew_direction_and_address(
-//                 &map_data_start,
-//                 map_data.address_id[map_data.current_count - 1],
-//                 map_data.direction[map_data.current_count - 1]
-//                 );
-//             // 終止目前沒有要做甚麼所以先停止動作
-//             while (1)
-//             {
-//                 vehicle_ensure_stop();
-//                 text_end = 1;
-//             }
-//             break;
-//         default:
-//             break;
-//     }
-// }
 
 void agv_state_renew (
     MapIdF address_id,
@@ -145,13 +101,13 @@ void vehicle_track_mode()
 
 static void renew_agv_state_another_stm32 (void)
 {
-    map_data.current_count ++;
+    map_data_all.current_count ++;
     agv_state_renew(
-        map_data.address_id[map_data.current_count],
-        map_data.direction[map_data.current_count],
-        map_data.vehicle_direction[map_data.current_count],
-        map_data.real_rotate_count[map_data.current_count],
-        map_data.mode[map_data.current_count]
+        map_data_all.map_data[map_data_all.current_count].address_id,
+        map_data_all.map_data[map_data_all.current_count].direction,
+        map_data_all.map_data[map_data_all.current_count].vehicle_direction,
+        map_data_all.map_data[map_data_all.current_count].real_rotate_count,
+        map_data_all.map_data[map_data_all.current_count].mode
     );
 }
 
