@@ -74,17 +74,17 @@ void StartDefaultTask(void *argument)
     // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
-    vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
-    vehicle_set_speed(20);
+    // vehicle_set_mode(VEHICLE_MODE_TRACK);
+    // vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+    // vehicle_set_speed(20);
     // map_data_renew_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
-    // vehicle_set_mode(agv_state.mode);
+    vehicle_set_mode(agv_state.mode);
 
     for(;;)
     {
-        // vehicle_main();
+        vehicle_main();
 
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;

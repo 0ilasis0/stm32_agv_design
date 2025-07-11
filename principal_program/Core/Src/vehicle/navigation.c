@@ -8,6 +8,7 @@
 #include "main/config.h"
 
 MapData agv_state;
+uint8_t current_count = 0;
 
 /**
   * @brief AGV 倒退直到離開強力磁鐵感應
@@ -35,31 +36,16 @@ static void protect_over_hall(void)
     if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data_all.map_data[map_data_all.current_count].mode == VEHICLE_MODE_ROTATE)
+    if (map_data_all.map_data[current_count].mode == VEHICLE_MODE_ROTATE)
     {
         vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data_all.map_data[map_data_all.current_count].mode == VEHICLE_MODE_END)
+    if (map_data_all.map_data[current_count].mode == VEHICLE_MODE_END)
     {
         vehicle_over_hall_fall_back();
     }
-}
-
-void agv_state_renew (
-    MapIdF address_id,
-    MapDirF direction,
-    VehicleDirect vehicle_direction,
-    MapDirF real_rotate_count,
-    VehicleMode mode
-)
-{
-    agv_state.address_id = address_id;
-    agv_state.direction = direction;
-    agv_state.vehicle_direction = vehicle_direction;
-    agv_state.real_rotate_count = real_rotate_count;
-    agv_state.mode = mode;
 }
 
 /**
@@ -99,29 +85,35 @@ void vehicle_track_mode()
     }
 }
 
-static void renew_agv_state_another_stm32 (void)
+static void get_mission_from_another_stm32 (void)
 {
     map_data_all.current_count ++;
-    agv_state_renew(
-        map_data_all.map_data[map_data_all.current_count].address_id,
-        map_data_all.map_data[map_data_all.current_count].direction,
-        map_data_all.map_data[map_data_all.current_count].vehicle_direction,
-        map_data_all.map_data[map_data_all.current_count].real_rotate_count,
-        map_data_all.map_data[map_data_all.current_count].mode
-    );
+    current_count = map_data_all.current_count;
+    agv_state = map_data_all.map_data[current_count];
 }
 
 bool navigation_triggered = true;
 uint32_t time_stop;
 void vehicle_navigation(void)
 {
+    // 更新資料後需要設定的
+    // vehicle_ensure_stop();
+    // get_mission_from_another_stm32();
+    // current_count++;
+    // vehicle_set_mode(agv_state.mode);
+    // vehicle_set_direct(agv_state.vehicle_direction);
+    // vehicle_set_speed(agv_state.speed_setpoint);
+
     if (
            adchall_node.value < adchall_node.const_h.magnetic_value
         && navigation_triggered == false
         )
     {
-        renew_agv_state_another_stm32();
+        vehicle_ensure_stop();
+        get_mission_from_another_stm32();
         vehicle_set_mode(agv_state.mode);
+        vehicle_set_direct(agv_state.vehicle_direction);
+        vehicle_set_speed(agv_state.speed_setpoint);
 
         time_stop = HAL_GetTick();
         navigation_triggered = true;
@@ -129,15 +121,15 @@ void vehicle_navigation(void)
     else if (
            adchall_node.value > adchall_node.const_h.magnetic_value
         && navigation_triggered == true
-        && HAL_GetTick() - time_stop > NAVUGATION_TIME_DIFF
+        && HAL_GetTick() - time_stop > MAGNATIC_STRIPE_TIME_DIF
         )
     {
         navigation_triggered = false;
     }
 
-    if (agv_state.mode == VEHICLE_MODE_TRACK)
+    if (vehicle_parameter.mode == VEHICLE_MODE_TRACK)
     {
         vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
-        vehicle_set_speed(VEHICLE_setpoint_straight);
+        vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
     }
 }

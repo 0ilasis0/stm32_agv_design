@@ -104,25 +104,35 @@ static void floyd_warshall(void)
 /*
  * 決定agv當前狀態
  */
-static VehicleMode decide_vehicle_status(uint8_t count)
+static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
  {
-    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA) return VEHICLE_MODE_END;
-    if (count == 0) return VEHICLE_DIRECT_FORWARD;
+    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
+    {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        return VEHICLE_MODE_END;
+    }
+    if (count == 0)
+    {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        return VEHICLE_MODE_TRACK;
+    }
 
     if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
     else if (map_data_all.map_data[count].direction == NO_DATA)
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     else
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_ROTATE;
         return VEHICLE_MODE_ROTATE;
     }
 }
-
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
@@ -144,7 +154,6 @@ static VehicleDirect get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
     {
         return VEHICLE_DIRECT_CLOCKWISE;
     }
-
 }
 
 /**
@@ -276,7 +285,7 @@ void map_bulid(MapIdF from, MapIdF to)
 
     for (int i = 0; i <= final_node_count; i++)
     {
-        map_data_all.map_data[i].mode = decide_vehicle_status(i);
+        map_data_all.map_data[i].mode = decide_vehicle_mode_and_speed(i);
 
         if (i > 0)
         {

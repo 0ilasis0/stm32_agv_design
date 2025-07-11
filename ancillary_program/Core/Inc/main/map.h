@@ -29,6 +29,7 @@ typedef struct {
     VehicleDirect vehicle_direction;
     MapDirF       real_rotate_count;
     VehicleMode   mode;
+    Percentage    speed_setpoint;
 } MapData;
 
 typedef struct{
@@ -42,8 +43,3 @@ extern MapDataAll map_data_all;
 extern MapData map_data_start;
 
 void map_bulid(MapIdF from, MapIdF to);
-void map_data_renew_direction_and_address (
-    MapData *map_new,
-    MapIdF init_address_id,
-    int8_t init_direction
-);

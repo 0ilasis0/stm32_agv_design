@@ -13,6 +13,7 @@ MapData map_data_start = {
     .real_rotate_count  = NO_DATA,
     .vehicle_direction  = VEHICLE_DIRECT_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
+    .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
 };
 
 
@@ -76,11 +77,7 @@ static MapDataAll init_map_data (void)
 
     map_new.current_count = 0;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
-        map_new.map_data[i].real_rotate_count  = NO_DATA;
-        map_new.map_data[i].direction          = NO_DATA;
-        map_new.map_data[i].address_id         = NO_DATA;
-        map_new.map_data[i].vehicle_direction  = NO_DATA;
-        map_new.map_data[i].mode               = VEHICLE_MODE_IDLE;
+        map_new.map_data[i] = map_data_start;
     }
 
     return map_new;
@@ -104,21 +101,32 @@ static void floyd_warshall(void)
 /*
  * 決定agv當前狀態
  */
-static VehicleMode decide_vehicle_status(uint8_t count)
+static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
  {
-    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA) return VEHICLE_MODE_END;
-    if (count == 0) return VEHICLE_DIRECT_FORWARD;
+    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
+    {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        return VEHICLE_MODE_END;
+    }
+    if (count == 0)
+    {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        return VEHICLE_MODE_TRACK;
+    }
 
     if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
     else if (map_data_all.map_data[count].direction == NO_DATA)
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     else
     {
+        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_ROTATE;
         return VEHICLE_MODE_ROTATE;
     }
 }
@@ -252,7 +260,7 @@ static void map_adjust_start (void)
     }
 }
 
-static void map_setup(void)
+static void map_setup (void)
  {
     init_map();
 
@@ -261,10 +269,14 @@ static void map_setup(void)
     floyd_warshall();
 }
 
-void map_data_renew_direction_and_address (MapData *map_new, MapIdF init_address_id, MapDirF init_direction)
+static void map_data_renew_direction_and_address (
+    MapData *map_new,
+    MapIdF address_id,
+    MapDirF direction
+    )
 {
-    map_new->direction = init_direction;
-    map_new->address_id = init_address_id;
+    map_new->direction = address_id;
+    map_new->address_id = direction;
 }
 
 void map_bulid(MapIdF from, MapIdF to)
@@ -276,7 +288,7 @@ void map_bulid(MapIdF from, MapIdF to)
 
     for (int i = 0; i <= final_node_count; i++)
     {
-        map_data_all.map_data[i].mode = decide_vehicle_status(i);
+        map_data_all.map_data[i].mode = decide_vehicle_mode_and_speed(i);
 
         if (i > 0)
         {
@@ -310,9 +322,16 @@ void StartTask05(void *argument)
 
     for(;;)
     {
-        if (false)  //讀到RFID執行給資料到另一個stm32
+        if (false) // 讀到RFID執行給資料到另一個stm32
         {
+            map_data_all.current_count ++;
+            agv_state = map_data_all.map_data[map_data_all.current_count];
 
+            if (agv_state.mode == VEHICLE_MODE_END)
+            {
+                map_data_renew_direction_and_address(&map_data_start, agv_state.address_id, agv_state.direction);
+            }
+            // 給資料到另一個stm32
         }
         osDelay(10);
     }

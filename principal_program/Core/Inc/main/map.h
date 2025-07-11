@@ -29,6 +29,7 @@ typedef struct {
     VehicleDirect vehicle_direction;
     MapDirF       real_rotate_count;
     VehicleMode   mode;
+    Percentage    speed_setpoint;
 } MapData;
 
 typedef struct{
