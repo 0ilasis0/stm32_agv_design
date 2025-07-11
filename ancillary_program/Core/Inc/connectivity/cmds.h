@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#define CMD_BX_EMPTY            (uint8_t)0x00
+#define CMD_BX_EMPTY                (uint8_t)0x00
 
 //----------------------------------------------------------------------------------------------------
 #define CMD_DATA_B0                 (uint8_t)0x00   // 回傳資料
@@ -78,6 +78,6 @@
 #define CMD_RFID_B4_WRITE           (uint8_t)0x01
 
 //----------------------------------------------------------------------------------------------------
-#define CMD_B0_TEST             (uint8_t)0xFF
+#define CMD_B0_TEST                 (uint8_t)0xFF
 
-#define CMD_B1_TEST0            (uint8_t)0x00
+#define CMD_B1_TEST0                (uint8_t)0x00
