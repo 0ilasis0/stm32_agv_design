@@ -31,8 +31,6 @@
 #define CMD_VEHI_B0_CONTROL         (uint8_t)0x10   // 車輛控制
 
 #define CMD_VEHI_B1_VEHICLE         (uint8_t)0x00   // 車輛
-#define CMD_VEHI_B1_LEFT_MOTOR      (uint8_t)0x40   // 左馬達
-#define CMD_VEHI_B1_RIGHT_MOTOR     (uint8_t)0x50   // 右馬達
 
 #define CMD_VEHI_B2_MODE            (uint8_t)0x00   // 模式
 #define CMD_VEHI_B2_DIRECT          (uint8_t)0x10   // 方向
