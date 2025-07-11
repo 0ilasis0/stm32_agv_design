@@ -75,6 +75,13 @@ const osThreadAttr_t RfidTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 256 * 4
 };
+/* Definitions for MapTask */
+osThreadId_t MapTaskHandle;
+const osThreadAttr_t MapTask_attributes = {
+  .name = "MapTask",
+  .priority = (osPriority_t) osPriorityNormal1,
+  .stack_size = 256 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -85,6 +92,7 @@ void StartDefaultTask(void *argument);
 void StartArmTask(void *argument);
 void StartFdCanTask(void *argument);
 void StartRfidTask(void *argument);
+void StartTask05(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -126,6 +134,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of RfidTask */
   RfidTaskHandle = osThreadNew(StartRfidTask, NULL, &RfidTask_attributes);
+
+  /* creation of MapTask */
+  MapTaskHandle = osThreadNew(StartTask05, NULL, &MapTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -207,6 +218,24 @@ __weak void StartRfidTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartRfidTask */
+}
+
+/* USER CODE BEGIN Header_StartTask05 */
+/**
+* @brief Function implementing the mapTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask05 */
+__weak void StartTask05(void *argument)
+{
+  /* USER CODE BEGIN StartTask05 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartTask05 */
 }
 
 /* Private application code --------------------------------------------------*/

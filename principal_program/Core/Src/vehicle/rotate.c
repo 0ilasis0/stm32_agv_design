@@ -1,53 +1,44 @@
 #include <stdint.h>
+#include "vehicle/basic.h"
 #include "vehicle/rotate.h"
+#include "vehicle/navigation.h"
 #include "main/fn_state.h"
-#include "main/map.h"
 #include "adc/main.h"
 
 
 
+
 /**
-  * @brief 根據強磁計數更新 AGV 方向資料
+  * @brief AGV 原地旋轉直到對準方向，根據強磁計數更新 AGV 方向資料
   */
 static uint8_t look_rotate_count = 0;
-static void renew_vehicle_rotation_status (MapDirF count_until_zero)
+void vehicle_rotate_in_place()
 {
     //邊緣觸發判斷+時間預防
     bool triggered = false;
     uint32_t time_out = HAL_GetTick();
     uint32_t triggered_time;
 
-    while (count_until_zero != 0){
+    while (agv_state.real_rotate_count != 0){
         if (adchall_direction.value <= adchall_direction.const_h.magnetic_value  && !triggered)
         {
-            count_until_zero --;
+            agv_state.real_rotate_count --;
             triggered_time = HAL_GetTick();
             triggered = true;
         }
         if (
             adchall_direction.value > adchall_direction.const_h.magnetic_value
-            && triggered_time - HAL_GetTick() > 200
+            && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
             )
         {
             triggered = false;
         }
 
-        look_rotate_count = count_until_zero;
+        look_rotate_count = agv_state.real_rotate_count;
 
-        timeout_error(time_out, &error_state.renew_vehicle_rotation_status);
+        timeout_error(time_out, &error_state.vehicle_rotate_in_place);
     }
+
     vehicle_ensure_stop();
-}
-
-/**
-  * @brief AGV 原地旋轉直到對準方向
-  */
-void vehicle_rotate_in_place(MapDirF count, VehicleDirect currnet_direction, Percentage setpoint_speed)
-{
-    vehicle_set_direct(currnet_direction);
-    vehicle_set_speed(setpoint_speed);
-
-    renew_vehicle_rotation_status(count);
-
-    agv_forward_leave_strong_magnet();
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
 }

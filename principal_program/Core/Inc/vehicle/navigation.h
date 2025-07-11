@@ -2,17 +2,11 @@
 
 #include "main/map.h"
 
+
 #define UNFIND_MAG_TIME 5000
 
-extern MapDataCurrent agv_state;
-
-void agv_state_renew (
-    MapIdF address_id,
-    MapDirF direction,
-    VehicleDirect currnet_mode,
-    MapDirF real_rotate_count,
-    VehicleMode status
-);
+extern MapData agv_state;
+extern uint8_t current_count;
 
 void vehicle_track_mode(void);
 void vehicle_navigation(void);

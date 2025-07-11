@@ -58,9 +58,9 @@ int _kill(int pid, int sig)
   return -1;
 }
 
-void _exit (int status)
+void _exit (int state)
 {
-  _kill(status, -1);
+  _kill(state, -1);
   while (1) {}    /* Make sure we hang here */
 }
 
@@ -125,9 +125,9 @@ int _open(char *path, int flags, ...)
   return -1;
 }
 
-int _wait(int *status)
+int _wait(int *state)
 {
-  (void)status;
+  (void)state;
   errno = ECHILD;
   return -1;
 }

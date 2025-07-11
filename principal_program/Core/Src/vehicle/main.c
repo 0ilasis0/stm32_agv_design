@@ -133,11 +133,6 @@ void vehicle_main (void)
 
     switch (vehicle_parameter.mode)
     {
-        case VEHICLE_MODE_TRACK:
-        {
-            vehicle_track_mode();
-            return;
-        }
         case VEHICLE_MODE_SEARCH:
         {
             if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
@@ -149,26 +144,32 @@ void vehicle_main (void)
             vehicle_set_mode(VEHICLE_MODE_TRACK);
             return;
         }
+        case VEHICLE_MODE_TRACK:
+        {
+            vehicle_track_mode();
+            return;
+        }
         case VEHICLE_MODE_ROTATE:
         {
-            vehicle_rotate_in_place(
-                agv_state.real_rotate_count,
-                agv_state.currnet_mode,
-                VEHICLE_setpoint_rotate
-                );
+            vehicle_rotate_in_place();
             return;
         }
         case VEHICLE_MODE_END:
         {
+            current_count = 0;
+            
+            //已經由另一stm32 map修改，目前為text
             map_data_renew_direction_and_address(
                 &map_data_start,
-                map_data.address_id[map_data.current_count - 1],
-                map_data.direction[map_data.current_count - 1]
+                map_data_all.map_data[map_data_all.current_count - 1].address_id,
+                map_data_all.map_data[map_data_all.current_count - 1].direction
                 );
+            //已經由另一stm32 map修改，目前為text
+
             // 終止目前沒有要做甚麼所以先停止動作
             while (1)
             {
-                vehicle_ensure_stop();
+                vehicle_set_direct(VEHICLE_DIRECT_STOP);
                 text_end = 1;
                 osDelay(100);
             }
