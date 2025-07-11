@@ -43,7 +43,7 @@
 #define MOTOR_STOP_GATE         0.01f
 
 #define ADC_COUNT                   4
-#define ADC_NEED_LEN              127
+#define ADC_NEED_LEN              1023
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1
@@ -71,6 +71,8 @@
 #define UART_TRCV_BUF_CAP       10
 #define UART_START_CODE         ((uint8_t) '>')
 #define UART_END_CODE           ((uint8_t) '\n')
+
+#define NAVUGATION_TIME_DIFF    1500
 
 #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN

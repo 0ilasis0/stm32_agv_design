@@ -9,11 +9,6 @@
 
 static size_t motor_tick = 0;
 
-GlobalState global_state = {
-    .uart_tr_pkt_buf_h = &uart_tr_pkt_buf,
-    .uart_rv_pkt_buf_h = &uart_rv_pkt_buf,
-};
-
 void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == MOTOR_HTIM1) // 100us
@@ -85,7 +80,7 @@ void StartDefaultTask(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
-    vehicle_set_mode(agv_state.currnet_mode);
+    vehicle_set_mode(agv_state.mode);
 
     for(;;)
     {

@@ -36,7 +36,7 @@ TIM_HandleTypeDef        htim6;
   * @note   This function is called  automatically at the beginning of program after
   *         reset by HAL_Init() or at any time when clock is configured, by HAL_RCC_ClockConfig().
   * @param  TickPriority: Tick interrupt priority.
-  * @retval HAL status
+  * @retval HAL state
   */
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
@@ -44,7 +44,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   uint32_t              uwTimclock = 0;
   uint32_t              uwPrescalerValue = 0;
   uint32_t              pFLatency;
-  HAL_StatusTypeDef     status;
+  HAL_StatusTypeDef     state;
 
   /* Enable TIM6 clock */
   __HAL_RCC_TIM6_CLK_ENABLE();
@@ -71,12 +71,12 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   htim6.Init.ClockDivision = 0;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
 
-  status = HAL_TIM_Base_Init(&htim6);
-  if (status == HAL_OK)
+  state = HAL_TIM_Base_Init(&htim6);
+  if (state == HAL_OK)
   {
     /* Start the TIM time Base generation in interrupt mode */
-    status = HAL_TIM_Base_Start_IT(&htim6);
-    if (status == HAL_OK)
+    state = HAL_TIM_Base_Start_IT(&htim6);
+    if (state == HAL_OK)
     {
     /* Enable the TIM6 global Interrupt */
         HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
@@ -89,13 +89,13 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
       }
       else
       {
-        status = HAL_ERROR;
+        state = HAL_ERROR;
       }
     }
   }
 
- /* Return function status */
-  return status;
+ /* Return function state */
+  return state;
 }
 
 /**

@@ -34,13 +34,13 @@ static void protect_over_hall(void)
     if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
 
     //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data.status[map_data.current_count] == VEHICLE_MODE_ROTATE)
+    if (map_data.mode[map_data.current_count] == VEHICLE_MODE_ROTATE)
     {
         vehicle_over_hall_fall_back();
     }
 
     //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data.status[map_data.current_count] == VEHICLE_MODE_END)
+    if (map_data.mode[map_data.current_count] == VEHICLE_MODE_END)
     {
         vehicle_over_hall_fall_back();
     }
@@ -52,25 +52,25 @@ static void protect_over_hall(void)
 // static int text_end = 0;
 // static void decide_move_mode(void)
 // {
-//     switch(map_data.status[map_data.current_count])
+//     switch(map_data.mode[map_data.current_count])
 //     {
 //         case agv_straight:
 //             agv_forward_leave_strong_magnet();
 
-//             // 改為agv_next，直到離開HALL，使else之後能renew status
-//             map_data.status[map_data.current_count] = agv_next;
+//             // 改為agv_next，直到離開HALL，使else之後能renew state
+//             map_data.mode[map_data.current_count] = agv_next;
 //             break;
 //         case agv_rotate:
 
 //             // protect_over_hall();
 //             vehicle_rotate_in_place(
 //                 map_data.real_rotate_count[map_data.current_count],
-//                 map_data.currnet_mode[map_data.current_count],
+//                 map_data.vehicle_direction[map_data.current_count],
 //                 VEHICLE_setpoint_rotate
 //                 );
 
-//             // 改為agv_next，直到離開HALL，使else之後能renew status
-//             map_data.status[map_data.current_count] = agv_next;
+//             // 改為agv_next，直到離開HALL，使else之後能renew state
+//             map_data.mode[map_data.current_count] = agv_next;
 //             break;
 //         case agv_end:
 //             // protect_over_hall();
@@ -94,16 +94,16 @@ static void protect_over_hall(void)
 void agv_state_renew (
     MapIdF address_id,
     MapDirF direction,
-    VehicleDirect currnet_mode,
+    VehicleDirect vehicle_direction,
     MapDirF real_rotate_count,
-    VehicleMode status
+    VehicleMode mode
 )
 {
     agv_state.address_id = address_id;
     agv_state.direction = direction;
-    agv_state.currnet_mode = currnet_mode;
+    agv_state.vehicle_direction = vehicle_direction;
     agv_state.real_rotate_count = real_rotate_count;
-    agv_state.status = status;
+    agv_state.mode = mode;
 }
 
 /**
@@ -139,7 +139,7 @@ void vehicle_track_mode()
     }
     if (HAL_GetTick() - vehicle_parameter.last_tick_on_mag >= UNFIND_MAG_TIME)
     {
-        vehicle_set_mode(VEHICLE_MODE_SEARCH);
+        // vehicle_set_mode(VEHICLE_MODE_SEARCH);
     }
 }
 
@@ -149,28 +149,37 @@ static void renew_agv_state_another_stm32 (void)
     agv_state_renew(
         map_data.address_id[map_data.current_count],
         map_data.direction[map_data.current_count],
-        map_data.currnet_mode[map_data.current_count],
+        map_data.vehicle_direction[map_data.current_count],
         map_data.real_rotate_count[map_data.current_count],
-        map_data.status[map_data.current_count]
+        map_data.mode[map_data.current_count]
     );
 }
 
-bool navigation_triggered = false;
+bool navigation_triggered = true;
+uint32_t time_stop;
 void vehicle_navigation(void)
 {
-    if (adchall_node.value < adchall_node.const_h.magnetic_value && navigation_triggered == false)
+    if (
+           adchall_node.value < adchall_node.const_h.magnetic_value
+        && navigation_triggered == false
+        )
     {
         renew_agv_state_another_stm32();
-        vehicle_set_mode(agv_state.status);
+        vehicle_set_mode(agv_state.mode);
 
+        time_stop = HAL_GetTick();
         navigation_triggered = true;
     }
-    else if (adchall_node.value > adchall_node.const_h.magnetic_value && navigation_triggered == true)
+    else if (
+           adchall_node.value > adchall_node.const_h.magnetic_value
+        && navigation_triggered == true
+        && HAL_GetTick() - time_stop > NAVUGATION_TIME_DIFF
+        )
     {
         navigation_triggered = false;
     }
 
-    if (agv_state.status == VEHICLE_MODE_TRACK)
+    if (agv_state.mode == VEHICLE_MODE_TRACK)
     {
         vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
         vehicle_set_speed(VEHICLE_setpoint_straight);

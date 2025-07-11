@@ -10,8 +10,8 @@ MapDataCurrent map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .real_rotate_count  = NO_DATA,
-    .currnet_mode       = VEHICLE_DIRECT_UNKNOWN,
-    .status             = VEHICLE_MODE_IDLE,
+    .vehicle_direction       = VEHICLE_DIRECT_STOP,
+    .mode             = VEHICLE_MODE_IDLE,
 };
 
 
@@ -78,8 +78,8 @@ static MapData init_map_data (void)
         map_new.real_rotate_count[i]    = NO_DATA;
         map_new.direction[i]            = NO_DATA;
         map_new.address_id[i]           = NO_DATA;
-        map_new.currnet_mode[i]         = NO_DATA;
-        map_new.status[i]               = VEHICLE_MODE_IDLE;
+        map_new.vehicle_direction[i]         = NO_DATA;
+        map_new.mode[i]               = VEHICLE_MODE_IDLE;
     }
 
     return map_new;
@@ -233,19 +233,19 @@ static void map_adjust_start (void)
 {
     if (map_data_start.address_id == NO_DATA) return;
 
-    map_data_start.currnet_mode = get_rotate_direction(
+    map_data_start.vehicle_direction = get_rotate_direction(
         map_data_start.direction,
         map_data.direction[0]
         );
 
     map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
-        map_data_start.currnet_mode,
+        map_data_start.vehicle_direction,
         map_data.address_id[0],
         map_data_start.direction,
         map_data.direction[0]
         );
 
-    map_data.currnet_mode[0] = map_data_start.currnet_mode;
+    map_data.vehicle_direction[0] = map_data_start.vehicle_direction;
     map_data.real_rotate_count[0] = map_data_start.real_rotate_count;
 }
 
@@ -264,17 +264,17 @@ void map_bulid(MapIdF from, MapIdF to)
 
     for (int i = 0; i <= final_node_count; i++)
     {
-        map_data.status[i] = decide_vehicle_status(i);
+        map_data.mode[i] = decide_vehicle_status(i);
 
         if (i > 0)
         {
-            map_data.currnet_mode[i] = get_rotate_direction(
+            map_data.vehicle_direction[i] = get_rotate_direction(
                 map_data.direction[i - 1],
                 map_data.direction[i]
             );
 
             map_data.real_rotate_count[i] = decide_pass_magnetic_stripe_calculate(
-                map_data.currnet_mode[i],
+                map_data.vehicle_direction[i],
                 map_data.address_id[i],
                 map_data.direction[i - 1],
                 map_data.direction[i]
@@ -287,9 +287,9 @@ void map_bulid(MapIdF from, MapIdF to)
     agv_state_renew(
         map_data.address_id[0],
         map_data.direction[0],
-        map_data.currnet_mode[0],
+        map_data.vehicle_direction[0],
         map_data.real_rotate_count[0],
-        map_data.status[0]
+        map_data.mode[0]
     );
 }
 

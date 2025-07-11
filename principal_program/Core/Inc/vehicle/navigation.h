@@ -9,9 +9,9 @@ extern MapDataCurrent agv_state;
 void agv_state_renew (
     MapIdF address_id,
     MapDirF direction,
-    VehicleDirect currnet_mode,
+    VehicleDirect vehicle_direction,
     MapDirF real_rotate_count,
-    VehicleMode status
+    VehicleMode state
 );
 
 void vehicle_track_mode(void);

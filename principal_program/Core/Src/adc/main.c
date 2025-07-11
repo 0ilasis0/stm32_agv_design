@@ -9,7 +9,7 @@ AdcHall adchall_track_left = {
     .const_h = {
         // PB12(R16)
         .id = 0,
-        .magnetic_value = 1860,
+        .magnetic_value = 1880,
     },
     .min = 4095,
 };
@@ -18,7 +18,7 @@ AdcHall adchall_track_right = {
     .const_h = {
         // PB11(R18)
         .id = 2,
-        .magnetic_value = 1830,
+        .magnetic_value = 1860,
     },
     .min = 4095,
 };
@@ -27,7 +27,7 @@ AdcHall adchall_direction = {
     .const_h = {
         // PB1(R24)
         .id = 1,
-        .magnetic_value = 1800,
+        .magnetic_value = 1850,
     },
     .min = 4095,
 };
@@ -36,12 +36,13 @@ AdcHall adchall_node = {
     .const_h = {
         // PB0(L34)
         .id = 3,
-        .magnetic_value = 1800,
+        .magnetic_value = 1850,
     },
     .min = 4095,
 };
 
-static uint16_t adc_cnt[4096] = {0};
+// 2100 - 1100
+static uint16_t adc_cnt[2560] = {0};
 
 static void max_min (AdcHall* adc)
 {
@@ -52,14 +53,16 @@ static void max_min (AdcHall* adc)
 static void hall_update(AdcHall* adc)
 {
     memset(adc_cnt, 0, sizeof(adc_cnt));
-    uint16_t i;
+    uint16_t i, k;
     for (i = 0; i < ADC_NEED_LEN; i++)
     {
-        adc_cnt[ADC_Values[i * ADC_COUNT + adc->const_h.id]]++;
+        k = ADC_Values[i * ADC_COUNT + adc->const_h.id];
+        if(k > 2559) continue;
+        adc_cnt[k]++;
     }
-    const uint8_t target = (ADC_NEED_LEN-1)/2;
+    const uint16_t target = (ADC_NEED_LEN-1)/2;
     uint16_t acc = 0;
-    for (i = 0; i < 4096; i++)
+    for (i = 500; i < 2500; i++)
     {
         acc += adc_cnt[i];
         if (acc > target)
@@ -68,7 +71,6 @@ static void hall_update(AdcHall* adc)
             break;
         }
     }
-    if (HAL_GetTick() < 3000) return;
     max_min(adc);
 }
 
@@ -78,8 +80,10 @@ void StartAdcTask(void *argument)
 
     for(;;)
     {
-        if (!runtime_switch.adc)
-        {
+        if (
+            !runtime_switch.adc
+            || HAL_GetTick() < 3000
+        ) {
             osDelay(50);
             continue;
         }

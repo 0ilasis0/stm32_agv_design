@@ -23,19 +23,19 @@ typedef struct{
 
 typedef struct{
     int8_t          current_count;
-    VehicleDirect   currnet_mode[MAX_NODE];
-    MapDirF         direction[MAX_NODE];
-    MapDirF         real_rotate_count[MAX_NODE];
     MapIdF          address_id[MAX_NODE];
-    VehicleMode     status[MAX_NODE];
+    MapDirF         direction[MAX_NODE];
+    VehicleDirect   vehicle_direction[MAX_NODE];
+    MapDirF         real_rotate_count[MAX_NODE];
+    VehicleMode     mode[MAX_NODE];
 } MapData;
 
 typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
-    VehicleDirect currnet_mode;
+    VehicleDirect vehicle_direction;
     MapDirF       real_rotate_count;
-    VehicleMode   status;
+    VehicleMode   mode;
 } MapDataCurrent;
 
 extern Location locations_t[MAX_NODE];

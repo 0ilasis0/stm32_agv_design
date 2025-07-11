@@ -153,7 +153,7 @@ void vehicle_main (void)
         {
             vehicle_rotate_in_place(
                 agv_state.real_rotate_count,
-                agv_state.currnet_mode,
+                agv_state.vehicle_direction,
                 VEHICLE_setpoint_rotate
                 );
             return;
@@ -168,7 +168,7 @@ void vehicle_main (void)
             // 終止目前沒有要做甚麼所以先停止動作
             while (1)
             {
-                vehicle_ensure_stop();
+                vehicle_set_direct(VEHICLE_DIRECT_STOP);
                 text_end = 1;
                 osDelay(100);
             }
