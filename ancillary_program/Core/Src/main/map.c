@@ -1,4 +1,5 @@
 #include "main/map.h"
+#include "connectivity/fdcan/main.h"
 
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
@@ -10,7 +11,7 @@ MapData agv_state;
 MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
-    .real_rotate_count  = NO_DATA,
+    .need_rotate_count  = NO_DATA,
     .vehicle_direction  = VEHICLE_DIRECT_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
     .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
@@ -244,7 +245,7 @@ static void map_adjust_start (void)
         map_data_all.map_data[0].direction
         );
 
-    map_data_start.real_rotate_count = decide_pass_magnetic_stripe_calculate(
+    map_data_start.need_rotate_count = decide_pass_magnetic_stripe_calculate(
         map_data_start.vehicle_direction,
         map_data_all.map_data[0].address_id,
         map_data_start.direction,
@@ -276,6 +277,46 @@ static void map_data_renew_direction_and_address (
     map_new->address_id = direction;
 }
 
+static void map_trans(const MapData* trans_map)
+{
+    VecByte vec_byte;
+    if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
+    {
+
+    }
+
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_direct(&vec_byte, trans_map->vehicle_direction))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    )
+    {
+
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    )
+    {
+
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode_rotate(&vec_byte, trans_map->need_rotate_count))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    )
+    {
+
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    )
+    {
+
+    }
+
+    vec_byte_free(&vec_byte);
+}
+
 void map_bulid(MapIdF from, MapIdF to)
 {
     from = get_index_by_id(from);
@@ -294,7 +335,7 @@ void map_bulid(MapIdF from, MapIdF to)
                 map_data_all.map_data[i].direction
             );
 
-            map_data_all.map_data[i].real_rotate_count = decide_pass_magnetic_stripe_calculate(
+            map_data_all.map_data[i].need_rotate_count = decide_pass_magnetic_stripe_calculate(
                 map_data_all.map_data[i].vehicle_direction,
                 map_data_all.map_data[i].address_id,
                 map_data_all.map_data[i - 1].direction,
@@ -311,11 +352,13 @@ void map_bulid(MapIdF from, MapIdF to)
 void StartTask05(void *argument)
 {
     map_setup();
+    map_bulid(5, 14);
 
     // text
     map_data_renew_direction_and_address(&map_data_start, 5, 2);
-    map_bulid(5, 14);
     // text
+
+    map_trans(&agv_state);
 
     for(;;)
     {
@@ -328,7 +371,8 @@ void StartTask05(void *argument)
             {
                 map_data_renew_direction_and_address(&map_data_start, agv_state.address_id, agv_state.direction);
             }
-            // 給資料到另一個stm32
+
+            map_trans(&agv_state);
         }
         osDelay(10);
     }

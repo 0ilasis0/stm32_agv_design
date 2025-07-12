@@ -1,7 +1,6 @@
 #include "vehicle/main.h"
 #include "vehicle/navigation.h"
 #include "vehicle/search.h"
-#include "vehicle/rotate.h"
 #include "vehicle/basic.h"
 #include "adc/main.h"
 #include "main/fn_state.h"
@@ -122,6 +121,7 @@ void StartVehicleTask(void *argument)
     for(;;)
     {
         direct_update();
+        vehicle_main();
         osDelay(50);
     }
 }
@@ -129,8 +129,6 @@ void StartVehicleTask(void *argument)
 static bool text_end = 0;
 void vehicle_main (void)
 {
-    vehicle_navigation();
-
     switch (vehicle_parameter.mode)
     {
         case VEHICLE_MODE_SEARCH:
@@ -156,23 +154,9 @@ void vehicle_main (void)
         }
         case VEHICLE_MODE_END:
         {
-            current_count = 0;
-            
-            //已經由另一stm32 map修改，目前為text
-            map_data_renew_direction_and_address(
-                &map_data_start,
-                map_data_all.map_data[map_data_all.current_count - 1].address_id,
-                map_data_all.map_data[map_data_all.current_count - 1].direction
-                );
-            //已經由另一stm32 map修改，目前為text
-
-            // 終止目前沒有要做甚麼所以先停止動作
-            while (1)
-            {
-                vehicle_set_direct(VEHICLE_DIRECT_STOP);
-                text_end = 1;
-                osDelay(100);
-            }
+            text_end = 1;
+            vehicle_set_direct(VEHICLE_DIRECT_STOP);
+            vehicle_set_mode(VEHICLE_MODE_FREE);
             return;
         }
         default: break;

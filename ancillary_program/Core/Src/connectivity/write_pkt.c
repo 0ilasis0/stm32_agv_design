@@ -124,6 +124,14 @@ FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode)
     return FNS_FAIL;
 }
 
+FnState pkt_vehi_set_mode_rotate(VecByte* vec_byte, uint8_t value)
+{
+    vec_rm_all(vec_byte);
+    ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_VEHICLE, CMD_VEHI_B2_MODE, VEHICLE_MODE_ROTATE}, 4));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
+    return FNS_OK;
+}
+
 FnState pkt_vehi_set_direct(VecByte* vec_byte, VehicleDirect direction)
 {
     vec_rm_all(vec_byte);

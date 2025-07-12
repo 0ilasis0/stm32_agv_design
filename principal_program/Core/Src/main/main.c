@@ -1,8 +1,7 @@
-#include "vehicle/main.h"
 #include "vehicle/navigation.h"
+#include "motor/main.h"
 #include "main/main.h"
 #include "main/config.h"
-#include "main/map.h"
 #include "adc/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
@@ -61,8 +60,6 @@ size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     defalt_running++;
-    map_setup();
-    map_bulid(5, 14);
 
     osDelay(1000);
 
@@ -80,12 +77,8 @@ void StartDefaultTask(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
-    vehicle_set_mode(agv_state.mode);
-
     for(;;)
     {
-        vehicle_main();
-
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;
     }
