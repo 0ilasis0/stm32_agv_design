@@ -15,24 +15,28 @@ typedef struct MotorConst
     uint16_t            Coil_GPIO_Pin_x[3];
 } MotorConst;
 
-typedef uint8_t MotorState;
-#define MOTOR_STATE_CONTROL     0
-#define MOTOR_STATE_FREE        1
-#define MOTOR_STATE_SLOW        2
-#define MOTOR_STATE_COAST       3
-#define MOTOR_STATE_BREAK       4
-#define MOTOR_STATE_LOCK        5
+typedef enum MotorMode
+{
+    MOTOR_STATE_CONTROL,
+    MOTOR_STATE_FREE,
+    MOTOR_STATE_SLOW,
+    MOTOR_STATE_COAST,
+    MOTOR_STATE_BREAK,
+    MOTOR_STATE_LOCK = -1,
+} MotorMode;
 
-typedef int8_t MotorDirect;
-#define MOTOR_DIRECTION_CLW     1
-#define MOTOR_DIRECTION_STOP    0
-#define MOTOR_DIRECTION_CCLW   -1
+typedef enum MotorMotion
+{
+    MOTOR_DIRECTION_STOP,
+    MOTOR_DIRECTION_CLW,
+    MOTOR_DIRECTION_CCLW,
+} MotorMotion;
 
 typedef struct MotorParameter
 {
     const MotorConst const_h;
-    MotorState state;
-    MotorState state_inner;
+    MotorMode state;
+    MotorMode state_inner;
     // RPS setpoint
     Percentage rps_pcn;
     Percentage rps_pcn_inner;
@@ -40,9 +44,9 @@ typedef struct MotorParameter
     float rps_present;
     Percentage pwm_duty;
     // direction setpoint
-    MotorDirect direction;
-    MotorDirect direction_inner;
-    MotorDirect direction_present;
+    MotorMotion direction;
+    MotorMotion direction_inner;
+    MotorMotion direction_present;
     uint8_t hall_last;
     uint8_t hall_present;
     uint32_t step_count;
@@ -53,7 +57,7 @@ extern MotorParameter motor_right;
 extern MotorParameter motor_left;
 
 void motor_set_max_rps(MotorParameter* motor, float value);
-void motor_set_state(MotorParameter *motor, MotorState state);
+void motor_set_state(MotorParameter *motor, MotorMode state);
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value);
-void motor_set_direct(MotorParameter *motor, MotorDirect direction);
+void motor_set_direct(MotorParameter *motor, MotorMotion direction);
 void motor_HALL_EXTI(MotorParameter *motor);

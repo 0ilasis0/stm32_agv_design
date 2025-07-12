@@ -5,7 +5,7 @@
 #include "adc/main.h"
 #include "main/fn_state.h"
 
-static void direct_update_inner(VehicleDirect direction)
+static void direct_update_inner(VehicleMotion direction)
 {
     vehicle_parameter.direction_inner = direction;
     switch(direction)
@@ -131,6 +131,18 @@ void vehicle_main (void)
 {
     switch (vehicle_parameter.mode)
     {
+        case VEHICLE_MODE_END:
+        {
+            text_end = 1;
+            vehicle_set_direct(VEHICLE_DIRECT_STOP);
+            vehicle_set_mode(VEHICLE_MODE_FREE);
+            return;
+        }
+        case VEHICLE_MODE_TRACK:
+        {
+            vehicle_track_mode();
+            return;
+        }
         case VEHICLE_MODE_SEARCH:
         {
             if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
@@ -142,21 +154,9 @@ void vehicle_main (void)
             vehicle_set_mode(VEHICLE_MODE_TRACK);
             return;
         }
-        case VEHICLE_MODE_TRACK:
-        {
-            vehicle_track_mode();
-            return;
-        }
         case VEHICLE_MODE_ROTATE:
         {
             vehicle_rotate_in_place();
-            return;
-        }
-        case VEHICLE_MODE_END:
-        {
-            text_end = 1;
-            vehicle_set_direct(VEHICLE_DIRECT_STOP);
-            vehicle_set_mode(VEHICLE_MODE_FREE);
             return;
         }
         default: break;

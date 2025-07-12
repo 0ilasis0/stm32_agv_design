@@ -62,12 +62,12 @@ void motor_set_rps_pcn(MotorParameter* motor, Percentage value)
     motor->rps_pcn = value;
 }
 
-void motor_set_direct(MotorParameter *motor, MotorDirect direction)
+void motor_set_direct(MotorParameter *motor, MotorMotion direction)
 {
     motor->direction = direction;
 }
 
-void motor_set_state(MotorParameter *motor, MotorState state)
+void motor_set_state(MotorParameter *motor, MotorMode state)
 {
     motor->state = state;
 }

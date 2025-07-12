@@ -61,7 +61,7 @@ void vehicle_set_mode(VehicleMode mode)
     vehicle_parameter.mode = mode;
 }
 
-void vehicle_set_direct(VehicleDirect direction)
+void vehicle_set_direct(VehicleMotion direction)
 {
     vehicle_parameter.direction = direction;
 }
@@ -72,4 +72,9 @@ void vehicle_set_speed(Percentage value)
     vehicle_parameter.speed = value;
     motor_set_rps_pcn(&motor_right, value);
     motor_set_rps_pcn(&motor_left , value);
+}
+
+void vehicle_set_need_rotate(MapDirF value)
+{
+    vehicle_parameter.need_rotate_count = value;
 }

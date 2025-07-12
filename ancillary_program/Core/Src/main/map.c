@@ -132,7 +132,7 @@ static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-static VehicleDirect get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
+static VehicleMotion get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
 {
     if (end_dir == NO_DATA) return VEHICLE_DIRECT_STOP;
 
@@ -293,14 +293,14 @@ static void map_trans(const MapData* trans_map)
 
     }
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode))
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     )
     {
 
     }
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode_rotate(&vec_byte, trans_map->need_rotate_count))
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     )
     {

@@ -1,10 +1,7 @@
 #pragma once
 
-#include "connectivity/vehicle.h"
 #include "main/config.h"
 #include "main/vehicle.h"
-
-
 
 #define INF 99999
 #define MAX_NODE 10
@@ -27,7 +24,7 @@ typedef struct{
 typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
-    VehicleDirect vehicle_direction;
+    VehicleMotion vehicle_direction;
     MapDirF       need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
