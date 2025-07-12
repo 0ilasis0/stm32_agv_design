@@ -2,8 +2,6 @@
 #include "vehicle/basic.h"
 #include "adc/main.h"
 
-
-
 static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
 {
     if (!runtime_switch.search_magnetic_path) return FNS_INVALID;

@@ -1,7 +1,8 @@
-#include "vehicle/navigation.h"
-#include "motor/main.h"
 #include "main/main.h"
 #include "main/config.h"
+#include "vehicle/navigation.h"
+#include "vehicle/main.h"
+#include "motor/main.h"
 #include "adc/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
@@ -79,6 +80,7 @@ void StartDefaultTask(void *argument)
 
     for(;;)
     {
+        vehicle_main();
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;
     }

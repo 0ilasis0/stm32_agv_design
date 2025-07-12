@@ -63,6 +63,15 @@ static void direct_update(void)
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
 
+void StartVehicleTask(void *argument)
+{
+    for(;;)
+    {
+        direct_update();
+        osDelay(50);
+    }
+}
+
 uint32_t time_diff;
 void vehicle_test_no_load_rps(uint32_t ms)
 {
@@ -114,16 +123,6 @@ void vehicle_test_no_load_rps(uint32_t ms)
 
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
-}
-
-void StartVehicleTask(void *argument)
-{
-    for(;;)
-    {
-        direct_update();
-        vehicle_main();
-        osDelay(50);
-    }
 }
 
 static bool text_end = 0;

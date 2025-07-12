@@ -6,8 +6,6 @@
 #include "adc/main.h"
 #include "main/config.h"
 
-
-
 /**
  * @brief 循跡模式
  */
