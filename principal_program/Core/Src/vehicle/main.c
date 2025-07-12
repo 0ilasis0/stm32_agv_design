@@ -5,7 +5,7 @@
 #include "adc/main.h"
 #include "main/fn_state.h"
 
-static void direct_update_inner(VehicleMotion direction)
+static void motion_update_inner(VehicleMotion direction)
 {
     vehicle_parameter.motion_inner = direction;
     switch(direction)
@@ -44,7 +44,7 @@ static void direct_update_inner(VehicleMotion direction)
     }
 }
 
-static void direct_update(void)
+static void motion_update(void)
 {
     if (vehicle_parameter.motion_inner == vehicle_parameter.motion) return;
     else if (vehicle_parameter.motion == VEHICLE_DIRECT_UNKNOWN)
@@ -58,7 +58,7 @@ static void direct_update(void)
            (motor_left.rps_present > MOTOR_STOP_GATE)
         || (motor_right.rps_present > MOTOR_STOP_GATE)
     ) return;
-    direct_update_inner(vehicle_parameter.motion);
+    motion_update_inner(vehicle_parameter.motion);
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
@@ -67,7 +67,7 @@ void StartVehicleTask(void *argument)
 {
     for(;;)
     {
-        direct_update();
+        motion_update();
         osDelay(50);
     }
 }
@@ -80,7 +80,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     motor_set_state(&motor_left, MOTOR_STATE_FREE);
     motor_set_state(&motor_right, MOTOR_STATE_FREE);
 
-    direct_update_inner(VEHICLE_DIRECT_FORWARD);
+    motion_update_inner(VEHICLE_DIRECT_FORWARD);
     uint32_t loop_start = HAL_GetTick();
     time_diff = loop_start;
     motor_set_rps_pcn(&motor_left, 100);
@@ -108,7 +108,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     vehicle_ensure_stop_inner();
     osDelay(1000);
     // Todo FIX
-    direct_update_inner(VEHICLE_DIRECT_BACKWARD);
+    motion_update_inner(VEHICLE_DIRECT_BACKWARD);
     loop_start = HAL_GetTick();
     motor_set_rps_pcn(&motor_left,  100);
     motor_set_rps_pcn(&motor_right, 100);
