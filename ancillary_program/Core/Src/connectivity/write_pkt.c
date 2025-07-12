@@ -140,11 +140,11 @@ FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode, uint8_t value)
     return FNS_FAIL;
 }
 
-FnState pkt_vehi_set_direct(VecByte* vec_byte, VehicleMotion direction)
+FnState pkt_vehi_set_motion(VecByte* vec_byte, VehicleMotion motion)
 {
     vec_rm_all(vec_byte);
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_DIRECT}, 2));
-    switch (direction)
+    switch (motion)
     {
         case VEHICLE_DIRECT_STOP:
         {
@@ -182,5 +182,4 @@ FnState pkt_vehi_set_speed(VecByte* vec_byte, Percentage value)
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
     return FNS_OK;
 }
-
 #endif

@@ -43,10 +43,10 @@ typedef struct MotorParameter
     float rps_max;
     float rps_present;
     Percentage pwm_duty;
-    // direction setpoint
-    MotorMotion direction;
-    MotorMotion direction_inner;
-    MotorMotion direction_present;
+    // motion setpoint
+    MotorMotion motion;
+    MotorMotion motion_inner;
+    MotorMotion motion_present;
     uint8_t hall_last;
     uint8_t hall_present;
     uint32_t step_count;
@@ -59,5 +59,5 @@ extern MotorParameter motor_left;
 void motor_set_max_rps(MotorParameter* motor, float value);
 void motor_set_state(MotorParameter *motor, MotorMode state);
 void motor_set_rps_pcn(MotorParameter* motor, Percentage value);
-void motor_set_direct(MotorParameter *motor, MotorMotion direction);
+void motor_set_direct(MotorParameter *motor, MotorMotion motion);
 void motor_HALL_EXTI(MotorParameter *motor);

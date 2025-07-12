@@ -75,6 +75,6 @@ void vehicle_rotate_in_place(void)
 
     vehicle_ensure_stop();
     vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+    vehicle_set_motion(VEHICLE_DIRECT_FORWARD);
     vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 }

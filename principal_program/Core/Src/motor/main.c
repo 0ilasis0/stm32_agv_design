@@ -62,9 +62,9 @@ void motor_set_rps_pcn(MotorParameter* motor, Percentage value)
     motor->rps_pcn = value;
 }
 
-void motor_set_direct(MotorParameter *motor, MotorMotion direction)
+void motor_set_direct(MotorParameter *motor, MotorMotion motion)
 {
-    motor->direction = direction;
+    motor->motion = motion;
 }
 
 void motor_set_state(MotorParameter *motor, MotorMode state)
@@ -112,7 +112,7 @@ static void motor_step_update(MotorParameter *motor)
     if (hall_state == 0 || hall_state == 7) return;
 
     uint8_t step_next;
-    switch (motor->direction_inner)
+    switch (motor->motion_inner)
     {
         case MOTOR_DIRECTION_CLW:
         {
@@ -161,17 +161,17 @@ static void datas_update(MotorParameter *motor, float ms)
     {
         case 5:
         {
-            motor->direction_present = MOTOR_DIRECTION_CLW;
+            motor->motion_present = MOTOR_DIRECTION_CLW;
             break;
         }
         case 0:
         {
-            motor->direction_present = MOTOR_DIRECTION_STOP;
+            motor->motion_present = MOTOR_DIRECTION_STOP;
             break;
         }
         case 1:
         {
-            motor->direction_present = MOTOR_DIRECTION_CCLW;
+            motor->motion_present = MOTOR_DIRECTION_CCLW;
             break;
         }
         default: return;
@@ -188,11 +188,11 @@ static void state_update(MotorParameter *motor)
 
     if (
            (motor->state != MOTOR_STATE_LOCK)
-        && (motor->direction_inner != motor->direction)
+        && (motor->motion_inner != motor->motion)
     ) {
         motor->state_inner = MOTOR_STATE_SLOW;
         if (motor->rps_present > MOTOR_STOP_GATE) return;
-        motor->direction_inner = motor->direction;
+        motor->motion_inner = motor->motion;
     }
     motor->state_inner = motor->state;
 }
@@ -227,14 +227,14 @@ static void rps_control(MotorParameter *motor, float ms)
         {
             motor->pwm_duty = 20;
             motor->rps_pcn_inner = 0;
-            motor->direction_inner = MOTOR_DIRECTION_STOP;
+            motor->motion_inner = MOTOR_DIRECTION_STOP;
             motor->integral_record = 0;
             return;
         }
         default: break;
     }
     if (
-           (motor->direction_inner == MOTOR_DIRECTION_STOP)
+           (motor->motion_inner == MOTOR_DIRECTION_STOP)
         || (   (motor->rps_present < MOTOR_STOP_GATE)
             && (motor->rps_pcn_inner == 0))
     ) {

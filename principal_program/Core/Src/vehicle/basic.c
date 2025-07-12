@@ -24,7 +24,7 @@ void vehicle_ensure_stop_inner(void)
   */
 // void agv_forward_leave_strong_magnet (void)
 // {
-//     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+//     vehicle_set_motion(VEHICLE_DIRECT_FORWARD);
 //     vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 
 //     uint32_t error_start = HAL_GetTick();
@@ -61,9 +61,9 @@ void vehicle_set_mode(VehicleMode mode)
     vehicle_parameter.mode = mode;
 }
 
-void vehicle_set_direct(VehicleMotion direction)
+void vehicle_set_motion(VehicleMotion motion)
 {
-    vehicle_parameter.direction = direction;
+    vehicle_parameter.motion = motion;
 }
 
 void vehicle_set_speed(Percentage value)

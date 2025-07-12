@@ -35,8 +35,8 @@ typedef struct VehicleParameter
 {
     Percentage speed;
     VehicleMode mode;
-    VehicleMotion direction;
-    VehicleMotion direction_inner;
+    VehicleMotion motion;
+    VehicleMotion motion_inner;
     uint32_t last_tick_on_mag;
     MapDirF need_rotate_count;
 } VehicleParameter;
@@ -47,6 +47,6 @@ void vehicle_ensure_stop_inner(void);
 void agv_forward_leave_strong_magnet (void);
 void vehicle_ensure_stop(void);
 void vehicle_set_mode(VehicleMode mode);
-void vehicle_set_direct(VehicleMotion direction);
+void vehicle_set_motion(VehicleMotion motion);
 void vehicle_set_speed(Percentage value);
 void vehicle_set_need_rotate(MapDirF value);
