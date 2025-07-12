@@ -81,7 +81,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_DIRECT:
+                        case CMD_MOTOR_B2_MOTION:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
@@ -155,7 +155,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_DIRECT:
+                        case CMD_MOTOR_B2_MOTION:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
@@ -246,7 +246,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_VEHI_B1_DIRECT:
+                case CMD_VEHI_B1_MOTION:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)

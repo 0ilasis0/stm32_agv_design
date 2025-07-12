@@ -32,7 +32,7 @@
 #define CMD_MOTOR_B1_RIGHT          (uint8_t)0x50   // 右
 
 #define CMD_MOTOR_B2_MODE           (uint8_t)0x00   // 模式
-#define CMD_MOTOR_B2_DIRECT         (uint8_t)0x01   // 方向
+#define CMD_MOTOR_B2_MOTION         (uint8_t)0x01   // 方向
 #define CMD_MOTOR_B2_SPEED          (uint8_t)0x02   // 速度
 
 #define CMD_MOTOR_B3_CONTROL        (uint8_t)0x00   // rps控制模式  /停止
@@ -45,7 +45,7 @@
 #define CMD_VEHI_B0_CONTROL         (uint8_t)0x21   // 車輛控制
 
 #define CMD_VEHI_B1_MODE            (uint8_t)0x00   // 模式
-#define CMD_VEHI_B1_DIRECT          (uint8_t)0x10   // 方向
+#define CMD_VEHI_B1_MOTION          (uint8_t)0x10   // 方向
 #define CMD_VEHI_B1_SPEED           (uint8_t)0x20   // 速度
 
 #define CMD_VEHI_B2_FREE            (uint8_t)0x00   // 自由模式/車輛停止
