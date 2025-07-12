@@ -27,7 +27,7 @@ typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
     VehicleDirect vehicle_direction;
-    MapDirF       real_rotate_count;
+    MapDirF       need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
 } MapData;

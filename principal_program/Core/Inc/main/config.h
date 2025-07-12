@@ -12,6 +12,7 @@
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
 #include "FreeRTOS.h"
+#include "tim.h"
 #include "task.h"
 #include "cmsis_os.h"
 
@@ -50,9 +51,9 @@
 #define US_SENSOR_TIM_ACT_CH    HAL_TIM_ACTIVE_CHANNEL_1
 
 #define VEHICLE_SETPOINT_TRACK     40   // 循跡速度目標
-#define VEHICLE_SETPOINT_ROTATE    30   // 原地旋轉速度目標
-#define VEHICLE_SETPOINT_FALL_BACK 20   // 倒退速度目標
-#define VEHICLE_SETPOINT_STOP      0    // 倒退速度目標
+// #define VEHICLE_SETPOINT_ROTATE    30   // 原地旋轉速度目標
+// #define VEHICLE_SETPOINT_FALL_BACK 20   // 倒退速度目標
+// #define VEHICLE_SETPOINT_STOP      0    // 倒退速度目標
 
 #define VEC_BYTE_MAX_CAP        256
 #define TRCV_BUF_MAX_CAP        10

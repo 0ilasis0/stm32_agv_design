@@ -1,52 +1,12 @@
 #include "tim.h"
 #include "vehicle/basic.h"
 #include "vehicle/navigation.h"
-#include "vehicle/rotate.h"
 #include "vehicle/search.h"
 #include "main/fn_state.h"
 #include "adc/main.h"
 #include "main/config.h"
 
-MapData agv_state;
-uint8_t current_count = 0;
 
-/**
-  * @brief AGV 倒退直到離開強力磁鐵感應
-  */
-static void vehicle_over_hall_fall_back(void)
-{
-    vehicle_set_direct(VEHICLE_DIRECT_BACKWARD);
-    vehicle_set_speed(VEHICLE_SETPOINT_FALL_BACK);
-
-    uint32_t error_start = HAL_GetTick();
-    while(adchall_node.value >= adchall_node.const_h.magnetic_value) {
-        timeout_error(error_start, &error_state.vehicle_over_hall_fall_back);
-    }
-
-    vehicle_ensure_stop();
-}
-
-/* 保護未完成動作卻已超出hall範圍 -------------------------------------*/
-static void protect_over_hall(void)
-{
-    if (!runtime_switch.debug_protect_over_hall) return;
-
-    vehicle_ensure_stop();
-
-    if (adchall_node.value < adchall_node.const_h.magnetic_value) return;
-
-    //防止 原地旋轉前 衝過hall_sensor速度仍未停止，後退並強制進入原地旋轉
-    if (map_data_all.map_data[current_count].mode == VEHICLE_MODE_ROTATE)
-    {
-        vehicle_over_hall_fall_back();
-    }
-
-    //防止 結束後 衝過hall_sensor 速度仍未停止，進行後退
-    if (map_data_all.map_data[current_count].mode == VEHICLE_MODE_END)
-    {
-        vehicle_over_hall_fall_back();
-    }
-}
 
 /**
  * @brief 循跡模式
@@ -85,51 +45,36 @@ void vehicle_track_mode()
     }
 }
 
-static void get_mission_from_another_stm32 (void)
+/**
+  * @brief AGV 原地旋轉直到對準方向，根據強磁計數更新 AGV 方向資料
+  */
+void vehicle_rotate_in_place(void)
 {
-    map_data_all.current_count ++;
-    current_count = map_data_all.current_count;
-    agv_state = map_data_all.map_data[current_count];
-}
+    //邊緣觸發判斷+時間預防
+    bool triggered = false;
+    uint32_t time_out = HAL_GetTick();
+    uint32_t triggered_time;
 
-bool navigation_triggered = true;
-uint32_t time_stop;
-void vehicle_navigation(void)
-{
-    // 更新資料後需要設定的
-    // vehicle_ensure_stop();
-    // get_mission_from_another_stm32();
-    // current_count++;
-    // vehicle_set_mode(agv_state.mode);
-    // vehicle_set_direct(agv_state.vehicle_direction);
-    // vehicle_set_speed(agv_state.speed_setpoint);
+    while (vehicle_parameter.need_rotate_count != 0){
+        if (adchall_direction.value <= adchall_direction.const_h.magnetic_value  && !triggered)
+        {
+            vehicle_parameter.need_rotate_count --;
+            triggered_time = HAL_GetTick();
+            triggered = true;
+        }
+        if (
+            adchall_direction.value > adchall_direction.const_h.magnetic_value
+            && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
+            )
+        {
+            triggered = false;
+        }
 
-    if (
-           adchall_node.value < adchall_node.const_h.magnetic_value
-        && navigation_triggered == false
-        )
-    {
-        vehicle_ensure_stop();
-        get_mission_from_another_stm32();
-        vehicle_set_mode(agv_state.mode);
-        vehicle_set_direct(agv_state.vehicle_direction);
-        vehicle_set_speed(agv_state.speed_setpoint);
-
-        time_stop = HAL_GetTick();
-        navigation_triggered = true;
-    }
-    else if (
-           adchall_node.value > adchall_node.const_h.magnetic_value
-        && navigation_triggered == true
-        && HAL_GetTick() - time_stop > MAGNATIC_STRIPE_TIME_DIF
-        )
-    {
-        navigation_triggered = false;
+        timeout_error(time_out, &error_state.vehicle_rotate_in_place);
     }
 
-    if (vehicle_parameter.mode == VEHICLE_MODE_TRACK)
-    {
-        vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
-        vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
-    }
+    vehicle_ensure_stop();
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
+    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+    vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 }

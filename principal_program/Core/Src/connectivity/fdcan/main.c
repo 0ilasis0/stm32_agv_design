@@ -73,6 +73,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                     vehicle_set_mode(VEHICLE_MODE_SEARCH);
                                     return FNS_OK;
                                 }
+                                // Todo rotate
                                 default: break;
                             }
                             break;

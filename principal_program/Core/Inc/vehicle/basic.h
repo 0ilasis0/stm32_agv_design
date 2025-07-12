@@ -27,6 +27,7 @@ typedef enum
     VEHICLE_MODE_IDLE,
 } VehicleMode;
 
+typedef int8_t    MapDirF;
 typedef struct VehicleParameter
 {
     Percentage speed;
@@ -34,6 +35,7 @@ typedef struct VehicleParameter
     VehicleDirect direction;
     VehicleDirect direction_inner;
     uint32_t last_tick_on_mag;
+    MapDirF need_rotate_count;
 } VehicleParameter;
 
 extern VehicleParameter vehicle_parameter;

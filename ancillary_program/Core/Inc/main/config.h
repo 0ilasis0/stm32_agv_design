@@ -43,6 +43,7 @@
 #define FDCAN_TRCV_BUF_CAP      10
 #define FDCAN_TEST_ID           0x002
 #define FDCAN_ARM_DATA_ID       0x013
+#define FDCAN_VEHI_ID           0x022
 
 #define UART_BAUDRATE           115200
 #define UART_VEC_BYTE_CAP       128

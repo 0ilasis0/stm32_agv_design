@@ -82,12 +82,7 @@ void Error_Handler(void);
 typedef struct FnState_h
 {
     FnState vehicle_rotate_in_place;
-    FnState vehicle_test_no_load_rps;
-    FnState vehicle_over_hall_fall_back;
     FnState agv_forward_leave_strong_magnet;
-    // FnState vehicle_search_magnetic_path;
-    FnState rotate_in_place__map_data_current_count;
-    // FnState breakdown_all_hall_lost__path_not_found;
 } FnState_h;
 extern FnState_h error_state;
 void timeout_error(uint32_t start_time, FnState *error_parameter);

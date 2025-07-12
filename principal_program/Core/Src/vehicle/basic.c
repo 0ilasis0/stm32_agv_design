@@ -22,18 +22,18 @@ void vehicle_ensure_stop_inner(void)
 /**
   * @brief AGV 強迫前進不進行循跡直到離開強力磁鐵
   */
-void agv_forward_leave_strong_magnet (void)
-{
-    vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
-    vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
+// void agv_forward_leave_strong_magnet (void)
+// {
+//     vehicle_set_direct(VEHICLE_DIRECT_FORWARD);
+//     vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 
-    uint32_t error_start = HAL_GetTick();
-    // 確保轉彎後能夠脫離強力磁鐵進入循跡
-    while(adchall_node.value <= adchall_node.const_h.magnetic_value )
-    {
-        timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
-    }
-}
+//     uint32_t error_start = HAL_GetTick();
+//     // 確保轉彎後能夠脫離強力磁鐵進入循跡
+//     while(adchall_node.value <= adchall_node.const_h.magnetic_value )
+//     {
+//         timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
+//     }
+// }
 
 /**
   * @brief 等待車輛完全停止
