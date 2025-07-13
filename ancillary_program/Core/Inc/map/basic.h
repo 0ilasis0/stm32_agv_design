@@ -19,25 +19,25 @@ typedef struct{
 } MapError;
 
 typedef struct {
-    MapIdF id;
+    MapIdF  id;
     MapDisF distance;
 } Connection;
 
 typedef struct{
-    MapIdF local_id;
+    MapIdF     local_id;
     Connection connect[8];
 } Location;
 
 typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
-    VehicleMotion vehicle_direction;
-    MapCountF  need_rotate_count;
+    VehicleMotion vehicle_motion;
+    MapCountF     need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
 } MapData;
 
 typedef struct{
     MapCountF  current_count;
-    MapData map_data[MAX_NODE];
+    MapData    map_data[MAX_NODE];
 } MapDataAll;

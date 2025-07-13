@@ -14,7 +14,7 @@ static MapData map_data_init = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
-    .vehicle_direction  = VEHICLE_DIRECT_STOP,
+    .vehicle_motion  = VEHICLE_DIRECT_STOP,
     .mode               = VEHICLE_MODE_FREE,
     .speed_setpoint     = 0,
 };
@@ -23,7 +23,7 @@ static MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
-    .vehicle_direction  = VEHICLE_DIRECT_STOP,
+    .vehicle_motion  = VEHICLE_DIRECT_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
     .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
 };
@@ -53,7 +53,7 @@ static void map_trans (const MapData* trans_map)
     }
 
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
         map_error.map_data_trans_error[1] = FNS_FAIL;
@@ -151,7 +151,7 @@ static MapDataAll init_map_data (void)
         map_new.map_data[i] = map_data_init;
     }
 
-    map_new.map_data[0].vehicle_direction = VEHICLE_DIRECT_FORWARD;
+    map_new.map_data[0].vehicle_motion = VEHICLE_DIRECT_FORWARD;
 
     return map_new;
 }
@@ -160,15 +160,13 @@ static void map_set (void)
  {
     init_map();
 
-    map_data_all = init_map_data();
-
     floyd_warshall();
 }
 
 /*
  * 決定agv當前狀態
  */
-static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
+static VehicleMode decide_map_mode_and_speed(uint8_t count)
  {
     if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
     {
@@ -201,7 +199,7 @@ static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-static VehicleMotion decide_vehicle_direction(MapDirF start_dir, MapDirF end_dir)
+static VehicleMotion decide_map_vehicle_motion(MapDirF start_dir, MapDirF end_dir)
 {
     MapDirF diff = (end_dir - start_dir + 8) % 8;
 
@@ -271,7 +269,7 @@ static MapCountF decide_need_rotate_count(
     return count;
 }
 
-static void build_current_map_data(int from, int to)
+static void decide_map_id_and_direction(int from, int to)
  {
     uint8_t count = 0;
 
@@ -317,13 +315,13 @@ static void map_adjust_start (void)
 {
     if (map_data_start.address_id == NO_DATA) return;
 
-    map_data_start.vehicle_direction = decide_vehicle_direction(
+    map_data_start.vehicle_motion = decide_map_vehicle_motion(
         map_data_start.direction,
         map_data_all.map_data[0].direction
         );
 
     map_data_start.need_rotate_count = decide_need_rotate_count(
-        map_data_start.vehicle_direction,
+        map_data_start.vehicle_motion,
         map_data_all.map_data[0].address_id,
         map_data_start.direction,
         map_data_all.map_data[0].direction
@@ -346,24 +344,26 @@ static void map_data_renew_direction_and_address (
 
 static void map_bulid(MapIdF from, MapIdF to)
 {
+    map_data_all = init_map_data();
+
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
 
-    build_current_map_data(from, to);
+    decide_map_id_and_direction(from, to);
 
     for (uint8_t i = 0; i <= final_node_count; i++)
     {
-        map_data_all.map_data[i].mode = decide_vehicle_mode_and_speed(i);
+        map_data_all.map_data[i].mode = decide_map_mode_and_speed(i);
 
         if(i >= final_node_count - 1) continue;
 
-        map_data_all.map_data[i + 1].vehicle_direction = decide_vehicle_direction(
+        map_data_all.map_data[i + 1].vehicle_motion = decide_map_vehicle_motion(
             map_data_all.map_data[i].direction,
             map_data_all.map_data[i + 1].direction
         );
 
         map_data_all.map_data[i + 1].need_rotate_count = decide_need_rotate_count(
-            map_data_all.map_data[i + 1].vehicle_direction,
+            map_data_all.map_data[i + 1].vehicle_motion,
             map_data_all.map_data[i + 1].address_id,
             map_data_all.map_data[i].direction,
             map_data_all.map_data[i + 1].direction
@@ -383,7 +383,6 @@ void map_windows (MapIdF from, MapIdF to)
 }
 
 int text_rfid_id = 0;
-int tick_text = 0;
 bool read_rfid_flag = 1;
 void StartTask05(void *argument)
 {
@@ -399,29 +398,33 @@ void StartTask05(void *argument)
 
     for(;;)
     {
-        // text
-        tick_text++;
-        // text
-
         if(map_window_open && read_rfid_flag)
         {
             // 讀到RFID執行給資料到另一個stm32
-            if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_text % 500 == 0)
+            if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
 
                 if (agv_state.mode == VEHICLE_MODE_END)
                 {
-                    map_data_renew_direction_and_address(&map_data_start, agv_state.address_id, agv_state.direction);
+                    map_data_renew_direction_and_address(
+                        &map_data_start,
+                        map_data_all.map_data[final_node_count].address_id,
+                        map_data_all.map_data[final_node_count - 1].direction
+                        );
                     map_window_open = false;
                 }
 
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id || tick_text % 1200 == 0)
+            else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
             {
+                // 先傳送停止動作，等地圖計算完畢
+                agv_state = map_data_init;
+                map_trans(&agv_state);
+
                 MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
                 MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
 
