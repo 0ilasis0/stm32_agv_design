@@ -9,8 +9,14 @@
 
 typedef uint16_t   MapIdF;
 typedef uint8_t    MapDirF;
-typedef uint8_t    MapDirCountF;
+typedef uint8_t    MapCountF;
 typedef uint16_t   MapDisF;
+typedef bool       MapErrorF;
+
+typedef struct{
+    MapErrorF lose_navigation;
+    MapErrorF map_data_trans_error;
+} MapError;
 
 typedef struct {
     MapIdF id;
@@ -26,15 +32,16 @@ typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
     VehicleMotion vehicle_direction;
-    MapDirCountF  need_rotate_count;
+    MapCountF  need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
 } MapData;
 
 typedef struct{
-    int8_t  current_count;
+    MapCountF  current_count;
     MapData map_data[MAX_NODE];
 } MapDataAll;
+
 
 
 extern Location locations_t[MAX_NODE];

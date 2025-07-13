@@ -26,6 +26,11 @@ MapData map_data_start = {
     .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
 };
 
+MapError map_error = {
+    .lose_navigation = false,
+    .map_data_trans_error = false,
+};
+
 Location locations_t[MAX_NODE] = {
     {5,     { {0,0},     {0,0},      {78,20},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
     {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {0,0},      {0,0}       } },
@@ -43,6 +48,11 @@ static MapIdF get_index_by_id(MapIdF id)
         if (locations_t[i].local_id == id) return i;
     }
     return -1;
+}
+
+static MapDirF opposite_direction(MapDirF dir)
+{
+    return (dir + 4) % 8;
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
@@ -165,7 +175,7 @@ static VehicleMotion decide_vehicle_direction(MapDirF start_dir, MapDirF end_dir
 /**
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
-static MapDirCountF decide_need_rotate_count(
+static MapCountF decide_need_rotate_count(
     MapDirF rotate_direction_mode,
     MapIdF current_id_input,
     MapDirF from_dir,
@@ -293,35 +303,43 @@ static void map_trans(const MapData* trans_map)
     VecByte vec_byte;
     if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
-
+        map_error.map_data_trans_error = true;
     }
 
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-
+        map_error.map_data_trans_error = true;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-
+        map_error.map_data_trans_error = true;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-
+        map_error.map_data_trans_error = true;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-
+        map_error.map_data_trans_error = true;
     }
 
     vec_byte_free(&vec_byte);
+}
+
+static void delete_locations_t_data(MapIdF id, MapDirF dir)
+{
+    id = get_index_by_id(id);
+
+    locations_t[id].connect[dir].distance = 0;
+    locations_t[id].connect[dir].id       = 0;
 }
 
 void map_bulid(MapIdF from, MapIdF to)
@@ -355,6 +373,7 @@ void map_bulid(MapIdF from, MapIdF to)
     agv_state = map_data_all.map_data[0];
 }
 
+int text_rfid_id = 0;
 void StartTask05(void *argument)
 {
     map_setup();
@@ -368,7 +387,8 @@ void StartTask05(void *argument)
 
     for(;;)
     {
-        if (false) // 讀到RFID執行給資料到另一個stm32
+        // 讀到RFID執行給資料到另一個stm32
+        if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
         {
             map_data_all.current_count ++;
             agv_state = map_data_all.map_data[map_data_all.current_count];
@@ -379,6 +399,36 @@ void StartTask05(void *argument)
             }
 
             map_trans(&agv_state);
+        }
+        // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
+        else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
+        {
+            delete_locations_t_data(
+                map_data_all.map_data[map_data_all.current_count].address_id,
+                map_data_all.map_data[map_data_all.current_count].direction
+                );
+            delete_locations_t_data(
+                map_data_all.map_data[map_data_all.current_count + 1].address_id,
+                opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
+                );
+
+            map_setup();
+            map_data_renew_direction_and_address(
+                &map_data_start,
+                map_data_all.map_data[map_data_all.current_count].address_id,
+                map_data_all.map_data[map_data_all.current_count].direction
+                );
+            map_bulid(
+                map_data_all.map_data[map_data_all.current_count].address_id,
+                map_data_all.map_data[final_node_count].address_id
+                );
+            map_trans(&agv_state);
+        }
+        else
+        {
+            agv_state = map_data_init;
+            map_trans(&agv_state);
+            map_error.lose_navigation = true;
         }
 
         osDelay(10);
