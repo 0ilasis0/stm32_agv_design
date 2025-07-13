@@ -24,7 +24,7 @@ void vehicle_ensure_stop_inner(void)
   */
 // void agv_forward_leave_strong_magnet (void)
 // {
-//     vehicle_set_motion(VEHICLE_DIRECT_FORWARD);
+//     vehicle_set_motion(VEHICLE_MOTION_FORWARD);
 //     vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 
 //     uint32_t error_start = HAL_GetTick();
