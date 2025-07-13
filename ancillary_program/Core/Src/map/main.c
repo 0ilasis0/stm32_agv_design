@@ -4,7 +4,7 @@
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 
-static bool    map_window_open  = true; //應該false目前text所以true;
+static bool    map_enable  = true; //應該false目前text所以true;
 static uint8_t final_node_count = 0;
 
 static MapDataAll map_data_all;
@@ -29,8 +29,9 @@ static MapData map_data_start = {
 };
 
 static MapError map_error = {
-    .lose_navigation = FNS_OK,
-    .map_data_trans_error = {FNS_OK},
+    .lose_navigation        = FNS_OK,
+    .no_path                = FNS_OK,
+    .map_data_trans_error   = {FNS_OK},
 };
 
 static Location locations_t[MAX_NODE];
@@ -49,32 +50,32 @@ static void map_trans (const MapData* trans_map)
     VecByte vec_byte;
     if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
-        map_error.map_data_trans_error[0] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[0], FNS_FAIL);
     }
 
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error[1] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[1], FNS_FAIL);
     }
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error[2] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[2], FNS_FAIL);
     }
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error[3] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[3], FNS_FAIL);
     }
     if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error[4] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[4], FNS_FAIL);
     }
 
     vec_byte_free(&vec_byte);
@@ -349,6 +350,11 @@ static void map_bulid(MapIdF from, MapIdF to)
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
 
+    // 確認起點合法、圖上有路可走
+    if (from == -1 || to == -1 || graph[from][to] == INF) {
+        ERROR_STOP_MAP_RETURN(map_error.no_path, FNS_FAIL);
+    }
+
     decide_map_id_and_direction(from, to);
 
     for (uint8_t i = 0; i <= final_node_count; i++)
@@ -377,7 +383,7 @@ static void map_bulid(MapIdF from, MapIdF to)
 
 void map_windows (MapIdF from, MapIdF to)
 {
-    map_window_open = true;
+    map_enable = true;
     map_bulid(from, to);
     map_trans(&agv_state);
 }
@@ -398,7 +404,7 @@ void StartTask05(void *argument)
 
     for(;;)
     {
-        if(map_window_open && read_rfid_flag)
+        if(map_enable && read_rfid_flag)
         {
             // 讀到RFID執行給資料到另一個stm32
             if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
@@ -413,7 +419,7 @@ void StartTask05(void *argument)
                         map_data_all.map_data[final_node_count].address_id,
                         map_data_all.map_data[final_node_count - 1].direction
                         );
-                    map_window_open = false;
+                    map_enable = false;
                 }
 
                 map_trans(&agv_state);
@@ -449,9 +455,7 @@ void StartTask05(void *argument)
             // 只知道現在位置不知道方向，所以停止動作，目前測試所以槓掉
             // else
             // {
-            //     agv_state = map_data_init;
-            //     map_trans(&agv_state);
-            //     map_error.lose_navigation = FNS_FAIL;
+            //     ERROR_STOP_MAP_RETURN(map_error.lose_navigation, FNS_FAIL);
             // }
         }
 

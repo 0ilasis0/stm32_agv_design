@@ -8,6 +8,19 @@
 #define MAX_NODE 10
 #define NO_DATA 0xFF
 
+#define ERROR_STOP_MAP_RETURN(name, expr)   \
+    do {                                    \
+        FnState   _err = (expr);            \
+        if (_err != FNS_OK)                 \
+        {                                   \
+            name = _err;                    \
+            map_enable = false;             \
+            agv_state = map_data_init;      \
+            map_trans(&agv_state);          \
+            return;                         \
+        }                                   \
+    } while (0)
+
 typedef uint16_t   MapIdF;
 typedef uint8_t    MapDirF;
 typedef uint8_t    MapCountF;
@@ -15,6 +28,7 @@ typedef uint16_t   MapDisF;
 
 typedef struct{
     FnState lose_navigation;
+    FnState no_path;
     FnState map_data_trans_error[5];
 } MapError;
 
