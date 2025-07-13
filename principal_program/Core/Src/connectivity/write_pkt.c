@@ -178,6 +178,7 @@ FnState pkt_vehi_set_motion(VecByte* vec_byte, VehicleMotion motion)
 
 FnState pkt_vehi_set_speed(VecByte* vec_byte, Percentage value)
 {
+    vec_rm_all(vec_byte);
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_SPEED}, 2));
     ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, value));
     return FNS_OK;

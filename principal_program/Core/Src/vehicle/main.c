@@ -1,7 +1,6 @@
 #include "vehicle/main.h"
 #include "vehicle/navigation.h"
 #include "vehicle/search.h"
-#include "vehicle/basic.h"
 #include "adc/main.h"
 #include "main/fn_state.h"
 

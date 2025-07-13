@@ -7,27 +7,27 @@ static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0}; // adc儲存位置
 
 AdcHall adchall_track_left = {
     .const_h = {
-        // PB12(R16)
-        .id = 0,
-        .magnetic_value = 1880,
+        // PB11(R18)
+        .id = 2,
+        .magnetic_value = 2360, // 1910
     },
     .min = 4095,
 };
 
 AdcHall adchall_track_right = {
     .const_h = {
-        // PB11(R18)
-        .id = 2,
-        .magnetic_value = 1860,
+        // PB1(R24)
+        .id = 1,
+        .magnetic_value = 2350, // 1880
     },
     .min = 4095,
 };
 
 AdcHall adchall_direction = {
     .const_h = {
-        // PB1(R24)
-        .id = 1,
-        .magnetic_value = 1850,
+        // PB12(R16)
+        .id = 0,
+        .magnetic_value = 2250, // 1835
     },
     .min = 4095,
 };

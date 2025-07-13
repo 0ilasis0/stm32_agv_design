@@ -82,18 +82,6 @@ void StartRfidTask(void *argument)
     }
     for(;;)
     {
-        if (spi2_rfid.state != CARD_STATE_NONE)
-        {
-            uint8_t atqa[2];
-            uint8_t size = sizeof(atqa);
-            if (RC522_PICC_RequestA(&spi2_rfid.const_h, atqa, &size) != STATUS_Code_OK)
-            {
-                RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
-                spi2_rfid.state = CARD_STATE_NONE;
-            }
-            osDelay(10);
-            continue;
-        }
         if (
                !RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h)
             || !RC522_PICC_ReadCardSerial(&spi2_rfid.const_h)
@@ -104,15 +92,17 @@ void StartRfidTask(void *argument)
         spi2_rfid.state = CARD_STATE_TRIGGER;
         spi2_rfid.secter1k_open = 0;
         memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
+        
 
         buf_write(&spi2_rfid, &rfid_trsm_buf);
         rfid_recv_buf.sector = rfid_trsm_buf.sector;
         rfid_recv_buf.block = rfid_trsm_buf.block;
         buf_read(&spi2_rfid, &rfid_recv_buf);
 
+
+
         spi2_rfid.state = CARD_STATE_HALT;
         RC522_PICC_HaltA(&spi2_rfid.const_h);
         RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
     }
 }
-
