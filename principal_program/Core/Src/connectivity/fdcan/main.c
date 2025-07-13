@@ -43,35 +43,35 @@ FnState instant_recv_proc(VecByte* vec_byte)
     switch (code)
     {
         #ifdef PRINCIPAL_PROGRAM
-        case CMD_MOTOR_B0_CONTROL:
+        case CMD_WHEEL_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
-                case CMD_MOTOR_B1_LEFT:
+                case CMD_WHEEL_B1_LEFT:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
-                        case CMD_MOTOR_B2_MODE:
+                        case CMD_WHEEL_B2_MODE:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
-                                case CMD_MOTOR_B3_CONTROL:
+                                case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_CONTROL);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_FREE:
+                                case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_FREE);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_SLOW:
+                                case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_SLOW);
@@ -81,26 +81,26 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_MOTION:
+                        case CMD_WHEEL_B2_MOTION:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
-                                case CMD_MOTOR_B3_CONTROL:
+                                case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_FREE:
+                                case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_SLOW:
+                                case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
@@ -111,7 +111,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_SPEED:
+                        case CMD_WHEEL_B2_SPEED:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
@@ -122,30 +122,30 @@ FnState instant_recv_proc(VecByte* vec_byte)
                     }
                     break;
                 }
-                case CMD_MOTOR_B1_RIGHT:
+                case CMD_WHEEL_B1_RIGHT:
                 {
                     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
                     MotorParameter* motor = &motor_right;
                     switch (code)
                     {
-                        case CMD_MOTOR_B2_MODE:
+                        case CMD_WHEEL_B2_MODE:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
-                                case CMD_MOTOR_B3_CONTROL:
+                                case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_CONTROL);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_FREE:
+                                case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_FREE);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_SLOW:
+                                case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_SLOW);
@@ -155,26 +155,26 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_MOTION:
+                        case CMD_WHEEL_B2_MOTION:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
-                                case CMD_MOTOR_B3_CONTROL:
+                                case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_FREE:
+                                case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
-                                case CMD_MOTOR_B3_SLOW:
+                                case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
@@ -185,7 +185,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             }
                             break;
                         }
-                        case CMD_MOTOR_B2_SPEED:
+                        case CMD_WHEEL_B2_SPEED:
                         {
                             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);

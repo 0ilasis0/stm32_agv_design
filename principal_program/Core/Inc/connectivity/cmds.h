@@ -26,27 +26,27 @@
 //      CMD_DATA_B3_VALUE                           // 資料編號(can)    // 目標ID(車輛位置)
 
 //----------------------------------------------------------------------------------------------------
-#define CMD_MOTOR_B0_CONTROL        (uint8_t)0x20   // 馬達控制
+#define CMD_WHEEL_B0_CONTROL        (uint8_t)0x20   // 馬達控制
 
-#define CMD_MOTOR_B1_LEFT           (uint8_t)0x40   // 左
-#define CMD_MOTOR_B1_RIGHT          (uint8_t)0x50   // 右
+#define CMD_WHEEL_B1_LEFT           (uint8_t)0x01   // 左
+#define CMD_WHEEL_B1_RIGHT          (uint8_t)0x02   // 右
 
-#define CMD_MOTOR_B2_MODE           (uint8_t)0x00   // 模式
-#define CMD_MOTOR_B2_MOTION         (uint8_t)0x01   // 方向
-#define CMD_MOTOR_B2_SPEED          (uint8_t)0x02   // 速度
+#define CMD_WHEEL_B2_MODE           (uint8_t)0x00   // 模式
+#define CMD_WHEEL_B2_MOTION         (uint8_t)0x01   // 方向
+#define CMD_WHEEL_B2_SPEED          (uint8_t)0x02   // 速度
 
-#define CMD_MOTOR_B3_CONTROL        (uint8_t)0x00   // rps控制模式  /停止
-#define CMD_MOTOR_B3_FREE           (uint8_t)0x01   // duty自由模式 /正轉
-#define CMD_MOTOR_B3_SLOW           (uint8_t)0x02   // 減速模式     /反轉
-//      CMD_MOTOR_B3_VALUE                          // 速度0-100
-// #define CMD_MOTOR_B3_LOCK           (uint8_t)0x03   // 鎖定
+#define CMD_WHEEL_B3_CONTROL        (uint8_t)0x00   // rps控制模式  /停止
+#define CMD_WHEEL_B3_FREE           (uint8_t)0x01   // duty自由模式 /正轉
+#define CMD_WHEEL_B3_SLOW           (uint8_t)0x02   // 減速模式     /反轉
+//      CMD_WHEEL_B3_VALUE                          // 速度0-100
+// #define CMD_WHEEL_B3_LOCK           (uint8_t)0x03   // 鎖定
 
 //----------------------------------------------------------------------------------------------------
 #define CMD_VEHI_B0_CONTROL         (uint8_t)0x21   // 車輛控制
 
 #define CMD_VEHI_B1_MODE            (uint8_t)0x00   // 模式
-#define CMD_VEHI_B1_MOTION          (uint8_t)0x10   // 方向
-#define CMD_VEHI_B1_SPEED           (uint8_t)0x20   // 速度
+#define CMD_VEHI_B1_MOTION          (uint8_t)0x01   // 方向
+#define CMD_VEHI_B1_SPEED           (uint8_t)0x02   // 速度
 
 #define CMD_VEHI_B2_FREE            (uint8_t)0x00   // 自由模式/車輛停止
 #define CMD_VEHI_B2_END             (uint8_t)0x01   // 停止模式/車輛前進
@@ -64,16 +64,16 @@
 //----------------------------------------------------------------------------------------------------
 #define CMD_ARM_B0_CONTROL          (uint8_t)0x31   // 手臂控制
 
-#define CMD_ARM_B1_ARM              (uint8_t)0x00   // 手臂
-#define CMD_ARM_B1_BOTTOM           (uint8_t)0x40   // 馬達
-#define CMD_ARM_B1_SHOULDER         (uint8_t)0x50   // 馬達
-#define CMD_ARM_B1_ELBOW_BTM        (uint8_t)0x60   // 馬達
-#define CMD_ARM_B1_ELBOW_TOP        (uint8_t)0x70   // 馬達
-#define CMD_ARM_B1_WRIST            (uint8_t)0x80   // 馬達
-#define CMD_ARM_B1_FINGER           (uint8_t)0x90   // 馬達
+#define CMD_ARM_B1_BOTTOM           (uint8_t)0x00   // 馬達
+#define CMD_ARM_B1_SHOULDER         (uint8_t)0x01   // 馬達
+#define CMD_ARM_B1_ELBOW_BTM        (uint8_t)0x02   // 馬達
+#define CMD_ARM_B1_ELBOW_TOP        (uint8_t)0x03   // 馬達
+#define CMD_ARM_B1_WRIST            (uint8_t)0x04   // 馬達
+#define CMD_ARM_B1_FINGER           (uint8_t)0x05   // 馬達
+#define CMD_ARM_B1_ARM              (uint8_t)0x10   // 手臂
 
 #define CMD_ARM_B2_STOP             (uint8_t)0x00   // 停止
-#define CMD_ARM_B2_SET              (uint8_t)0x10   // 方位設定
+#define CMD_ARM_B2_SET              (uint8_t)0x01   // 方位設定
 
 //      CMD_ARM_B3_VALUE                            // 方位值0-100
 
@@ -81,7 +81,7 @@
 #define CMD_RFID_B0_CONTROL         (uint8_t)0x32   // RFID控制
 
 #define CMD_RFID_B1_SELECT          (uint8_t)0x00
-#define CMD_RFID_B1_INP_DATA        (uint8_t)0x10
+#define CMD_RFID_B1_INP_DATA        (uint8_t)0x01
 
 //      CMD_RFID_B2_SECTOR                          // 扇區選擇 0-15
 //      CMD_RFID_B2_NUMBER                          // DATA號碼 0-3
