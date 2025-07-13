@@ -27,8 +27,8 @@ MapData map_data_start = {
 };
 
 MapError map_error = {
-    .lose_navigation = false,
-    .map_data_trans_error = false,
+    .lose_navigation = FNS_OK,
+    .map_data_trans_error = {FNS_OK},
 };
 
 Location locations_t[MAX_NODE] = {
@@ -303,32 +303,32 @@ static void map_trans(const MapData* trans_map)
     VecByte vec_byte;
     if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
-        map_error.map_data_trans_error = true;
+        map_error.map_data_trans_error[0] = FNS_FAIL;
     }
 
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error = true;
+        map_error.map_data_trans_error[1] = FNS_FAIL;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error = true;
+        map_error.map_data_trans_error[2] = FNS_FAIL;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error = true;
+        map_error.map_data_trans_error[3] = FNS_FAIL;
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
-        map_error.map_data_trans_error = true;
+        map_error.map_data_trans_error[4] = FNS_FAIL;
     }
 
     vec_byte_free(&vec_byte);
@@ -342,7 +342,7 @@ static void delete_locations_t_data(MapIdF id, MapDirF dir)
     locations_t[id].connect[dir].id       = 0;
 }
 
-void map_bulid(MapIdF from, MapIdF to)
+static void map_bulid(MapIdF from, MapIdF to)
 {
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
@@ -380,9 +380,9 @@ void StartTask05(void *argument)
 
     // text
     map_data_renew_direction_and_address(&map_data_start, 78, 5);
+    map_bulid(78, 14);
     // text
 
-    map_bulid(78, 14);
     map_trans(&agv_state);
 
     for(;;)
@@ -424,11 +424,12 @@ void StartTask05(void *argument)
                 );
             map_trans(&agv_state);
         }
+        // 只知道現在位置不知道方向，所以停止動作
         else
         {
             agv_state = map_data_init;
             map_trans(&agv_state);
-            map_error.lose_navigation = true;
+            map_error.lose_navigation = FNS_FAIL;
         }
 
         osDelay(10);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "main/fn_state.h"
 #include "main/config.h"
 #include "main/vehicle.h"
 
@@ -11,11 +12,10 @@ typedef uint16_t   MapIdF;
 typedef uint8_t    MapDirF;
 typedef uint8_t    MapCountF;
 typedef uint16_t   MapDisF;
-typedef bool       MapErrorF;
 
 typedef struct{
-    MapErrorF lose_navigation;
-    MapErrorF map_data_trans_error;
+    FnState lose_navigation;
+    FnState map_data_trans_error[5];
 } MapError;
 
 typedef struct {
@@ -47,5 +47,3 @@ typedef struct{
 extern Location locations_t[MAX_NODE];
 extern MapDataAll map_data_all;
 extern MapData map_data_start;
-
-void map_bulid(MapIdF from, MapIdF to);
