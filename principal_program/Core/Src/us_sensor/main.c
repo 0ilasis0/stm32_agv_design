@@ -68,3 +68,8 @@ FnState us_sensor_stop(USSensor* us_sensor)
     us_sensor->distance = (float)us_sensor->time * 0.0343f / 2.0f;
     return FNS_OK;
 }
+
+void us_sensor_main(void)
+{
+
+}

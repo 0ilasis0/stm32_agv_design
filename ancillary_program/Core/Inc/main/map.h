@@ -5,11 +5,12 @@
 
 #define INF 99999
 #define MAX_NODE 10
-#define NO_DATA -1
+#define NO_DATA 0xFF
 
-typedef int16_t   MapIdF;
-typedef int8_t    MapDirF;
-typedef uint16_t  MapDisF;
+typedef uint16_t   MapIdF;
+typedef uint8_t    MapDirF;
+typedef uint8_t    MapDirCountF;
+typedef uint16_t   MapDisF;
 
 typedef struct {
     MapIdF id;
@@ -25,7 +26,7 @@ typedef struct {
     MapIdF        address_id;
     MapDirF       direction;
     VehicleMotion vehicle_direction;
-    MapDirF       need_rotate_count;
+    MapDirCountF  need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
 } MapData;

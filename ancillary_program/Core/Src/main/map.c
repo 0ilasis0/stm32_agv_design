@@ -8,6 +8,15 @@ static uint8_t final_node_count = 0;
 MapDataAll map_data_all;
 MapData agv_state;
 
+MapData map_data_init = {
+    .address_id         = NO_DATA,
+    .direction          = NO_DATA,
+    .need_rotate_count  = NO_DATA,
+    .vehicle_direction  = VEHICLE_DIRECT_STOP,
+    .mode               = VEHICLE_MODE_FREE,
+    .speed_setpoint     = 0,
+};
+
 MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
@@ -75,8 +84,10 @@ static MapDataAll init_map_data (void)
 
     map_new.current_count = 0;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
-        map_new.map_data[i] = map_data_start;
+        map_new.map_data[i] = map_data_init;
     }
+
+    map_new.map_data[0].vehicle_direction = VEHICLE_DIRECT_FORWARD;
 
     return map_new;
 }
@@ -132,10 +143,8 @@ static VehicleMode decide_vehicle_mode_and_speed(uint8_t count)
 /**
   * @brief 判斷旋轉方向（順時針／逆時針）
   */
-static VehicleMotion get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
+static VehicleMotion decide_vehicle_direction(MapDirF start_dir, MapDirF end_dir)
 {
-    if (end_dir == NO_DATA) return VEHICLE_DIRECT_STOP;
-
     MapDirF diff = (end_dir - start_dir + 8) % 8;
 
     if (diff == 0)
@@ -156,13 +165,15 @@ static VehicleMotion get_rotate_direction(MapDirF start_dir, MapDirF end_dir)
 /**
   * @brief 根據旋轉方向，計算在旋轉過程中會通過幾條磁條
   */
-static int8_t decide_pass_magnetic_stripe_calculate(
+static MapDirCountF decide_need_rotate_count(
     MapDirF rotate_direction_mode,
-    uint16_t current_id_input,
-    uint8_t from_dir,
-    uint8_t to_dir
+    MapIdF current_id_input,
+    MapDirF from_dir,
+    MapDirF to_dir
 )
 {
+    if (current_id_input == map_data_all.map_data[final_node_count].address_id) return 0;
+
     uint8_t count = 0;
 
     // 取得目前節點（node）在 locations_t 中的索引值
@@ -211,10 +222,10 @@ static void build_current_map_data(int from, int to)
         int next_node = path[from][to];
         map_data_all.map_data[count].address_id = locations_t[from].local_id;
 
-        int direction_index = NO_DATA;
+        MapIdF direction_index = NO_DATA;
 
         // 找出當前節點連接到下一節點的方向
-        for (int i = 0; i < 8; i++) {
+        for (MapIdF i = 0; i < 8; i++) {
             if (locations_t[from].connect[i].id == locations_t[next_node].local_id) {
                 direction_index = i;
                 break;
@@ -240,12 +251,12 @@ static void map_adjust_start (void)
 {
     if (map_data_start.address_id == NO_DATA) return;
 
-    map_data_start.vehicle_direction = get_rotate_direction(
+    map_data_start.vehicle_direction = decide_vehicle_direction(
         map_data_start.direction,
         map_data_all.map_data[0].direction
         );
 
-    map_data_start.need_rotate_count = decide_pass_magnetic_stripe_calculate(
+    map_data_start.need_rotate_count = decide_need_rotate_count(
         map_data_start.vehicle_direction,
         map_data_all.map_data[0].address_id,
         map_data_start.direction,
@@ -273,8 +284,8 @@ static void map_data_renew_direction_and_address (
     MapDirF direction
     )
 {
-    map_new->direction = address_id;
-    map_new->address_id = direction;
+    map_new->direction = direction;
+    map_new->address_id = address_id;
 }
 
 static void map_trans(const MapData* trans_map)
@@ -288,29 +299,25 @@ static void map_trans(const MapData* trans_map)
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    )
-    {
+    ) {
 
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    )
-    {
+    ) {
 
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    )
-    {
+    ) {
 
     }
     if (
             ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    )
-    {
+    ) {
 
     }
 
@@ -328,20 +335,19 @@ void map_bulid(MapIdF from, MapIdF to)
     {
         map_data_all.map_data[i].mode = decide_vehicle_mode_and_speed(i);
 
-        if (i > 0)
-        {
-            map_data_all.map_data[i].vehicle_direction = get_rotate_direction(
-                map_data_all.map_data[i - 1].direction,
-                map_data_all.map_data[i].direction
-            );
+        if(i >= final_node_count - 1) continue;
 
-            map_data_all.map_data[i].need_rotate_count = decide_pass_magnetic_stripe_calculate(
-                map_data_all.map_data[i].vehicle_direction,
-                map_data_all.map_data[i].address_id,
-                map_data_all.map_data[i - 1].direction,
-                map_data_all.map_data[i].direction
-            );
-        }
+        map_data_all.map_data[i + 1].vehicle_direction = decide_vehicle_direction(
+            map_data_all.map_data[i].direction,
+            map_data_all.map_data[i + 1].direction
+        );
+
+        map_data_all.map_data[i + 1].need_rotate_count = decide_need_rotate_count(
+            map_data_all.map_data[i + 1].vehicle_direction,
+            map_data_all.map_data[i + 1].address_id,
+            map_data_all.map_data[i].direction,
+            map_data_all.map_data[i + 1].direction
+        );
     }
 
     map_adjust_start();
@@ -352,12 +358,12 @@ void map_bulid(MapIdF from, MapIdF to)
 void StartTask05(void *argument)
 {
     map_setup();
-    map_bulid(5, 14);
 
     // text
-    map_data_renew_direction_and_address(&map_data_start, 5, 2);
+    map_data_renew_direction_and_address(&map_data_start, 78, 5);
     // text
 
+    map_bulid(78, 14);
     map_trans(&agv_state);
 
     for(;;)
@@ -374,6 +380,7 @@ void StartTask05(void *argument)
 
             map_trans(&agv_state);
         }
+
         osDelay(10);
     }
 }

@@ -3,6 +3,7 @@
 #include "vehicle/navigation.h"
 #include "vehicle/main.h"
 #include "motor/main.h"
+#include "us_sensor/main.h"
 #include "adc/main.h"
 #include "us_sensor/main.h"
 #include "connectivity/uart/main.h"
@@ -20,19 +21,19 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
         motor_tick++;
     }
-    // else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
-    // {
-    //     us_sensor_overflow();
-    //     us_sensor_start();
-    // }
+    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
+    {
+        us_sensor_overflow();
+        us_sensor_start();
+    }
 }
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-    // if (htim == US_SENSOR_HTIM)
-    // {
-    //     us_sensor_tri_off();
-    // }
+    if (htim == US_SENSOR_HTIM)
+    {
+        us_sensor_tri_off();
+    }
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -51,10 +52,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     ) {
         motor_HALL_EXTI(&motor_left);
     }
-    // else if (GPIO_Pin == us_sensor_head.const_h->echo_GPIO_Pin_x)
-    // {
-    //     us_sensor_stop(&us_sensor_head);
-    // }
+    else if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x)
+    {
+        us_sensor_stop(&us_sensor_head);
+    }
 }
 
 size_t defalt_running = 0;
@@ -81,6 +82,7 @@ void StartDefaultTask(void *argument)
     for(;;)
     {
         vehicle_main();
+        us_sensor_main();
         osDelay(10); // !DO NOT CANCEL THIS LINE
         defalt_running++;
     }

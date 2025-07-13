@@ -32,3 +32,4 @@ void us_sensor_start(void);
 void us_sensor_tri_off(void);
 void us_sensor_overflow(void);
 FnState us_sensor_stop(USSensor* us_sensor);
+void us_sensor_main(void);

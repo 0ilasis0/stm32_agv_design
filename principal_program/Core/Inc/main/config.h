@@ -33,7 +33,7 @@
 #define TIM3_PSC                MOTOR_PSC   // 170
 #define TIM3_ARR                MOTOR_ARR   // 100 MAX 65535
 #define TIM4_PSC                170
-#define TIM4_ARR                65535       // MAX 65535
+#define TIM4_ARR                50000       // MAX 65535
 #define TIM4_CH1_CCR            10          // 10us
 
 #define MOTOR_HTIM1             &htim2
