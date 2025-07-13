@@ -76,7 +76,7 @@ void us_sensor_main(void)
     {
         vehicle_set_motion(VEHICLE_DIRECT_STOP);
         vehicle_set_mode(VEHICLE_MODE_FREE);
-
+        // 下面為啟動退回原點並重新計算地圖前往目標功能
         // vehicle_set_motion(VEHICLE_DIRECT_BACKWARD);
         // vehicle_set_mode(VEHICLE_MODE_F_TRACK);
     }

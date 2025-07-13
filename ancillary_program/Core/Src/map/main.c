@@ -1,14 +1,16 @@
-#include "main/map.h"
+#include "map/main.h"
 #include "connectivity/fdcan/main.h"
 
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
+
+static bool    map_window_open  = true; //應該false目前text所以true;
 static uint8_t final_node_count = 0;
 
-MapDataAll map_data_all;
-MapData agv_state;
+static MapDataAll map_data_all;
+static MapData agv_state;
 
-MapData map_data_init = {
+static MapData map_data_init = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
@@ -17,7 +19,7 @@ MapData map_data_init = {
     .speed_setpoint     = 0,
 };
 
-MapData map_data_start = {
+static MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
@@ -26,12 +28,13 @@ MapData map_data_start = {
     .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
 };
 
-MapError map_error = {
+static MapError map_error = {
     .lose_navigation = FNS_OK,
     .map_data_trans_error = {FNS_OK},
 };
 
-Location locations_t[MAX_NODE] = {
+static Location locations_t[MAX_NODE];
+static const Location locations_t_inner[MAX_NODE] = {
     {5,     { {0,0},     {0,0},      {78,20},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
     {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {0,0},      {0,0}       } },
     {11,    { {0,0},     {0,0},      {131,80},   {0,0},      {12,5},     {15,40},    {78,35},    {0,0}       } },
@@ -41,25 +44,76 @@ Location locations_t[MAX_NODE] = {
     {15,    { {0,0},     {11,40},    {12,45},    {0,0},      {0,0},      {0,0},      {0,0},      {78,30}     } }
 };
 
+static void map_trans (const MapData* trans_map)
+{
+    VecByte vec_byte;
+    if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
+    {
+        map_error.map_data_trans_error[0] = FNS_FAIL;
+    }
+
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        map_error.map_data_trans_error[1] = FNS_FAIL;
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        map_error.map_data_trans_error[2] = FNS_FAIL;
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        map_error.map_data_trans_error[3] = FNS_FAIL;
+    }
+    if (
+            ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        map_error.map_data_trans_error[4] = FNS_FAIL;
+    }
+
+    vec_byte_free(&vec_byte);
+}
+
+static MapDirF opposite_direction (MapDirF dir)
+{
+    return (dir + 4) % 8;
+}
+
 // 尋找節點 ID 對應的陣列索引
-static MapIdF get_index_by_id(MapIdF id)
+static MapIdF get_index_by_id (MapIdF id)
  {
-    for (int i = 0; i < MAX_NODE; i++) {
+    for (uint8_t i = 0; i < MAX_NODE; i++) {
         if (locations_t[i].local_id == id) return i;
     }
     return -1;
 }
 
-static MapDirF opposite_direction(MapDirF dir)
-{
-    return (dir + 4) % 8;
+// Floyd-Warshall 演算法計算所有節點對間最短路徑
+static void floyd_warshall (void)
+ {
+    for (uint8_t k = 0; k < MAX_NODE; k++) {
+        for (uint8_t i = 0; i < MAX_NODE; i++) {
+            for (uint8_t j = 0; j < MAX_NODE; j++) {
+                if (graph[i][k] + graph[k][j] < graph[i][j]) {
+                    graph[i][j] = graph[i][k] + graph[k][j];
+                    path[i][j] = path[i][k];
+                }
+            }
+        }
+    }
 }
 
 // 初始化 graph 距離矩陣與 path 路徑矩陣
-static void init_map(void)
+static void init_map (void)
  {
-    for (int i = 0; i < MAX_NODE; i++) {
-        for (int j = 0; j < MAX_NODE; j++) {
+    for (uint8_t i = 0; i < MAX_NODE; i++) {
+        for (uint8_t j = 0; j < MAX_NODE; j++) {
             // 自己到自己距離為0，其他為無限大
             if (i == j) {
                 graph[i][j] = 0;
@@ -71,8 +125,8 @@ static void init_map(void)
     }
 
     // 依據 locations_t 中的連線設定距離與路徑
-    for (int i = 0; i < MAX_NODE; i++) {
-        for (int d = 0; d < 8; d++) {
+    for (uint8_t i = 0; i < MAX_NODE; i++) {
+        for (uint8_t d = 0; d < 8; d++) {
             MapIdF id_to = locations_t[i].connect[d].id;
             int distance = locations_t[i].connect[d].distance;
             if (distance > 0) {
@@ -102,19 +156,13 @@ static MapDataAll init_map_data (void)
     return map_new;
 }
 
-// Floyd-Warshall 演算法計算所有節點對間最短路徑
-static void floyd_warshall(void)
+static void map_set (void)
  {
-    for (int k = 0; k < MAX_NODE; k++) {
-        for (int i = 0; i < MAX_NODE; i++) {
-            for (int j = 0; j < MAX_NODE; j++) {
-                if (graph[i][k] + graph[k][j] < graph[i][j]) {
-                    graph[i][j] = graph[i][k] + graph[k][j];
-                    path[i][j] = path[i][k];
-                }
-            }
-        }
-    }
+    init_map();
+
+    map_data_all = init_map_data();
+
+    floyd_warshall();
 }
 
 /*
@@ -191,7 +239,7 @@ static MapCountF decide_need_rotate_count(
 
     if (rotate_direction_mode == VEHICLE_DIRECT_CLOCKWISE)
     {
-        for (int i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
+        for (int8_t i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
         {
             if (locations_t[current_id].connect[i].distance != 0)
             {
@@ -201,7 +249,7 @@ static MapCountF decide_need_rotate_count(
     }
     else if (rotate_direction_mode == VEHICLE_DIRECT_C_CLOCKWISE)
     {
-        for (int i = (from_dir - 1 + 8) % 8; i != (to_dir - 1 + 8) % 8; i = (i - 1 + 8) % 8)
+        for (int8_t i = (from_dir - 1 + 8) % 8; i != (to_dir - 1 + 8) % 8; i = (i - 1 + 8) % 8)
         {
             if (locations_t[current_id].connect[i].distance != 0)
             {
@@ -215,7 +263,7 @@ static MapCountF decide_need_rotate_count(
     }
 
     //若原方向上也有磁條，表示會需加一次
-    if (locations_t[current_id].connect[from_dir].distance != 0)
+    if (locations_t_inner[current_id].connect[from_dir].distance != 0)
     {
         count++;
     }
@@ -254,6 +302,14 @@ static void build_current_map_data(int from, int to)
     final_node_count = count;
 }
 
+static void delete_locations_t_data(MapIdF id, MapDirF dir)
+{
+    id = get_index_by_id(id);
+
+    locations_t[id].connect[dir].distance = 0;
+    locations_t[id].connect[dir].id       = 0;
+}
+
 /**
   * @brief 偵測是否有初始方向數據，如果存在，則執行原地旋轉修正以對準起始航向
   */
@@ -279,67 +335,13 @@ static void map_adjust_start (void)
     }
 }
 
-static void map_setup (void)
- {
-    init_map();
-
-    map_data_all = init_map_data();
-
-    floyd_warshall();
-}
-
 static void map_data_renew_direction_and_address (
     MapData *map_new,
     MapIdF address_id,
     MapDirF direction
-    )
-{
+    ) {
     map_new->direction = direction;
     map_new->address_id = address_id;
-}
-
-static void map_trans(const MapData* trans_map)
-{
-    VecByte vec_byte;
-    if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
-    {
-        map_error.map_data_trans_error[0] = FNS_FAIL;
-    }
-
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[1] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[2] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[3] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[4] = FNS_FAIL;
-    }
-
-    vec_byte_free(&vec_byte);
-}
-
-static void delete_locations_t_data(MapIdF id, MapDirF dir)
-{
-    id = get_index_by_id(id);
-
-    locations_t[id].connect[dir].distance = 0;
-    locations_t[id].connect[dir].id       = 0;
 }
 
 static void map_bulid(MapIdF from, MapIdF to)
@@ -349,7 +351,7 @@ static void map_bulid(MapIdF from, MapIdF to)
 
     build_current_map_data(from, to);
 
-    for (int i = 0; i <= final_node_count; i++)
+    for (uint8_t i = 0; i <= final_node_count; i++)
     {
         map_data_all.map_data[i].mode = decide_vehicle_mode_and_speed(i);
 
@@ -373,63 +375,81 @@ static void map_bulid(MapIdF from, MapIdF to)
     agv_state = map_data_all.map_data[0];
 }
 
+void map_windows (MapIdF from, MapIdF to)
+{
+    map_window_open = true;
+    map_bulid(from, to);
+    map_trans(&agv_state);
+}
+
 int text_rfid_id = 0;
+int tick_text = 0;
+bool read_rfid_flag = 1;
 void StartTask05(void *argument)
 {
-    map_setup();
+    memcpy(locations_t, locations_t_inner, sizeof(locations_t));
+    map_set();
 
     // text
-    map_data_renew_direction_and_address(&map_data_start, 78, 5);
-    map_bulid(78, 14);
+    // map_data_renew_direction_and_address(&map_data_start, 5, 5);
+    map_bulid(5, 14);
     // text
 
     map_trans(&agv_state);
 
     for(;;)
     {
-        // 讀到RFID執行給資料到另一個stm32
-        if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
-        {
-            map_data_all.current_count ++;
-            agv_state = map_data_all.map_data[map_data_all.current_count];
+        // text
+        tick_text++;
+        // text
 
-            if (agv_state.mode == VEHICLE_MODE_END)
+        if(map_window_open && read_rfid_flag)
+        {
+            // 讀到RFID執行給資料到另一個stm32
+            if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_text % 500 == 0)
             {
-                map_data_renew_direction_and_address(&map_data_start, agv_state.address_id, agv_state.direction);
+                map_data_all.current_count ++;
+                agv_state = map_data_all.map_data[map_data_all.current_count];
+
+                if (agv_state.mode == VEHICLE_MODE_END)
+                {
+                    map_data_renew_direction_and_address(&map_data_start, agv_state.address_id, agv_state.direction);
+                    map_window_open = false;
+                }
+
+                map_trans(&agv_state);
             }
+            // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
+            else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id || tick_text % 1200 == 0)
+            {
+                MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
+                MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
 
-            map_trans(&agv_state);
-        }
-        // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-        else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
-        {
-            delete_locations_t_data(
-                map_data_all.map_data[map_data_all.current_count].address_id,
-                map_data_all.map_data[map_data_all.current_count].direction
-                );
-            delete_locations_t_data(
-                map_data_all.map_data[map_data_all.current_count + 1].address_id,
-                opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
-                );
+                delete_locations_t_data(
+                    map_data_all.map_data[map_data_all.current_count].address_id,
+                    map_data_all.map_data[map_data_all.current_count].direction
+                    );
+                delete_locations_t_data(
+                    map_data_all.map_data[map_data_all.current_count + 1].address_id,
+                    opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
+                    );
 
-            map_setup();
-            map_data_renew_direction_and_address(
-                &map_data_start,
-                map_data_all.map_data[map_data_all.current_count].address_id,
-                map_data_all.map_data[map_data_all.current_count].direction
-                );
-            map_bulid(
-                map_data_all.map_data[map_data_all.current_count].address_id,
-                map_data_all.map_data[final_node_count].address_id
-                );
-            map_trans(&agv_state);
-        }
-        // 只知道現在位置不知道方向，所以停止動作
-        else
-        {
-            agv_state = map_data_init;
-            map_trans(&agv_state);
-            map_error.lose_navigation = FNS_FAIL;
+                map_set();
+                map_data_renew_direction_and_address(
+                    &map_data_start,
+                    map_data_temp.address_id,
+                    map_data_temp.direction
+                    );
+                map_bulid(map_data_temp.address_id, target_id);
+                map_trans(&agv_state);
+            }
+            // 只知道現在位置不知道方向，所以停止動作，目前測試所以槓掉
+            // else
+            // {
+            //     agv_state = map_data_init;
+            //     map_trans(&agv_state);
+            //     map_error.lose_navigation = FNS_FAIL;
+            // }
         }
 
         osDelay(10);

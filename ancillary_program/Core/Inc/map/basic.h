@@ -41,9 +41,3 @@ typedef struct{
     MapCountF  current_count;
     MapData map_data[MAX_NODE];
 } MapDataAll;
-
-
-
-extern Location locations_t[MAX_NODE];
-extern MapDataAll map_data_all;
-extern MapData map_data_start;
