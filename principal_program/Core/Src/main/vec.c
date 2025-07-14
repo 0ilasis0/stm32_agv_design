@@ -1,6 +1,6 @@
 #include "main/vec.h"
 
-inline void vec_rm_all(VecByte* self)
+void vec_rm_all(VecByte* self)
 {
     if (self->data == NULL) return;
     self->head = 0;
@@ -129,7 +129,7 @@ FnState vec_byte_get_byte(const VecByte* self, size_t id, uint8_t *value)
     return FNS_OK;
 }
 
-inline FnState vec_byte_pop_byte(VecByte* self, size_t id, uint8_t* value)
+FnState vec_byte_pop_byte(VecByte* self, size_t id, uint8_t* value)
 {
     if (self->data == NULL) return FNS_ERR_OOM;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(self, id, value));
@@ -137,13 +137,13 @@ inline FnState vec_byte_pop_byte(VecByte* self, size_t id, uint8_t* value)
     return FNS_OK;
 }
 
-inline FnState vec_byte_push_byte(VecByte* self, uint8_t value)
+FnState vec_byte_push_byte(VecByte* self, uint8_t value)
 {
     if (self->data == NULL) return FNS_ERR_OOM;
     return vec_byte_push(self, &value, 1);
 }
 
-inline uint16_t swap_u16(const uint16_t value)
+uint16_t swap_u16(const uint16_t value)
 {
     return    ((value & 0x00FFU) << 8)
             | ((value & 0xFF00U) >> 8);
@@ -156,7 +156,7 @@ FnState vec_byte_push_u16(VecByte* self, uint16_t value)
     return vec_byte_push(self, &val, sizeof(value));
 }
 
-inline uint32_t swap_u32(uint32_t value)
+uint32_t swap_u32(uint32_t value)
 {
     return    ((value & 0x000000FFU) << 24)
             | ((value & 0x0000FF00U) <<  8)
@@ -177,7 +177,7 @@ FnState vec_byte_get_u32(VecByte* self, size_t id, uint32_t* value)
     return FNS_OK;
 }
 
-inline FnState vec_byte_pop_u32(VecByte* self, size_t id, uint32_t* value)
+FnState vec_byte_pop_u32(VecByte* self, size_t id, uint32_t* value)
 {
     if (self->data == NULL) return FNS_ERR_OOM;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_u32(self, id, value));

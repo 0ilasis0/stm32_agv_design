@@ -9,31 +9,31 @@ static void motion_update_inner(VehicleMotion direction)
     vehicle_parameter.motion_inner = direction;
     switch(direction)
     {
-        case VEHICLE_DIRECT_STOP:
+        case VEHICLE_MOTION_STOP:
         {
             motor_set_direct(&motor_left,  MOTOR_DIRECTION_STOP);
             motor_set_direct(&motor_right, MOTOR_DIRECTION_STOP);
             return;
         }
-        case VEHICLE_DIRECT_FORWARD:
+        case VEHICLE_MOTION_FORWARD:
         {
             motor_set_direct(&motor_left,  MOTOR_DIRECTION_CCLW);
             motor_set_direct(&motor_right, MOTOR_DIRECTION_CLW);
             return;
         }
-        case VEHICLE_DIRECT_BACKWARD:
+        case VEHICLE_MOTION_BACKWARD:
         {
             motor_set_direct(&motor_left,  MOTOR_DIRECTION_CLW);
             motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
             return;
         }
-        case VEHICLE_DIRECT_CLOCKWISE:
+        case VEHICLE_MOTION_CLOCKWISE:
         {
             motor_set_direct(&motor_left,  MOTOR_DIRECTION_CCLW);
             motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
             return;
         }
-        case VEHICLE_DIRECT_C_CLOCKWISE:
+        case VEHICLE_MOTION_C_CLOCKWISE:
         {
             motor_set_direct(&motor_left,  MOTOR_DIRECTION_CLW);
             motor_set_direct(&motor_right, MOTOR_DIRECTION_CLW);
@@ -46,9 +46,9 @@ static void motion_update_inner(VehicleMotion direction)
 static void motion_update(void)
 {
     if (vehicle_parameter.motion_inner == vehicle_parameter.motion) return;
-    else if (vehicle_parameter.motion == VEHICLE_DIRECT_UNKNOWN)
+    else if (vehicle_parameter.motion == VEHICLE_MOTION_UNKNOWN)
     {
-        vehicle_parameter.motion_inner = VEHICLE_DIRECT_UNKNOWN;
+        vehicle_parameter.motion_inner = VEHICLE_MOTION_UNKNOWN;
         return;
     }
     motor_set_state(&motor_left, MOTOR_STATE_SLOW);
@@ -79,7 +79,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     motor_set_state(&motor_left, MOTOR_STATE_FREE);
     motor_set_state(&motor_right, MOTOR_STATE_FREE);
 
-    motion_update_inner(VEHICLE_DIRECT_FORWARD);
+    motion_update_inner(VEHICLE_MOTION_FORWARD);
     uint32_t loop_start = HAL_GetTick();
     time_diff = loop_start;
     motor_set_rps_pcn(&motor_left, 100);
@@ -107,7 +107,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
     vehicle_ensure_stop_inner();
     osDelay(1000);
     // Todo FIX
-    motion_update_inner(VEHICLE_DIRECT_BACKWARD);
+    motion_update_inner(VEHICLE_MOTION_BACKWARD);
     loop_start = HAL_GetTick();
     motor_set_rps_pcn(&motor_left,  100);
     motor_set_rps_pcn(&motor_right, 100);
@@ -132,7 +132,7 @@ void vehicle_main (void)
         case VEHICLE_MODE_END:
         {
             text_end = 1;
-            vehicle_set_motion(VEHICLE_DIRECT_STOP);
+            vehicle_set_motion(VEHICLE_MOTION_STOP);
             vehicle_set_mode(VEHICLE_MODE_FREE);
             return;
         }
@@ -145,7 +145,7 @@ void vehicle_main (void)
         {
             if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
             {
-                vehicle_set_motion(VEHICLE_DIRECT_STOP);
+                vehicle_set_motion(VEHICLE_MOTION_STOP);
                 vehicle_set_mode(VEHICLE_MODE_FREE);
                 return;
             }

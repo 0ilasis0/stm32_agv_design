@@ -146,27 +146,27 @@ FnState pkt_vehi_set_motion(VecByte* vec_byte, VehicleMotion motion)
     ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_VEHI_B0_CONTROL, CMD_VEHI_B1_MOTION}, 2));
     switch (motion)
     {
-        case VEHICLE_DIRECT_STOP:
+        case VEHICLE_MOTION_STOP:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_FREE));
             return FNS_OK;
         }
-        case VEHICLE_DIRECT_FORWARD:
+        case VEHICLE_MOTION_FORWARD:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_END));
             return FNS_OK;
         }
-        case VEHICLE_DIRECT_BACKWARD:
+        case VEHICLE_MOTION_BACKWARD:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_F_TRACK));
             return FNS_OK;
         }
-        case VEHICLE_DIRECT_CLOCKWISE:
+        case VEHICLE_MOTION_CLOCKWISE:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_SEARCH));
             return FNS_OK;
         }
-        case VEHICLE_DIRECT_C_CLOCKWISE:
+        case VEHICLE_MOTION_C_CLOCKWISE:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, CMD_VEHI_B2_TRACK));
             return FNS_OK;

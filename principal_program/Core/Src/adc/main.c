@@ -71,6 +71,8 @@ static void hall_update(AdcHall* adc)
             break;
         }
     }
+    if (adc->value <= adc->const_h.magnetic_value) adc->state = ADC_HALL_STATE_ON_MAG;
+    else adc->state = ADC_HALL_STATE_NONE;
     max_min(adc);
 }
 
@@ -82,7 +84,7 @@ void StartAdcTask(void *argument)
     {
         if (
             !runtime_switch.adc
-            || HAL_GetTick() < 3000
+            || HAL_GetTick() < 1000
         ) {
             osDelay(50);
             continue;
