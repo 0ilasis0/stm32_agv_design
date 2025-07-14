@@ -369,7 +369,7 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
 {
     VecByte vec_byte;
     ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
-    if (fdacn_data_trsm_ready == FNC_ENABLE)
+    if (fdacn_data_store == FNC_ENABLE)
     {
         #ifdef ENABLE_CON_PKT_TEST
         ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &fdcan_test_pkt_c),
@@ -413,12 +413,12 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
     {
         case CMD_DATA_B0_STOP:
         {
-            fdacn_data_trsm_ready = false;
+            fdacn_data_store = false;
             return FNS_OK;
         }
         case CMD_DATA_B0_START:
         {
-            fdacn_data_trsm_ready = true;
+            fdacn_data_store = true;
             return FNS_OK;
         }
         #ifdef ANCILLARY_PROGRAM

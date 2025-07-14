@@ -1,12 +1,13 @@
 #include "vehicle/main.h"
+#include "main/fn_state.h"
 #include "vehicle/navigation.h"
 #include "vehicle/search.h"
 #include "adc/main.h"
-#include "main/fn_state.h"
+#include "us_sensor/main.h"
 
 static void motion_update_inner(VehicleMotion direction)
 {
-    vehicle_parameter.motion_inner = direction;
+    vehicle_h.motion_inner = direction;
     switch(direction)
     {
         case VEHICLE_MOTION_STOP:
@@ -45,10 +46,14 @@ static void motion_update_inner(VehicleMotion direction)
 
 static void motion_update(void)
 {
-    if (vehicle_parameter.motion_inner == vehicle_parameter.motion) return;
-    else if (vehicle_parameter.motion == VEHICLE_MOTION_UNKNOWN)
+    if (
+           us_sensor_head.status == USS_STATUS_DANGER
+        && vehicle_h.motion == VEHICLE_MOTION_FORWARD
+    ) vehicle_set_motion(VEHICLE_MOTION_STOP);
+    if (vehicle_h.motion_inner == vehicle_h.motion) return;
+    else if (vehicle_h.motion == VEHICLE_MOTION_UNKNOWN)
     {
-        vehicle_parameter.motion_inner = VEHICLE_MOTION_UNKNOWN;
+        vehicle_h.motion_inner = VEHICLE_MOTION_UNKNOWN;
         return;
     }
     motor_set_state(&motor_left, MOTOR_STATE_SLOW);
@@ -57,7 +62,7 @@ static void motion_update(void)
            (motor_left.rps_present > MOTOR_STOP_GATE)
         || (motor_right.rps_present > MOTOR_STOP_GATE)
     ) return;
-    motion_update_inner(vehicle_parameter.motion);
+    motion_update_inner(vehicle_h.motion);
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
@@ -66,6 +71,7 @@ void StartVehicleTask(void *argument)
 {
     for(;;)
     {
+        us_sensor_enable(&us_sensor_head);
         motion_update();
         osDelay(50);
     }
@@ -127,7 +133,7 @@ void vehicle_test_no_load_rps(uint32_t ms)
 static bool text_end = 0;
 void vehicle_main (void)
 {
-    switch (vehicle_parameter.mode)
+    switch (vehicle_h.mode)
     {
         case VEHICLE_MODE_END:
         {

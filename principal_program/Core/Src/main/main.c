@@ -39,20 +39,20 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
-           (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2])
-    ) {
-        motor_HALL_EXTI(&motor_right);
-    }
-    else if (
-           (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2])
+           (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0]) // 2
+        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1]) // 12
+        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2]) // 15
     ) {
         motor_HALL_EXTI(&motor_left);
     }
-    else if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x)
+    else if (
+           (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[0]) // 8
+        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1]) // 4
+        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2]) // 5
+    ) {
+        motor_HALL_EXTI(&motor_right);
+    }
+    else if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x) // 6
     {
         us_sensor_stop(&us_sensor_head);
     }

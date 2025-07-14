@@ -49,8 +49,8 @@ static FnState walk_to_mag(VehicleMotion motion, uint32_t ms)
 FnState vehicle_search_mode(Percentage speed, uint32_t ms)
 {
     if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
-    Percentage ori_speed = vehicle_parameter.speed;
-    VehicleMotion ori_motion = vehicle_parameter.motion;
+    Percentage ori_speed = vehicle_h.speed;
+    VehicleMotion ori_motion = vehicle_h.motion;
     VehicleMotion motion = VEHICLE_MOTION_CLOCKWISE;
     vehicle_set_speed(speed);
     if (ERROR_CHECK_FNS_RAW(search_magnetic(motion, ms)))

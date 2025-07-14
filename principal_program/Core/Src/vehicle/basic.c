@@ -1,7 +1,7 @@
 #include "vehicle/basic.h"
 #include "adc/main.h"
 
-VehicleParameter vehicle_parameter;
+VehicleParameter vehicle_h;
 
 void vehicle_ensure_stop_inner(void)
 {
@@ -53,28 +53,28 @@ void vehicle_set_mode(VehicleMode mode)
     {
         case VEHICLE_MODE_TRACK:
         {
-            vehicle_parameter.last_tick_on_mag = HAL_GetTick();
+            vehicle_h.last_tick_on_mag = HAL_GetTick();
             break;
         }
         default: break;
     }
-    vehicle_parameter.mode = mode;
+    vehicle_h.mode = mode;
 }
 
 void vehicle_set_motion(VehicleMotion motion)
 {
-    vehicle_parameter.motion = motion;
+    vehicle_h.motion = motion;
 }
 
 void vehicle_set_speed(Percentage value)
 {
     if (value > 100) value = 100;
-    vehicle_parameter.speed = value;
+    vehicle_h.speed = value;
     motor_set_rps_pcn(&motor_right, value);
     motor_set_rps_pcn(&motor_left , value);
 }
 
 void vehicle_set_need_rotate(MapDirF value)
 {
-    vehicle_parameter.need_rotate_count = value;
+    vehicle_h.need_rotate_count = value;
 }

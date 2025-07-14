@@ -41,7 +41,7 @@ typedef struct VehicleParameter
     MapDirF need_rotate_count;
 } VehicleParameter;
 
-extern VehicleParameter vehicle_parameter;
+extern VehicleParameter vehicle_h;
 
 void vehicle_ensure_stop_inner(void);
 void agv_forward_leave_strong_magnet (void);

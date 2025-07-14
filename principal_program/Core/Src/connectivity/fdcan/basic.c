@@ -2,7 +2,7 @@
 
 bool fdcan_bus_off = false;
 
-FncState fdacn_data_trsm_ready = FNC_DISABLE;
+FncState fdacn_data_store = FNC_DISABLE;
 
 FDCAN_TxHeaderTypeDef fdcan_TxHeader = {
     .Identifier = 0x000,

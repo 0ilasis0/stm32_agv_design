@@ -12,7 +12,7 @@
 FnState vehicle_track_mode()
 {
     MotorParameter *motor_l, *motor_r;
-    switch (vehicle_parameter.motion)
+    switch (vehicle_h.motion)
     {
         case VEHICLE_MOTION_FORWARD:
         {
@@ -35,7 +35,7 @@ FnState vehicle_track_mode()
         && adchall_track_right.state != ADC_HALL_STATE_NONE
         && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
-        vehicle_parameter.last_tick_on_mag = HAL_GetTick();
+        vehicle_h.last_tick_on_mag = HAL_GetTick();
         motor_set_state(motor_l, MOTOR_STATE_CONTROL);
         motor_set_state(motor_r, MOTOR_STATE_SLOW);
     }
@@ -45,7 +45,7 @@ FnState vehicle_track_mode()
         && adchall_track_right.state == ADC_HALL_STATE_NONE
         && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
-        vehicle_parameter.last_tick_on_mag = HAL_GetTick();
+        vehicle_h.last_tick_on_mag = HAL_GetTick();
         motor_set_state(motor_l, MOTOR_STATE_SLOW);
         motor_set_state(motor_r, MOTOR_STATE_CONTROL);
     }
@@ -53,12 +53,12 @@ FnState vehicle_track_mode()
     {
         if (adchall_direction.state != ADC_HALL_STATE_NONE)
         {
-            vehicle_parameter.last_tick_on_mag = HAL_GetTick();
+            vehicle_h.last_tick_on_mag = HAL_GetTick();
         }
         motor_set_state(motor_l, MOTOR_STATE_CONTROL);
         motor_set_state(motor_r, MOTOR_STATE_CONTROL);
     }
-    if (HAL_GetTick() - vehicle_parameter.last_tick_on_mag >= UNFIND_MAG_TIME)
+    if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= UNFIND_MAG_TIME)
     {
         vehicle_ensure_stop();
         return FNS_FAIL;
@@ -76,10 +76,10 @@ void vehicle_rotate_in_place(void)
     uint32_t time_out = HAL_GetTick();
     uint32_t triggered_time;
 
-    while (vehicle_parameter.need_rotate_count != 0){
+    while (vehicle_h.need_rotate_count != 0){
         if (adchall_direction.state != ADC_HALL_STATE_NONE && !triggered)
         {
-            vehicle_parameter.need_rotate_count--;
+            vehicle_h.need_rotate_count--;
             triggered_time = HAL_GetTick();
             triggered = true;
         }

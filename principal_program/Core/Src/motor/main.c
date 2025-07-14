@@ -178,7 +178,7 @@ static void datas_update(MotorParameter *motor, float ms)
     }
 }
 
-static void state_update(MotorParameter *motor)
+static void motion_update(MotorParameter *motor)
 {
     // 避免馬達應動未動
     if (
@@ -268,7 +268,7 @@ static void rps_control(MotorParameter *motor, float ms)
     return;
 }
 
-#define MOTOR_TASK_DELAY_MS     50
+#define MOTOR_TASK_DELAY_MS 50
 void StartMotorTask(void *argument)
 {
     HAL_TIM_Base_Start_IT(MOTOR_HTIM1);
@@ -281,11 +281,10 @@ void StartMotorTask(void *argument)
     {
         datas_update(&motor_left, MOTOR_TASK_DELAY_MS);
         datas_update(&motor_right, MOTOR_TASK_DELAY_MS);
-        state_update(&motor_left);
-        state_update(&motor_right);
+        motion_update(&motor_left);
+        motion_update(&motor_right);
         rps_control(&motor_left, MOTOR_TASK_DELAY_MS);
         rps_control(&motor_right, MOTOR_TASK_DELAY_MS);
-        // us_sensor_enable(&us_sensor_head);
         osDelayUntil(next_wake);
         next_wake += osPeriod;
     }

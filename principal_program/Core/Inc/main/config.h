@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <float.h>
 #include <string.h>
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"

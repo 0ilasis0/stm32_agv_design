@@ -4,7 +4,7 @@
 #include "connectivity/fdcan/trcv_buffer.h"
 
 extern bool fdcan_bus_off;
-extern FncState fdacn_data_trsm_ready;
+extern FncState fdacn_data_store;
 
 extern FDCAN_TxHeaderTypeDef fdcan_TxHeader;
 extern FDCAN_RxHeaderTypeDef fdcan_RxHeader;
