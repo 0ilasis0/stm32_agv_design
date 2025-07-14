@@ -58,24 +58,6 @@ static void map_trans (const MapData* trans_map)
         ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[0], FNS_FAIL);
     }
 
-    // if (
-    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
-    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    //     map_error.map_data_trans_error[1] = FNS_FAIL;
-    // }
-    // if (
-    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    //     map_error.map_data_trans_error[3] = FNS_FAIL;
-    // }
-    // if (
-    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    //     map_error.map_data_trans_error[4] = FNS_FAIL;
-    // }
     if (
            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
         || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
@@ -183,7 +165,6 @@ static MapDataAll init_map_data (void)
 static void map_set (void)
  {
     init_map();
-
     floyd_warshall();
 }
 
@@ -366,7 +347,7 @@ static void map_data_renew_direction_and_address (
     map_new->address_id = address_id;
 }
 
-void map_bulid(MapIdF from, MapIdF to)
+static void map_bulid(MapIdF from, MapIdF to)
 {
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
@@ -420,15 +401,15 @@ void StartTask05(void *argument)
     map_set();
 
     // text
+    return;
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
-    map_bulid(5, 14);
+    map_windows(5, 14);
     // text
-
-    map_trans(&agv_state);
 
     for(;;)
     {
         // text
+        break;
         tick_ttt++;
         // text
 

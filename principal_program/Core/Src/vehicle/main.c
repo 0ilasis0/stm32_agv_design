@@ -131,7 +131,9 @@ void vehicle_main (void)
     {
         case VEHICLE_MODE_END:
         {
+            // text
             text_end = 1;
+            // text
             vehicle_set_motion(VEHICLE_MOTION_STOP);
             vehicle_set_mode(VEHICLE_MODE_FREE);
             return;
