@@ -33,6 +33,7 @@ typedef struct RfidTrcvBuf
 
 extern RfidTrcvBuf rfid_trsm_buf;
 extern RfidTrcvBuf rfid_recv_buf;
+extern RC522State spi2_rfid;
 
 FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t block, uint8_t send);
 FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len);

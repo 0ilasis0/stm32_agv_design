@@ -1,5 +1,6 @@
 #include "map/main.h"
 #include "connectivity/fdcan/main.h"
+#include "rfid/main.h"
 
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
@@ -25,7 +26,7 @@ static MapData map_data_start = {
     .need_rotate_count  = NO_DATA,
     .vehicle_motion  = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
-    .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
+    .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };
 
 static MapError map_error = {
@@ -47,6 +48,10 @@ static const Location locations_t_inner[MAX_NODE] = {
 
 static void map_trans (const MapData* trans_map)
 {
+    // text
+    return;
+    // text
+
     VecByte vec_byte;
     if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
@@ -171,28 +176,28 @@ static VehicleMode decide_map_mode_and_speed(uint8_t count)
  {
     if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     if (count == 0)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
 
     if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
     else if (map_data_all.map_data[count].direction == NO_DATA)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     else
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_ROTATE;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
         return VEHICLE_MODE_ROTATE;
     }
 }
@@ -353,6 +358,8 @@ void map_bulid(MapIdF from, MapIdF to)
         ERROR_STOP_MAP_RETURN(map_error.no_path, FNS_FAIL);
     }
 
+    map_data_all = init_map_data();
+
     decide_map_id_and_direction(from, to);
 
     for (uint8_t i = 0; i <= final_node_count; i++)
@@ -385,9 +392,9 @@ void map_windows (MapIdF from, MapIdF to)
     map_bulid(from, to);
     map_trans(&agv_state);
 }
-
-int text_rfid_id = 0;
-bool read_rfid_flag = 1;
+uint32_t rfid_id = 0;
+int yy = 1;
+int tick_ttt = 0;
 void StartTask05(void *argument)
 {
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
@@ -397,15 +404,21 @@ void StartTask05(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_bulid(5, 14);
     // text
-    osDelay(1000);
+
     map_trans(&agv_state);
 
     for(;;)
     {
-        if(map_enable && read_rfid_flag)
+        // text
+        tick_ttt++;
+        // text
+
+        // if(map_enable && spi2_rfid.state)
+        if(map_enable)
         {
             // 讀到RFID執行給資料到另一個stm32
-            if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            // if (rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            if (rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
             {
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
@@ -423,8 +436,13 @@ void StartTask05(void *argument)
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
+            // else if (rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
+            else if (rfid_id == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
             {
+                // text
+                yy = 0;
+                // text
+
                 // 先傳送停止動作，等地圖計算完畢
                 agv_state = map_data_init;
                 map_trans(&agv_state);
