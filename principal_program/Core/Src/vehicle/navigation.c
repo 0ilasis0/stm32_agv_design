@@ -56,14 +56,14 @@ void vehicle_rotate_in_place(void)
     uint32_t triggered_time;
 
     while (vehicle_parameter.need_rotate_count != 0){
-        if (adchall_direction.value <= adchall_direction.const_h.magnetic_value  && !triggered)
+        if (adchall_direction.state != ADC_HALL_STATE_NONE && !triggered)
         {
             vehicle_parameter.need_rotate_count--;
             triggered_time = HAL_GetTick();
             triggered = true;
         }
         if (
-            adchall_direction.value > adchall_direction.const_h.magnetic_value
+            adchall_direction.value == ADC_HALL_STATE_NONE
             && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
             )
         {

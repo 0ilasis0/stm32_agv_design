@@ -183,7 +183,7 @@ static void state_update(MotorParameter *motor)
     // 避免馬達應動未動
     if (
            motor->rps_present == 0
-        && motor->pwm_duty != 0
+        // && motor->pwm_duty != 0
     ) motor_step_update(motor);
 
     if (

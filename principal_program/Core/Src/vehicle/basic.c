@@ -29,7 +29,7 @@ void vehicle_ensure_stop_inner(void)
 
 //     uint32_t error_start = HAL_GetTick();
 //     // 確保轉彎後能夠脫離強力磁鐵進入循跡
-//     while(adchall_node.value <= adchall_node.const_h.magnetic_value )
+//     while(adchall_node.state != ADC_HALL_STATE_NONE )
 //     {
 //         timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
 //     }

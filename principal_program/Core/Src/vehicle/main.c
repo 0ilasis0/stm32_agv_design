@@ -149,6 +149,8 @@ void vehicle_main (void)
                 vehicle_set_mode(VEHICLE_MODE_FREE);
                 return;
             }
+            vehicle_set_motion(VEHICLE_MOTION_FORWARD);
+            vehicle_set_speed(20);
             vehicle_set_mode(VEHICLE_MODE_TRACK);
             return;
         }

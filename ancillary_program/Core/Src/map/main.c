@@ -52,30 +52,24 @@ static void map_trans (const MapData* trans_map)
         map_error.map_data_trans_error[0] = FNS_FAIL;
     }
 
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[1] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[2] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[3] = FNS_FAIL;
-    }
-    if (
-            ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-        map_error.map_data_trans_error[4] = FNS_FAIL;
-    }
+    // if (
+    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
+    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    //     map_error.map_data_trans_error[1] = FNS_FAIL;
+    // }
+    // if (
+    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    //     map_error.map_data_trans_error[3] = FNS_FAIL;
+    // }
+    // if (
+    //         ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+    //     || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    //     map_error.map_data_trans_error[4] = FNS_FAIL;
+    // }
 
     vec_byte_free(&vec_byte);
 }

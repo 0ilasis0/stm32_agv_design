@@ -63,7 +63,7 @@ void StartDefaultTask(void *argument)
 {
     defalt_running++;
 
-    osDelay(1500);
+    osDelay(1000);
 
     /*測試用--------------------------------------*/
     // vehicle_test_no_load_rps(1000);
@@ -75,7 +75,7 @@ void StartDefaultTask(void *argument)
     // motor_set_rps_pcn(&motor_right, 50);
     vehicle_set_motion(VEHICLE_MOTION_FORWARD);
     vehicle_set_speed(20);
-    vehicle_set_mode(VEHICLE_MODE_FREE);
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
     // map_data_renew_direction_and_address(&map_data_start, 11, 7);
     /*測試用--------------------------------------*/
 
