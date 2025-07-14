@@ -8,17 +8,20 @@
 
 #define SECTOR_MASK(s)      ((uint16_t)1 << (s))
 
-typedef uint8_t CardState;
-#define CARD_STATE_NONE     0
-#define CARD_STATE_TRIGGER  1
-#define CARD_STATE_HALT     2
+typedef enum CardState
+{
+    CARD_STATE_NONE,
+    CARD_STATE_EXIST,
+} CardState;
 
 typedef struct RC522State
 {
     const RC522Const const_h;
     RC522Uid uid;
+    uint32_t uid32;
     CardState state;
     uint16_t secter1k_open;
+    VecByte addr_0x0;
 } RC522State;
 
 typedef struct RfidTrcvBuf

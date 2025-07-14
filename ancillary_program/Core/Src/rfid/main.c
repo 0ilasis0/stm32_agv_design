@@ -74,6 +74,7 @@ static UNUSED_FNC FnState buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
 
 void StartRfidTask(void *argument)
 {
+    vec_byte_new(&spi2_rfid.addr_0x0, RFID_BLOCK_BYTE_CAP);
     RC522_PCD_Init(&spi2_rfid.const_h);
     memcpy(&rfid_trsm_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     memcpy(&rfid_recv_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
@@ -89,20 +90,24 @@ void StartRfidTask(void *argument)
             osDelay(10);
             continue;
         }
-        spi2_rfid.state = CARD_STATE_TRIGGER;
-        spi2_rfid.secter1k_open = 0;
+        spi2_rfid.state = CARD_STATE_EXIST;
         memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
-        
-
-        buf_write(&spi2_rfid, &rfid_trsm_buf);
-        rfid_recv_buf.sector = rfid_trsm_buf.sector;
-        rfid_recv_buf.block = rfid_trsm_buf.block;
-        buf_read(&spi2_rfid, &rfid_recv_buf);
-
-
-
-        spi2_rfid.state = CARD_STATE_HALT;
-        RC522_PICC_HaltA(&spi2_rfid.const_h);
+        spi2_rfid.uid32 =
+              ((uint32_t)spi2_rfid.uid.uidByte[0] << 24)
+            | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
+            | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
+            | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
+        for(;;)
+        {
+            if (RC522_MIFARE_Read(&spi2_rfid.const_h, 0, spi2_rfid.addr_0x0.data, RFID_BLOCK_BYTE_CAP) != STATUS_Code_OK) break;
+            buf_write(&spi2_rfid, &rfid_trsm_buf);
+            rfid_recv_buf.sector = rfid_trsm_buf.sector;
+            rfid_recv_buf.block = rfid_trsm_buf.block;
+            buf_read(&spi2_rfid, &rfid_recv_buf);
+            osDelay(10);
+        }
+        spi2_rfid.state = CARD_STATE_NONE;
+        spi2_rfid.secter1k_open = 0;
         RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
     }
 }
