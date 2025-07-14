@@ -1,10 +1,11 @@
 #include "map/main.h"
 #include "connectivity/fdcan/main.h"
+#include "rfid/main.h"
 
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 
-static bool    map_window_open  = true; //應該false目前text所以true;
+static bool    map_enable  = true; //應該false目前text所以true;
 static uint8_t final_node_count = 0;
 
 static MapDataAll map_data_all;
@@ -25,12 +26,13 @@ static MapData map_data_start = {
     .need_rotate_count  = NO_DATA,
     .vehicle_motion  = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
-    .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
+    .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };
 
 static MapError map_error = {
-    .lose_navigation = FNS_OK,
-    .map_data_trans_error = {FNS_OK},
+    .lose_navigation        = FNS_OK,
+    .no_path                = FNS_OK,
+    .map_data_trans_error   = {FNS_OK},
 };
 
 static Location locations_t[MAX_NODE];
@@ -46,10 +48,14 @@ static const Location locations_t_inner[MAX_NODE] = {
 
 static void map_trans (const MapData* trans_map)
 {
+    // text
+    return;
+    // text
+
     VecByte vec_byte;
     if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
-        map_error.map_data_trans_error[0] = FNS_FAIL;
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[0], FNS_FAIL);
     }
 
     // if (
@@ -70,6 +76,30 @@ static void map_trans (const MapData* trans_map)
     // ) {
     //     map_error.map_data_trans_error[4] = FNS_FAIL;
     // }
+    if (
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[1], FNS_FAIL);
+    }
+    if (
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[2], FNS_FAIL);
+    }
+    if (
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[3], FNS_FAIL);
+    }
+    if (
+           ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    ) {
+        ERROR_STOP_MAP_RETURN(map_error.map_data_trans_error[4], FNS_FAIL);
+    }
 
     vec_byte_free(&vec_byte);
 }
@@ -164,28 +194,28 @@ static VehicleMode decide_map_mode_and_speed(uint8_t count)
  {
     if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     if (count == 0)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
 
     if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_TRACK;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
         return VEHICLE_MODE_TRACK;
     }
     else if (map_data_all.map_data[count].direction == NO_DATA)
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_STOP;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
         return VEHICLE_MODE_END;
     }
     else
     {
-        map_data_all.map_data[count].speed_setpoint = VEHICLE_SETPOINT_ROTATE;
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
         return VEHICLE_MODE_ROTATE;
     }
 }
@@ -341,6 +371,13 @@ void map_bulid(MapIdF from, MapIdF to)
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
 
+    // 確認起點合法、圖上有路可走
+    if (from == -1 || to == -1 || graph[from][to] == INF) {
+        ERROR_STOP_MAP_RETURN(map_error.no_path, FNS_FAIL);
+    }
+
+    map_data_all = init_map_data();
+
     decide_map_id_and_direction(from, to);
 
     for (uint8_t i = 0; i <= final_node_count; i++)
@@ -369,13 +406,14 @@ void map_bulid(MapIdF from, MapIdF to)
 
 void map_windows (MapIdF from, MapIdF to)
 {
-    map_window_open = true;
+    map_enable = true;
     map_bulid(from, to);
     map_trans(&agv_state);
 }
 
-int text_rfid_id = 0;
-bool read_rfid_flag = 1;
+uint32_t rfid_id = 0;
+int yy = 1;
+int tick_ttt = 0;
 void StartTask05(void *argument)
 {
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
@@ -385,15 +423,21 @@ void StartTask05(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_bulid(5, 14);
     // text
-    osDelay(1000);
+
     map_trans(&agv_state);
 
     for(;;)
     {
-        if(map_window_open && read_rfid_flag)
+        // text
+        tick_ttt++;
+        // text
+
+        // if(map_enable && spi2_rfid.state)
+        if(map_enable)
         {
             // 讀到RFID執行給資料到另一個stm32
-            if (text_rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            // if (rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            if (rfid_id == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
             {
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
@@ -405,14 +449,23 @@ void StartTask05(void *argument)
                         map_data_all.map_data[final_node_count].address_id,
                         map_data_all.map_data[final_node_count - 1].direction
                         );
-                    map_window_open = false;
+                    map_enable = false;
+
+                    // text
+                    map_windows(14, 5);
+                    // text
                 }
 
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            else if (text_rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
+            // else if (rfid_id == map_data_all.map_data[map_data_all.current_count].address_id)
+            else if (rfid_id == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
             {
+                // text
+                yy = 0;
+                // text
+
                 // 先傳送停止動作，等地圖計算完畢
                 agv_state = map_data_init;
                 map_trans(&agv_state);
@@ -441,9 +494,7 @@ void StartTask05(void *argument)
             // 只知道現在位置不知道方向，所以停止動作，目前測試所以槓掉
             // else
             // {
-            //     agv_state = map_data_init;
-            //     map_trans(&agv_state);
-            //     map_error.lose_navigation = FNS_FAIL;
+            //     ERROR_STOP_MAP_RETURN(map_error.lose_navigation, FNS_FAIL);
             // }
         }
 
