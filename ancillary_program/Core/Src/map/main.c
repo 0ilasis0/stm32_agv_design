@@ -392,6 +392,7 @@ void map_windows (MapIdF from, MapIdF to)
     map_bulid(from, to);
     map_trans(&agv_state);
 }
+
 uint32_t rfid_id = 0;
 int yy = 1;
 int tick_ttt = 0;
@@ -431,6 +432,10 @@ void StartTask05(void *argument)
                         map_data_all.map_data[final_node_count - 1].direction
                         );
                     map_enable = false;
+
+                    // text
+                    map_windows(14, 5);
+                    // text
                 }
 
                 map_trans(&agv_state);
