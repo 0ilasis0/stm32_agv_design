@@ -89,21 +89,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
@@ -163,21 +163,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_motion(VEHICLE_DIRECT_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
@@ -254,31 +254,31 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         case CMD_VEHI_B2_FREE:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(VEHICLE_DIRECT_STOP);
+                            vehicle_set_motion(VEHICLE_MOTION_STOP);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_END:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(VEHICLE_DIRECT_FORWARD);
+                            vehicle_set_motion(VEHICLE_MOTION_FORWARD);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_F_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(VEHICLE_DIRECT_BACKWARD);
+                            vehicle_set_motion(VEHICLE_MOTION_BACKWARD);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(VEHICLE_DIRECT_C_CLOCKWISE);
+                            vehicle_set_motion(VEHICLE_MOTION_C_CLOCKWISE);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_SEARCH:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_motion(VEHICLE_DIRECT_CLOCKWISE);
+                            vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
                             return FNS_OK;
                         }
                         default: break;

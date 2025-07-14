@@ -12,8 +12,9 @@
 void vehicle_track_mode()
 {
     if (
-           adchall_track_left.value  >  adchall_track_left.const_h.magnetic_value
-        && adchall_track_right.value <= adchall_track_right.const_h.magnetic_value
+           adchall_track_left.state == ADC_HALL_STATE_NONE
+        && adchall_track_right.state != ADC_HALL_STATE_NONE
+        && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
         vehicle_parameter.last_tick_on_mag = HAL_GetTick();
         motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
@@ -21,8 +22,9 @@ void vehicle_track_mode()
     }
     else if
     (
-           adchall_track_left.value  <= adchall_track_left.const_h.magnetic_value
-        && adchall_track_right.value >  adchall_track_right.const_h.magnetic_value
+           adchall_track_left.state != ADC_HALL_STATE_NONE
+        && adchall_track_right.state == ADC_HALL_STATE_NONE
+        && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
         vehicle_parameter.last_tick_on_mag = HAL_GetTick();
         motor_set_state(&motor_left, MOTOR_STATE_SLOW);
@@ -30,7 +32,7 @@ void vehicle_track_mode()
     }
     else
     {
-        if (adchall_direction.value <= adchall_direction.const_h.magnetic_value)
+        if (adchall_direction.state != ADC_HALL_STATE_NONE)
         {
             vehicle_parameter.last_tick_on_mag = HAL_GetTick();
         }
@@ -39,7 +41,7 @@ void vehicle_track_mode()
     }
     if (HAL_GetTick() - vehicle_parameter.last_tick_on_mag >= UNFIND_MAG_TIME)
     {
-        // vehicle_set_mode(VEHICLE_MODE_SEARCH);
+        vehicle_set_mode(VEHICLE_MODE_SEARCH);
     }
 }
 
@@ -56,7 +58,7 @@ void vehicle_rotate_in_place(void)
     while (vehicle_parameter.need_rotate_count != 0){
         if (adchall_direction.value <= adchall_direction.const_h.magnetic_value  && !triggered)
         {
-            vehicle_parameter.need_rotate_count --;
+            vehicle_parameter.need_rotate_count--;
             triggered_time = HAL_GetTick();
             triggered = true;
         }
@@ -73,6 +75,6 @@ void vehicle_rotate_in_place(void)
 
     vehicle_ensure_stop();
     vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_motion(VEHICLE_DIRECT_FORWARD);
+    vehicle_set_motion(VEHICLE_MOTION_FORWARD);
     vehicle_set_speed(VEHICLE_SETPOINT_TRACK);
 }

@@ -74,10 +74,10 @@ void us_sensor_main(void)
 {
     if (us_sensor_head.distance <= 20)
     {
-        vehicle_set_motion(VEHICLE_DIRECT_STOP);
+        vehicle_set_motion(VEHICLE_MOTION_STOP);
         vehicle_set_mode(VEHICLE_MODE_FREE);
         // 下面為啟動退回原點並重新計算地圖前往目標功能
-        // vehicle_set_motion(VEHICLE_DIRECT_BACKWARD);
+        // vehicle_set_motion(VEHICLE_MOTION_BACKWARD);
         // vehicle_set_mode(VEHICLE_MODE_F_TRACK);
     }
 }

@@ -8,12 +8,19 @@ typedef struct AdcHallConst
     uint16_t magnetic_value;
 } AdcHallConst;
 
+typedef enum AdcHallState
+{
+    ADC_HALL_STATE_NONE,
+    ADC_HALL_STATE_ON_MAG,
+} AdcHallState;
+
 typedef struct AdcHall
 {
     const AdcHallConst const_h;
     uint16_t value;
     uint16_t max;
     uint16_t min;
+    AdcHallState state;
 } AdcHall;
 
 extern AdcHall adchall_track_left;

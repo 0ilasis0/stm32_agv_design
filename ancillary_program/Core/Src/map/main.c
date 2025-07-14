@@ -14,7 +14,7 @@ static MapData map_data_init = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
-    .vehicle_motion  = VEHICLE_DIRECT_STOP,
+    .vehicle_motion  = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_FREE,
     .speed_setpoint     = 0,
 };
@@ -23,7 +23,7 @@ static MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
-    .vehicle_motion  = VEHICLE_DIRECT_STOP,
+    .vehicle_motion  = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
     .speed_setpoint     = VEHICLE_SETPOINT_ROTATE,
 };
@@ -152,7 +152,7 @@ static MapDataAll init_map_data (void)
         map_new.map_data[i] = map_data_init;
     }
 
-    map_new.map_data[0].vehicle_motion = VEHICLE_DIRECT_FORWARD;
+    map_new.map_data[0].vehicle_motion = VEHICLE_MOTION_FORWARD;
 
     return map_new;
 }
@@ -206,15 +206,15 @@ static VehicleMotion decide_map_vehicle_motion(MapDirF start_dir, MapDirF end_di
 
     if (diff == 0)
     {
-        return VEHICLE_DIRECT_FORWARD;
+        return VEHICLE_MOTION_FORWARD;
     }
     else if (diff >= 4)
     {
-        return VEHICLE_DIRECT_C_CLOCKWISE;
+        return VEHICLE_MOTION_C_CLOCKWISE;
     }
     else
     {
-        return VEHICLE_DIRECT_CLOCKWISE;
+        return VEHICLE_MOTION_CLOCKWISE;
     }
 
 }
@@ -236,7 +236,7 @@ static MapCountF decide_need_rotate_count(
     // 取得目前節點（node）在 locations_t 中的索引值
     MapIdF current_id = get_index_by_id(current_id_input);
 
-    if (rotate_direction_mode == VEHICLE_DIRECT_CLOCKWISE)
+    if (rotate_direction_mode == VEHICLE_MOTION_CLOCKWISE)
     {
         for (int8_t i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
         {
@@ -246,7 +246,7 @@ static MapCountF decide_need_rotate_count(
             }
         }
     }
-    else if (rotate_direction_mode == VEHICLE_DIRECT_C_CLOCKWISE)
+    else if (rotate_direction_mode == VEHICLE_MOTION_C_CLOCKWISE)
     {
         for (int8_t i = (from_dir - 1 + 8) % 8; i != (to_dir - 1 + 8) % 8; i = (i - 1 + 8) % 8)
         {
@@ -343,10 +343,8 @@ static void map_data_renew_direction_and_address (
     map_new->address_id = address_id;
 }
 
-static void map_bulid(MapIdF from, MapIdF to)
+void map_bulid(MapIdF from, MapIdF to)
 {
-    map_data_all = init_map_data();
-
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
 
@@ -399,7 +397,7 @@ void StartTask05(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_bulid(5, 14);
     // text
-
+    osDelay(1000);
     map_trans(&agv_state);
 
     for(;;)
