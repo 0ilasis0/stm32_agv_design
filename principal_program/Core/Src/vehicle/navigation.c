@@ -1,6 +1,6 @@
+#include "vehicle/navigation.h"
 #include "tim.h"
 #include "vehicle/basic.h"
-#include "vehicle/navigation.h"
 #include "vehicle/search.h"
 #include "main/fn_state.h"
 #include "adc/main.h"
@@ -9,16 +9,35 @@
 /**
  * @brief 循跡模式
  */
-void vehicle_track_mode()
+FnState vehicle_track_mode()
 {
+    MotorParameter *motor_l, *motor_r;
+    switch (vehicle_parameter.motion)
+    {
+        case VEHICLE_MOTION_FORWARD:
+        {
+            motor_l = &motor_left;
+            motor_r = &motor_right;
+        }
+        case VEHICLE_MOTION_BACKWARD:
+        {
+            motor_l = &motor_right;
+            motor_r = &motor_left;
+        }
+        default:
+        {
+            vehicle_set_mode(VEHICLE_MODE_FREE);
+            return;
+        }
+    }
     if (
            adchall_track_left.state == ADC_HALL_STATE_NONE
         && adchall_track_right.state != ADC_HALL_STATE_NONE
         && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
         vehicle_parameter.last_tick_on_mag = HAL_GetTick();
-        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
-        motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+        motor_set_state(motor_l, MOTOR_STATE_CONTROL);
+        motor_set_state(motor_r, MOTOR_STATE_SLOW);
     }
     else if
     (
@@ -27,8 +46,8 @@ void vehicle_track_mode()
         && adchall_direction.state == ADC_HALL_STATE_NONE
     ) {
         vehicle_parameter.last_tick_on_mag = HAL_GetTick();
-        motor_set_state(&motor_left, MOTOR_STATE_SLOW);
-        motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+        motor_set_state(motor_l, MOTOR_STATE_SLOW);
+        motor_set_state(motor_r, MOTOR_STATE_CONTROL);
     }
     else
     {
@@ -36,13 +55,15 @@ void vehicle_track_mode()
         {
             vehicle_parameter.last_tick_on_mag = HAL_GetTick();
         }
-        motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
-        motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+        motor_set_state(motor_l, MOTOR_STATE_CONTROL);
+        motor_set_state(motor_r, MOTOR_STATE_CONTROL);
     }
     if (HAL_GetTick() - vehicle_parameter.last_tick_on_mag >= UNFIND_MAG_TIME)
     {
-        vehicle_set_mode(VEHICLE_MODE_SEARCH);
+        vehicle_ensure_stop();
+        return FNS_FAIL;
     }
+    return FNS_OK;
 }
 
 /**

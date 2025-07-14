@@ -20,6 +20,18 @@ void vehicle_ensure_stop_inner(void)
 }
 
 /**
+  * @brief 等待車輛完全停止
+  */
+void vehicle_ensure_stop(void)
+{
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    vehicle_ensure_stop_inner();
+    motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
+    motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+}
+
+/**
   * @brief AGV 強迫前進不進行循跡直到離開強力磁鐵
   */
 // void agv_forward_leave_strong_magnet (void)
@@ -34,18 +46,6 @@ void vehicle_ensure_stop_inner(void)
 //         timeout_error(error_start, &error_state.agv_forward_leave_strong_magnet);
 //     }
 // }
-
-/**
-  * @brief 等待車輛完全停止
-  */
-void vehicle_ensure_stop(void)
-{
-    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
-    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
-    vehicle_ensure_stop_inner();
-    motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
-    motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
-}
 
 void vehicle_set_mode(VehicleMode mode)
 {

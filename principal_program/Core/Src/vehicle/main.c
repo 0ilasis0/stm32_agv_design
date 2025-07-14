@@ -136,30 +136,36 @@ void vehicle_main (void)
             // text
             vehicle_set_motion(VEHICLE_MOTION_STOP);
             vehicle_set_mode(VEHICLE_MODE_FREE);
-            return;
+            break;
         }
         case VEHICLE_MODE_TRACK:
         {
-            vehicle_track_mode();
-            return;
+            if (ERROR_CHECK_FNS_RAW(vehicle_track_mode()))
+            {
+                vehicle_set_motion(VEHICLE_MOTION_STOP);
+                vehicle_ensure_stop();
+                vehicle_set_mode(VEHICLE_MODE_SEARCH);
+                break;
+            }
+            break;
         }
         case VEHICLE_MODE_SEARCH:
         {
-            if (ERROR_CHECK_FNS_RAW(vehicle_search_mode()))
+            if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(10, 5000)))
             {
                 vehicle_set_motion(VEHICLE_MOTION_STOP);
+                vehicle_ensure_stop();
                 vehicle_set_mode(VEHICLE_MODE_FREE);
-                return;
+                break;
             }
-            vehicle_set_motion(VEHICLE_MOTION_FORWARD);
-            vehicle_set_speed(20);
+            vehicle_ensure_stop();
             vehicle_set_mode(VEHICLE_MODE_TRACK);
-            return;
+            break;
         }
         case VEHICLE_MODE_ROTATE:
         {
             vehicle_rotate_in_place();
-            return;
+            break;
         }
         default: break;
     }

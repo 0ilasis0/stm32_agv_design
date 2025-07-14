@@ -2,57 +2,80 @@
 #include "vehicle/basic.h"
 #include "adc/main.h"
 
-static FnState search_magnetic_direc(Percentage speed, uint32_t ms)
+static FnState search_magnetic(VehicleMotion motion, uint32_t ms)
 {
-    if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
-
-    vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
-    vehicle_set_speed(speed);
-    uint32_t past_time = HAL_GetTick();
+    FnState ret;
+    vehicle_set_motion(motion);
+    vehicle_ensure_stop();
+    uint32_t timeout = HAL_GetTick() + ms;
     for(;;)
     {
-        if (HAL_GetTick() - past_time >= ms)
+        if (HAL_GetTick() >= timeout)
         {
-            vehicle_set_motion(VEHICLE_MOTION_STOP);
-            vehicle_ensure_stop();
-            return FNS_NOT_FOUND;
+            ret = FNS_NOT_FOUND;
+            break;
         }
-        if (adchall_direction.state != ADC_HALL_STATE_NONE) break;
-        osDelay(10);
+        if (adchall_direction.state != ADC_HALL_STATE_NONE)
+        {
+            ret = FNS_OK;
+            break;
+        }
+        osDelay(50);
     }
-    vehicle_set_speed(0);
-    vehicle_ensure_stop();
-    return FNS_OK;
+    vehicle_set_motion(VEHICLE_MOTION_STOP);
+    return ret;
 }
 
-static FnState walk_until_on_path(Percentage speed, uint32_t ms)
+static FnState walk_to_mag(VehicleMotion motion, uint32_t ms)
 {
-    vehicle_set_motion(VEHICLE_MOTION_FORWARD);
-    vehicle_set_speed(speed);
-    uint32_t past_time = HAL_GetTick();
+    vehicle_set_motion(motion);
+    vehicle_ensure_stop();
+    uint32_t timeout = HAL_GetTick() + ms;
     for(;;)
     {
-        if (HAL_GetTick() - past_time >= ms)
+        if (HAL_GetTick() >= timeout)
         {
             vehicle_set_motion(VEHICLE_MOTION_STOP);
-            vehicle_ensure_stop();
             return FNS_NOT_FOUND;
         }
         if (
                adchall_track_left.state != ADC_HALL_STATE_NONE
             || adchall_track_right.state != ADC_HALL_STATE_NONE
         ) break;
-        osDelay(10);
+        osDelay(50);
     }
-    vehicle_set_speed(0);
-    vehicle_ensure_stop();
-    return FNS_OK;
 }
 
-FnState vehicle_search_mode(void)
+FnState vehicle_search_mode(Percentage speed, uint32_t ms)
 {
-    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 5000));
-    ERROR_CHECK_FNS_RETURN(walk_until_on_path(10, 3000));
-    ERROR_CHECK_FNS_RETURN(search_magnetic_direc(10, 5000));
+    if (!runtime_switch.search_magnetic_path) return FNS_INVALID;
+    Percentage ori_speed = vehicle_parameter.speed;
+    VehicleMotion ori_motion = vehicle_parameter.motion;
+    VehicleMotion motion = VEHICLE_MOTION_CLOCKWISE;
+    vehicle_set_speed(speed);
+    if (ERROR_CHECK_FNS_RAW(search_magnetic(motion, ms)))
+    {
+        motion = VEHICLE_MOTION_C_CLOCKWISE;
+        ERROR_CHECK_FNS_RETURN(search_magnetic(motion, 2*ms));
+    }
+    ERROR_CHECK_FNS_RETURN(walk_to_mag(ori_motion, 3000));
+    switch (motion)
+    {
+        case VEHICLE_MOTION_CLOCKWISE:
+        {
+            motion = VEHICLE_MOTION_C_CLOCKWISE;
+            break;
+        }
+        case VEHICLE_MOTION_C_CLOCKWISE:
+        {
+            motion = VEHICLE_MOTION_CLOCKWISE;
+            break;
+        }
+        default: return FNS_FAIL;
+    }
+    ERROR_CHECK_FNS_RETURN(search_magnetic(motion, ms));
+    vehicle_set_motion(ori_motion);
+    vehicle_set_speed(ori_speed);
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
     return FNS_OK;
 }
