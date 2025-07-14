@@ -342,34 +342,6 @@ static void map_data_renew_direction_and_address (
     map_new->address_id = address_id;
 }
 
-static void map_bulid(MapIdF from, MapIdF to)
-{
-    map_data_all = init_map_data();
-
-    }
-
-    if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_direction))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-
-    }
-    if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-
-    }
-    if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-
-    }
-
-    vec_byte_free(&vec_byte);
-}
-
 void map_bulid(MapIdF from, MapIdF to)
 {
     from = get_index_by_id(from);
@@ -419,7 +391,7 @@ void StartTask05(void *argument)
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_bulid(5, 14);
     // text
-
+    osDelay(1000);
     map_trans(&agv_state);
 
     for(;;)
