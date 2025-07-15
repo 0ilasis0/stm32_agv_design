@@ -5,7 +5,7 @@
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 
-static bool    map_enable = true; //應該false目前text所以true;
+static bool    map_enable = false;
 static bool    map_toggle = false;
 static uint8_t final_node_count = 0;
 
@@ -38,7 +38,7 @@ static MapError map_error = {
 static Location locations_t[MAX_NODE];
 static const Location locations_t_inner[MAX_NODE] = {
     {5,     { {0,0},     {0,0},      {78,20},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
-    {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {0,0},      {0,0}       } },
+    {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {5,20},      {0,0}       } },
     {11,    { {0,0},     {0,0},      {131,80},   {0,0},      {12,5},     {15,40},    {78,35},    {0,0}       } },
     {12,    { {11,5},    {131,20},   {0,0},      {0,0},      {0,0},      {0,0},      {15,45},    {0,0}       } },
     {131,   { {0,0},     {0,0},      {0,0},      {14,10},    {0,0},      {12,20},    {11,80},    {0,0}       } },
@@ -49,7 +49,7 @@ static const Location locations_t_inner[MAX_NODE] = {
 static void map_trans (const MapData* trans_map)
 {
     // text
-    return;
+    // return;
     // text
 
     VecByte vec_byte;
@@ -393,7 +393,7 @@ int yy = 1;
 int tick_ttt = 0;
 void StartMapTask(void *argument)
 {
-    osThreadExit();
+    // osThreadExit();
 
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
     map_set();
@@ -410,15 +410,15 @@ void StartMapTask(void *argument)
         // text
 
         // map flag
-        // if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
-        // if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
+        if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
+        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
 
-        // if(map_enable && map_toggle)
         if(map_enable)
+        // if(map_enable && map_toggle)
         {
             // 讀到RFID執行給資料到另一個stm32
-            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
+            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
@@ -433,15 +433,15 @@ void StartMapTask(void *argument)
                     map_enable = false;
 
                     // text
-                    map_windows(14, 78);
+                    map_windows(14, 5);
                     // text
                 }
 
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
+            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             {
                 // text
                 yy = 0;
