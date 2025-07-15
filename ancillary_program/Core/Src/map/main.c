@@ -30,21 +30,31 @@ static MapData map_data_start = {
     .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };
 
-static MapError map_error = {
-    .lose_navigation        = FNS_OK,
-    .no_path                = FNS_OK,
-};
+static MapError map_error = {FNS_OK};
 
 static Location locations_t[MAX_NODE];
 static const Location locations_t_inner[MAX_NODE] = {
-    {5,     { {0,0},     {0,0},      {78,20},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
-    {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {5,20},      {0,0}       } },
-    {11,    { {0,0},     {0,0},      {131,80},   {0,0},      {12,5},     {15,40},    {78,35},    {0,0}       } },
-    {12,    { {11,5},    {131,20},   {0,0},      {0,0},      {0,0},      {0,0},      {15,45},    {0,0}       } },
-    {131,   { {0,0},     {0,0},      {0,0},      {14,10},    {0,0},      {12,20},    {11,80},    {0,0}       } },
-    {14,    { {0,0},     {0,0},      {0,0},      {0,0},      {0,0},      {0,0},      {0,0},      {131,10}    } },
-    {15,    { {0,0},     {11,40},    {12,45},    {0,0},      {0,0},      {0,0},      {0,0},      {78,30}     } }
+    {1,    { {0,0},     {0,0},      {2,85},    {0,0},      {3,50},      {0,0},      {0,0},      {0,0}       } },
+    {2,    { {0,0},     {0,0},      {0,0},    {0,0},      {0,0},      {3,100},      {1,85},      {0,0}       } },
+    {3,    { {1,50},     {2,100},      {0,0},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
 };
+
+// static const Location locations_t_inner[MAX_NODE] = {
+//     {1,    { {0,0},     {0,0},      {2,85},    {4,30},      {3,50},      {0,0},      {0,0},      {0,0}       } },
+//     {2,    { {0,0},     {0,0},      {0,0},    {0,0},      {0,0},      {4,90},      {1,85},      {0,0}       } },
+//     {3,    { {1,50},     {4,10},      {0,0},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
+//     {4,    { {0,0},      {2,90},       {0,0},    {0,0},      {0,0},      {3,10},      {0,0},      {1,30}       } },
+// };
+
+// static const Location locations_t_inner[MAX_NODE] = {
+//     {5,     { {0,0},     {0,0},      {78,20},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
+//     {78,    { {0,0},     {0,0},      {11,35},    {15,30},    {0,0},      {0,0},      {5,20},      {0,0}       } },
+//     {11,    { {0,0},     {0,0},      {131,80},   {0,0},      {12,5},     {15,40},    {78,35},    {0,0}       } },
+//     {12,    { {11,5},    {131,20},   {0,0},      {0,0},      {0,0},      {0,0},      {15,45},    {0,0}       } },
+//     {131,   { {0,0},     {0,0},      {0,0},      {14,10},    {0,0},      {12,20},    {11,80},    {0,0}       } },
+//     {14,    { {0,0},     {0,0},      {0,0},      {0,0},      {0,0},      {0,0},      {0,0},      {131,10}    } },
+//     {15,    { {0,0},     {11,40},    {12,45},    {0,0},      {0,0},      {0,0},      {0,0},      {78,30}     } }
+// };
 
 static void map_trans (const MapData* trans_map)
 {
@@ -384,6 +394,13 @@ static void map_bulid(MapIdF from, MapIdF to)
 
 void map_windows (MapIdF from, MapIdF to)
 {
+    // 若已設定起點且與本次輸入不符，視為錯誤
+    if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
+    {
+        map_error.input_start_id_err = FNS_FAIL;
+        return;
+    }
+
     map_enable = true;
     map_bulid(from, to);
     map_trans(&agv_state);
@@ -400,25 +417,25 @@ void StartMapTask(void *argument)
 
     // text
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
-    map_windows(5, 14);
+    // map_windows(5, 14);
     // text
 
     for(;;)
     {
         // text
-        tick_ttt++;
+        // tick_ttt++;
         // text
 
         // map flag
         // if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
         // if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
 
-        if(map_enable)
-        // if(map_enable && map_toggle)
+        // if(map_enable)
+        if(map_enable && map_toggle)
         {
             // 讀到RFID執行給資料到另一個stm32
-            if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
-            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
+            if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
@@ -433,18 +450,18 @@ void StartMapTask(void *argument)
                     map_enable = false;
 
                     // text
-                    map_windows(14, 5);
+                    // map_windows(14, 5);
                     // text
                 }
 
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
-            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
+            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
+            else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             {
                 // text
-                yy = 0;
+                // yy = 0;
                 // text
 
                 // 先傳送停止動作，等地圖計算完畢

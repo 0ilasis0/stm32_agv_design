@@ -85,6 +85,7 @@ void vehicle_rotate_in_place(void)
         if (
             adchall_direction.value == ADC_HALL_STATE_NONE
             && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
+            && triggered
             )
         {
             triggered = false;

@@ -29,6 +29,7 @@ typedef uint16_t   MapDisF;
 typedef struct MapError{
     FnState lose_navigation;
     FnState no_path;
+    FnState input_start_id_err;
 } MapError;
 
 typedef struct Connection{
