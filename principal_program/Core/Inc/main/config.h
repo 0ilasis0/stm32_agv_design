@@ -76,7 +76,7 @@
 #define UART_START_CODE         ((uint8_t) '>')
 #define UART_END_CODE           ((uint8_t) '\n')
 
-#define MAGNATIC_STRIPE_TIME_DIF    250
+#define MAGNATIC_STRIPE_TIME_DIF    200
 
 #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN

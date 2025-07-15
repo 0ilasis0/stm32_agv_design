@@ -430,8 +430,8 @@ void StartMapTask(void *argument)
         if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
         if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
 
-        if(map_enable)
-        // if(map_enable && map_toggle)
+        // if(map_enable)
+        if(map_enable && map_toggle)
         {
             // 讀到RFID執行給資料到另一個stm32
             // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
