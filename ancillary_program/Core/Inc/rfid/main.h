@@ -21,7 +21,8 @@ typedef struct RC522State
     uint32_t uid32;
     CardState state;
     uint16_t secter1k_open;
-    VecByte addr_0x0;
+    uint8_t addr_0x0[RFID_BLOCK_BYTE_CAP];
+    uint8_t addr_0x0_s;
 } RC522State;
 
 typedef struct RfidTrcvBuf

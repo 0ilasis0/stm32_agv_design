@@ -72,9 +72,9 @@ static UNUSED_FNC FnState buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
     return FNS_OK;
 }
 
+uint8_t err_count = 0;
 void StartRfidTask(void *argument)
 {
-    vec_byte_new(&spi2_rfid.addr_0x0, RFID_BLOCK_BYTE_CAP);
     RC522_PCD_Init(&spi2_rfid.const_h);
     memcpy(&rfid_trsm_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     memcpy(&rfid_recv_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
@@ -97,17 +97,35 @@ void StartRfidTask(void *argument)
             | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
             | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
             | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
-        for(;;)
-        {
-            if (RC522_MIFARE_Read(&spi2_rfid.const_h, 0, spi2_rfid.addr_0x0.data, RFID_BLOCK_BYTE_CAP) != STATUS_Code_OK) break;
-            buf_write(&spi2_rfid, &rfid_trsm_buf);
-            rfid_recv_buf.sector = rfid_trsm_buf.sector;
-            rfid_recv_buf.block = rfid_trsm_buf.block;
-            buf_read(&spi2_rfid, &rfid_recv_buf);
-            osDelay(10);
+        err_count = 0;  // ***重置***
+        while (err_count < 10) {
+            if (!RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h)
+            || !RC522_PICC_ReadCardSerial(&spi2_rfid.const_h)) {
+                err_count++;
+            } else {
+                err_count = 0;
+                buf_write(&spi2_rfid, &rfid_trsm_buf);
+                rfid_recv_buf.sector = rfid_trsm_buf.sector;
+                rfid_recv_buf.block  = rfid_trsm_buf.block;
+                buf_read(&spi2_rfid, &rfid_recv_buf);
+            }
+            osDelay(50);
         }
+
+        // 確認卡片離開：先 Halt、StopCrypto，再等到真的沒卡再切換 NONE
+        RC522_PICC_HaltA(&spi2_rfid.const_h);
+        RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
+        // 等到 PICC_IsNewCardPresent 回 false 才跳出
+        do {
+            osDelay(10);
+        } while (RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h));
+
         spi2_rfid.state = CARD_STATE_NONE;
         spi2_rfid.secter1k_open = 0;
-        RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
     }
 }
+
+            // buf_write(&spi2_rfid, &rfid_trsm_buf);
+            // rfid_recv_buf.sector = rfid_trsm_buf.sector;
+            // rfid_recv_buf.block = rfid_trsm_buf.block;
+            // buf_read(&spi2_rfid, &rfid_recv_buf);
