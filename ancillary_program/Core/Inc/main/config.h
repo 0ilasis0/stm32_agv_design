@@ -24,8 +24,8 @@
 
 #define TIM2_PSC        1700
 #define TIM2_ARR        2000
-#define TIM3_PSC        170
-#define TIM3_ARR        20000
+#define TIM3_PSC        1700
+#define TIM3_ARR        2000
 
 #define VEC_BYTE_MAX_CAP        256
 #define TRCV_BUF_MAX_CAP        10

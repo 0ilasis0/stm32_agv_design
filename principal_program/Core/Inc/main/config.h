@@ -43,6 +43,7 @@
 #define MOTOR_PI_KP             0.25f       // 比例增益
 #define MOTOR_PI_KI             0.000001f     // 積分增益
 #define MOTOR_STOP_GATE         0.01f
+#define UNFIND_MAG_TIME 5000
 
 #define ADC_COUNT                   4
 #define ADC_NEED_LEN              1023

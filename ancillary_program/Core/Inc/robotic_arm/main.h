@@ -18,7 +18,7 @@ typedef struct ArmConst
 } ArmConst;
 typedef struct ArmParameter
 {
-    const ArmConst* const_h;
+    const ArmConst const_h;
     ArmTim tim_current;
     ArmTim tim_setpoint;
 } ArmParameter;

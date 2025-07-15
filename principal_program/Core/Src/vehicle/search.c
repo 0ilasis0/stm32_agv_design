@@ -44,6 +44,7 @@ static FnState walk_to_mag(VehicleMotion motion, uint32_t ms)
         ) break;
         osDelay(50);
     }
+    return FNS_OK;
 }
 
 FnState vehicle_search_mode(Percentage speed, uint32_t ms)

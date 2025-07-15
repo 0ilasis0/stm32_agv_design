@@ -66,7 +66,7 @@ FnState us_sensor_stop(USSensor* us_sensor)
 {
     if (us_sensor->state != USS_STATE_RUNNING) return FNS_INVALID;
     us_sensor->state = USS_STATE_STOP;
-    USSConst *const_h = &us_sensor->const_h;
+    const USSConst *const_h = &us_sensor->const_h;
     HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
     us_sensor->time = __HAL_TIM_GET_COUNTER(US_SENSOR_HTIM);
     us_sensor->distance = (float)us_sensor->time * 0.343f / 2.0f;  // uint:mm

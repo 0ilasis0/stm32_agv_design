@@ -20,7 +20,6 @@ typedef enum USSState
     USS_STATE_TRIGGER,
     USS_STATE_WAITING,
 } USSState;
-typedef uint8_t USSState;
 
 typedef enum USSStatus
 {

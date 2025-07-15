@@ -397,11 +397,11 @@ int yy = 1;
 int tick_ttt = 0;
 void StartTask05(void *argument)
 {
+    osThreadExit();
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
     map_set();
 
     // text
-    return;
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_windows(5, 14);
     // text

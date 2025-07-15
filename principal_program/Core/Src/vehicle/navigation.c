@@ -2,7 +2,6 @@
 #include "tim.h"
 #include "vehicle/basic.h"
 #include "vehicle/search.h"
-#include "main/fn_state.h"
 #include "adc/main.h"
 #include "main/config.h"
 
@@ -27,7 +26,7 @@ FnState vehicle_track_mode()
         default:
         {
             vehicle_set_mode(VEHICLE_MODE_FREE);
-            return;
+            return FNS_INVALID;
         }
     }
     if (

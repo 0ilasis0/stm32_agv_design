@@ -82,8 +82,7 @@ void StartDefaultTask(void *argument)
     for(;;)
     {
         vehicle_main();
-        us_sensor_main();
-        osDelay(10); // !DO NOT CANCEL THIS LINE
+        osDelay(50); // !DO NOT CANCEL THIS LINE
         defalt_running++;
     }
 }

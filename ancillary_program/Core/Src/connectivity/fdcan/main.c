@@ -27,7 +27,8 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
         }
         case CMD_ARM_B2_SET:
         {
-            arm_set_pos(arm, vec_byte->data[vec_byte->head]);
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+            arm_set_pos(arm, code);
             return FNS_OK;
         }
         default: break;
