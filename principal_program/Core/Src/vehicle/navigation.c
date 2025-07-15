@@ -8,7 +8,7 @@
 /**
  * @brief 循跡模式
  */
-FnState vehicle_track_mode()
+FnState vehicle_track_mode(uint32_t unfind_ms)
 {
     MotorParameter *motor_l, *motor_r;
     switch (vehicle_h.motion)
@@ -17,11 +17,13 @@ FnState vehicle_track_mode()
         {
             motor_l = &motor_left;
             motor_r = &motor_right;
+            break;
         }
         case VEHICLE_MOTION_BACKWARD:
         {
             motor_l = &motor_right;
             motor_r = &motor_left;
+            break;
         }
         default:
         {
@@ -57,7 +59,7 @@ FnState vehicle_track_mode()
         motor_set_state(motor_l, MOTOR_STATE_CONTROL);
         motor_set_state(motor_r, MOTOR_STATE_CONTROL);
     }
-    if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= UNFIND_MAG_TIME)
+    if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= unfind_ms)
     {
         vehicle_ensure_stop();
         return FNS_FAIL;
@@ -68,34 +70,34 @@ FnState vehicle_track_mode()
 /**
   * @brief AGV 原地旋轉直到對準方向，根據強磁計數更新 AGV 方向資料
   */
-void vehicle_rotate_in_place(void)
+FnState vehicle_rotate_in_place(void)
 {
     //邊緣觸發判斷+時間預防
-    bool triggered = false;
-    uint32_t time_out = HAL_GetTick();
-    uint32_t triggered_time;
+    bool triggered = true;
+    // uint32_t time_out = HAL_GetTick();
+    // uint32_t triggered_time;
 
     while (vehicle_h.need_rotate_count != 0){
-        if (adchall_direction.state != ADC_HALL_STATE_NONE && !triggered)
+        if (triggered)
         {
-            vehicle_h.need_rotate_count--;
-            triggered_time = HAL_GetTick();
-            triggered = true;
+            if (
+                   adchall_direction.state == ADC_HALL_STATE_NONE
+                // && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
+            ) {
+                triggered = false;
+            }
         }
-        if (
-            adchall_direction.value == ADC_HALL_STATE_NONE
-            && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
-            && triggered
-            )
+        else
         {
-            triggered = false;
+            if (
+                adchall_direction.state != ADC_HALL_STATE_NONE
+            ) {
+                vehicle_h.need_rotate_count--;
+                // triggered_time = HAL_GetTick();
+                triggered = true;
+            }
         }
-
-        timeout_error(time_out, &error_state.vehicle_rotate_in_place);
+        // timeout_error(time_out, &error_state.vehicle_rotate_in_place);
     }
-
-    vehicle_ensure_stop();
-    vehicle_set_mode(VEHICLE_MODE_TRACK);
-    vehicle_set_motion(VEHICLE_MOTION_FORWARD);
-    vehicle_set_speed(MAP_SETPOINT_TRACK);
+    return FNS_OK;
 }

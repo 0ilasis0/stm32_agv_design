@@ -410,7 +410,8 @@ int yy = 1;
 int tick_ttt = 0;
 void StartMapTask(void *argument)
 {
-    // osThreadExit();
+    osThreadExit();
+    return;
 
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
     map_set();
@@ -427,8 +428,8 @@ void StartMapTask(void *argument)
         // text
 
         // map flag
-        // if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
-        // if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
+        if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
+        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
 
         // if(map_enable)
         if(map_enable && map_toggle)

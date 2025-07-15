@@ -30,7 +30,7 @@ AdcHall adchall_direction = {
         // PB12(R16)
         .id = 0,
         .magnetic_value_0 = 2250,
-        .magnetic_value_1 = 1820,
+        .magnetic_value_1 = 1830,
     },
     .min = 4095,
 };
