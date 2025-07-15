@@ -146,11 +146,11 @@ void vehicle_main (void)
         }
         case VEHICLE_MODE_TRACK:
         {
-            if (ERROR_CHECK_FNS_RAW(vehicle_track_mode(500)))
+            if (ERROR_CHECK_FNS_RAW(vehicle_track_mode(1000)))
             {
-                vehicle_set_motion(VEHICLE_MOTION_STOP);
-                vehicle_ensure_stop();
-                vehicle_set_mode(VEHICLE_MODE_SEARCH);
+                // vehicle_set_motion(VEHICLE_MOTION_STOP);
+                // vehicle_ensure_stop();
+                // vehicle_set_mode(VEHICLE_MODE_SEARCH);
                 break;
             }
             break;
@@ -170,7 +170,7 @@ void vehicle_main (void)
         }
         case VEHICLE_MODE_ROTATE:
         {
-            if (ERROR_CHECK_FNS_RAW(vehicle_rotate_in_place()))
+            if (ERROR_CHECK_FNS_RAW(vehicle_rotate_in_place(1000)))
             {
                 vehicle_set_motion(VEHICLE_MOTION_STOP);
                 vehicle_ensure_stop();

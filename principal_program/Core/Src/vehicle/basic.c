@@ -52,6 +52,7 @@ void vehicle_set_mode(VehicleMode mode)
     switch (mode)
     {
         case VEHICLE_MODE_TRACK:
+        case VEHICLE_MODE_ROTATE:
         {
             vehicle_h.last_tick_on_mag = HAL_GetTick();
             break;

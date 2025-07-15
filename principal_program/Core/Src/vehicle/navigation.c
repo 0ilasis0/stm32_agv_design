@@ -27,6 +27,8 @@ FnState vehicle_track_mode(uint32_t unfind_ms)
         }
         default:
         {
+            vehicle_set_motion(VEHICLE_MOTION_STOP);
+            vehicle_ensure_stop();
             vehicle_set_mode(VEHICLE_MODE_FREE);
             return FNS_INVALID;
         }
@@ -61,7 +63,9 @@ FnState vehicle_track_mode(uint32_t unfind_ms)
     }
     if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= unfind_ms)
     {
+        vehicle_set_motion(VEHICLE_MOTION_STOP);
         vehicle_ensure_stop();
+        vehicle_set_mode(VEHICLE_MODE_SEARCH);
         return FNS_FAIL;
     }
     return FNS_OK;
@@ -70,34 +74,39 @@ FnState vehicle_track_mode(uint32_t unfind_ms)
 /**
   * @brief AGV 原地旋轉直到對準方向，根據強磁計數更新 AGV 方向資料
   */
-FnState vehicle_rotate_in_place(void)
+FnState vehicle_rotate_in_place(uint32_t unfind_ms)
 {
     //邊緣觸發判斷+時間預防
-    bool triggered = true;
+    bool mag_trigger = 1;
     // uint32_t time_out = HAL_GetTick();
     // uint32_t triggered_time;
 
     while (vehicle_h.need_rotate_count != 0){
-        if (triggered)
+        if (mag_trigger)
         {
-            if (
-                   adchall_direction.state == ADC_HALL_STATE_NONE
-                // && triggered_time - HAL_GetTick() > MAGNATIC_STRIPE_TIME_DIF
-            ) {
-                triggered = false;
+            if (adchall_direction.state == ADC_HALL_STATE_NONE)
+            {
+                mag_trigger = 0;
             }
         }
         else
         {
-            if (
-                adchall_direction.state != ADC_HALL_STATE_NONE
-            ) {
+            if (adchall_direction.state != ADC_HALL_STATE_NONE)
+            {
+                mag_trigger = 1;
                 vehicle_h.need_rotate_count--;
-                // triggered_time = HAL_GetTick();
-                triggered = true;
+                vehicle_h.last_tick_on_mag = HAL_GetTick();
             }
         }
-        // timeout_error(time_out, &error_state.vehicle_rotate_in_place);
+        if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= unfind_ms)
+        {
+            vehicle_set_motion(VEHICLE_MOTION_STOP);
+            vehicle_ensure_stop();
+            vehicle_set_mode(VEHICLE_MODE_FREE);
+            return FNS_FAIL;
+        }
+        osDelay(50);
     }
+    
     return FNS_OK;
 }
