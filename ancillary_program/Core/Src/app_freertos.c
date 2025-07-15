@@ -92,7 +92,7 @@ void StartDefaultTask(void *argument);
 void StartArmTask(void *argument);
 void StartFdCanTask(void *argument);
 void StartRfidTask(void *argument);
-void StartTask05(void *argument);
+void StartMapTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -136,7 +136,7 @@ void MX_FREERTOS_Init(void) {
   RfidTaskHandle = osThreadNew(StartRfidTask, NULL, &RfidTask_attributes);
 
   /* creation of MapTask */
-  MapTaskHandle = osThreadNew(StartTask05, NULL, &MapTask_attributes);
+  MapTaskHandle = osThreadNew(StartMapTask, NULL, &MapTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -220,22 +220,22 @@ __weak void StartRfidTask(void *argument)
   /* USER CODE END StartRfidTask */
 }
 
-/* USER CODE BEGIN Header_StartTask05 */
+/* USER CODE BEGIN Header_StartMapTask */
 /**
-* @brief Function implementing the mapTask thread.
+* @brief Function implementing the MapTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartTask05 */
-__weak void StartTask05(void *argument)
+/* USER CODE END Header_StartMapTask */
+__weak void StartMapTask(void *argument)
 {
-  /* USER CODE BEGIN StartTask05 */
+  /* USER CODE BEGIN StartMapTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartTask05 */
+  /* USER CODE END StartMapTask */
 }
 
 /* Private application code --------------------------------------------------*/

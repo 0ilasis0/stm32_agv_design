@@ -21,7 +21,7 @@
         }                                   \
     } while (0)
 
-typedef uint16_t   MapIdF;
+typedef uint32_t   MapIdF;
 typedef uint8_t    MapDirF;
 typedef uint8_t    MapCountF;
 typedef uint16_t   MapDisF;
@@ -29,7 +29,6 @@ typedef uint16_t   MapDisF;
 typedef struct MapError{
     FnState lose_navigation;
     FnState no_path;
-    FnState map_data_trans_error[5];
 } MapError;
 
 typedef struct Connection{
