@@ -30,10 +30,7 @@ static MapData map_data_start = {
     .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };
 
-static MapError map_error = {
-    .lose_navigation        = FNS_OK,
-    .no_path                = FNS_OK,
-};
+static MapError map_error = {FNS_OK};
 
 static Location locations_t[MAX_NODE];
 static const Location locations_t_inner[MAX_NODE] = {
@@ -397,6 +394,13 @@ static void map_bulid(MapIdF from, MapIdF to)
 
 void map_windows (MapIdF from, MapIdF to)
 {
+    // 若已設定起點且與本次輸入不符，視為錯誤
+    if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
+    {
+        map_error.input_start_id_err = FNS_FAIL;
+        return;
+    }
+
     map_enable = true;
     map_bulid(from, to);
     map_trans(&agv_state);
