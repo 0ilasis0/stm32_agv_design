@@ -218,8 +218,8 @@ static void rps_control(MotorParameter *motor, float ms)
         }
         case MOTOR_STATE_COAST:
         {
-            motor->pwm_duty = 0;
             motor->rps_pcn_inner = 0;
+            motor->pwm_duty = 0;
             motor->integral_record = 0;
             return;
         }
