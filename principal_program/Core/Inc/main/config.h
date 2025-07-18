@@ -45,8 +45,10 @@
 #define MOTOR_STOP_GATE         0.01f
 #define UNFIND_MAG_TIME 5000
 
-#define ADC_COUNT                   4
-#define ADC_NEED_LEN              1023
+#define ADC_COUNT               4
+#define ADC_NEED_LEN            1023
+#define ADC_ACC_CNT_MIN         1000
+#define ADC_ACC_CNT_MAX         3000
 
 #define US_SENSOR_HTIM          &htim4
 #define US_SENSOR_TIM_CH        TIM_CHANNEL_1

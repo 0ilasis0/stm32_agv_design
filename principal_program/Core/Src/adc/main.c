@@ -46,7 +46,7 @@ AdcHall adchall_node = {
 };
 
 // 2100 - 1100
-static uint16_t adc_cnt[2560] = {0};
+static uint16_t adc_cnt[ADC_ACC_CNT_MAX - ADC_ACC_CNT_MIN] = {0};
 
 static void max_min (AdcHall* adc)
 {
@@ -57,21 +57,20 @@ static void max_min (AdcHall* adc)
 static void hall_update(AdcHall* adc)
 {
     memset(adc_cnt, 0, sizeof(adc_cnt));
-    uint16_t i, k;
+    uint16_t i, value;
     for (i = 0; i < ADC_NEED_LEN; i++)
     {
-        k = ADC_Values[i * ADC_COUNT + adc->const_h.id];
-        if(k > 2559) continue;
-        adc_cnt[k]++;
+        value = ADC_Values[i * ADC_COUNT + adc->const_h.id];
+        if(value < ADC_ACC_CNT_MIN || value >= ADC_ACC_CNT_MAX) continue;
+        adc_cnt[value - ADC_ACC_CNT_MIN]++;
     }
-    const uint16_t target = (ADC_NEED_LEN-1)/2;
     uint16_t acc = 0;
-    for (i = 500; i < 2500; i++)
+    for (i = 0; i < ADC_ACC_CNT_MAX - ADC_ACC_CNT_MIN; i++)
     {
         acc += adc_cnt[i];
-        if (acc > target)
+        if (acc > ADC_NEED_LEN / 2)
         {
-            adc->value = i;
+            adc->value = i + ADC_ACC_CNT_MIN;
             break;
         }
     }

@@ -1,6 +1,5 @@
 #include "main/main.h"
 #include "main/config.h"
-#include "vehicle/navigation.h"
 #include "vehicle/main.h"
 #include "motor/main.h"
 #include "us_sensor/main.h"
@@ -80,7 +79,39 @@ void StartDefaultTask(void *argument)
 
     for(;;)
     {
-        vehicle_main();
+        switch (vehicle_h.mode)
+        {
+            case VEHICLE_MODE_END:
+            {
+                vehicle_set_motion(VEHICLE_MOTION_STOP);
+                vehicle_set_mode(VEHICLE_MODE_FREE);
+                break;
+            }
+            case VEHICLE_MODE_TRACK:
+            {
+                vehicle_track_mode(1000);
+                break;
+            }
+            case VEHICLE_MODE_SEARCH:
+            {
+                if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(20, 2000)))
+                {
+                    vehicle_set_motion(VEHICLE_MOTION_STOP);
+                    vehicle_ensure_stop();
+                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                    break;
+                }
+                vehicle_ensure_stop();
+                vehicle_set_mode(VEHICLE_MODE_TRACK);
+                break;
+            }
+            case VEHICLE_MODE_ROTATE:
+            {
+                vehicle_rotate_in_place(1000);
+                break;
+            }
+            default: break;
+        }
         osDelay(50); // !DO NOT CANCEL THIS LINE
         defalt_running++;
     }

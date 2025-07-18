@@ -8,7 +8,7 @@
 /**
  * @brief 循跡模式
  */
-FnState vehicle_track_mode(uint32_t unfind_ms)
+void vehicle_track_mode(uint32_t unfind_ms)
 {
     MotorParameter *motor_l, *motor_r;
     switch (vehicle_h.motion)
@@ -30,7 +30,6 @@ FnState vehicle_track_mode(uint32_t unfind_ms)
             vehicle_set_motion(VEHICLE_MOTION_STOP);
             vehicle_ensure_stop();
             vehicle_set_mode(VEHICLE_MODE_FREE);
-            return FNS_INVALID;
         }
     }
     if (
@@ -66,15 +65,13 @@ FnState vehicle_track_mode(uint32_t unfind_ms)
         vehicle_set_motion(VEHICLE_MOTION_STOP);
         vehicle_ensure_stop();
         vehicle_set_mode(VEHICLE_MODE_SEARCH);
-        return FNS_FAIL;
     }
-    return FNS_OK;
 }
 
 /**
   * @brief AGV 原地旋轉直到對準方向，根據強磁計數更新 AGV 方向資料
   */
-FnState vehicle_rotate_in_place(uint32_t unfind_ms)
+void vehicle_rotate_in_place(uint32_t unfind_ms)
 {
     //邊緣觸發判斷+時間預防
     bool mag_trigger = 1;
@@ -103,10 +100,10 @@ FnState vehicle_rotate_in_place(uint32_t unfind_ms)
             vehicle_set_motion(VEHICLE_MOTION_STOP);
             vehicle_ensure_stop();
             vehicle_set_mode(VEHICLE_MODE_FREE);
-            return FNS_FAIL;
         }
         osDelay(50);
     }
-    
-    return FNS_OK;
+    vehicle_ensure_stop();
+    vehicle_set_motion(VEHICLE_MOTION_FORWARD);
+    vehicle_set_mode(VEHICLE_MODE_TRACK);
 }

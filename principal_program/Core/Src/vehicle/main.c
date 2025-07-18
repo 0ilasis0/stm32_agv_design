@@ -1,7 +1,5 @@
 #include "vehicle/main.h"
 #include "main/fn_state.h"
-#include "vehicle/navigation.h"
-#include "vehicle/search.h"
 #include "adc/main.h"
 #include "us_sensor/main.h"
 
@@ -128,60 +126,4 @@ void vehicle_test_no_load_rps(uint32_t ms)
 
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
-}
-
-static bool text_end = 0;
-void vehicle_main (void)
-{
-    switch (vehicle_h.mode)
-    {
-        case VEHICLE_MODE_END:
-        {
-            // text
-            text_end = 1;
-            // text
-            vehicle_set_motion(VEHICLE_MOTION_STOP);
-            vehicle_set_mode(VEHICLE_MODE_FREE);
-            break;
-        }
-        case VEHICLE_MODE_TRACK:
-        {
-            if (ERROR_CHECK_FNS_RAW(vehicle_track_mode(1000)))
-            {
-                // vehicle_set_motion(VEHICLE_MOTION_STOP);
-                // vehicle_ensure_stop();
-                // vehicle_set_mode(VEHICLE_MODE_SEARCH);
-                break;
-            }
-            break;
-        }
-        case VEHICLE_MODE_SEARCH:
-        {
-            if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(20, 2000)))
-            {
-                vehicle_set_motion(VEHICLE_MOTION_STOP);
-                vehicle_ensure_stop();
-                vehicle_set_mode(VEHICLE_MODE_FREE);
-                break;
-            }
-            vehicle_ensure_stop();
-            vehicle_set_mode(VEHICLE_MODE_TRACK);
-            break;
-        }
-        case VEHICLE_MODE_ROTATE:
-        {
-            if (ERROR_CHECK_FNS_RAW(vehicle_rotate_in_place(1000)))
-            {
-                vehicle_set_motion(VEHICLE_MOTION_STOP);
-                vehicle_ensure_stop();
-                vehicle_set_mode(VEHICLE_MODE_FREE);
-            }
-            vehicle_ensure_stop();
-            vehicle_set_mode(VEHICLE_MODE_TRACK);
-            vehicle_set_motion(VEHICLE_MOTION_FORWARD);
-            vehicle_set_speed(MAP_SETPOINT_TRACK);
-            break;
-        }
-        default: break;
-    }
 }
