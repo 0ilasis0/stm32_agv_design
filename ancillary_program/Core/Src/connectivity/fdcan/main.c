@@ -14,7 +14,7 @@ uint32_t fdcan_test_pkt_c = 0;
 #ifdef ANCILLARY_PROGRAM
 #include "robotic_arm/main.h"
 #include "rfid/main.h"
-static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
+static FnState arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
 {
     uint8_t code;
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
@@ -27,8 +27,7 @@ static FnState proc_arm_set(VecByte* vec_byte, ArmParameter* arm)
         }
         case CMD_ARM_B2_SET:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
-            arm_set_pos(arm, code);
+            arm_set_pos(arm, vec_byte->data[vec_byte->head]);
             return FNS_OK;
         }
         default: break;
@@ -43,6 +42,16 @@ FnState instant_recv_proc(VecByte* vec_byte)
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     switch (code)
     {
+        case CMD_DATA_B0_STOP:
+        {
+            fdacn_data_store = FNC_DISABLE;
+            return FNS_OK;
+        }
+        case CMD_DATA_B0_START:
+        {
+            fdacn_data_store = FNC_ENABLE;
+            return FNS_OK;
+        }
         #ifdef PRINCIPAL_PROGRAM
         case CMD_WHEEL_B0_CONTROL:
         {
@@ -90,21 +99,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
@@ -164,21 +173,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
                                     return FNS_OK;
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
-                                    vehicle_set_direct(VEHICLE_MOTION_UNKNOWN);
+                                    vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
                                     return FNS_OK;
                                 }
@@ -255,31 +264,31 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         case CMD_VEHI_B2_FREE:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_direct(VEHICLE_MOTION_STOP);
+                            vehicle_set_motion(VEHICLE_MOTION_STOP);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_END:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_direct(VEHICLE_MOTION_FORWARD);
+                            vehicle_set_motion(VEHICLE_MOTION_FORWARD);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_F_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_direct(VEHICLE_MOTION_BACKWARD);
+                            vehicle_set_motion(VEHICLE_MOTION_BACKWARD);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_direct(VEHICLE_MOTION_C_CLOCKWISE);
+                            vehicle_set_motion(VEHICLE_MOTION_C_CLOCKWISE);
                             return FNS_OK;
                         }
                         case CMD_VEHI_B2_SEARCH:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            vehicle_set_direct(VEHICLE_MOTION_CLOCKWISE);
+                            vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
                             return FNS_OK;
                         }
                         default: break;
@@ -325,27 +334,27 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_ARM_B1_BOTTOM:
                 {
-                    return proc_arm_set(vec_byte, &arm_bottom);
+                    return arm_motor_set(vec_byte, &arm_bottom);
                 }
                 case CMD_ARM_B1_SHOULDER:
                 {
-                    return proc_arm_set(vec_byte, &arm_shoulder);
+                    return arm_motor_set(vec_byte, &arm_shoulder);
                 }
                 case CMD_ARM_B1_ELBOW_BTM:
                 {
-                    return proc_arm_set(vec_byte, &arm_elbow_btm);
+                    return arm_motor_set(vec_byte, &arm_elbow_btm);
                 }
                 case CMD_ARM_B1_ELBOW_TOP:
                 {
-                    return proc_arm_set(vec_byte, &arm_elbow_top);
+                    return arm_motor_set(vec_byte, &arm_elbow_top);
                 }
                 case CMD_ARM_B1_WRIST:
                 {
-                    return proc_arm_set(vec_byte, &arm_wrist);
+                    return arm_motor_set(vec_byte, &arm_wrist);
                 }
                 case CMD_ARM_B1_FINGER:
                 {
-                    return proc_arm_set(vec_byte, &arm_finger);
+                    return arm_motor_set(vec_byte, &arm_finger);
                 }
                 default: break;
             }
@@ -378,13 +387,13 @@ static UNUSED_FNC FnState trsm_pkt_proc(void)
         #else
         #ifdef PRINCIPAL_PROGRAM
         ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
         ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
         #endif
         #ifdef ANCILLARY_PROGRAM
         ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_bottom(&vec_byte),
@@ -412,16 +421,6 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
     ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
     switch (code)
     {
-        case CMD_DATA_B0_STOP:
-        {
-            fdacn_data_store = false;
-            return FNS_OK;
-        }
-        case CMD_DATA_B0_START:
-        {
-            fdacn_data_store = true;
-            return FNS_OK;
-        }
         #ifdef ANCILLARY_PROGRAM
         case CMD_RFID_B0_CONTROL:
         {

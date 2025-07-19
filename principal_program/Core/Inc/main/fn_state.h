@@ -85,6 +85,13 @@ extern FnState last_error;
         }                               \
     } while (0)
 
+#define ERROR_CHECK_FNS_CLEANUP(expr)   \
+    do {                                \
+        result = (expr);                \
+        if (result != FNS_OK)           \
+            goto cleanup;               \
+    } while (0)
+    
 #define ERROR_CHECK_FNS_VOID(expr)  \
     do {                            \
         FnState _err = (expr);      \
@@ -105,6 +112,7 @@ extern FnState last_error;
         }                               \
     } while (0)
 
+#ifdef AGV_STM32_DEVICE
 #define ERROR_CHECK_HAL_RETERN(expr)        \
     do {                                    \
         HAL_StatusTypeDef _err = (expr);    \
@@ -122,6 +130,7 @@ extern FnState last_error;
             Error_Handler();                \
         }                                   \
     } while (0)
+#endif
 
 #ifdef AGV_ESP32_DEVICE
 

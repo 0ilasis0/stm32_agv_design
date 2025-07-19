@@ -1,115 +1,44 @@
 #include "robotic_arm/main.h"
 
-ArmParameter arm_bottom = {
-    .const_h = {
-        // PB0(L34)
-        .htimx = &htim3,
-        .TIM_CHANNEL_x = TIM_CHANNEL_3,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX / 2,
+static const ArmMotionData motion_data_unknown = {
+    .total_step = 0,
+    .data = {
+        {50, 50, 50, 50, 50, 50},
     },
-    .tim_current = 150,
-    .tim_setpoint = 150,
 };
 
-ArmParameter arm_shoulder = {
-    .const_h = {
-        // PA4(L32)
-        .htimx = &htim3,
-        .TIM_CHANNEL_x = TIM_CHANNEL_2,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX,
+static const ArmMotionData motion_data_idle = {
+    .total_step = 2,
+    .data = {
+        {50, 50, 50, 50, 50, 50},
+        {25, 35, 25, 25, 50, 50},
+        {25, 20, 0, 0, 50, 50},
     },
-    .tim_current = 150,
-    .tim_setpoint = 150,
 };
 
-ArmParameter arm_elbow_btm = {
-    .const_h = {
-        // PA1(L30)
-        .htimx = &htim2,
-        .TIM_CHANNEL_x = TIM_CHANNEL_2,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX,
-    },
-    .tim_current = 150,
-    .tim_setpoint = 150,
-};
+ArmParameter robotic_arm_h;
 
-ArmParameter arm_elbow_top = {
-    .const_h = {
-        // PB10(R25)
-        .htimx = &htim2,
-        .TIM_CHANNEL_x = TIM_CHANNEL_3,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX,
-    },
-    .tim_current = 150,
-    .tim_setpoint = 150,
-};
-
-ArmParameter arm_wrist = {
-    .const_h = {
-        // PA6(R13)
-        .htimx = &htim3,
-        .TIM_CHANNEL_x = TIM_CHANNEL_1,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX,
-    },
-    .tim_current = 150,
-    .tim_setpoint = 150,
-};
-
-ArmParameter arm_finger = {
-    .const_h = {
-        // PA0(L28) 
-        .htimx = &htim2,
-        .TIM_CHANNEL_x = TIM_CHANNEL_1,
-        .tim_min = ARM_TIM_MIN,
-        .tim_max = ARM_TIM_MAX,
-    },
-    .tim_current = 150,
-    .tim_setpoint = 150,
-};
-
-void arm_set_tim(ArmParameter* arm, ArmTim tim)
+static void arm_setup(ArmMotorParameter* arm)
 {
-    const ArmConst* const_h = &arm->const_h;
-    if      (tim < const_h->tim_min) arm->tim_setpoint = const_h->tim_min;
-    else if (tim > const_h->tim_max) arm->tim_setpoint = const_h->tim_max;
-    arm->tim_setpoint = tim;
-}
-
-inline void arm_set_pos(ArmParameter* arm, uint8_t pos)
-{
-    if (pos > 100) pos = 100;
-    arm_set_tim(arm, pos*2 + 50);
-}
-
-static void arm_setup(ArmParameter* arm)
-{
-    const ArmConst* const_h = &arm->const_h;
+    const ArmMotorConst* const_h = &arm->const_h;
     HAL_TIM_PWM_Start(const_h->htimx, const_h->TIM_CHANNEL_x);
 }
 
-static void arm_turn(ArmParameter* arm)
+static void arm_turn(ArmMotorParameter* arm)
 {
+    const ArmMotorConst *const_h = &arm->const_h;
     if (arm->tim_current != arm->tim_setpoint)
     {
         int16_t dtim = arm->tim_setpoint - arm->tim_current;
-        if      (dtim >  ARM_TIM_STEP)  arm->tim_current += ARM_TIM_STEP;
-        else if (dtim < -ARM_TIM_STEP)  arm->tim_current -= ARM_TIM_STEP;
-        else                            arm->tim_current  = arm->tim_setpoint;
-        // const ArmConst* const_h = &arm->const_h;
-        // if (arm->tim_current < const_h.tim_min)
-        //     arm->tim_current = const_h.tim_min;
-        // else if (arm->tim_current > const_h.tim_max)
-        //     arm->tim_current = const_h.tim_max;
+        if      (dtim >  const_h->tim_step) arm->tim_current += const_h->tim_step;
+        else if (dtim < -const_h->tim_step) arm->tim_current -= const_h->tim_step;
+        else                                arm->tim_current  = arm->tim_setpoint;
     }
-    __HAL_TIM_SET_COMPARE(arm->const_h.htimx, arm->const_h.TIM_CHANNEL_x, arm->tim_current);
+    __HAL_TIM_SET_COMPARE(const_h->htimx, const_h->TIM_CHANNEL_x, arm->tim_current);
 }
 
-void StartArmTask(void *argument)
+static bool arm_ready = 0;
+void StartArmMotorTask(void *argument)
 {
     HAL_TIM_Base_Start_IT(&htim2);
     HAL_TIM_Base_Start_IT(&htim3);
@@ -119,7 +48,7 @@ void StartArmTask(void *argument)
     arm_setup(&arm_elbow_top);
     arm_setup(&arm_wrist);
     arm_setup(&arm_finger);
-    uint16_t tick = 0;
+    arm_ready = 1;
     for(;;)
     {
         arm_turn(&arm_bottom);
@@ -128,8 +57,98 @@ void StartArmTask(void *argument)
         arm_turn(&arm_elbow_top);
         arm_turn(&arm_wrist);
         arm_turn(&arm_finger);
-        if (tick % 100 == 0) tick = 0;
-        osDelay(10);
-        tick++;
+        osDelay(50);
+    }
+}
+
+void arm_motion_set(ArmMotion motion)
+{
+    const ArmMotionData *motion_h;
+    switch (motion)
+    {
+        case ARM_MOTION_UNKNOWN:
+        {
+            motion_h = &motion_data_unknown;
+            robotic_arm_h.motion_inner = ARM_MOTION_UNKNOWN;
+            robotic_arm_h.step_inner = 0;
+            break;
+        }
+        case ARM_MOTION_IDLE:
+        {
+            motion_h = &motion_data_idle;
+            break;
+        }
+        default: return;
+    }
+    robotic_arm_h.motion = motion;
+    robotic_arm_h.step = motion_h->total_step;
+}
+
+static void motion_set_inner(ArmMotion motion, uint8_t step)
+{
+    const ArmMotionData *motion_h;
+    switch (motion)
+    {
+        case ARM_MOTION_IDLE:
+        {
+            motion_h = &motion_data_idle;
+            break;
+        }
+        default: return;
+    }
+    if (step >= motion_h->total_step) return;
+    arm_set_pos(&arm_bottom, motion_h->data[step][arm_bottom.const_h.id]);
+    arm_set_pos(&arm_shoulder, motion_h->data[step][arm_shoulder.const_h.id]);
+    arm_set_pos(&arm_elbow_btm, motion_h->data[step][arm_elbow_btm.const_h.id]);
+    arm_set_pos(&arm_elbow_top, motion_h->data[step][arm_elbow_top.const_h.id]);
+    arm_set_pos(&arm_wrist, motion_h->data[step][arm_wrist.const_h.id]);
+    arm_set_pos(&arm_finger, motion_h->data[step][arm_finger.const_h.id]);
+}
+
+static void delay_until_reach(void)
+{
+    for(;;)
+    {
+        if (
+               arm_bottom.tim_current == arm_bottom.tim_setpoint
+            && arm_shoulder.tim_current == arm_shoulder.tim_setpoint
+            && arm_elbow_btm.tim_current == arm_elbow_btm.tim_setpoint
+            && arm_elbow_top.tim_current == arm_elbow_top.tim_setpoint
+            && arm_wrist.tim_current == arm_wrist.tim_setpoint
+            && arm_finger.tim_current == arm_finger.tim_setpoint
+        ) break;
+        osDelay(50);
+    }
+}
+
+void StartArmTask(void *argument)
+{
+    for(;;)
+    {
+        if (arm_ready) break;
+        osDelay(50);
+    }
+    osDelay(1000);
+    arm_motion_set(ARM_MOTION_IDLE);
+    for(;;)
+    {
+        if (robotic_arm_h.motion_inner != robotic_arm_h.motion)
+        {
+            if (robotic_arm_h.step_inner > 0)
+            {
+                motion_set_inner(robotic_arm_h.motion_inner, --robotic_arm_h.step_inner);
+                delay_until_reach();
+            }
+            else
+            {
+                robotic_arm_h.motion_inner = robotic_arm_h.motion;
+            }
+        }
+        else if (robotic_arm_h.step_inner < robotic_arm_h.step)
+        {
+            motion_set_inner(robotic_arm_h.motion_inner, robotic_arm_h.step_inner++);
+            delay_until_reach();
+        }
+        osDelay(50);
     }
 }

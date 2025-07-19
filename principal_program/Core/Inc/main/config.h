@@ -23,6 +23,7 @@
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 
+#define AGV_STM32_DEVICE
 #define PRINCIPAL_PROGRAM
 
 #define MOTOR_PSC               170
@@ -80,7 +81,7 @@
 
 #define MAGNATIC_STRIPE_TIME_DIF    200
 
-#define ENABLE_CON_PKT_TEST
+// #define ENABLE_CON_PKT_TEST
 // #define DISABLE_FDCAN
 #define DISABLE_UART
 // #define DISABLE_UART_TRSM

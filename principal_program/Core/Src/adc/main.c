@@ -87,7 +87,7 @@ void StartAdcTask(void *argument)
     {
         if (
             !runtime_switch.adc
-            || HAL_GetTick() < 1000
+            || HAL_GetTick() < 500
         ) {
             osDelay(50);
             continue;

@@ -1,32 +1,24 @@
 #pragma once
 
-#include "tim.h"
-#include "gpio.h"
-#include "main/config.h"
+#include "robotic_arm/basic.h"
 
-typedef uint8_t ArmTim;
-#define ARM_TIM_MIN    50
-#define ARM_TIM_MAX   250
-#define ARM_TIM_STEP    1
-
-typedef struct ArmConst
+typedef struct ArmMotionData
 {
-    TIM_HandleTypeDef* htimx;
-    uint32_t TIM_CHANNEL_x;
-    ArmTim tim_min;
-    ArmTim tim_max;
-} ArmConst;
+    uint8_t total_step;
+    ArmTim data[][ARM_MAX];
+} ArmMotionData;
+
+typedef enum ArmMotion
+{
+    ARM_MOTION_UNKNOWN = -1,
+    ARM_MOTION_IDLE,
+
+} ArmMotion;
+
 typedef struct ArmParameter
 {
-    const ArmConst const_h;
-    ArmTim tim_current;
-    ArmTim tim_setpoint;
+    ArmMotion motion;
+    uint8_t step;
+    ArmMotion motion_inner;
+    uint8_t step_inner;
 } ArmParameter;
-extern ArmParameter arm_bottom;
-extern ArmParameter arm_shoulder;
-extern ArmParameter arm_elbow_btm;
-extern ArmParameter arm_elbow_top;
-extern ArmParameter arm_wrist;
-extern ArmParameter arm_finger;
-void arm_set_tim(ArmParameter* arm, ArmTim tim);
-void arm_set_pos(ArmParameter* arm, uint8_t pos);

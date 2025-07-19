@@ -20,6 +20,7 @@
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 
+#define AGV_STM32_DEVICE
 #define ANCILLARY_PROGRAM
 
 #define TIM2_PSC        1700

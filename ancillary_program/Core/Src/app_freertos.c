@@ -54,33 +54,40 @@ const osThreadAttr_t DefaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
-/* Definitions for ArmTask */
-osThreadId_t ArmTaskHandle;
-const osThreadAttr_t ArmTask_attributes = {
-  .name = "ArmTask",
-  .priority = (osPriority_t) osPriorityNormal,
+/* Definitions for ArmMotorTask */
+osThreadId_t ArmMotorTaskHandle;
+const osThreadAttr_t ArmMotorTask_attributes = {
+  .name = "ArmMotorTask",
+  .priority = (osPriority_t) osPriorityRealtime1,
   .stack_size = 128 * 4
 };
 /* Definitions for FdCanTask */
 osThreadId_t FdCanTaskHandle;
 const osThreadAttr_t FdCanTask_attributes = {
   .name = "FdCanTask",
-  .priority = (osPriority_t) osPriorityHigh,
+  .priority = (osPriority_t) osPriorityHigh1,
   .stack_size = 256 * 4
 };
 /* Definitions for RfidTask */
 osThreadId_t RfidTaskHandle;
 const osThreadAttr_t RfidTask_attributes = {
   .name = "RfidTask",
-  .priority = (osPriority_t) osPriorityAboveNormal,
+  .priority = (osPriority_t) osPriorityRealtime3,
   .stack_size = 256 * 4
 };
 /* Definitions for MapTask */
 osThreadId_t MapTaskHandle;
 const osThreadAttr_t MapTask_attributes = {
   .name = "MapTask",
-  .priority = (osPriority_t) osPriorityNormal1,
+  .priority = (osPriority_t) osPriorityRealtime2,
   .stack_size = 256 * 4
+};
+/* Definitions for ArmTask */
+osThreadId_t ArmTaskHandle;
+const osThreadAttr_t ArmTask_attributes = {
+  .name = "ArmTask",
+  .priority = (osPriority_t) osPriorityRealtime,
+  .stack_size = 128 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,10 +96,11 @@ const osThreadAttr_t MapTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void StartArmTask(void *argument);
+void StartArmMotorTask(void *argument);
 void StartFdCanTask(void *argument);
 void StartRfidTask(void *argument);
 void StartMapTask(void *argument);
+void StartArmTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -126,8 +134,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of DefaultTask */
   DefaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &DefaultTask_attributes);
 
-  /* creation of ArmTask */
-  ArmTaskHandle = osThreadNew(StartArmTask, NULL, &ArmTask_attributes);
+  /* creation of ArmMotorTask */
+  ArmMotorTaskHandle = osThreadNew(StartArmMotorTask, NULL, &ArmMotorTask_attributes);
 
   /* creation of FdCanTask */
   FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
@@ -137,6 +145,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of MapTask */
   MapTaskHandle = osThreadNew(StartMapTask, NULL, &MapTask_attributes);
+
+  /* creation of ArmTask */
+  ArmTaskHandle = osThreadNew(StartArmTask, NULL, &ArmTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -166,22 +177,22 @@ __weak void StartDefaultTask(void *argument)
   /* USER CODE END StartDefaultTask */
 }
 
-/* USER CODE BEGIN Header_StartArmTask */
+/* USER CODE BEGIN Header_StartArmMotorTask */
 /**
-* @brief Function implementing the ArmTask thread.
+* @brief Function implementing the ArmMotorTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartArmTask */
-__weak void StartArmTask(void *argument)
+/* USER CODE END Header_StartArmMotorTask */
+__weak void StartArmMotorTask(void *argument)
 {
-  /* USER CODE BEGIN StartArmTask */
+  /* USER CODE BEGIN StartArmMotorTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartArmTask */
+  /* USER CODE END StartArmMotorTask */
 }
 
 /* USER CODE BEGIN Header_StartFdCanTask */
@@ -236,6 +247,24 @@ __weak void StartMapTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartMapTask */
+}
+
+/* USER CODE BEGIN Header_StartArmTask */
+/**
+* @brief Function implementing the ArmTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartArmTask */
+__weak void StartArmTask(void *argument)
+{
+  /* USER CODE BEGIN StartArmTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartArmTask */
 }
 
 /* Private application code --------------------------------------------------*/
