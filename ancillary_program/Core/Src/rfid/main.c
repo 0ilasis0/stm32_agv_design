@@ -40,21 +40,10 @@ FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, 
     return FNS_OK;
 }
 
-static FnState secter_open(RC522State* state, RfidTrcvBuf* trcv_buf)
-{
-    if ((state->secter1k_open & SECTOR_MASK(trcv_buf->sector)) == 0)
-    {
-        if (RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector * 4, &trcv_buf->key, &state->uid) != STATUS_Code_OK) 
-            return FNS_FAIL;
-        state->secter1k_open |= SECTOR_MASK(trcv_buf->sector);
-    }
-    return FNS_OK;
-}
-
 static UNUSED_FNC FnState buf_write(RC522State* state, RfidTrcvBuf* trcv_buf)
 {
     if (trcv_buf->send == 0) return FNS_INVALID;
-    ERROR_CHECK_FNS_RETURN(secter_open(state, trcv_buf));
+    RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector*4, &trcv_buf->key, &state->uid);
     if (RC522_MIFARE_Write(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, 16) != STATUS_Code_OK)
         return FNS_FAIL;
     trcv_buf->send = 0;
@@ -64,15 +53,14 @@ static UNUSED_FNC FnState buf_write(RC522State* state, RfidTrcvBuf* trcv_buf)
 
 static UNUSED_FNC FnState buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
 {
-    ERROR_CHECK_FNS_RETURN(secter_open(state, trcv_buf));
-    uint8_t size = 18;
-    memset(trcv_buf->data, 0, size);
-    if (RC522_MIFARE_Read(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, &size) != STATUS_Code_OK)
+    RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector*4, &trcv_buf->key, &state->uid);
+    trcv_buf->size = 18;
+    memset(trcv_buf->data, 0, trcv_buf->size);
+    if (RC522_MIFARE_Read(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, &trcv_buf->size) != STATUS_Code_OK)
         return FNS_FAIL;
     return FNS_OK;
 }
 
-uint8_t err_count = 0;
 void StartRfidTask(void *argument)
 {
     RC522_PCD_Init(&spi2_rfid.const_h);
@@ -83,45 +71,59 @@ void StartRfidTask(void *argument)
     }
     for(;;)
     {
-        if (
-               !RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h)
-            || !RC522_PICC_ReadCardSerial(&spi2_rfid.const_h)
-        ) {
-            osDelay(10);
-            continue;
-        }
-        spi2_rfid.state = CARD_STATE_EXIST;
-        memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
-        spi2_rfid.uid32 =
-              ((uint32_t)spi2_rfid.uid.uidByte[0] << 24)
-            | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
-            | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
-            | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
-        err_count = 0;  // ***重置***
-        while (err_count < 10) {
-            if (!RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h)
-            || !RC522_PICC_ReadCardSerial(&spi2_rfid.const_h)) {
-                err_count++;
-            } else {
-                err_count = 0;
+        switch (spi2_rfid.state)
+        {
+            case CARD_STATE_NONE:
+            {
+                if (
+                       !RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h)
+                    || !RC522_PICC_ReadCardSerial(&spi2_rfid.const_h)
+                ) break;
+                spi2_rfid.state = CARD_STATE_EXIST_T;
+                spi2_rfid.err_count = 0;
+                memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
+                spi2_rfid.uid32 =
+                      ((uint32_t)spi2_rfid.uid.uidByte[0] << 24)
+                    | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
+                    | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
+                    | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
+                break;
+            }
+            case CARD_STATE_EXIST_T:
+            {
+                spi2_rfid.state = CARD_STATE_EXIST;
+                break;
+            }
+            case CARD_STATE_EXIST:
+            {
+                uint8_t atqa_answer[2];
+	            uint8_t atqa_size = 2;
+	            RC522_PICC_WakeupA(&spi2_rfid.const_h, atqa_answer, &atqa_size);
+                RC522_PCD_Authenticate(&spi2_rfid.const_h, PICC_CMD_MF_AUTH_KEY_A, 0, &rc522_default_key, &spi2_rfid.uid);
+                uint8_t buffer[18];
+                uint8_t size = sizeof(buffer);
+                if (RC522_MIFARE_Read(&spi2_rfid, 0, buffer, &size) != STATUS_Code_OK)
+                {
+                    spi2_rfid.err_count++;
+                    if (spi2_rfid.err_count > 3)
+                    {
+                        RC522_PICC_HaltA(&spi2_rfid.const_h);
+                        RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
+                        spi2_rfid.state = CARD_STATE_NONE;
+                    }
+                    break;
+                }
+                spi2_rfid.err_count = 0;
                 buf_write(&spi2_rfid, &rfid_trsm_buf);
                 rfid_recv_buf.sector = rfid_trsm_buf.sector;
                 rfid_recv_buf.block  = rfid_trsm_buf.block;
                 buf_read(&spi2_rfid, &rfid_recv_buf);
+                // osDelay(50);
+                break;
             }
-            osDelay(50);
+            default: break;
         }
-
-        // 確認卡片離開：先 Halt、StopCrypto，再等到真的沒卡再切換 NONE
-        RC522_PICC_HaltA(&spi2_rfid.const_h);
-        RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
-        // 等到 PICC_IsNewCardPresent 回 false 才跳出
-        do {
-            osDelay(10);
-        } while (RC522_PICC_IsNewCardPresent(&spi2_rfid.const_h));
-
-        spi2_rfid.state = CARD_STATE_NONE;
-        spi2_rfid.secter1k_open = 0;
+        osDelay(50);
     }
 }
 

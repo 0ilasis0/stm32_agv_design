@@ -11,6 +11,7 @@
 typedef enum CardState
 {
     CARD_STATE_NONE,
+    CARD_STATE_EXIST_T,
     CARD_STATE_EXIST,
 } CardState;
 
@@ -20,9 +21,7 @@ typedef struct RC522State
     RC522Uid uid;
     uint32_t uid32;
     CardState state;
-    uint16_t secter1k_open;
-    uint8_t addr_0x0[RFID_BLOCK_BYTE_CAP];
-    uint8_t addr_0x0_s;
+    uint8_t err_count;
 } RC522State;
 
 typedef struct RfidTrcvBuf
@@ -30,6 +29,7 @@ typedef struct RfidTrcvBuf
     uint8_t sector;
     uint8_t block;
     uint8_t data[18];
+    uint8_t size;
     uint16_t flags;
     uint8_t send;
     RC522MIFARE_Key key;
