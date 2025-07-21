@@ -1,14 +1,9 @@
 #include "robotic_arm/main.h"
 
-static const ArmMotionData motion_data_unknown = {
-    .total_step = 0,
-    .data = {
-        {50, 50, 50, 50, 50, 50},
-    },
-};
+static const ArmMotionData motion_data_unknown = {0};
 
 static const ArmMotionData motion_data_idle = {
-    .total_step = 2,
+    .total_step = 3,
     .data = {
         {50, 50, 50, 50, 50, 50},
         {25, 35, 25, 25, 50, 50},

@@ -27,7 +27,8 @@ static FnState arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
         }
         case CMD_ARM_B2_SET:
         {
-            arm_set_pos(arm, vec_byte->data[vec_byte->head]);
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+            arm_set_pos(arm, code);
             return FNS_OK;
         }
         default: break;
@@ -320,6 +321,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                     {
                         case CMD_ARM_B2_STOP:
                         {
+                            arm_motion_set(ARM_MOTION_UNKNOWN);
                             arm_set_tim(&arm_bottom, arm_bottom.tim_current);
                             arm_set_tim(&arm_shoulder, arm_shoulder.tim_current);
                             arm_set_tim(&arm_elbow_btm, arm_elbow_btm.tim_current);
@@ -334,26 +336,32 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_ARM_B1_BOTTOM:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_bottom);
                 }
                 case CMD_ARM_B1_SHOULDER:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_shoulder);
                 }
                 case CMD_ARM_B1_ELBOW_BTM:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_elbow_btm);
                 }
                 case CMD_ARM_B1_ELBOW_TOP:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_elbow_top);
                 }
                 case CMD_ARM_B1_WRIST:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_wrist);
                 }
                 case CMD_ARM_B1_FINGER:
                 {
+                    arm_motion_set(ARM_MOTION_UNKNOWN);
                     return arm_motor_set(vec_byte, &arm_finger);
                 }
                 default: break;

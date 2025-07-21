@@ -22,3 +22,5 @@ typedef struct ArmParameter
     ArmMotion motion_inner;
     uint8_t step_inner;
 } ArmParameter;
+
+void arm_motion_set(ArmMotion motion);
