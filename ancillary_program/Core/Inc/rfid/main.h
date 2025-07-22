@@ -11,7 +11,6 @@
 typedef enum CardState
 {
     CARD_STATE_NONE,
-    CARD_STATE_EXIST_T,
     CARD_STATE_EXIST,
 } CardState;
 
