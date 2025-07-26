@@ -20,6 +20,7 @@ typedef enum MotorMode
     MOTOR_STATE_CONTROL,
     MOTOR_STATE_FREE,
     MOTOR_STATE_SLOW,
+    MOTOR_STATE_SLOW_0,
     MOTOR_STATE_COAST,
     MOTOR_STATE_BREAK,
     MOTOR_STATE_LOCK = -1,
@@ -55,6 +56,8 @@ typedef struct MotorParameter
 
 extern MotorParameter motor_right;
 extern MotorParameter motor_left;
+
+extern bool motor_ready;
 
 void motor_set_max_rps(MotorParameter* motor, float value);
 void motor_set_state(MotorParameter *motor, MotorMode state);

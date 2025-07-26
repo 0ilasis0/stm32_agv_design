@@ -24,8 +24,8 @@ void vehicle_ensure_stop_inner(void)
   */
 void vehicle_ensure_stop(void)
 {
-    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
-    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW_0);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW_0);
     vehicle_ensure_stop_inner();
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
@@ -75,7 +75,13 @@ void vehicle_set_speed(Percentage value)
     motor_set_rps_pcn(&motor_left , value);
 }
 
-void vehicle_set_need_rotate(MapDirF value)
+void vehicle_set_need_rotate(uint8_t value)
 {
     vehicle_h.need_rotate_count = value;
+}
+
+void vehicle_stop(void)
+{
+    vehicle_set_motion(VEHICLE_MOTION_STOP);
+    vehicle_ensure_stop();
 }

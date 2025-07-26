@@ -9,8 +9,8 @@ AdcHall adchall_track_left = {
     .const_h = {
         // PB11(R18)
         .id = 2,
-        .magnetic_value_0 = 2360,
-        .magnetic_value_1 = 1900,
+        .magnetic_value_0 = 2365,
+        .magnetic_value_1 = 1890,
     },
     .min = 4095,
 };
@@ -19,8 +19,8 @@ AdcHall adchall_track_right = {
     .const_h = {
         // PB1(R24)
         .id = 1,
-        .magnetic_value_0 = 2350,
-        .magnetic_value_1 = 1880,
+        .magnetic_value_0 = 2345,
+        .magnetic_value_1 = 1860,
     },
     .min = 4095,
 };
@@ -29,8 +29,8 @@ AdcHall adchall_direction = {
     .const_h = {
         // PB12(R16)
         .id = 0,
-        .magnetic_value_0 = 2250,
-        .magnetic_value_1 = 1830,
+        .magnetic_value_0 = 2240,
+        .magnetic_value_1 = 1810,
     },
     .min = 4095,
 };
@@ -74,7 +74,8 @@ static void hall_update(AdcHall* adc)
             break;
         }
     }
-    if (adc->value <= adc->const_h.magnetic_value_1) adc->state = ADC_HALL_STATE_ON_MAG;
+    // ! IMPORTANT
+    if (adc->value <= adc->const_h.magnetic_value_0) adc->state = ADC_HALL_STATE_ON_MAG;
     else adc->state = ADC_HALL_STATE_NONE;
     max_min(adc);
 }

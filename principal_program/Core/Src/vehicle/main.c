@@ -54,8 +54,8 @@ static void motion_update(void)
         vehicle_h.motion_inner = VEHICLE_MOTION_UNKNOWN;
         return;
     }
-    motor_set_state(&motor_left, MOTOR_STATE_SLOW);
-    motor_set_state(&motor_right, MOTOR_STATE_SLOW);
+    motor_set_state(&motor_left, MOTOR_STATE_SLOW_0);
+    motor_set_state(&motor_right, MOTOR_STATE_SLOW_0);
     if (
            (motor_left.rps_present > MOTOR_STOP_GATE)
         || (motor_right.rps_present > MOTOR_STOP_GATE)
@@ -65,13 +65,15 @@ static void motion_update(void)
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
 }
 
-void StartVehicleTask(void *argument)
+bool vehicle_ready = false;
+void StartVehicleUpdateTask(void *argument)
 {
     for(;;)
     {
         us_sensor_enable(&us_sensor_head);
         motion_update();
         osDelay(50);
+        vehicle_ready = true;
     }
 }
 
@@ -126,4 +128,53 @@ void vehicle_test_no_load_rps(uint32_t ms)
 
     motor_set_state(&motor_left, MOTOR_STATE_CONTROL);
     motor_set_state(&motor_right, MOTOR_STATE_CONTROL);
+}
+
+void StartVehicleTask(void *argument)
+{
+    while (
+           !motor_ready
+        || !vehicle_ready
+    ) osDelay(50);
+
+    // vehicle_test_no_load_rps(1000);
+    // vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
+    // vehicle_set_speed(10);
+
+    for(;;)
+    {
+        switch (vehicle_h.mode)
+        {
+            case VEHICLE_MODE_END:
+            {
+                vehicle_set_motion(VEHICLE_MOTION_STOP);
+                vehicle_set_mode(VEHICLE_MODE_FREE);
+                break;
+            }
+            case VEHICLE_MODE_TRACK:
+            {
+                vehicle_track_mode(1000);
+                break;
+            }
+            case VEHICLE_MODE_SEARCH:
+            {
+                if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(20, 2000)))
+                {
+                    vehicle_stop();
+                    vehicle_set_mode(VEHICLE_MODE_FREE);
+                    break;
+                }
+                vehicle_ensure_stop();
+                vehicle_set_mode(VEHICLE_MODE_TRACK);
+                break;
+            }
+            case VEHICLE_MODE_ROTATE:
+            {
+                vehicle_rotate_in_place(10000);
+                break;
+            }
+            default: break;
+        }
+        osDelay(50);
+    }
 }

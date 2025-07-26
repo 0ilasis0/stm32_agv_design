@@ -97,6 +97,15 @@ FnState pkt_arm_finger(VecByte* vec_byte)
     return FNS_OK;
 }
 
+FnState pkt_map_info(VecByte* vec_byte, uint32_t uid, uint8_t n_exist)
+{
+    vec_rm_all(vec_byte);
+    ERROR_CHECK_FNS_RETURN(vec_byte_push(vec_byte, (uint8_t[]){CMD_MAP_B0_CONTROL, CMD_MAP_B1_INFO}, 2));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_u32(vec_byte, uid));
+    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(vec_byte, n_exist));
+    return FNS_OK;
+}
+
 // set_mode必須最後
 FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode, uint8_t value)
 {

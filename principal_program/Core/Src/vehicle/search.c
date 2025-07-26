@@ -58,22 +58,13 @@ FnState vehicle_search_mode(Percentage speed, uint32_t ms)
     {
         motion = VEHICLE_MOTION_C_CLOCKWISE;
         ERROR_CHECK_FNS_RETURN(search_magnetic(motion, 2*ms));
+        motion = VEHICLE_MOTION_CLOCKWISE;
+    }
+    else
+    {
+        motion = VEHICLE_MOTION_C_CLOCKWISE;
     }
     ERROR_CHECK_FNS_RETURN(walk_to_mag(ori_motion, 3000));
-    switch (motion)
-    {
-        case VEHICLE_MOTION_CLOCKWISE:
-        {
-            motion = VEHICLE_MOTION_C_CLOCKWISE;
-            break;
-        }
-        case VEHICLE_MOTION_C_CLOCKWISE:
-        {
-            motion = VEHICLE_MOTION_CLOCKWISE;
-            break;
-        }
-        default: return FNS_FAIL;
-    }
     ERROR_CHECK_FNS_RETURN(search_magnetic(motion, ms));
     vehicle_set_motion(ori_motion);
     vehicle_set_speed(ori_speed);

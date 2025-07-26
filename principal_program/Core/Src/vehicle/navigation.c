@@ -27,9 +27,9 @@ void vehicle_track_mode(uint32_t unfind_ms)
         }
         default:
         {
-            vehicle_set_motion(VEHICLE_MOTION_STOP);
-            vehicle_ensure_stop();
+            vehicle_stop();
             vehicle_set_mode(VEHICLE_MODE_FREE);
+            return;
         }
     }
     if (
@@ -62,7 +62,6 @@ void vehicle_track_mode(uint32_t unfind_ms)
     }
     if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= unfind_ms)
     {
-        vehicle_set_motion(VEHICLE_MOTION_STOP);
         vehicle_ensure_stop();
         vehicle_set_mode(VEHICLE_MODE_SEARCH);
     }
@@ -74,11 +73,23 @@ void vehicle_track_mode(uint32_t unfind_ms)
 void vehicle_rotate_in_place(uint32_t unfind_ms)
 {
     //邊緣觸發判斷+時間預防
+    switch (vehicle_h.motion)
+    {
+        case VEHICLE_MOTION_CLOCKWISE:
+        case VEHICLE_MOTION_C_CLOCKWISE:
+        {
+            break;
+        }
+        default: 
+        {
+            vehicle_stop();
+            vehicle_set_mode(VEHICLE_MODE_FREE);
+            return;
+        }
+    }
     bool mag_trigger = 1;
-    // uint32_t time_out = HAL_GetTick();
-    // uint32_t triggered_time;
-
-    while (vehicle_h.need_rotate_count != 0){
+    while (vehicle_h.need_rotate_count != 0)
+    {
         if (mag_trigger)
         {
             if (adchall_direction.state == ADC_HALL_STATE_NONE)
@@ -97,13 +108,13 @@ void vehicle_rotate_in_place(uint32_t unfind_ms)
         }
         if (HAL_GetTick() - vehicle_h.last_tick_on_mag >= unfind_ms)
         {
-            vehicle_set_motion(VEHICLE_MOTION_STOP);
-            vehicle_ensure_stop();
+            vehicle_stop();
             vehicle_set_mode(VEHICLE_MODE_FREE);
+            return;
         }
         osDelay(50);
     }
-    vehicle_ensure_stop();
     vehicle_set_motion(VEHICLE_MOTION_FORWARD);
+    vehicle_ensure_stop();
     vehicle_set_mode(VEHICLE_MODE_TRACK);
 }

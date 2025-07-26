@@ -32,6 +32,7 @@ typedef struct Result {
     } result;
 } Result;
 
+// RESULT_OK(NULL);
 #define RESULT_OK(_obj_) ((Result){.is_ok = true, .result.success = {.obj = (_obj_)}})
 
 #define RESULT_ERROR(_err_) ((Result){.is_ok = false, .result.error = (_err_)})

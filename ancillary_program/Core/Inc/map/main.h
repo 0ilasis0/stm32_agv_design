@@ -1,5 +1,6 @@
 #pragma once
 
 #include "map/basic.h"
+#include "map/HashMap.h"
 
-void map_windows (MapIdF from, MapIdF to);
+FnState map_update(SimpleDirect direct);

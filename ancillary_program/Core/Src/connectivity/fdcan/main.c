@@ -14,6 +14,7 @@ uint32_t fdcan_test_pkt_c = 0;
 #ifdef ANCILLARY_PROGRAM
 #include "robotic_arm/main.h"
 #include "rfid/main.h"
+#include "map/main.h"
 static FnState arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
 {
     uint8_t code;
@@ -309,6 +310,48 @@ FnState instant_recv_proc(VecByte* vec_byte)
         }
         #endif
         #ifdef ANCILLARY_PROGRAM
+        case CMD_MAP_B0_CONTROL:
+        {
+            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            switch (code)
+            {
+                // case CMD_MAP_B1_INFO:
+                // {
+                //     return simple_point_go();
+                // }
+                case CMD_MAP_B1_SET:
+                {
+                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    switch (code)
+                    {
+                        case CMD_MAP_B2_FORWARD:
+                        {
+                            return map_update(SIMD_FOWARD);
+                            // return simple_point_store(SIMD_FOWARD);
+                        }
+                        case CMD_MAP_B2_BACKWARD:
+                        {
+                            return map_update(SIMD_BACKWARD);
+                            // return simple_point_store(SIMD_BACKWARD);
+                        }
+                        case CMD_MAP_B2_LEFT:
+                        {
+                            return map_update(SIMD_LEFT);
+                            // return simple_point_store(SIMD_LEFT);
+                        }
+                        case CMD_MAP_B2_RIGHT:
+                        {
+                            return map_update(SIMD_RIGHT);
+                            // return simple_point_store(SIMD_RIGHT);
+                        }
+                        default: break;
+                    }
+                    break;
+                }
+                default: break;
+            }
+            break;
+        }
         case CMD_ARM_B0_CONTROL:
         {
             ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
@@ -486,6 +529,7 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
     return FNS_OK;
 }
 
+#define FDCAN_TASK_DELAY_MS 10
 void StartFdCanTask(void *argument)
 {
     #ifdef DISABLE_FDCAN
@@ -534,6 +578,8 @@ void StartFdCanTask(void *argument)
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0));
     size_t tick = 0;
+    const uint32_t osPeriod = pdMS_TO_TICKS(FDCAN_TASK_DELAY_MS);
+    uint32_t next_wake = osKernelGetTickCount() + osPeriod;
     for(;;)
     {
         if (fdcan_bus_off)
@@ -549,7 +595,8 @@ void StartFdCanTask(void *argument)
             tick = 0;
             last_error = trsm_pkt_proc();
         }
-        osDelay(10);
+        osDelayUntil(next_wake);
+        next_wake += osPeriod;
         tick++;
     }
     #endif

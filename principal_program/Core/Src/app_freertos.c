@@ -65,7 +65,7 @@ const osThreadAttr_t UartTask_attributes = {
 osThreadId_t MotorTaskHandle;
 const osThreadAttr_t MotorTask_attributes = {
   .name = "MotorTask",
-  .priority = (osPriority_t) osPriorityRealtime2,
+  .priority = (osPriority_t) osPriorityRealtime3,
   .stack_size = 128 * 4
 };
 /* Definitions for FdCanTask */
@@ -75,19 +75,26 @@ const osThreadAttr_t FdCanTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh1,
   .stack_size = 256 * 4
 };
-/* Definitions for VehicleTask */
-osThreadId_t VehicleTaskHandle;
-const osThreadAttr_t VehicleTask_attributes = {
-  .name = "VehicleTask",
-  .priority = (osPriority_t) osPriorityRealtime,
+/* Definitions for VehicleUpdateTa */
+osThreadId_t VehicleUpdateTaHandle;
+const osThreadAttr_t VehicleUpdateTa_attributes = {
+  .name = "VehicleUpdateTa",
+  .priority = (osPriority_t) osPriorityRealtime1,
   .stack_size = 128 * 4
 };
 /* Definitions for AdcTask */
 osThreadId_t AdcTaskHandle;
 const osThreadAttr_t AdcTask_attributes = {
   .name = "AdcTask",
-  .priority = (osPriority_t) osPriorityRealtime1,
+  .priority = (osPriority_t) osPriorityRealtime2,
   .stack_size = 128 * 4
+};
+/* Definitions for VehicleTask */
+osThreadId_t VehicleTaskHandle;
+const osThreadAttr_t VehicleTask_attributes = {
+  .name = "VehicleTask",
+  .priority = (osPriority_t) osPriorityRealtime,
+  .stack_size = 256 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,8 +106,9 @@ void StartDefaultTask(void *argument);
 void StartUartTask(void *argument);
 void StartMotorTask(void *argument);
 void StartFdCanTask(void *argument);
-void StartVehicleTask(void *argument);
+void StartVehicleUpdateTask(void *argument);
 void StartAdcTask(void *argument);
+void StartVehicleTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -143,11 +151,14 @@ void MX_FREERTOS_Init(void) {
   /* creation of FdCanTask */
   FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
 
-  /* creation of VehicleTask */
-  VehicleTaskHandle = osThreadNew(StartVehicleTask, NULL, &VehicleTask_attributes);
+  /* creation of VehicleUpdateTa */
+  VehicleUpdateTaHandle = osThreadNew(StartVehicleUpdateTask, NULL, &VehicleUpdateTa_attributes);
 
   /* creation of AdcTask */
   AdcTaskHandle = osThreadNew(StartAdcTask, NULL, &AdcTask_attributes);
+
+  /* creation of VehicleTask */
+  VehicleTaskHandle = osThreadNew(StartVehicleTask, NULL, &VehicleTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -231,22 +242,22 @@ __weak void StartFdCanTask(void *argument)
   /* USER CODE END StartFdCanTask */
 }
 
-/* USER CODE BEGIN Header_StartVehicleTask */
+/* USER CODE BEGIN Header_StartVehicleUpdateTask */
 /**
-* @brief Function implementing the VehicleTask thread.
+* @brief Function implementing the VehicleUpdateTa thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartVehicleTask */
-__weak void StartVehicleTask(void *argument)
+/* USER CODE END Header_StartVehicleUpdateTask */
+__weak void StartVehicleUpdateTask(void *argument)
 {
-  /* USER CODE BEGIN StartVehicleTask */
+  /* USER CODE BEGIN StartVehicleUpdateTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartVehicleTask */
+  /* USER CODE END StartVehicleUpdateTask */
 }
 
 /* USER CODE BEGIN Header_StartAdcTask */
@@ -265,6 +276,24 @@ __weak void StartAdcTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartAdcTask */
+}
+
+/* USER CODE BEGIN Header_StartVehicleTask */
+/**
+* @brief Function implementing the VehicleTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVehicleTask */
+__weak void StartVehicleTask(void *argument)
+{
+  /* USER CODE BEGIN StartVehicleTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartVehicleTask */
 }
 
 /* Private application code --------------------------------------------------*/

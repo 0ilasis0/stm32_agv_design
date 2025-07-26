@@ -1,11 +1,12 @@
-#include "map/main.h"
+#include "map/simple.h"
 #include "connectivity/fdcan/main.h"
+#include "connectivity/cmds.h"
 #include "rfid/main.h"
 
-HashMap* glo_map = NULL;
-static bool card;
+SimplePoint simple_map[20] = {0};
+size_t select;
 
-static FnState map_vech_go(SimpleDirect direct)
+FnState simple_point_go(void)
 {
     FnState result;
     VecByte vec_byte;
@@ -14,7 +15,7 @@ static FnState map_vech_go(SimpleDirect direct)
     Percentage speed = 20;
     VehicleMode mode;
     uint8_t rot_val = 0;
-    switch (direct)
+    switch (simple_map[select].direct)
     {
         case SIMD_FOWARD:
         {
@@ -46,8 +47,6 @@ static FnState map_vech_go(SimpleDirect direct)
         default:
         {
             motion = VEHICLE_MOTION_STOP;
-            ERROR_CHECK_FNS_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 1));
-            ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
             break;
         }
     }
@@ -62,52 +61,30 @@ static FnState map_vech_go(SimpleDirect direct)
     return result;
 }
 
-FnState map_update(SimpleDirect direct)
-{
-    Result res = HashMap_insert(glo_map, spi2_rfid.uid32, direct);
-    if (!res.is_ok) Error_Handler();
-    map_vech_go(direct);
-    return FNS_OK;
-}
-
-static void map_search(uint32_t uid32)
+FnState simple_point_select(uint32_t point)
 {
     FnState result;
-    Result result_r = HashMap_get(glo_map, uid32);
-    if (result_r.is_ok)
+    for (select = 0; select < 20; select++)
     {
-        SimpleDirect* direct = UNWRAP_RESULT(result_r);
-        result = map_vech_go(*direct);
+        if (
+               simple_map[select].uid == 0
+        ) {
+            simple_map[select].uid = spi2_rfid.uid32;
+            result = simple_point_go();
+            break;
+        }
+        else if (point == simple_map[select].uid)
+        {
+            result = simple_point_go();
+        }
     }
-    else
-    {
-        result = map_vech_go(SIMD_INVALED);
-        HashMap_insert(glo_map, uid32, SIMD_INVALED);
-    }
+    return result;
 }
 
-void StartMapTask(void *argument)
+size_t tttt = 0;
+FnState simple_point_store(SimpleDirect direct)
 {
-    // osThreadExit();
-    // return;
-
-    glo_map = UNWRAP_RESULT(HashMap_new(0));
-
-    for(;;)
-    {
-        if (card)
-        {
-            if (spi2_rfid.state == CARD_STATE_NONE) card = false;
-            osDelay(50);
-            continue;
-        }
-        if (spi2_rfid.state != CARD_STATE_EXIST)
-        {
-            osDelay(50);
-            continue;
-        }
-        card = true;
-        map_search(spi2_rfid.uid32);
-        osDelay(50);
-    }
+    tttt++;
+    simple_map[select].direct = direct;
+    return simple_point_go();;
 }

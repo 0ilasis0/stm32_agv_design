@@ -30,7 +30,6 @@ typedef enum VehicleMotion
     VEHICLE_MOTION_UNKNOWN = -1,
 } VehicleMotion;
 
-typedef int8_t    MapDirF;
 typedef struct VehicleParameter
 {
     Percentage speed;
@@ -38,7 +37,7 @@ typedef struct VehicleParameter
     VehicleMotion motion;
     VehicleMotion motion_inner;
     uint32_t last_tick_on_mag;
-    MapDirF need_rotate_count;
+    uint8_t need_rotate_count;
 } VehicleParameter;
 
 extern VehicleParameter vehicle_h;
@@ -49,4 +48,5 @@ void vehicle_ensure_stop(void);
 void vehicle_set_mode(VehicleMode mode);
 void vehicle_set_motion(VehicleMotion motion);
 void vehicle_set_speed(Percentage value);
-void vehicle_set_need_rotate(MapDirF value);
+void vehicle_set_need_rotate(uint8_t value);
+void vehicle_stop(void);

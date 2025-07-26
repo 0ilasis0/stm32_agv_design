@@ -2,7 +2,6 @@
 #include "tim.h"
 #include "us_sensor/main.h"
 
-
 #define HIGH_PASS   1
 #define NONE_PASS   0
 #define LOW_PASS   -1
@@ -190,7 +189,7 @@ static void motion_update(MotorParameter *motor)
            (motor->state != MOTOR_STATE_LOCK)
         && (motor->motion_inner != motor->motion)
     ) {
-        motor->state_inner = MOTOR_STATE_SLOW;
+        motor->state_inner = MOTOR_STATE_SLOW_0;
         if (motor->rps_present > MOTOR_STOP_GATE) return;
         motor->motion_inner = motor->motion;
     }
@@ -212,6 +211,11 @@ static void rps_control(MotorParameter *motor, float ms)
             return;
         }
         case MOTOR_STATE_SLOW:
+        {
+            motor->rps_pcn_inner = 0;
+            break;
+        }
+        case MOTOR_STATE_SLOW_0:
         {
             motor->rps_pcn_inner = 0;
             break;
@@ -269,6 +273,7 @@ static void rps_control(MotorParameter *motor, float ms)
 }
 
 #define MOTOR_TASK_DELAY_MS 50
+bool motor_ready = false;
 void StartMotorTask(void *argument)
 {
     HAL_TIM_Base_Start_IT(MOTOR_HTIM1);
@@ -287,6 +292,7 @@ void StartMotorTask(void *argument)
         rps_control(&motor_right, MOTOR_TASK_DELAY_MS);
         osDelayUntil(next_wake);
         next_wake += osPeriod;
+        motor_ready = true;
     }
     osThreadExit();
 }

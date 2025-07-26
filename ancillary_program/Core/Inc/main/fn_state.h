@@ -33,10 +33,8 @@ typedef struct Result {
 } Result;
 
 #define RESULT_OK(_obj_) ((Result){.is_ok = true, .result.success = {.obj = (_obj_)}})
-
 #define RESULT_ERROR(_err_) ((Result){.is_ok = false, .result.error = (_err_)})
-
-#define RESULT_BOOL(_cond_) ((_cond_) ? RESULT_OK(NULL) : RESULT_ERROR(False))
+#define RESULT_BOOL(_cond_) ((_cond_) ? RESULT_OK(NULL) : RESULT_ERROR(RES_ERR_FAIL))
 
 #define CHECK_RESULT(res)           \
     do {                            \

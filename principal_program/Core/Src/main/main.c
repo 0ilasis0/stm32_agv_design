@@ -57,62 +57,23 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
-size_t defalt_running = 0;
+uint32_t defalt_running;
 void StartDefaultTask(void *argument)
 {
-    defalt_running++;
-
-    osDelay(1000);
-
-    /*測試用--------------------------------------*/
-    // vehicle_test_no_load_rps(1000);
+    defalt_running = HAL_GetTick();
+    while (
+           !motor_ready
+        || !vehicle_ready
+    ) osDelay(50);
     // motor_set_state(&motor_left, MOTOR_STATE_FREE);
     // motor_set_direct(&motor_left, MOTOR_DIRECTION_CLW);
     // motor_set_rps_pcn(&motor_left, 50);
     // motor_set_state(&motor_right, MOTOR_STATE_FREE);
     // motor_set_direct(&motor_right, MOTOR_DIRECTION_CCLW);
     // motor_set_rps_pcn(&motor_right, 50);
-    vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
-    vehicle_set_speed(20);
-    // map_data_renew_direction_and_address(&map_data_start, 11, 7);
-    /*測試用--------------------------------------*/
-
     for(;;)
     {
-        switch (vehicle_h.mode)
-        {
-            case VEHICLE_MODE_END:
-            {
-                vehicle_set_motion(VEHICLE_MOTION_STOP);
-                vehicle_set_mode(VEHICLE_MODE_FREE);
-                break;
-            }
-            case VEHICLE_MODE_TRACK:
-            {
-                vehicle_track_mode(1000);
-                break;
-            }
-            case VEHICLE_MODE_SEARCH:
-            {
-                if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(20, 2000)))
-                {
-                    vehicle_set_motion(VEHICLE_MOTION_STOP);
-                    vehicle_ensure_stop();
-                    vehicle_set_mode(VEHICLE_MODE_FREE);
-                    break;
-                }
-                vehicle_ensure_stop();
-                vehicle_set_mode(VEHICLE_MODE_TRACK);
-                break;
-            }
-            case VEHICLE_MODE_ROTATE:
-            {
-                vehicle_rotate_in_place(1000);
-                break;
-            }
-            default: break;
-        }
-        osDelay(50); // !DO NOT CANCEL THIS LINE
-        defalt_running++;
+        osDelay(100); // !DO NOT CANCEL THIS LINE
+        defalt_running = HAL_GetTick();
     }
 }

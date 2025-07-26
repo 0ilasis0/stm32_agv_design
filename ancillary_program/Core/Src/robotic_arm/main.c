@@ -7,7 +7,15 @@ static const ArmMotionData motion_data_idle = {
     .data = {
         {50, 50, 50, 50, 50, 50},
         {25, 35, 25, 25, 50, 50},
-        {25, 20, 0, 0, 50, 50},
+        {25, 20, 25, 0, 50, 50},
+    },
+};
+
+static const ArmMotionData motion_data_catch_o = {
+    .total_step = 2,
+    .data = {
+        {50, 50, 50, 50, 50, 50},
+        {75, 50, 50, 50, 50, 50},
     },
 };
 

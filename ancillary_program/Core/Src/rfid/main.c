@@ -1,4 +1,7 @@
 #include "rfid/main.h"
+#include "connectivity/fdcan/main.h"
+#include "connectivity/write_pkt.h"
+#include "map/simple.h"
 
 RC522State spi2_rfid = {
     .const_h = {
@@ -66,9 +69,8 @@ void StartRfidTask(void *argument)
     RC522_PCD_Init(&spi2_rfid.const_h);
     memcpy(&rfid_trsm_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     memcpy(&rfid_recv_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
-    // if (RC522_PCD_PerformSelfTest(&spi2_rfid.const_h))
-    // {
-    // }
+    // if (RC522_PCD_PerformSelfTest(&spi2_rfid.const_h)) {};
+    // FnState result;
     for(;;)
     {
         switch (spi2_rfid.state)
@@ -88,6 +90,13 @@ void StartRfidTask(void *argument)
                     | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
                     | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
                 RC522_PICC_HaltA(&spi2_rfid.const_h);
+                // simple_point_select(spi2_rfid.uid32);
+                // VecByte vec_byte;
+                // ERROR_CHECK_FNS_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
+                // ERROR_CHECK_FNS_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 0));
+                // ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
+                // cleanup:
+                // vec_byte_free(&vec_byte);
                 break;
             }
             case CARD_STATE_EXIST:

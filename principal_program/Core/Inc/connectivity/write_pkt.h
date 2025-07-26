@@ -20,6 +20,7 @@ FnState pkt_arm_elbow_btm(VecByte* vec_byte);
 FnState pkt_arm_elbow_top(VecByte* vec_byte);
 FnState pkt_arm_wrist(VecByte* vec_byte);
 FnState pkt_arm_finger(VecByte* vec_byte);
+FnState pkt_map_info(VecByte* vec_byte, uint32_t uid);
 FnState pkt_vehi_set_mode(VecByte* vec_byte, VehicleMode mode, uint8_t value);
 FnState pkt_vehi_set_motion(VecByte* vec_byte, VehicleMotion motion);
 FnState pkt_vehi_set_speed(VecByte* vec_byte, Percentage value);
