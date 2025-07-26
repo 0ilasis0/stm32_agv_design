@@ -158,7 +158,7 @@ void StartVehicleTask(void *argument)
             }
             case VEHICLE_MODE_SEARCH:
             {
-                if (ERROR_CHECK_FNS_RAW(vehicle_search_mode(20, 2000)))
+                if (RESULT_CHECK_RAW(vehicle_search_mode(20, 2000)))
                 {
                     vehicle_stop();
                     vehicle_set_mode(VEHICLE_MODE_FREE);

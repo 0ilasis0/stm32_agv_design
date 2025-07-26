@@ -15,79 +15,79 @@ uint32_t fdcan_test_pkt_c = 0;
 #include "robotic_arm/main.h"
 #include "rfid/main.h"
 #include "map/main.h"
-static FnState arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
+static Result arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
     switch (code)
     {
         case CMD_ARM_B2_STOP:
         {
             arm_set_tim(arm, arm->tim_current);
-            return FNS_OK;
+            return RESULT_OK(NULL);
         }
         case CMD_ARM_B2_SET:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
             arm_set_pos(arm, code);
-            return FNS_OK;
+            return RESULT_OK(NULL);
         }
         default: break;
     }
-    return FNS_NOT_FOUND;
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 #endif
 
-FnState instant_recv_proc(VecByte* vec_byte)
+Result instant_recv_proc(VecByte* vec_byte)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
+    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 0, &code));
     switch (code)
     {
         case CMD_DATA_B0_STOP:
         {
             fdacn_data_store = FNC_DISABLE;
-            return FNS_OK;
+            return RESULT_OK(NULL);
         }
         case CMD_DATA_B0_START:
         {
             fdacn_data_store = FNC_ENABLE;
-            return FNS_OK;
+            return RESULT_OK(NULL);
         }
         #ifdef PRINCIPAL_PROGRAM
         case CMD_WHEEL_B0_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_WHEEL_B1_LEFT:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
                         case CMD_WHEEL_B2_MODE:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_CONTROL);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_FREE);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_SLOW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 default: break;
                             }
@@ -95,7 +95,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_MOTION:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -103,21 +103,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 default: break;
                             }
@@ -125,10 +125,10 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_SPEED:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             motor_set_rps_pcn(motor, code);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         default: break;
                     }
@@ -136,32 +136,32 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_WHEEL_B1_RIGHT:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     MotorParameter* motor = &motor_right;
                     switch (code)
                     {
                         case CMD_WHEEL_B2_MODE:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_CONTROL);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_FREE);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     motor_set_state(motor, MOTOR_STATE_SLOW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 default: break;
                             }
@@ -169,7 +169,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_MOTION:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -177,21 +177,21 @@ FnState instant_recv_proc(VecByte* vec_byte)
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_STOP);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_FREE:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CLW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 case CMD_WHEEL_B3_SLOW:
                                 {
                                     vehicle_set_mode(VEHICLE_MODE_FREE);
                                     vehicle_set_motion(VEHICLE_MOTION_UNKNOWN);
                                     motor_set_direct(motor, MOTOR_DIRECTION_CCLW);
-                                    return FNS_OK;
+                                    return RESULT_OK(NULL);
                                 }
                                 default: break;
                             }
@@ -199,10 +199,10 @@ FnState instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_SPEED:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             motor_set_rps_pcn(motor, code);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         default: break;
                     }
@@ -214,45 +214,45 @@ FnState instant_recv_proc(VecByte* vec_byte)
         }
         case CMD_VEHI_B0_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_VEHI_B1_MODE:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
                         case CMD_VEHI_B2_FREE:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_END:
                         {
                             vehicle_set_mode(VEHICLE_MODE_END);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_F_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_F_TRACK);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_TRACK);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_SEARCH:
                         {
                             vehicle_set_mode(VEHICLE_MODE_SEARCH);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_ROTATE:
                         {
-                            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
                             vehicle_set_need_rotate(code);
                             vehicle_set_mode(VEHICLE_MODE_ROTATE);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         default: break;
                     }
@@ -260,38 +260,38 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_VEHI_B1_MOTION:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
                         case CMD_VEHI_B2_FREE:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_motion(VEHICLE_MOTION_STOP);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_END:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_motion(VEHICLE_MOTION_FORWARD);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_F_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_motion(VEHICLE_MOTION_BACKWARD);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_TRACK:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_motion(VEHICLE_MOTION_C_CLOCKWISE);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         case CMD_VEHI_B2_SEARCH:
                         {
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         default: break;
                     }
@@ -299,10 +299,10 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_VEHI_B1_SPEED:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     vehicle_set_mode(VEHICLE_MODE_FREE);
                     vehicle_set_speed(code);
-                    return FNS_OK;
+                    return RESULT_OK(NULL);
                 }
                 default: break;
             }
@@ -312,7 +312,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
         #ifdef ANCILLARY_PROGRAM
         case CMD_MAP_B0_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 // case CMD_MAP_B1_INFO:
@@ -321,7 +321,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                 // }
                 case CMD_MAP_B1_SET:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
                         case CMD_MAP_B2_FORWARD:
@@ -354,12 +354,12 @@ FnState instant_recv_proc(VecByte* vec_byte)
         }
         case CMD_ARM_B0_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_ARM_B1_ARM:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
                     {
                         case CMD_ARM_B2_STOP:
@@ -371,7 +371,7 @@ FnState instant_recv_proc(VecByte* vec_byte)
                             arm_set_tim(&arm_elbow_top, arm_elbow_top.tim_current);
                             arm_set_tim(&arm_wrist, arm_wrist.tim_current);
                             arm_set_tim(&arm_finger, arm_finger.tim_current);
-                            return FNS_OK;
+                            return RESULT_OK(NULL);
                         }
                         default: break;
                     }
@@ -414,76 +414,78 @@ FnState instant_recv_proc(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NOT_FOUND;
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-static UNUSED_FNC FnState pkt_transmit(void)
+static UNUSED_FNC Result pkt_transmit(void)
 {
     vec_rm_all(&fdcan_trsm_buf);
-    ERROR_CHECK_FNS_RETURN(fdcan_trcv_buf_pop(&fdcan_trsm_pkt_buf, &fdcan_trsm_buf, &fdcan_TxHeader.Identifier));
+    RESULT_CHECK_RET_RES(fdcan_trcv_buf_pop(&fdcan_trsm_pkt_buf, &fdcan_trsm_buf, &fdcan_TxHeader.Identifier));
     fdcan_TxHeader.DataLength = fdcan_trsm_buf.len;
     HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcan_TxHeader, fdcan_trsm_buf.data);
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
-static UNUSED_FNC FnState trsm_pkt_proc(void)
+static UNUSED_FNC Result trsm_pkt_proc(void)
 {
+    Result result = RESULT_OK(NULL);
     VecByte vec_byte;
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
+    RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, 8));
     if (fdacn_data_store == FNC_ENABLE)
     {
         #ifdef ENABLE_CON_PKT_TEST
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &fdcan_test_pkt_c),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_TEST_ID), vec_byte_free(&vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_test(&vec_byte, &fdcan_test_pkt_c));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_TEST_ID));
         #else
         #ifdef PRINCIPAL_PROGRAM
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_MOTOR_DATA_ID), vec_byte_free(&vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_left_speed(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
+        RESULT_CHECK_CLEANUP(pkt_right_speed(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
+        RESULT_CHECK_CLEANUP(pkt_left_duty(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
+        RESULT_CHECK_CLEANUP(pkt_right_duty(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
         #endif
         #ifdef ANCILLARY_PROGRAM
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_bottom(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_shoulder(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_elbow_btm(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_elbow_top(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_wrist(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_arm_finger(&vec_byte),
-            fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID), vec_byte_free(&vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_arm_bottom(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        RESULT_CHECK_CLEANUP(pkt_arm_shoulder(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        RESULT_CHECK_CLEANUP(pkt_arm_elbow_btm(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        RESULT_CHECK_CLEANUP(pkt_arm_elbow_top(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        RESULT_CHECK_CLEANUP(pkt_arm_wrist(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        RESULT_CHECK_CLEANUP(pkt_arm_finger(&vec_byte));
+        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
         #endif
         #endif
     }
+    cleanup:
     vec_byte_free(&vec_byte);
-    return FNS_OK;
+    return result;
 }
 
-static FnState recv_pkt_proc_inner(VecByte* vec_byte)
+static Result recv_pkt_proc_inner(VecByte* vec_byte)
 {
     uint8_t code;
-    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 0, &code));
+    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 0, &code));
     switch (code)
     {
         #ifdef ANCILLARY_PROGRAM
         case CMD_RFID_B0_CONTROL:
         {
-            ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
             switch (code)
             {
                 case CMD_RFID_B1_SELECT:
                 {
                     uint8_t secter, block;
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &secter));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 3, &block));
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 4, &code));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &secter));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &block));
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 4, &code));
                     switch (code)
                     {
                         case CMD_RFID_B4_ONLY_SET:
@@ -500,9 +502,9 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
                 }
                 case CMD_RFID_B1_INP_DATA:
                 {
-                    ERROR_CHECK_FNS_RETURN(vec_byte_get_byte(vec_byte, 2, &code));
-                    ERROR_CHECK_FNS_RETURN(vec_rm_range(vec_byte, 0, 3));
-                    if (vec_byte->len < 4) return FNS_NOT_FOUND;
+                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(vec_rm_range(vec_byte, 0, 3));
+                    if (vec_byte->len < 4) return RESULT_ERROR(RES_ERR_NOT_FOUND);
                     return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, vec_byte->data + vec_byte->head, 4);
                 }
                 default: break;
@@ -512,21 +514,21 @@ static FnState recv_pkt_proc_inner(VecByte* vec_byte)
         #endif
         default: break;
     }
-    return FNS_NOT_FOUND;
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-static UNUSED_FNC FnState recv_pkt_proc(size_t count)
+static UNUSED_FNC Result recv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
     uint32_t id;
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
+    RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        if (ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id))) break;
-        last_error = recv_pkt_proc_inner(&vec_byte);
+        if (RESULT_CHECK_RAW(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id))) break;
+        recv_pkt_proc_inner(&vec_byte);
     }
     vec_byte_free(&vec_byte);
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
 #define FDCAN_TASK_DELAY_MS 10
@@ -535,11 +537,11 @@ void StartFdCanTask(void *argument)
     #ifdef DISABLE_FDCAN
     osThreadExit();
     #else
-    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_trsm_buf, 8));
-    ERROR_CHECK_FNS_HANDLE(fdcan_trcv_buf_setup(&fdcan_trsm_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
-    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_recv0_buf, 8));
-    ERROR_CHECK_FNS_HANDLE(vec_byte_new(&fdcan_recv1_buf, 8));
-    ERROR_CHECK_FNS_HANDLE(fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
+    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_trsm_buf, 8));
+    RESULT_CHECK_HANDLE(fdcan_trcv_buf_setup(&fdcan_trsm_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
+    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_recv0_buf, 8));
+    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_recv1_buf, 8));
+    RESULT_CHECK_HANDLE(fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
     FDCAN_FilterTypeDef sFilter0 = {
         .IdType = FDCAN_STANDARD_ID,
@@ -588,12 +590,12 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
-        last_error = pkt_transmit();
-        last_error = recv_pkt_proc(5);
+        pkt_transmit();
+        recv_pkt_proc(5);
         if (tick % 50 == 0)
         {
             tick = 0;
-            last_error = trsm_pkt_proc();
+            trsm_pkt_proc();
         }
         osDelayUntil(next_wake);
         next_wake += osPeriod;

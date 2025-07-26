@@ -6,11 +6,11 @@
 SimplePoint simple_map[20] = {0};
 size_t select;
 
-FnState simple_point_go(void)
+Result simple_point_go(void)
 {
-    FnState result;
+    Result result;
     VecByte vec_byte;
-    ERROR_CHECK_FNS_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
+    RESULT_CHECK_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
     VehicleMotion motion;
     Percentage speed = 20;
     VehicleMode mode;
@@ -50,20 +50,20 @@ FnState simple_point_go(void)
             break;
         }
     }
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
     cleanup:
     vec_byte_free(&vec_byte);
     return result;
 }
 
-FnState simple_point_select(uint32_t point)
+Result simple_point_select(uint32_t point)
 {
-    FnState result;
+    Result result;
     for (select = 0; select < 20; select++)
     {
         if (
@@ -82,7 +82,7 @@ FnState simple_point_select(uint32_t point)
 }
 
 size_t tttt = 0;
-FnState simple_point_store(SimpleDirect direct)
+Result simple_point_store(SimpleDirect direct)
 {
     tttt++;
     simple_map[select].direct = direct;

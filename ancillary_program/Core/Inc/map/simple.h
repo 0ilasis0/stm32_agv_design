@@ -18,6 +18,6 @@ typedef struct SimplePoint
     SimpleDirect direct;
 } SimplePoint;
 
-FnState simple_point_go(void);
-FnState simple_point_store(SimpleDirect direct);
-FnState simple_point_select(uint32_t point);
+Result simple_point_go(void);
+Result simple_point_store(SimpleDirect direct);
+Result simple_point_select(uint32_t point);

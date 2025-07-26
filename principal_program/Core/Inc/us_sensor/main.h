@@ -39,8 +39,8 @@ typedef struct USSensor
 
 extern USSensor us_sensor_head;
 
-FnState us_sensor_enable(USSensor* us_sensor);
+Result us_sensor_enable(USSensor* us_sensor);
 void us_sensor_start(void);
 void us_sensor_tri_off(void);
 void us_sensor_overflow(void);
-FnState us_sensor_stop(USSensor* us_sensor);
+Result us_sensor_stop(USSensor* us_sensor);

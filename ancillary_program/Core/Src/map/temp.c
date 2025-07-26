@@ -30,7 +30,7 @@ static MapData map_data_start = {
     .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };
 
-static MapError map_error = {FNS_OK};
+static MapError map_error = {0};
 
 static Location locations_t[MAX_NODE];
 static const Location locations_t_inner[MAX_NODE] = {
@@ -63,28 +63,28 @@ static void map_trans (const MapData* trans_map)
     // text
 
     VecByte vec_byte;
-    if (ERROR_CHECK_FNS_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
+    if (RESULT_CHECK_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
     {
     }
 
     if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+           RESULT_CHECK_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
+        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
     }
     if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+           RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
+        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
     }
     if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+           RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
     }
     if (
-           ERROR_CHECK_FNS_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-        || ERROR_CHECK_FNS_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+           RESULT_CHECK_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
     ) {
     }
 
@@ -361,7 +361,7 @@ static void map_bulid(MapIdF from, MapIdF to)
 
     // 確認起點合法、圖上有路可走
     if (from == -1 || to == -1 || graph[from][to] == INF) {
-        ERROR_STOP_MAP_RETURN(map_error.no_path, FNS_FAIL);
+        ERROR_STOP_MAP_RETURN(map_error.no_path, RESULT_ERROR(RES_ERR_FAIL));
     }
 
     map_data_all = init_map_data();
@@ -397,7 +397,7 @@ void map_windows (MapIdF from, MapIdF to)
     // 若已設定起點且與本次輸入不符，視為錯誤
     if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
     {
-        map_error.input_start_id_err = FNS_FAIL;
+        map_error.input_start_id_err = RESULT_ERROR(RES_ERR_NOT_FOUND);
         return;
     }
 

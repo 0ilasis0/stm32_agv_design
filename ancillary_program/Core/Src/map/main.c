@@ -5,11 +5,11 @@
 HashMap* glo_map = NULL;
 static bool card;
 
-static FnState map_vech_go(SimpleDirect direct)
+static Result map_vech_go(SimpleDirect direct)
 {
-    FnState result;
+    Result result;
     VecByte vec_byte;
-    ERROR_CHECK_FNS_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
+    RESULT_CHECK_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
     VehicleMotion motion;
     Percentage speed = 20;
     VehicleMode mode;
@@ -46,43 +46,42 @@ static FnState map_vech_go(SimpleDirect direct)
         default:
         {
             motion = VEHICLE_MOTION_STOP;
-            ERROR_CHECK_FNS_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 1));
-            ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
+            RESULT_CHECK_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 1));
+            RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
             break;
         }
     }
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    ERROR_CHECK_FNS_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
-    ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    RESULT_CHECK_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
+    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
     cleanup:
     vec_byte_free(&vec_byte);
     return result;
 }
 
-FnState map_update(SimpleDirect direct)
+Result map_update(SimpleDirect direct)
 {
     Result res = HashMap_insert(glo_map, spi2_rfid.uid32, direct);
     if (!res.is_ok) Error_Handler();
     map_vech_go(direct);
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
 static void map_search(uint32_t uid32)
 {
-    FnState result;
-    Result result_r = HashMap_get(glo_map, uid32);
-    if (result_r.is_ok)
+    Result result = HashMap_get(glo_map, uid32);
+    if (RESULT_CHECK_RAW(result))
     {
-        SimpleDirect* direct = UNWRAP_RESULT(result_r);
-        result = map_vech_go(*direct);
+        result = map_vech_go(SIMD_INVALED);
+        result = HashMap_insert(glo_map, uid32, SIMD_INVALED);
     }
     else
     {
-        result = map_vech_go(SIMD_INVALED);
-        HashMap_insert(glo_map, uid32, SIMD_INVALED);
+        SimpleDirect* direct = UNWRAP_RESULT(result);
+        result = map_vech_go(*direct);
     }
 }
 

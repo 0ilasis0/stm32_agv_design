@@ -40,7 +40,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         vec_rm_all(&fdcan_recv0_buf);
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcan_RxHeader, fdcan_recv0_buf.data));
         vec_byte_add_len(&fdcan_recv0_buf, fdcan_RxHeader.DataLength);
-        last_error = instant_recv_proc(&fdcan_recv0_buf);
+        instant_recv_proc(&fdcan_recv0_buf);
     }
 }
 
@@ -51,6 +51,6 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
         vec_rm_all(&fdcan_recv1_buf);
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &fdcan_RxHeader, fdcan_recv1_buf.data));
         vec_byte_add_len(&fdcan_recv1_buf, fdcan_RxHeader.DataLength);
-        last_error = fdcan_trcv_buf_push(&fdcan_recv_pkt_buf, &fdcan_recv1_buf, fdcan_RxHeader.Identifier);
+        fdcan_trcv_buf_push(&fdcan_recv_pkt_buf, &fdcan_recv1_buf, fdcan_RxHeader.Identifier);
     }
 }

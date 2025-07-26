@@ -3,4 +3,4 @@
 #include "map/basic.h"
 #include "map/HashMap.h"
 
-FnState map_update(SimpleDirect direct);
+Result map_update(SimpleDirect direct);

@@ -10,8 +10,8 @@
 
 #define ERROR_STOP_MAP_RETURN(name, expr)   \
     do {                                    \
-        FnState   _err = (expr);            \
-        if (_err != FNS_OK)                 \
+        Result _err = (expr);               \
+        if (RESULT_CHECK_RAW(_err))         \
         {                                   \
             name = _err;                    \
             map_enable = false;             \
@@ -27,9 +27,9 @@ typedef uint8_t    MapCountF;
 typedef uint16_t   MapDisF;
 
 typedef struct MapError{
-    FnState lose_navigation;
-    FnState no_path;
-    FnState input_start_id_err;
+    Result lose_navigation;
+    Result no_path;
+    Result input_start_id_err;
 } MapError;
 
 typedef struct Connection{

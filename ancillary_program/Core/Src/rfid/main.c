@@ -18,50 +18,50 @@ RC522State spi2_rfid = {
 RfidTrcvBuf rfid_trsm_buf = {0};
 RfidTrcvBuf rfid_recv_buf = {0};
 
-FnState rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t block, uint8_t send)
+Result rfid_trcv_buf_setaddr(RfidTrcvBuf* trcv_buf, uint8_t sector, uint8_t block, uint8_t send)
 {
     if (
            sector >= 16
         || block >= 3
         || send > 2
-    ) return FNS_NOT_FOUND;
+    ) return RESULT_ERROR(RES_ERR_NOT_FOUND);
     trcv_buf->sector = sector;
     trcv_buf->block = block;
     trcv_buf->send = send;
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
-FnState rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len)
+Result rfid_trcv_buf_setdata(RfidTrcvBuf* trcv_buf, uint8_t id, uint8_t *data, uint8_t len)
 {
-    if (id + len > 16) return FNS_OVERFLOW;
+    if (id + len > 16) return RESULT_ERROR(RES_ERR_OVERFLOW);
     memcpy(&trcv_buf->data[id], data, len);
     uint8_t i;
     for(i = 0; i < len; i++)
     {
         trcv_buf->flags |= ((uint16_t)1 << (id + i));
     }
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
-static UNUSED_FNC FnState buf_write(RC522State* state, RfidTrcvBuf* trcv_buf)
+static UNUSED_FNC Result buf_write(RC522State* state, RfidTrcvBuf* trcv_buf)
 {
-    if (trcv_buf->send == 0) return FNS_INVALID;
+    if (trcv_buf->send == 0) return RESULT_ERROR(RES_ERR_INVALID);
     RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector*4, &trcv_buf->key, &state->uid);
     if (RC522_MIFARE_Write(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, 16) != STATUS_Code_OK)
-        return FNS_FAIL;
+        return RESULT_ERROR(RES_ERR_FAIL);
     trcv_buf->send = 0;
     trcv_buf->flags = 0;
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
-static UNUSED_FNC FnState buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
+static UNUSED_FNC Result buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
 {
     RC522_PCD_Authenticate(&state->const_h, PICC_CMD_MF_AUTH_KEY_A, trcv_buf->sector*4, &trcv_buf->key, &state->uid);
     trcv_buf->size = 18;
     memset(trcv_buf->data, 0, trcv_buf->size);
     if (RC522_MIFARE_Read(&state->const_h, (trcv_buf->sector * 4) + trcv_buf->block, trcv_buf->data, &trcv_buf->size) != STATUS_Code_OK)
-        return FNS_FAIL;
-    return FNS_OK;
+        return RESULT_ERROR(RES_ERR_FAIL);
+    return RESULT_OK(NULL);
 }
 
 void StartRfidTask(void *argument)
@@ -70,7 +70,7 @@ void StartRfidTask(void *argument)
     memcpy(&rfid_trsm_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     memcpy(&rfid_recv_buf.key, &rc522_default_key, sizeof(RC522MIFARE_Key));
     // if (RC522_PCD_PerformSelfTest(&spi2_rfid.const_h)) {};
-    // FnState result;
+    // Result result;
     for(;;)
     {
         switch (spi2_rfid.state)
@@ -92,9 +92,9 @@ void StartRfidTask(void *argument)
                 RC522_PICC_HaltA(&spi2_rfid.const_h);
                 // simple_point_select(spi2_rfid.uid32);
                 // VecByte vec_byte;
-                // ERROR_CHECK_FNS_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
-                // ERROR_CHECK_FNS_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 0));
-                // ERROR_CHECK_FNS_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
+                // RESULT_CHECK_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
+                // RESULT_CHECK_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 0));
+                // RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
                 // cleanup:
                 // vec_byte_free(&vec_byte);
                 break;

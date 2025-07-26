@@ -1,21 +1,18 @@
 #include "main/fn_state.h"
-#include "vehicle/basic.h"
 
-FnState last_error = FNS_INVALID;
+ErrorType last_error;
 
 #ifdef PRINCIPAL_PROGRAM
+#include "vehicle/basic.h"
 
-FnState_h error_state = {
-    .vehicle_rotate_in_place         = FNS_INVALID,
-    .agv_forward_leave_strong_magnet = FNS_INVALID,
-};
+Result_h error_state;
 
-void timeout_error(uint32_t start_time, FnState *error_parameter) {
+void timeout_error(uint32_t start_time, Result *error_parameter) {
     osDelay(10);
     if (!runtime_switch.timeout) return;
 
     if (HAL_GetTick() - start_time > ERROR_TIMEOUT_TIME_LIMIT) {
-        *error_parameter = FNS_TIMEOUT;
+        *error_parameter = RESULT_ERROR(RES_ERR_TIMEOUT);
         vehicle_ensure_stop();
         while (true) osDelay(10);
     }

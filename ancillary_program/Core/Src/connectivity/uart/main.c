@@ -47,58 +47,60 @@ static UNUSED_FNC void uart_setup(void)
 {
     // Tx:PB9(R5) Rx:PB11(R18)
     if (
-           (vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2) == FNS_OK)
-        && (connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP) == FNS_OK)
+           RESULT_CHECK_RAW(vec_byte_new(&uart_tr_buf, UART_VEC_BYTE_CAP + 2))
+        && RESULT_CHECK_RAW(connect_trcv_buf_setup(&uart_tr_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP))
     ) uart_enable_trsm = FNC_ENABLE;
     if (
-           (vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2) == FNS_OK)
-        && (connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP) == FNS_OK)
+           RESULT_CHECK_RAW(vec_byte_new(&uart_rv_buf, UART_VEC_BYTE_CAP + 2))
+        && RESULT_CHECK_RAW(connect_trcv_buf_setup(&uart_rv_pkt_buf, UART_TRCV_BUF_CAP, UART_VEC_BYTE_CAP))
     ) uart_enable_recv = FNC_ENABLE;
 }
 
-static UNUSED_FNC FnState uart_transmit(void)
+static UNUSED_FNC Result uart_transmit(void)
 {
-    if (HAL_DMA_GetState(huart1.hdmatx) == HAL_DMA_STATE_BUSY) return FNS_FAIL;
+    if (HAL_DMA_GetState(huart1.hdmatx) == HAL_DMA_STATE_BUSY) return RESULT_ERROR(RES_ERR_FAIL);
     vec_rm_all(&uart_tr_buf);
-    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
-    ERROR_CHECK_FNS_RETURN(connect_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
-    ERROR_CHECK_FNS_RETURN(vec_byte_push_byte(&uart_tr_buf, UART_END_CODE));
+    RESULT_CHECK_RET_RES(vec_byte_push_byte(&uart_tr_buf, UART_START_CODE));
+    RESULT_CHECK_RET_RES(connect_trcv_buf_pop(&uart_tr_pkt_buf, &uart_tr_buf));
+    RESULT_CHECK_RET_RES(vec_byte_push_byte(&uart_tr_buf, UART_END_CODE));
     HAL_UART_Transmit_DMA(&huart1, uart_tr_buf.data, uart_tr_buf.len);
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
-static UNUSED_FNC FnState trsm_pkt_proc(void)
+static UNUSED_FNC Result trsm_pkt_proc(void)
 {
+    Result result = RESULT_OK(NULL);
     if (uart_data_trsm_ready == FNC_ENABLE)
     {
         VecByte vec_byte;
-        ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, 8));
+        RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, 8));
         #ifdef ENABLE_CON_PKT_TEST
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_test(&vec_byte, &uart_test_pkt_c),
-            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_test(&vec_byte, &uart_test_pkt_c));
+        RESULT_CHECK_CLEANUP(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte));
         #endif
         #ifdef PRINCIPAL_PROGRAM
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_speed(&vec_byte),
-            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_speed(&vec_byte),
-            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_left_duty(&vec_byte),
-            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
-        ERROR_CHECK_FNS_WRI_PUSH(pkt_right_duty(&vec_byte),
-            connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte), vec_byte_free(&vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_left_speed(&vec_byte));
+        RESULT_CHECK_CLEANUP(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_right_speed(&vec_byte));
+        RESULT_CHECK_CLEANUP(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_left_duty(&vec_byte));
+        RESULT_CHECK_CLEANUP(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte));
+        RESULT_CHECK_CLEANUP(pkt_right_duty(&vec_byte));
+        RESULT_CHECK_CLEANUP(connect_trcv_buf_push(&uart_tr_pkt_buf, &vec_byte));
         #endif
+        cleanup:
         vec_byte_free(&vec_byte);
     }
-    return FNS_OK;
+    return result;
 }
 
-static UNUSED_FNC FnState recv_pkt_proc(size_t count)
+static UNUSED_FNC Result recv_pkt_proc(size_t count)
 {
     VecByte vec_byte;
-    ERROR_CHECK_FNS_RETURN(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
+    RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        if (ERROR_CHECK_FNS_RAW(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte))) break;
+        if (RESULT_CHECK_RAW(connect_trcv_buf_pop(&uart_rv_pkt_buf, &vec_byte))) break;
         uint8_t code = vec_byte.data[vec_byte.head];
         vec_rm_range(&vec_byte, 0, 1);
         switch (code)
@@ -110,12 +112,11 @@ static UNUSED_FNC FnState recv_pkt_proc(size_t count)
                 uart_data_trsm_ready = true;
                 break;
             default:
-                last_error = FNS_NOT_FOUND;
                 break;
         }
     }
     vec_byte_free(&vec_byte);
-    return FNS_OK;
+    return RESULT_OK(NULL);
 }
 
 void StartUartTask(void *argument)
