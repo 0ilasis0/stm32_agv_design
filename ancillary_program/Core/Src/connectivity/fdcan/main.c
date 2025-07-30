@@ -319,7 +319,11 @@ Result instant_recv_proc(VecByte* vec_byte)
                 // {
                 //     return simple_point_go();
                 // }
-                case CMD_MAP_B1_SET:
+                case CMD_MAP_B1_SET_UID:
+                {
+                    
+                }
+                case CMD_MAP_B1_SET_DIR:
                 {
                     RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
                     switch (code)
