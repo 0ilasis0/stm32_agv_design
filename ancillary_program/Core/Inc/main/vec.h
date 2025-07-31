@@ -28,3 +28,4 @@ Result vec_byte_get_u32(VecByte* self, size_t id, uint32_t* value);
 Result vec_byte_pop_u32(VecByte* self, size_t id, uint32_t* value);
 Result vec_byte_push_u32(VecByte* self, uint32_t value);
 Result vec_byte_push_f32(VecByte* self, float value);
+Result vec_byte_pop_can(VecByte* self, VecByte* container);

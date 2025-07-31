@@ -14,37 +14,37 @@ USSensor us_sensor_head = {
     .state = USS_STATE_STOP,
 };
 
-Result us_sensor_enable(USSensor* us_sensor)
+Result us_sensor_enable(USSensor* self)
 {
-    if (us_sensor->state != USS_STATE_STOP) return RESULT_ERROR(RES_ERR_BUSY);
-    us_sensor->state = USS_STATE_WAITING;
-    return RESULT_OK(NULL);
+    if (self->state != USS_STATE_STOP) return RESULT_ERROR(RES_ERR_BUSY);
+    self->state = USS_STATE_WAITING;
+    return RESULT_OK(self);
 }
 
-static Result uss_start_inner(USSensor* us_sensor)
+static Result uss_start_inner(USSensor* self)
 {
-    if (us_sensor->state != USS_STATE_WAITING) return RESULT_ERROR(RES_ERR_INVALID);
-    us_sensor->state = USS_STATE_TRIGGER;
-    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_SET);
-    return RESULT_OK(NULL);
+    if (self->state != USS_STATE_WAITING) return RESULT_ERROR(RES_ERR_INVALID);
+    self->state = USS_STATE_TRIGGER;
+    HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_SET);
+    return RESULT_OK(self);
 }
 
-static Result uss_tri_off_inner(USSensor* us_sensor)
+static Result uss_tri_off_inner(USSensor* self)
 {
-    if (us_sensor->state != USS_STATE_TRIGGER) return RESULT_ERROR(RES_ERR_INVALID);
-    us_sensor->state = USS_STATE_RUNNING;
-    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
-    return RESULT_OK(NULL);
+    if (self->state != USS_STATE_TRIGGER) return RESULT_ERROR(RES_ERR_INVALID);
+    self->state = USS_STATE_RUNNING;
+    HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
+    return RESULT_OK(self);
 }
 
-static Result uss_overflow_inner(USSensor* us_sensor)
+static Result uss_overflow_inner(USSensor* self)
 {
-    if (us_sensor->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
-    us_sensor->state = USS_STATE_STOP;
-    HAL_GPIO_WritePin(us_sensor->const_h.trig_GPIOx, us_sensor->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
-    us_sensor->time = UINT16_MAX;
-    us_sensor->distance = FLT_MAX;
-    return RESULT_OK(NULL);
+    if (self->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
+    self->state = USS_STATE_STOP;
+    HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
+    self->time = UINT16_MAX;
+    self->distance = FLT_MAX;
+    return RESULT_OK(self);
 }
 
 void us_sensor_start(void)
@@ -62,16 +62,16 @@ void us_sensor_overflow(void)
     uss_overflow_inner(&us_sensor_head);
 }
 
-Result us_sensor_stop(USSensor* us_sensor)
+Result us_sensor_stop(USSensor* self)
 {
-    if (us_sensor->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
-    us_sensor->state = USS_STATE_STOP;
-    const USSConst *const_h = &us_sensor->const_h;
+    if (self->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
+    self->state = USS_STATE_STOP;
+    const USSConst *const_h = &self->const_h;
     HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
-    us_sensor->time = __HAL_TIM_GET_COUNTER(US_SENSOR_HTIM);
-    us_sensor->distance = (float)us_sensor->time * 0.343f / 2.0f;  // uint:mm
-    if      (us_sensor->distance <= const_h->danger ) us_sensor->status = USS_STATUS_DANGER;
-    else if (us_sensor->distance <= const_h->warning) us_sensor->status = USS_STATUS_WARNING;
-    else us_sensor->status = USS_STATUS_SAVE;
-    return RESULT_OK(NULL);
+    self->time = __HAL_TIM_GET_COUNTER(US_SENSOR_HTIM);
+    self->distance = (float)self->time * 0.343f / 2.0f;  // uint:mm
+    if      (self->distance <= const_h->danger ) self->status = USS_STATUS_DANGER;
+    else if (self->distance <= const_h->warning) self->status = USS_STATUS_WARNING;
+    else self->status = USS_STATUS_SAVE;
+    return RESULT_OK(self);
 }

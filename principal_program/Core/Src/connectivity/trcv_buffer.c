@@ -13,7 +13,7 @@ Result connect_trcv_buf_setup(ByteTrcvBuf* self, size_t buf_size, size_t data_si
     {
         RESULT_CHECK_RET_RES(vec_byte_new(&self->vecs[i], data_size));
     }
-    return RESULT_OK(NULL);
+    return RESULT_OK(self);
 }
 
 Result connect_trcv_buf_push(ByteTrcvBuf* self, VecByte* vec_byte)
@@ -24,7 +24,7 @@ Result connect_trcv_buf_push(ByteTrcvBuf* self, VecByte* vec_byte)
     vec_byte_realign(vec_byte);
     RESULT_CHECK_RET_RES(vec_byte_push(&self->vecs[tail], vec_byte->data + vec_byte->head, vec_byte->len));
     self->len++;
-    return RESULT_OK(NULL);
+    return RESULT_OK(self);
 }
 
 Result connect_trcv_buf_pop(ByteTrcvBuf* self, VecByte* vec_byte)
@@ -40,5 +40,5 @@ Result connect_trcv_buf_pop(ByteTrcvBuf* self, VecByte* vec_byte)
     {
         self->head = (self->head + 1) % self->cap;
     }
-    return RESULT_OK(NULL);
+    return RESULT_OK(self);
 }

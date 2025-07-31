@@ -140,7 +140,7 @@ Result vec_byte_starts_with(VecByte* self, const uint8_t *pre, size_t pre_len)
  * @param len 增加的長度
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_add_len(VecByte* self, size_t len)
 {
@@ -158,7 +158,7 @@ Result vec_byte_add_len(VecByte* self, size_t len)
  * @param src_len 要推入的資料長度
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_push(VecByte* self, const void *src, size_t src_len)
 {
@@ -223,7 +223,7 @@ Result vec_byte_pop_byte(VecByte* self, size_t id, uint8_t* value)
  * @param value 要推入的原始值
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_push_byte(VecByte* self, uint8_t value)
 {
@@ -251,7 +251,7 @@ uint16_t swap_u16(uint16_t value)
  * @param value 要推入的原始值
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_push_u16(VecByte* self, uint16_t value)
 {
@@ -325,7 +325,7 @@ Result vec_byte_pop_u32(VecByte* self, size_t id, uint32_t* value)
  * @param value 要推入的原始值
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_push_u32(VecByte* self, uint32_t value)
 {
@@ -341,7 +341,7 @@ Result vec_byte_push_u32(VecByte* self, uint32_t value)
  * @param value 要推入的原始值
  * 
  * @return FNS_OK 成功推入
- * @return FNS_OVERFLOW 推入失敗（超過容量）
+ * @return RESULT_ERROR(RES_ERR_OVERFLOW) 推入失敗（超過容量）
  */
 Result vec_byte_push_f32(VecByte* self, float value)
 {
@@ -350,4 +350,13 @@ Result vec_byte_push_f32(VecByte* self, float value)
     memcpy(&u32, &value, sizeof(u32));
     u32 = swap_u32(u32);
     return vec_byte_push(self, &u32, sizeof(u32));
+}
+
+Result vec_byte_pop_can(VecByte* self, VecByte* container)
+{
+    if (self->len < FDCAN_VEC_BYTE_CAP) return RESULT_ERROR(RES_ERR_EMPTY);
+    if (self->head + self->len >= self->cap) vec_byte_realign(self);
+    Result result = vec_byte_push(container, self->data + self->head, FDCAN_VEC_BYTE_CAP);
+    if (!RESULT_CHECK_RAW(result)) self->len -= FDCAN_VEC_BYTE_CAP;
+    return result;
 }
