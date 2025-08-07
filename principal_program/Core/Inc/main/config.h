@@ -72,7 +72,10 @@
 #define FDCAN_VEC_BYTE_CAP      8
 #define FDCAN_TRCV_BUF_CAP      10
 #define FDCAN_TEST_ID           0x001
-#define FDCAN_MOTOR_DATA_ID     0x012
+#define FDCAN_DATA_ID           0x011
+#define FDCAN_PKT_POOL_CAP      20
+#define FDCAN_TRSM_BUF_CAP      10
+#define FDCAN_RECV_BUF_CAP      10
 
 #define UART_BAUDRATE           115200
 #define UART_VEC_BYTE_CAP       128

@@ -80,7 +80,7 @@ static void map_search(uint32_t uid32)
     }
     else
     {
-        SimpleDirect* direct = UNWRAP_RESULT(result);
+        SimpleDirect* direct = RESULT_UNWRAP_HANDLE(result);
         result = map_vech_go(*direct);
     }
 }
@@ -90,7 +90,7 @@ void StartMapTask(void *argument)
     // osThreadExit();
     // return;
 
-    glo_map = UNWRAP_RESULT(HashMap_new(0));
+    glo_map = RESULT_UNWRAP_HANDLE(HashMap_new(0));
 
     for(;;)
     {

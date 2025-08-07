@@ -11,7 +11,7 @@
 
 #ifdef __GNUC__
 #else
-#error "UNWRAP_RESULT 需要 GCC/Clang 的 statement-expression 支持"
+#error "RESULT_UNWRAP_HANDLE 需要 GCC/Clang 的 statement-expression 支持"
 #endif
 #define CHECK_MAP_EXISTS()                                                     \
     do {                                                                       \

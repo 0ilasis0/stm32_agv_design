@@ -1,11 +1,9 @@
 #include "main/main.h"
-#include "main/config.h"
 #include "vehicle/main.h"
 #include "motor/main.h"
 #include "us_sensor/main.h"
 #include "adc/main.h"
 #include "us_sensor/main.h"
-#include "connectivity/uart/main.h"
 
 static size_t motor_tick = 0;
 

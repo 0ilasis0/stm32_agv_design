@@ -60,10 +60,15 @@ typedef struct Result {
         }                                   \
     } while (0)
 
-#define UNWRAP_RESULT(res)          \
-    ({                              \
-        RESULT_CHECK_HANDLE(res);   \
-        (res).result.success.obj;   \
+#define RESULT_UNWRAP_HANDLE(expr)          \
+    ({                                      \
+        Result res = (expr);                \
+        if (RESULT_CHECK_RAW(res))          \
+        {                                   \
+            last_error = res.result.error;  \
+            Error_Handler();                \
+        }                                   \
+        (res).result.success.obj;           \
     })
 
 #define RESULT_CHECK_RET_VOID(expr)         \
@@ -76,6 +81,12 @@ typedef struct Result {
         }                                   \
     } while (0)
 
+#define RESULT_UNWRAP_RET_VOID(res) \
+    ({                              \
+        RESULT_CHECK_RET_VOID(res); \
+        (res).result.success.obj;   \
+    })
+
 #define RESULT_CHECK_RET_RES(expr)          \
     do {                                    \
         Result res = (expr);                \
@@ -85,6 +96,12 @@ typedef struct Result {
             return res;                     \
         }                                   \
     } while (0)
+
+#define RESULT_UNWRAP_RET_RES(res)  \
+    ({                              \
+        RESULT_CHECK_RET_RES(res);  \
+        (res).result.success.obj;   \
+    })
 
 #define RESULT_CHECK_CLEANUP(expr)              \
     do {                                        \
