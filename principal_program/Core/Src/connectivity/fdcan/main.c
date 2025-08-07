@@ -16,7 +16,7 @@ uint32_t fdcan_test_pkt_c = 0;
 #include "robotic_arm/main.h"
 #include "rfid/main.h"
 #include "map/main.h"
-static Result arm_motor_set(VecByte* pkt, ArmMotorParameter* arm)
+static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
 {
     uint8_t code;
     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
@@ -443,40 +443,45 @@ static UNUSED_FNC Result trsm_pkt_proc(void)
         FdcanPkt* pkt;
         #ifdef ENABLE_CON_PKT_TEST
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_TEST);
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+        fdcan_data_pkt_write(pkt, DATA_TYPE_TEST);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #else
         #ifdef PRINCIPAL_PROGRAM
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_LEFT_SPEED);
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_SPEED);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_LEFT_DUTY);
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_DUTY);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_RIGHT_SPEED);
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_SPEED);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_RIGHT_DUTY);
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_DUTY);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
         #ifdef ANCILLARY_PROGRAM
-        RESULT_CHECK_CLEANUP(pkt_arm_bottom(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_shoulder(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_elbow_btm(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_elbow_top(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_wrist(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_finger(&pkt));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &pkt, FDCAN_ARM_DATA_ID));
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_BOTTOM));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_SHOULDER));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_BTM));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_TOP));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_WRIST));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_FINGER));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
         #endif
     }
-    cleanup:
     return result;
 }
 
@@ -515,9 +520,8 @@ static Result recv_pkt_proc_inner(FdcanPkt* pkt)
                 case CMD_RFID_B1_INP_DATA:
                 {
                     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
-                    RESULT_CHECK_RET_RES(vec_rm_range(pkt, 0, 3));
                     if (pkt->len < 4) return RESULT_ERROR(RES_ERR_NOT_FOUND);
-                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + pkt->head, 4);
+                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + 3, 4);
                 }
                 default: break;
             }
@@ -533,7 +537,7 @@ static UNUSED_FNC Result recv_pkt_proc(size_t count)
 {
     for (size_t i = 0; i < count; i++)
     {
-        FdcanPkt* pkt = RESULT_UNWRAP_HANDLE_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
+        FdcanPkt* pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
         recv_pkt_proc_inner(pkt);
         fdcan_pkt_pool_free(pkt);
     }

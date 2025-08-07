@@ -67,26 +67,26 @@ static void map_trans (const MapData* trans_map)
     {
     }
 
-    if (
-           RESULT_CHECK_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
-        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-    }
-    if (
-           RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
-        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-    }
-    if (
-           RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-    }
-    if (
-           RESULT_CHECK_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-        || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    ) {
-    }
+    // if (
+    //        RESULT_CHECK_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
+    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    // }
+    // if (
+    //        RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
+    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    // }
+    // if (
+    //        RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
+    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    // }
+    // if (
+    //        RESULT_CHECK_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
+    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
+    // ) {
+    // }
 
     vec_byte_free(&vec_byte);
 }

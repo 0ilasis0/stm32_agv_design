@@ -1,5 +1,5 @@
 #include "map/main.h"
-#include "connectivity/fdcan/main.h"
+#include "connectivity/fdcan/pkt_write.h"
 #include "rfid/main.h"
 
 HashMap* glo_map = NULL;
@@ -7,9 +7,8 @@ static bool card;
 
 static Result map_vech_go(SimpleDirect direct)
 {
-    Result result;
-    VecByte vec_byte;
-    RESULT_CHECK_CLEANUP(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP));
+    Result result = RESULT_OK(NULL);
+    FdcanPkt* pkt;
     VehicleMotion motion;
     Percentage speed = 20;
     VehicleMode mode;
@@ -46,19 +45,21 @@ static Result map_vech_go(SimpleDirect direct)
         default:
         {
             motion = VEHICLE_MOTION_STOP;
-            RESULT_CHECK_CLEANUP(pkt_map_info(&vec_byte, spi2_rfid.uid32, 1));
-            RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x11));
+            pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+            RESULT_CHECK_HANDLE(fdcan_rfid_pkt_write(pkt, spi2_rfid.uid32, 1));
+            fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
             break;
         }
     }
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    cleanup:
-    vec_byte_free(&vec_byte);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_motion(pkt, motion));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, speed));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_mode(pkt, mode, rot_val));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
     return result;
 }
 

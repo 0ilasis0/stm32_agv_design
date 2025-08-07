@@ -33,14 +33,19 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 {
 }
 
+FDCAN_RxHeaderTypeDef RxHeader0 = {0};
+FDCAN_RxHeaderTypeDef RxHeader1 = {0};
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     if(ITS_CHECK(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
-        vec_rm_all(&fdcan_recv0_buf);
-        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcan_RxHeader, fdcan_recv0_buf.data));
-        vec_byte_add_len(&fdcan_recv0_buf, fdcan_RxHeader.DataLength);
-        instant_recv_proc(&fdcan_recv0_buf);
+        FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
+            hfdcan, FDCAN_RX_FIFO0, &RxHeader0, pkt->data));
+        pkt->id = RxHeader0.Identifier;
+        pkt->len = RxHeader0.DataLength;
+        instant_recv_proc(pkt);
+        fdcan_pkt_pool_free(pkt);
     }
 }
 
@@ -48,9 +53,11 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
     if(ITS_CHECK(RxFifo1ITs, FDCAN_IT_RX_FIFO1_NEW_MESSAGE))
     {
-        vec_rm_all(&fdcan_recv1_buf);
-        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &fdcan_RxHeader, fdcan_recv1_buf.data));
-        vec_byte_add_len(&fdcan_recv1_buf, fdcan_RxHeader.DataLength);
-        fdcan_trcv_buf_push(&fdcan_recv_pkt_buf, &fdcan_recv1_buf, fdcan_RxHeader.Identifier);
+        // FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        // ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
+        //     hfdcan, FDCAN_RX_FIFO1, &RxHeader1, pkt->data));
+        // pkt->id = RxHeader1.Identifier;
+        // pkt->len = RxHeader1.DataLength;
+        // RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
     }
 }

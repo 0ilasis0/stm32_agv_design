@@ -1,6 +1,7 @@
 #include "map/simple.h"
 #include "connectivity/fdcan/main.h"
 #include "connectivity/cmds.h"
+#include "main/vehicle.h"
 #include "rfid/main.h"
 
 SimplePoint simple_map[20] = {0};
@@ -50,12 +51,12 @@ Result simple_point_go(void)
             break;
         }
     }
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
-    RESULT_CHECK_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
-    RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    // RESULT_CHECK_CLEANUP(pkt_vehi_set_motion(&vec_byte, motion));
+    // RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    // RESULT_CHECK_CLEANUP(pkt_vehi_set_speed(&vec_byte, speed));
+    // RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
+    // RESULT_CHECK_CLEANUP(pkt_vehi_set_mode(&vec_byte, mode, rot_val));
+    // RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID));
     cleanup:
     vec_byte_free(&vec_byte);
     return result;

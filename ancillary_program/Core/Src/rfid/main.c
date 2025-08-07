@@ -1,6 +1,5 @@
 #include "rfid/main.h"
 #include "connectivity/fdcan/main.h"
-#include "connectivity/write_pkt.h"
 #include "map/simple.h"
 
 RC522State spi2_rfid = {

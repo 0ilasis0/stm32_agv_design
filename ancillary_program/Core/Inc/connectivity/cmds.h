@@ -62,8 +62,7 @@
 #define CMD_MAP_B0_CONTROL          (uint8_t)0x30   // 地圖控制
 
 #define CMD_MAP_B1_INFO             (uint8_t)0x00   // RFID
-#define CMD_MAP_B1_SET_UID          (uint8_t)0x10
-#define CMD_MAP_B1_SET_DIR          (uint8_t)0x11
+#define CMD_MAP_B1_SET              (uint8_t)0x01
 
 //      CMD_MAP_B2_VALUE                            // UID
 #define CMD_MAP_B2_FORWARD          (uint8_t)0x00

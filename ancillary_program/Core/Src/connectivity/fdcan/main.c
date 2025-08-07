@@ -1,6 +1,7 @@
 #include "connectivity/fdcan/main.h"
 #include "fdcan.h"
 #include "connectivity/cmds.h"
+#include "connectivity/fdcan/pkt_write.h"
 
 #ifdef ENABLE_CON_PKT_TEST
 uint32_t fdcan_test_pkt_c = 0;
@@ -15,10 +16,10 @@ uint32_t fdcan_test_pkt_c = 0;
 #include "robotic_arm/main.h"
 #include "rfid/main.h"
 #include "map/main.h"
-static Result arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
+static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
     switch (code)
     {
         case CMD_ARM_B2_STOP:
@@ -28,7 +29,7 @@ static Result arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
         }
         case CMD_ARM_B2_SET:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
             arm_set_pos(arm, code);
             return RESULT_OK(NULL);
         }
@@ -38,10 +39,10 @@ static Result arm_motor_set(VecByte* vec_byte, ArmMotorParameter* arm)
 }
 #endif
 
-Result instant_recv_proc(VecByte* vec_byte)
+Result instant_recv_proc(FdcanPkt* pkt)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 0, &code));
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
     switch (code)
     {
         case CMD_DATA_B0_STOP:
@@ -57,18 +58,18 @@ Result instant_recv_proc(VecByte* vec_byte)
         #ifdef PRINCIPAL_PROGRAM
         case CMD_WHEEL_B0_CONTROL:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
             switch (code)
             {
                 case CMD_WHEEL_B1_LEFT:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     MotorParameter* motor = &motor_left;
                     switch (code)
                     {
                         case CMD_WHEEL_B2_MODE:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -95,7 +96,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_MOTION:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -125,7 +126,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_SPEED:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             motor_set_rps_pcn(motor, code);
                             return RESULT_OK(NULL);
@@ -136,13 +137,13 @@ Result instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_WHEEL_B1_RIGHT:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     MotorParameter* motor = &motor_right;
                     switch (code)
                     {
                         case CMD_WHEEL_B2_MODE:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -169,7 +170,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_MOTION:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             switch (code)
                             {
                                 case CMD_WHEEL_B3_CONTROL:
@@ -199,7 +200,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_WHEEL_B2_SPEED:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             vehicle_set_mode(VEHICLE_MODE_FREE);
                             motor_set_rps_pcn(motor, code);
                             return RESULT_OK(NULL);
@@ -214,12 +215,12 @@ Result instant_recv_proc(VecByte* vec_byte)
         }
         case CMD_VEHI_B0_CONTROL:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
             switch (code)
             {
                 case CMD_VEHI_B1_MODE:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     switch (code)
                     {
                         case CMD_VEHI_B2_FREE:
@@ -249,7 +250,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                         }
                         case CMD_VEHI_B2_ROTATE:
                         {
-                            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &code));
+                            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
                             vehicle_set_need_rotate(code);
                             vehicle_set_mode(VEHICLE_MODE_ROTATE);
                             return RESULT_OK(NULL);
@@ -260,7 +261,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_VEHI_B1_MOTION:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     switch (code)
                     {
                         case CMD_VEHI_B2_FREE:
@@ -299,7 +300,7 @@ Result instant_recv_proc(VecByte* vec_byte)
                 }
                 case CMD_VEHI_B1_SPEED:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     vehicle_set_mode(VEHICLE_MODE_FREE);
                     vehicle_set_speed(code);
                     return RESULT_OK(NULL);
@@ -312,20 +313,16 @@ Result instant_recv_proc(VecByte* vec_byte)
         #ifdef ANCILLARY_PROGRAM
         case CMD_MAP_B0_CONTROL:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
             switch (code)
             {
                 // case CMD_MAP_B1_INFO:
                 // {
                 //     return simple_point_go();
                 // }
-                case CMD_MAP_B1_SET_UID:
+                case CMD_MAP_B1_SET:
                 {
-                    
-                }
-                case CMD_MAP_B1_SET_DIR:
-                {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     switch (code)
                     {
                         case CMD_MAP_B2_FORWARD:
@@ -358,12 +355,12 @@ Result instant_recv_proc(VecByte* vec_byte)
         }
         case CMD_ARM_B0_CONTROL:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
             switch (code)
             {
                 case CMD_ARM_B1_ARM:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     switch (code)
                     {
                         case CMD_ARM_B2_STOP:
@@ -384,32 +381,32 @@ Result instant_recv_proc(VecByte* vec_byte)
                 case CMD_ARM_B1_BOTTOM:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_bottom);
+                    return arm_motor_set(pkt, &arm_bottom);
                 }
                 case CMD_ARM_B1_SHOULDER:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_shoulder);
+                    return arm_motor_set(pkt, &arm_shoulder);
                 }
                 case CMD_ARM_B1_ELBOW_BTM:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_elbow_btm);
+                    return arm_motor_set(pkt, &arm_elbow_btm);
                 }
                 case CMD_ARM_B1_ELBOW_TOP:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_elbow_top);
+                    return arm_motor_set(pkt, &arm_elbow_top);
                 }
                 case CMD_ARM_B1_WRIST:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_wrist);
+                    return arm_motor_set(pkt, &arm_wrist);
                 }
                 case CMD_ARM_B1_FINGER:
                 {
                     arm_motion_set(ARM_MOTION_UNKNOWN);
-                    return arm_motor_set(vec_byte, &arm_finger);
+                    return arm_motor_set(pkt, &arm_finger);
                 }
                 default: break;
             }
@@ -421,75 +418,91 @@ Result instant_recv_proc(VecByte* vec_byte)
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-static UNUSED_FNC Result pkt_transmit(void)
+static FDCAN_TxHeaderTypeDef TxHeader = {
+    .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
+    .TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
+};
+// static FdcanPkt fdcan_trsm_pkt = {0};
+static UNUSED_FNC void pkt_transmit(void)
 {
-    vec_rm_all(&fdcan_trsm_buf);
-    RESULT_CHECK_RET_RES(fdcan_trcv_buf_pop(&fdcan_trsm_pkt_buf, &fdcan_trsm_buf, &fdcan_TxHeader.Identifier));
-    fdcan_TxHeader.DataLength = fdcan_trsm_buf.len;
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcan_TxHeader, fdcan_trsm_buf.data);
-    return RESULT_OK(NULL);
+    Result result = fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
+    if (RESULT_CHECK_RAW(result)) return;
+    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
+    // memcpy(pkt, &fdcan_trsm_pkt, sizeof(FdcanPkt));
+    TxHeader.Identifier = pkt->id;
+    TxHeader.DataLength = pkt->len;
+    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, pkt->data);
+    fdcan_pkt_pool_free(pkt);
 }
 
 static UNUSED_FNC Result trsm_pkt_proc(void)
 {
     Result result = RESULT_OK(NULL);
-    VecByte vec_byte;
-    RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, 8));
     if (fdacn_data_store == FNC_ENABLE)
     {
+        FdcanPkt* pkt;
         #ifdef ENABLE_CON_PKT_TEST
-        RESULT_CHECK_CLEANUP(pkt_test(&vec_byte, &fdcan_test_pkt_c));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_TEST_ID));
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_TEST);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #else
         #ifdef PRINCIPAL_PROGRAM
-        RESULT_CHECK_CLEANUP(pkt_left_speed(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
-        RESULT_CHECK_CLEANUP(pkt_right_speed(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
-        RESULT_CHECK_CLEANUP(pkt_left_duty(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
-        RESULT_CHECK_CLEANUP(pkt_right_duty(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, 0x10));
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_SPEED);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_DUTY);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_SPEED);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_DUTY);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
         #ifdef ANCILLARY_PROGRAM
-        RESULT_CHECK_CLEANUP(pkt_arm_bottom(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_shoulder(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_elbow_btm(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_elbow_top(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_wrist(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
-        RESULT_CHECK_CLEANUP(pkt_arm_finger(&vec_byte));
-        RESULT_CHECK_CLEANUP(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_ARM_DATA_ID));
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_BOTTOM));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_SHOULDER));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_BTM));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_TOP));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_WRIST));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_FINGER));
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
         #endif
     }
-    cleanup:
-    vec_byte_free(&vec_byte);
     return result;
 }
 
-static Result recv_pkt_proc_inner(VecByte* vec_byte)
+static Result recv_pkt_proc_inner(FdcanPkt* pkt)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 0, &code));
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
     switch (code)
     {
         #ifdef ANCILLARY_PROGRAM
         case CMD_RFID_B0_CONTROL:
         {
-            RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 1, &code));
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
             switch (code)
             {
                 case CMD_RFID_B1_SELECT:
                 {
                     uint8_t secter, block;
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &secter));
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 3, &block));
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 4, &code));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &secter));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &block));
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 4, &code));
                     switch (code)
                     {
                         case CMD_RFID_B4_ONLY_SET:
@@ -506,10 +519,9 @@ static Result recv_pkt_proc_inner(VecByte* vec_byte)
                 }
                 case CMD_RFID_B1_INP_DATA:
                 {
-                    RESULT_CHECK_RET_RES(vec_byte_get_byte(vec_byte, 2, &code));
-                    RESULT_CHECK_RET_RES(vec_rm_range(vec_byte, 0, 3));
-                    if (vec_byte->len < 4) return RESULT_ERROR(RES_ERR_NOT_FOUND);
-                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, vec_byte->data + vec_byte->head, 4);
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
+                    if (pkt->len < 4) return RESULT_ERROR(RES_ERR_NOT_FOUND);
+                    return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + 3, 4);
                 }
                 default: break;
             }
@@ -523,15 +535,12 @@ static Result recv_pkt_proc_inner(VecByte* vec_byte)
 
 static UNUSED_FNC Result recv_pkt_proc(size_t count)
 {
-    VecByte vec_byte;
-    uint32_t id;
-    RESULT_CHECK_RET_RES(vec_byte_new(&vec_byte, UART_VEC_BYTE_CAP));
     for (size_t i = 0; i < count; i++)
     {
-        if (RESULT_CHECK_RAW(fdcan_trcv_buf_pop(&fdcan_recv_pkt_buf, &vec_byte, &id))) break;
-        recv_pkt_proc_inner(&vec_byte);
+        FdcanPkt* pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
+        recv_pkt_proc_inner(pkt);
+        fdcan_pkt_pool_free(pkt);
     }
-    vec_byte_free(&vec_byte);
     return RESULT_OK(NULL);
 }
 
@@ -541,11 +550,7 @@ void StartFdCanTask(void *argument)
     #ifdef DISABLE_FDCAN
     osThreadExit();
     #else
-    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_trsm_buf, 8));
-    RESULT_CHECK_HANDLE(fdcan_trcv_buf_setup(&fdcan_trsm_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
-    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_recv0_buf, 8));
-    RESULT_CHECK_HANDLE(vec_byte_new(&fdcan_recv1_buf, 8));
-    RESULT_CHECK_HANDLE(fdcan_trcv_buf_setup(&fdcan_recv_pkt_buf, FDCAN_TRCV_BUF_CAP, FDCAN_VEC_BYTE_CAP));
+    fdcan_pkt_pool_init();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
     FDCAN_FilterTypeDef sFilter0 = {
         .IdType = FDCAN_STANDARD_ID,
