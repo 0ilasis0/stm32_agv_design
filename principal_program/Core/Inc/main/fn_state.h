@@ -113,7 +113,7 @@ typedef struct Result {
         }                                       \
     } while (0)
 
-#ifdef AGV_STM32_DEVICE
+#ifdef STM32_DEVICE
 #define ERROR_CHECK_HAL_RETERN(expr)        \
     do {                                    \
         HAL_StatusTypeDef _err = (expr);    \

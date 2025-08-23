@@ -520,7 +520,7 @@ static Result recv_pkt_proc_inner(FdcanPkt* pkt)
                 case CMD_RFID_B1_INP_DATA:
                 {
                     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
-                    if (pkt->len < 4) return RESULT_ERROR(RES_ERR_NOT_FOUND);
+                    if (pkt->len < 7) return RESULT_ERROR(RES_ERR_EMPTY);
                     return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + 3, 4);
                 }
                 default: break;

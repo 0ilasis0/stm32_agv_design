@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <float.h>
 #include <string.h>
-#include "stm32g431xx.h"
-#include "stm32g4xx_hal.h"
 #include "FreeRTOS.h"
-#include "tim.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "stm32g431xx.h"
+#include "stm32g4xx_hal.h"
+#include "tim.h"
 
 #define UNUSED_FNC __attribute__((unused))
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
@@ -24,13 +24,13 @@
 // --
 // ! SYSTEM config, Change CAREFULLY --------------------
 
-#define AGV_STM32_DEVICE
+#define STM32_DEVICE
 #define PRINCIPAL_PROGRAM
 
-#define MOTOR_PSC               170
-#define MOTOR_ARR               100
 #define TIM1_PSC                17000
 #define TIM1_ARR                5000
+#define MOTOR_PSC               170
+#define MOTOR_ARR               100
 #define TIM2_PSC                MOTOR_PSC   // 170
 #define TIM2_ARR                MOTOR_ARR   // 100 MAX 2147483647
 #define TIM3_PSC                MOTOR_PSC   // 170
