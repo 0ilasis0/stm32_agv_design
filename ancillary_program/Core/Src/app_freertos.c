@@ -52,7 +52,7 @@ osThreadId_t DefaultTaskHandle;
 const osThreadAttr_t DefaultTask_attributes = {
   .name = "DefaultTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
+  .stack_size = 512 * 4
 };
 /* Definitions for ArmMotorTask */
 osThreadId_t ArmMotorTaskHandle;

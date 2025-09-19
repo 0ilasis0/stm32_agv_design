@@ -9,8 +9,7 @@ AdcHall adchall_track_left = {
     .const_h = {
         // PB11(R18)
         .id = 2,
-        .magnetic_value_0 = 2365,
-        .magnetic_value_1 = 1890,
+        .magnetic_value_0 = 1880,
     },
     .min = 4095,
 };
@@ -19,8 +18,7 @@ AdcHall adchall_track_right = {
     .const_h = {
         // PB1(R24)
         .id = 1,
-        .magnetic_value_0 = 2345,
-        .magnetic_value_1 = 1860,
+        .magnetic_value_0 = 1860,
     },
     .min = 4095,
 };
@@ -29,8 +27,7 @@ AdcHall adchall_direction = {
     .const_h = {
         // PB12(R16)
         .id = 0,
-        .magnetic_value_0 = 2240,
-        .magnetic_value_1 = 1810,
+        .magnetic_value_0 = 1780,
     },
     .min = 4095,
 };
@@ -40,7 +37,6 @@ AdcHall adchall_node = {
         // PB0(L34)
         .id = 3,
         .magnetic_value_0 = 1850,
-        .magnetic_value_1 = 1910,
     },
     .min = 4095,
 };

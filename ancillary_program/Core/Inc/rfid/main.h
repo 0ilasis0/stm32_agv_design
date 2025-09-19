@@ -6,6 +6,8 @@
 #include "rfid/MFRC522_STM32.h"
 #include "main/vec.h"
 
+extern bool new_card;
+
 #define SECTOR_MASK(s)      ((uint16_t)1 << (s))
 
 typedef enum CardState

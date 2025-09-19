@@ -1,5 +1,6 @@
 #include "map/temp.h"
 #include "connectivity/fdcan/main.h"
+#include "connectivity/fdcan/pkt_write.h"
 #include "rfid/main.h"
 
 static int graph[MAX_NODE][MAX_NODE];
@@ -32,12 +33,24 @@ static MapData map_data_start = {
 
 static MapError map_error = {0};
 
+// 858788143  -> 51 48 17 47
+// 592978984  -> 33 88 86 40
+// 3623155971 -> 45 249 244 3
+// 1505360132 -> 0
 static Location locations_t[MAX_NODE];
+
 static const Location locations_t_inner[MAX_NODE] = {
-    {1,    { {0,0},     {0,0},      {2,85},    {0,0},      {3,50},      {0,0},      {0,0},      {0,0}       } },
-    {2,    { {0,0},     {0,0},      {0,0},    {0,0},      {0,0},      {3,100},      {1,85},      {0,0}       } },
-    {3,    { {1,50},     {2,100},      {0,0},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
+    {1505360132,   { {858788143,5},     {0,0},      {0,0},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
+    {858788143,    { {3623155971,85},     {592978984,10},      {0,0},    {0,0},      {1505360132,5},      {0,0},      {0,0},      {0,0}       } },
+    {592978984,    { {0,0},     {0,0},      {0,0},    {0,0},      {0,0},      {858788143,10},      {0,0},      {3623155971,20}       } },
+    {3623155971,   { {0,0},     {0,0},      {0,0},    {592978984,20},      {858788143,85},      {0,0},      {0,0},      {0,0}       } }
 };
+
+// static const Location locations_t_inner[MAX_NODE] = {
+//     {1,    { {0,0},     {0,0},      {2,85},    {0,0},      {3,50},      {0,0},      {0,0},      {0,0}       } },
+//     {2,    { {0,0},     {0,0},      {0,0},    {0,0},      {0,0},      {3,100},      {1,85},      {0,0}       } },
+//     {3,    { {1,50},     {2,100},      {0,0},    {0,0},      {0,0},      {0,0},      {0,0},      {0,0}       } },
+// };
 
 // static const Location locations_t_inner[MAX_NODE] = {
 //     {1,    { {0,0},     {0,0},      {2,85},    {4,30},      {3,50},      {0,0},      {0,0},      {0,0}       } },
@@ -58,37 +71,15 @@ static const Location locations_t_inner[MAX_NODE] = {
 
 static void map_trans (const MapData* trans_map)
 {
-    // text
-    // return;
-    // text
-
-    VecByte vec_byte;
-    if (RESULT_CHECK_RAW(vec_byte_new(&vec_byte, FDCAN_VEC_BYTE_CAP)))
-    {
-    }
-
-    // if (
-    //        RESULT_CHECK_RAW(pkt_vehi_set_motion(&vec_byte, trans_map->vehicle_motion))
-    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    // }
-    // if (
-    //        RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, 0))
-    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    // }
-    // if (
-    //        RESULT_CHECK_RAW(pkt_vehi_set_mode(&vec_byte, trans_map->mode, trans_map->need_rotate_count))
-    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    // }
-    // if (
-    //        RESULT_CHECK_RAW(pkt_vehi_set_speed(&vec_byte, trans_map->speed_setpoint))
-    //     || RESULT_CHECK_RAW(fdcan_trcv_buf_push(&fdcan_trsm_pkt_buf, &vec_byte, FDCAN_VEHI_ID))
-    // ) {
-    // }
-
-    vec_byte_free(&vec_byte);
+    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_motion(pkt, trans_map->vehicle_motion));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_mode(pkt, trans_map->mode, trans_map->need_rotate_count));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, trans_map->speed_setpoint));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
 }
 
 static MapDirF opposite_direction (MapDirF dir)
@@ -98,11 +89,11 @@ static MapDirF opposite_direction (MapDirF dir)
 
 // 尋找節點 ID 對應的陣列索引
 static MapIdF get_index_by_id (MapIdF id)
- {
+{
     for (uint8_t i = 0; i < MAX_NODE; i++) {
         if (locations_t[i].local_id == id) return i;
     }
-    return -1;
+    return  NO_DATA;
 }
 
 // Floyd-Warshall 演算法計算所有節點對間最短路徑
@@ -142,7 +133,7 @@ static void init_map (void)
             int distance = locations_t[i].connect[d].distance;
             if (distance > 0) {
                 MapIdF to_index = get_index_by_id(id_to);
-                if (to_index != -1) {
+                if (to_index != NO_DATA) {
                     graph[i][to_index] = distance;
                     graph[to_index][i] = distance;
                     path[i][to_index] = to_index;
@@ -271,10 +262,10 @@ static MapCountF decide_need_rotate_count(
     }
 
     //若原方向上也有磁條，表示會需加一次
-    if (locations_t_inner[current_id].connect[from_dir].distance != 0)
-    {
-        count++;
-    }
+    // if (locations_t_inner[current_id].connect[from_dir].distance != 0)
+    // {
+    //     count++;
+    // }
 
     return count;
 }
@@ -360,7 +351,7 @@ static void map_bulid(MapIdF from, MapIdF to)
     to   = get_index_by_id(to);
 
     // 確認起點合法、圖上有路可走
-    if (from == -1 || to == -1 || graph[from][to] == INF) {
+    if (from == NO_DATA || to == NO_DATA|| graph[from][to] == INF) {
         ERROR_STOP_MAP_RETURN(map_error.no_path, RESULT_ERROR(RES_ERR_FAIL));
     }
 
@@ -408,34 +399,41 @@ void map_windows (MapIdF from, MapIdF to)
 
 int yy = 1;
 int tick_ttt = 0;
-void StartMapTask__(void *argument)
+int textabc[3] = {};
+void StartDefaultTask(void *argument)
 {
-    osThreadExit();
-    return;
+    // osThreadExit();
+    // return;
 
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
     map_set();
 
     // text
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
-    // map_windows(5, 14);
+    map_windows(locations_t_inner[0].local_id, locations_t_inner[3].local_id);
+    
     // text
 
     for(;;)
     {
+        
         // text
-        // tick_ttt++;
+        tick_ttt++;
         // text
 
         // map flag
-        if (spi2_rfid.state == CARD_STATE_EXIST && !map_toggle) map_toggle = true;
+        if (new_card == 1 && !map_toggle) {
+            textabc[2] = 1;
+            map_toggle = true;
+        }
         if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
-
         // if(map_enable)
         if(map_enable && map_toggle)
         {
             // 讀到RFID執行給資料到另一個stm32
             // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
+            textabc[0] = spi2_rfid.uid32;
+            textabc[1] = map_data_all.map_data[map_data_all.current_count + 1].address_id;
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;

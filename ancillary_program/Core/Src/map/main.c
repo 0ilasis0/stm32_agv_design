@@ -88,26 +88,26 @@ static void map_search(uint32_t uid32)
 
 void StartMapTask(void *argument)
 {
-    // osThreadExit();
-    // return;
+    osThreadExit();
+    return;
 
-    glo_map = RESULT_UNWRAP_HANDLE(HashMap_new(0));
+    // glo_map = RESULT_UNWRAP_HANDLE(HashMap_new(0));
 
-    for(;;)
-    {
-        if (card)
-        {
-            if (spi2_rfid.state == CARD_STATE_NONE) card = false;
-            osDelay(50);
-            continue;
-        }
-        if (spi2_rfid.state != CARD_STATE_EXIST)
-        {
-            osDelay(50);
-            continue;
-        }
-        card = true;
-        map_search(spi2_rfid.uid32);
-        osDelay(50);
-    }
+    // for(;;)
+    // {
+    //     if (card)
+    //     {
+    //         if (spi2_rfid.state == CARD_STATE_NONE) card = false;
+    //         osDelay(50);
+    //         continue;
+    //     }
+    //     if (spi2_rfid.state != CARD_STATE_EXIST)
+    //     {
+    //         osDelay(50);
+    //         continue;
+    //     }
+    //     card = true;
+    //     map_search(spi2_rfid.uid32);
+    //     osDelay(50);
+    // }
 }

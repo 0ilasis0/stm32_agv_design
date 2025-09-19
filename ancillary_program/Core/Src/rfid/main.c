@@ -2,6 +2,8 @@
 #include "connectivity/fdcan/main.h"
 #include "map/simple.h"
 
+bool new_card = 0;
+
 RC522State spi2_rfid = {
     .const_h = {
         .hspi = &hspi2,
@@ -88,6 +90,7 @@ void StartRfidTask(void *argument)
                     | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
                     | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
                     | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
+                new_card = 1;
                 RC522_PICC_HaltA(&spi2_rfid.const_h);
                 // simple_point_select(spi2_rfid.uid32);
                 // VecByte vec_byte;
@@ -104,7 +107,7 @@ void StartRfidTask(void *argument)
 	            uint8_t atqa_size = 2;
                 if (RC522_PICC_WakeupA(&spi2_rfid.const_h, atqa_answer, &atqa_size) != STATUS_Code_OK)
                 {
-                    if (++spi2_rfid.err_count > 3)
+                    if (++spi2_rfid.err_count > 9)
                     {
                         RC522_PICC_HaltA(&spi2_rfid.const_h);
                         RC522_PCD_StopCrypto1(&spi2_rfid.const_h);
