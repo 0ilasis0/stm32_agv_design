@@ -44,8 +44,16 @@ AdcHall adchall_node = {
 // 2100 - 1100
 static uint16_t adc_cnt[ADC_ACC_CNT_MAX - ADC_ACC_CNT_MIN] = {0};
 
+int count = 0;
 static void max_min (AdcHall* adc)
 {
+    count ++ ;
+    if (count % 300 == 0)
+    {
+        adc->max = 0;
+        adc->min = 4095;
+    }
+
     if(adc->value > adc->max) adc->max = adc->value;
     else if(adc->value < adc->min && adc->value > 1000) adc->min = adc->value;
 }
