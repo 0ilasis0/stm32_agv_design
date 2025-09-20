@@ -7,6 +7,7 @@
 #define INF 99999
 #define MAX_NODE 10
 #define NO_DATA 0xFF
+#define TIME_INIT 3000
 
 #define ERROR_STOP_MAP_RETURN(name, expr)   \
     do {                                    \

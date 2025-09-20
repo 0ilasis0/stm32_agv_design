@@ -3,6 +3,9 @@
 #include "connectivity/fdcan/pkt_write.h"
 #include "rfid/main.h"
 
+static uint32_t time_start;
+static uint8_t textabc[3] = {};
+
 static int graph[MAX_NODE][MAX_NODE];
 static int path[MAX_NODE][MAX_NODE];
 
@@ -305,6 +308,11 @@ static void decide_map_id_and_direction(int from, int to)
 static void delete_locations_t_data(MapIdF id, MapDirF dir)
 {
     id = get_index_by_id(id);
+    if (id == NO_DATA)
+    {
+        textabc[2] = 3;
+        return;
+    }
 
     locations_t[id].connect[dir].distance = 0;
     locations_t[id].connect[dir].id       = 0;
@@ -354,6 +362,8 @@ static void map_bulid(MapIdF from, MapIdF to)
     // 確認起點合法、圖上有路可走
     if (from == NO_DATA || to == NO_DATA|| graph[from][to] == INF) {
         ERROR_STOP_MAP_RETURN(map_error.no_path, RESULT_ERROR(RES_ERR_FAIL));
+        map_enable = false;
+        return;
     }
 
     map_data_all = init_map_data();
@@ -384,23 +394,34 @@ static void map_bulid(MapIdF from, MapIdF to)
     agv_state = map_data_all.map_data[0];
 }
 
+int yy = 1;
+int tick_time = 0;
 void map_windows (MapIdF from, MapIdF to)
 {
     // 若已設定起點且與本次輸入不符，視為錯誤
     if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
     {
+        textabc[2] = 1;
         map_error.input_start_id_err = RESULT_ERROR(RES_ERR_NOT_FOUND);
-        return;
     }
 
     map_enable = true;
     map_bulid(from, to);
+    // 如果地圖建構失敗
+    if (map_enable == false)
+    {
+        textabc[2] = 2;
+        return;
+    }
     map_trans(&agv_state);
+    map_data_renew_direction_and_address(
+    &map_data_start,
+    map_data_all.map_data[0].address_id,
+    map_data_all.map_data[0].direction
+    );
+    time_start = HAL_GetTick();
 }
 
-int yy = 1;
-int tick_ttt = 0;
-int textabc[3] = {};
 void StartDefaultTask(void *argument)
 {
     // osThreadExit();
@@ -412,29 +433,31 @@ void StartDefaultTask(void *argument)
     // text
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
     map_windows(locations_t_inner[0].local_id, locations_t_inner[3].local_id);
-    
+
     // text
 
     for(;;)
     {
-        
+
         // text
-        tick_ttt++;
+        tick_time++;
         // text
 
         // map flag
-        if (new_card == 1 && !map_toggle) {
-            textabc[2] = 1;
-            map_toggle = true;
-        }
-        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle)   map_toggle = false;
+        if (new_card == 1 && !map_toggle) map_toggle = true;
+        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
+
         // if(map_enable)
         if(map_enable && map_toggle)
         {
             // 讀到RFID執行給資料到另一個stm32
-            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_ttt % 100 == 0)
+            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_time % 100 == 0)
+
+            // text
             textabc[0] = spi2_rfid.uid32;
             textabc[1] = map_data_all.map_data[map_data_all.current_count + 1].address_id;
+            // text
+
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
@@ -457,12 +480,15 @@ void StartDefaultTask(void *argument)
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_ttt % 330 == 0 && yy))
+            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_time % 330 == 0 && yy))
             else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             {
                 // text
                 // yy = 0;
                 // text
+
+                // 讀到初始id重複無視，並不進入重製地圖
+                if(spi2_rfid.uid32 == map_data_start.address_id && HAL_GetTick() - time_start <= TIME_INIT) continue;
 
                 // 先傳送停止動作，等地圖計算完畢
                 agv_state = map_data_init;
