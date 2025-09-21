@@ -4,34 +4,19 @@
 #include "main/config.h"
 #include "main/vehicle.h"
 
+
+
 #define INF 99999
 #define MAX_NODE 10
 #define NO_DATA 0xFF
 #define TIME_INIT 3000
 
-#define ERROR_STOP_MAP_RETURN(name, expr)   \
-    do {                                    \
-        Result _err = (expr);               \
-        if (RESULT_CHECK_RAW(_err))         \
-        {                                   \
-            name = _err;                    \
-            map_enable = false;             \
-            agv_state = map_data_init;      \
-            map_trans(&agv_state);          \
-            return;                         \
-        }                                   \
-    } while (0)
+
 
 typedef uint32_t   MapIdF;
 typedef uint8_t    MapDirF;
 typedef uint8_t    MapCountF;
 typedef uint16_t   MapDisF;
-
-typedef struct MapError{
-    Result lose_navigation;
-    Result no_path;
-    Result input_start_id_err;
-} MapError;
 
 typedef struct Connection{
     MapIdF  id;
@@ -56,3 +41,37 @@ typedef struct MapDataAll{
     MapCountF  current_count;
     MapData    map_data[MAX_NODE];
 } MapDataAll;
+
+typedef struct MapError{
+    Result lose_navigation;
+    Result no_path;
+    Result input_start_id_err;
+} MapError;
+
+
+
+extern MapError map_error;
+
+extern uint32_t time_start;
+extern uint8_t final_node_count;
+extern uint8_t textabc[3];
+
+extern int graph[MAX_NODE][MAX_NODE];
+extern int path[MAX_NODE][MAX_NODE];
+
+extern bool map_enable;
+extern bool map_toggle;
+
+extern MapDataAll map_data_all;
+extern MapData agv_state;
+
+extern MapData map_data_init;
+extern MapData map_data_start;
+
+
+
+extern Location locations_t[MAX_NODE];
+
+extern const Location locations_t_inner[MAX_NODE];
+// extern const Location locations_t_inner[MAX_NODE];
+// extern const Location locations_t_inner[MAX_NODE];

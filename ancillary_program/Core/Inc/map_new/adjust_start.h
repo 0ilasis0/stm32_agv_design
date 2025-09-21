@@ -2,4 +2,4 @@
 
 #include "map_new/variable.h"
 
-void map_windows (MapIdF, MapIdF);
+void map_adjust_start (void);
