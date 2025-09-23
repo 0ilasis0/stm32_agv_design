@@ -33,7 +33,7 @@ MapData map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
-    .vehicle_motion  = VEHICLE_MOTION_STOP,
+    .vehicle_motion     = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
     .speed_setpoint     = MAP_SETPOINT_ROTATE,
 };

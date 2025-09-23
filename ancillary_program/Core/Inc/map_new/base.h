@@ -34,5 +34,6 @@ MapCountF decide_need_rotate_count(
     MapDirF,
     MapDirF
 );
+void enforce_stop (void);
 MapIdF get_index_by_id (MapIdF);
 MapDirF opposite_direction (MapDirF);

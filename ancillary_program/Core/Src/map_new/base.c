@@ -54,7 +54,7 @@ VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
         else
         {
             map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
-            return VEHICLE_MODE_ROTATE;            
+            return VEHICLE_MODE_ROTATE;
         }
     }
 
@@ -146,6 +146,12 @@ VehicleMotion decide_map_vehicle_motion(MapDirF start_dir, MapDirF end_dir)
         return VEHICLE_MOTION_CLOCKWISE;
     }
 
+}
+
+void enforce_stop (void)
+{
+    agv_state = map_data_init;
+    map_trans(&agv_state);
 }
 
 void map_data_renew_direction_and_address (

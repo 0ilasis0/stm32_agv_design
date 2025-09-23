@@ -1,35 +1,18 @@
 #include "map_new/main.h"
+#include "map_new/stack.h"
 #include "map_new/base.h"
 #include "map_new/manager.h"
 #include "map_new/init.h"
+#include "map_new/work_space.h"
 #include "rfid/main.h"
 
 
 
+static uint32_t def_time;
 
 
-void map_windows (MapIdF from, MapIdF to)
-{
-    // 若已設定起點且與本次輸入不符，視為錯誤
-    if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
-    {
-        map_error.input_start_id_err = RESULT_ERROR(RES_ERR_NOT_FOUND);
-    }
 
-    map_enable = true;
-    map_bulid(from, to);
-    
-    // 如果地圖建構失敗
-    if (map_enable == false) return;
-
-    map_trans(&agv_state);
-
-    time_start = HAL_GetTick();
-}
-
-int yy = 1;
 int tick_time = 0;
-uint32_t def_time;
 void StartDefaultTask(void *argument)
 {
     // osThreadExit();
@@ -37,11 +20,11 @@ void StartDefaultTask(void *argument)
 
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
     map_set();
+    work_space_set();
 
     // text
     // map_data_renew_direction_and_address(&map_data_start, 5, 5);
-    map_windows(locations_t_inner[0].local_id, locations_t_inner[2].local_id);
-
+    work_space_main();
     // text
 
     for(;;)
@@ -61,10 +44,8 @@ void StartDefaultTask(void *argument)
         }
         if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
 
-        // if(map_enable)
         if(map_enable && map_toggle)
         {
-            // if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id || tick_time % 100 == 0)
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
@@ -82,19 +63,15 @@ void StartDefaultTask(void *argument)
                     map_enable = false;
 
                     // text
-                    map_windows(locations_t_inner[2].local_id, locations_t_inner[1].local_id);
+                    work_space_main();
                     // text
                 }
 
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id || (tick_time % 330 == 0 && yy))
             // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             // {
-            //     // text
-            //     // yy = 0;
-            //     // text
 
             //     // 先傳送停止動作，等地圖計算完畢
             //     agv_state = map_data_init;

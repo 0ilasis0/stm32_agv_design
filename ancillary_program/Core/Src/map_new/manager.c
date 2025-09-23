@@ -70,7 +70,7 @@ void map_bulid(MapIdF from, MapIdF to)
             map_data_all.map_data[i + 1].direction
         );
     }
-    
+
     map_adjust_start();
 
     // 決定map 0的mode
