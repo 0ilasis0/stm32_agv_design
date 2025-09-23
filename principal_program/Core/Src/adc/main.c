@@ -27,7 +27,7 @@ AdcHall adchall_direction = {
     .const_h = {
         // PB12(R16)
         .id = 0,
-        .magnetic_value_0 = 1780,
+        .magnetic_value_0 = 1790,
     },
     .min = 4095,
 };

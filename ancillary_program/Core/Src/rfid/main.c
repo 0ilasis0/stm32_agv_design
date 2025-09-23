@@ -65,6 +65,7 @@ static UNUSED_FNC Result buf_read(RC522State* state, RfidTrcvBuf* trcv_buf)
     return RESULT_OK(NULL);
 }
 
+uint32_t defalt_running;
 void StartRfidTask(void *argument)
 {
     RC522_PCD_Init(&spi2_rfid.const_h);
@@ -74,6 +75,7 @@ void StartRfidTask(void *argument)
     // Result result;
     for(;;)
     {
+        defalt_running++;
         switch (spi2_rfid.state)
         {
             case CARD_STATE_NONE:

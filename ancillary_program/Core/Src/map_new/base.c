@@ -5,14 +5,17 @@
 
 void map_trans (const MapData* trans_map)
 {
-    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    text_a[2] = map_data_all.current_count;
+
+    FdcanPkt *pkt;
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, trans_map->speed_setpoint));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     RESULT_CHECK_HANDLE(pkt_vehi_set_motion(pkt, trans_map->vehicle_motion));
     RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
     pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     RESULT_CHECK_HANDLE(pkt_vehi_set_mode(pkt, trans_map->mode, trans_map->need_rotate_count));
-    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
-    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-    RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, trans_map->speed_setpoint));
     RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
 }
 
@@ -34,18 +37,27 @@ void floyd_warshall (void)
 /*
  * 決定agv當前狀態
  */
-VehicleMode decide_map_mode_and_speed(uint8_t count)
+VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
  {
-    if (count == 0 && map_data_all.map_data[count].direction == NO_DATA)
-    {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
-        return VEHICLE_MODE_END;
-    }
     if (count == 0)
     {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
-        return VEHICLE_MODE_TRACK;
+        if (start_dir == NO_DATA)
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            return VEHICLE_MODE_TRACK;
+        }
+        else if (map_data_all.map_data[count].direction == NO_DATA)
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
+            return VEHICLE_MODE_END;
+        }
+        else
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
+            return VEHICLE_MODE_ROTATE;            
+        }
     }
+
 
     if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
     {

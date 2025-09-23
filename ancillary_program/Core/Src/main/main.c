@@ -12,6 +12,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //     for(;;)
 //     {
 //         osDelay(10);
-//         defalt_running++;
+        // defalt_running++;
 //     }
 // }

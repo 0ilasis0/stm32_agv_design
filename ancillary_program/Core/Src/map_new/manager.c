@@ -4,6 +4,7 @@
 #include "map_new/init.h"
 
 
+
 static void decide_map_id_and_direction(int from, int to)
  {
     uint8_t count = 0;
@@ -53,7 +54,7 @@ void map_bulid(MapIdF from, MapIdF to)
 
     for (uint8_t i = 0; i <= final_node_count; i++)
     {
-        map_data_all.map_data[i].mode = decide_map_mode_and_speed(i);
+        map_data_all.map_data[i].mode = decide_map_mode_and_speed(i, NO_DATA);
 
         if(i >= final_node_count - 1) continue;
 
@@ -69,8 +70,11 @@ void map_bulid(MapIdF from, MapIdF to)
             map_data_all.map_data[i + 1].direction
         );
     }
-
+    
     map_adjust_start();
+
+    // 決定map 0的mode
+    map_data_all.map_data[0].mode = decide_map_mode_and_speed(0, map_data_start.direction);
 
     agv_state = map_data_all.map_data[0];
 }

@@ -14,7 +14,7 @@
 
 #define MAP_SETPOINT_TRACK     20   // 循跡速度目標
 #define MAP_SETPOINT_ROTATE    15   // 原地旋轉速度目標
-#define MAP_SETPOINT_FALL_BACK 12   // 倒退速度目標
+#define MAP_SETPOINT_FALL_BACK 13   // 倒退速度目標
 #define MAP_SETPOINT_STOP      0    // 倒退速度目標
 
 
@@ -60,7 +60,6 @@ extern MapError map_error;
 
 extern uint32_t time_start;
 extern uint8_t final_node_count;
-extern uint8_t textabc[3];
 
 extern int graph[MAX_NODE][MAX_NODE];
 extern int path[MAX_NODE][MAX_NODE];
@@ -74,6 +73,7 @@ extern MapData agv_state;
 extern MapData map_data_init;
 extern MapData map_data_start;
 
+extern int text_a[3];
 
 
 extern Location locations_t[MAX_NODE];
