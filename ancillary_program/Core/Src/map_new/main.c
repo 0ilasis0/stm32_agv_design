@@ -11,7 +11,6 @@ void map_windows (MapIdF from, MapIdF to)
     // 若已設定起點且與本次輸入不符，視為錯誤
     if (map_data_start.address_id != from && map_data_start.address_id != NO_DATA)
     {
-        textabc[2] = 1;
         map_error.input_start_id_err = RESULT_ERROR(RES_ERR_NOT_FOUND);
     }
 
@@ -20,20 +19,16 @@ void map_windows (MapIdF from, MapIdF to)
     // 如果地圖建構失敗
     if (map_enable == false)
     {
-        textabc[2] = 2;
         return;
     }
     map_trans(&agv_state);
-    map_data_renew_direction_and_address(
-    &map_data_start,
-    map_data_all.map_data[0].address_id,
-    map_data_all.map_data[0].direction
-    );
+    map_data_start = map_data_all.map_data[0];
     time_start = HAL_GetTick();
 }
 
 int yy = 1;
 int tick_time = 0;
+uint32_t def_time;
 void StartDefaultTask(void *argument)
 {
     // osThreadExit();
@@ -53,10 +48,15 @@ void StartDefaultTask(void *argument)
 
         // text
         tick_time++;
+        def_time = HAL_GetTick() - time_start;
         // text
 
         // map flag
-        if (new_card == 1 && !map_toggle) map_toggle = true;
+        if (new_card == 1 && (def_time >= TIME_INIT) && !map_toggle)
+        {
+            time_start = HAL_GetTick();
+            map_toggle = true;
+        } 
         if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
 
         // if(map_enable)
@@ -98,9 +98,6 @@ void StartDefaultTask(void *argument)
                 // text
                 // yy = 0;
                 // text
-
-                // 讀到初始id重複無視，並不進入重製地圖
-                if(spi2_rfid.uid32 == map_data_start.address_id && HAL_GetTick() - time_start <= TIME_INIT) continue;
 
                 // 先傳送停止動作，等地圖計算完畢
                 agv_state = map_data_init;

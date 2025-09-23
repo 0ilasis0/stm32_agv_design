@@ -32,11 +32,6 @@
 #define VEC_BYTE_MAX_CAP        256
 #define TRCV_BUF_MAX_CAP        10
 
-#define MAP_SETPOINT_TRACK     20   // 循跡速度目標
-#define MAP_SETPOINT_ROTATE    12   // 原地旋轉速度目標
-#define MAP_SETPOINT_FALL_BACK 8    // 倒退速度目標
-#define MAP_SETPOINT_STOP      0    // 倒退速度目標
-
 #define FDCAN_FILTER_COUNT      2
 #define FDCAN_FILTER0_ID_MIN    0x030
 #define FDCAN_FILTER0_ID_MAX    0x031

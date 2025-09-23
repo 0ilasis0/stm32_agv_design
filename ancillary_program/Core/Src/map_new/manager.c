@@ -80,7 +80,6 @@ void delete_locations_t_data(MapIdF id, MapDirF dir)
     id = get_index_by_id(id);
     if (id == NO_DATA)
     {
-        textabc[2] = 3;
         return;
     }
 

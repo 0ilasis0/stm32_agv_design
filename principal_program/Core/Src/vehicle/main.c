@@ -138,8 +138,8 @@ void StartVehicleTask(void *argument)
     ) osDelay(50);
 
     // vehicle_test_no_load_rps(1000);
-    // vehicle_set_motion(VEHICLE_MOTION_CLOCKWISE);
-    // vehicle_set_speed(10);
+    // vehicle_set_motion(VEHICLE_MODE_TRACK);
+    // vehicle_set_speed(0);
 
     for(;;)
     {
