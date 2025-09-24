@@ -25,6 +25,7 @@ void StartDefaultTask(void *argument)
 
     // text
     map_window_init_work(locations_t_inner[0].local_id, 0);
+
     map_window_add_work(locations_t_inner[1].local_id);
     map_window_add_work(locations_t_inner[2].local_id);
     map_window_add_work(locations_t_inner[1].local_id);
@@ -60,8 +61,7 @@ void StartDefaultTask(void *argument)
                         map_data_all.map_data[final_node_count - 1].direction
                         );
 
-                    work_space_main();
-                    map_enable = false;
+                    main_work_space();
                 }
 
                 map_trans(&agv_state);
@@ -71,7 +71,7 @@ void StartDefaultTask(void *argument)
             // {
 
             //     // 先傳送停止動作，等地圖計算完畢
-            //     work_space_main();
+            //     main_work_space();
 
             //     MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
             //     MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;

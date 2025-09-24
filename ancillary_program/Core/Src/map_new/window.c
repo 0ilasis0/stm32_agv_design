@@ -26,5 +26,5 @@ void map_window_clear_work (void)
 void map_window_start_work (void)
 {
     map_enable = true;
-    work_space_main();
+    main_work_space();
 }

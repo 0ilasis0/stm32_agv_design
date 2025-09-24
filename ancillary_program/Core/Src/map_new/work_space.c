@@ -35,7 +35,7 @@ void run_map (MapIdF from, MapIdF to)
 }
 
 
-void work_space_main (void)
+void main_work_space (void)
 {
     MapIdF next_map_id;
 
