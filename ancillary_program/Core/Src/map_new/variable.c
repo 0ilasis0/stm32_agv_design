@@ -1,9 +1,6 @@
 #include "map_new/variable.h"
 
-int text_a[3] = {};
-
 uint8_t final_node_count = 0;
-uint32_t time_start;
 
 bool    map_enable = false;
 bool    map_toggle = false;

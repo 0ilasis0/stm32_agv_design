@@ -58,7 +58,6 @@ typedef struct MapError{
 
 extern MapError map_error;
 
-extern uint32_t time_start;
 extern uint8_t final_node_count;
 
 extern int graph[MAX_NODE][MAX_NODE];
@@ -72,8 +71,6 @@ extern MapData agv_state;
 
 extern MapData map_data_init;
 extern MapData map_data_start;
-
-extern int text_a[3];
 
 
 extern Location locations_t[MAX_NODE];

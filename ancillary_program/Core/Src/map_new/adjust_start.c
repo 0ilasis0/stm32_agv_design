@@ -8,7 +8,7 @@
   */
 void map_adjust_start (void)
 {
-    if (map_data_start.address_id == NO_DATA) return;
+    if (map_data_start.direction == NO_DATA) return;
 
     map_data_start.vehicle_motion = decide_map_vehicle_motion(
         map_data_start.direction,

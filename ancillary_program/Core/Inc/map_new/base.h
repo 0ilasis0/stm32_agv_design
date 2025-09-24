@@ -4,21 +4,6 @@
 
 
 
-#define ERROR_STOP_MAP_RETURN(name, expr)   \
-    do {                                    \
-        Result _err = (expr);               \
-        if (RESULT_CHECK_RAW(_err))         \
-        {                                   \
-            name = _err;                    \
-            map_enable = false;             \
-            agv_state = map_data_init;      \
-            map_trans(&agv_state);          \
-            return;                         \
-        }                                   \
-    } while (0)
-
-
-
 void map_trans (const MapData*);
 void floyd_warshall (void);
 VehicleMode decide_map_mode_and_speed(uint8_t, MapDirF);

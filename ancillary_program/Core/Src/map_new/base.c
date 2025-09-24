@@ -5,8 +5,6 @@
 
 void map_trans (const MapData* trans_map)
 {
-    text_a[2] = map_data_all.current_count;
-
     FdcanPkt *pkt;
     pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, trans_map->speed_setpoint));
@@ -117,12 +115,6 @@ MapCountF decide_need_rotate_count(
         return NO_DATA;
     }
 
-    //若原方向上也有磁條，表示會需加一次
-    // if (locations_t_inner[current_id].connect[from_dir].distance != 0)
-    // {
-    //     count++;
-    // }
-
     return count;
 }
 
@@ -152,6 +144,7 @@ void enforce_stop (void)
 {
     agv_state = map_data_init;
     map_trans(&agv_state);
+    map_enable = false;
 }
 
 void map_data_renew_direction_and_address (

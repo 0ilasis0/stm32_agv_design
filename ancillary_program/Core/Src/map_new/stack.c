@@ -16,17 +16,21 @@ struct Stack {
 
 static int stack_grow(Stack* s, size_t min_capacity) {
     size_t new_cap = s->capacity ? s->capacity : STACK_DEFAULT_CAPACITY;
+
     while (new_cap < min_capacity) new_cap *= 2;
     void* new_ptr = realloc(s->data, new_cap * s->elem_size);
+
     if (!new_ptr) return -1;
     s->data = new_ptr;
     s->capacity = new_cap;
+
     return 0;
 }
 
 Stack* stack_create(size_t elem_size, size_t initial_capacity, stack_copy_fn copy_fn, stack_free_fn free_fn) {
     if (elem_size == 0) return NULL;
     Stack* s = (Stack*)malloc(sizeof(Stack));
+
     if (!s) return NULL;
     s->elem_size = elem_size;
     s->capacity = (initial_capacity == 0) ? STACK_DEFAULT_CAPACITY : initial_capacity;
@@ -34,6 +38,7 @@ Stack* stack_create(size_t elem_size, size_t initial_capacity, stack_copy_fn cop
     s->copy_fn = copy_fn;
     s->free_fn = free_fn;
     s->data = malloc(s->capacity * s->elem_size);
+
     if (!s->data) {
         free(s);
         return NULL;
@@ -56,25 +61,32 @@ void stack_destroy(Stack* s) {
 
 int stack_push(Stack* s, const void* elem) {
     if (!s || !elem) return -1;
+
     if (s->top >= s->capacity) {
         if (stack_grow(s, s->capacity * 2) != 0) return -1;
     }
+
     void* dest = (char*)s->data + s->top * s->elem_size;
+
     if (s->copy_fn) {
         s->copy_fn(dest, elem);
     } else {
         memcpy(dest, elem, s->elem_size);
     }
+
     s->top += 1;
     return 0;
 }
 
 int stack_pop(Stack* s, void* out_elem) {
     if (!s || s->top == 0) return -1;
+
     void* src = (char*)s->data + (s->top - 1) * s->elem_size;
+
     if (out_elem) {
         memcpy(out_elem, src, s->elem_size);
     }
+
     // 不在 pop 時釋放內部資源，以便呼叫者能取得元素
     s->top -= 1;
     return 0;
@@ -82,8 +94,11 @@ int stack_pop(Stack* s, void* out_elem) {
 
 int stack_peek(const Stack* s, void* out_elem) {
     if (!s || s->top == 0 || !out_elem) return -1;
+
     void* src = (char*)s->data + (s->top - 1) * s->elem_size;
+
     memcpy(out_elem, src, s->elem_size);
+
     return 0;
 }
 

@@ -1,48 +1,49 @@
-#include "map_new/main.h"
-#include "map_new/stack.h"
-#include "map_new/base.h"
-#include "map_new/manager.h"
-#include "map_new/init.h"
-#include "map_new/work_space.h"
 #include "rfid/main.h"
+#include "map_new/base.h"
+#include "map_new/init.h"
+#include "map_new/manager.h"
+#include "map_new/work_space.h"
+#include "map_new/window.h"
 
 
 
-static uint32_t def_time;
+static uint32_t tick_time = 0;
+static uint32_t now;
 
 
 
-int tick_time = 0;
 void StartDefaultTask(void *argument)
 {
     // osThreadExit();
     // return;
 
     memcpy(locations_t, locations_t_inner, sizeof(locations_t));
-    map_set();
     work_space_set();
+    map_set();
+
+    uint32_t last_edge_time = HAL_GetTick();
 
     // text
-    // map_data_renew_direction_and_address(&map_data_start, 5, 5);
-    work_space_main();
+    map_window_init_work(locations_t_inner[0].local_id, 0);
+    map_window_add_work(locations_t_inner[1].local_id);
+    map_window_add_work(locations_t_inner[2].local_id);
+    map_window_add_work(locations_t_inner[1].local_id);
+
+    map_window_start_work();
     // text
 
     for(;;)
     {
-
-        // text
         tick_time++;
-        def_time = HAL_GetTick() - time_start;
-        text_a[0] = map_data_all.current_count;
-        // text
+        now = HAL_GetTick();
 
         // map flag
-        if (new_card == 1 && (def_time >= TIME_INIT) && !map_toggle)
+        if (new_card == 1 && (now - last_edge_time) >= TIME_INIT && !map_toggle)
         {
-            time_start = HAL_GetTick();
+            last_edge_time = now;
             map_toggle = true;
         }
-        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
+        // if (spi2_rfid.state == CARD_STATE_NONE && map_toggle && map_enable) map_toggle = false;
 
         if(map_enable && map_toggle)
         {
@@ -51,8 +52,6 @@ void StartDefaultTask(void *argument)
                 map_data_all.current_count ++;
                 agv_state = map_data_all.map_data[map_data_all.current_count];
 
-                text_a[1] = map_data_all.current_count;
-
                 if (agv_state.mode == VEHICLE_MODE_END)
                 {
                     map_data_renew_direction_and_address(
@@ -60,11 +59,9 @@ void StartDefaultTask(void *argument)
                         map_data_all.map_data[final_node_count].address_id,
                         map_data_all.map_data[final_node_count - 1].direction
                         );
-                    map_enable = false;
 
-                    // text
                     work_space_main();
-                    // text
+                    map_enable = false;
                 }
 
                 map_trans(&agv_state);
@@ -74,8 +71,7 @@ void StartDefaultTask(void *argument)
             // {
 
             //     // 先傳送停止動作，等地圖計算完畢
-            //     agv_state = map_data_init;
-            //     map_trans(&agv_state);
+            //     work_space_main();
 
             //     MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
             //     MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
@@ -95,15 +91,25 @@ void StartDefaultTask(void *argument)
             //         map_data_temp.address_id,
             //         map_data_temp.direction
             //         );
-            //     map_bulid(map_data_temp.address_id, target_id);
+
+                // if (!(map_bulid(map_data_temp.address_id, target_id);))
+                // {
+                //     enforce_stop();
+                    // continue;
+                // }
+
             //     map_trans(&agv_state);
             // }
             // 只知道現在位置不知道方向，所以停止動作，目前測試所以槓掉
             // else
             // {
-            //     ERROR_STOP_MAP_RETURN(map_error.lose_navigation, FNS_FAIL);
+                // enforce_stop();
+                // continue;
             // }
         }
+
+        // map flag
+        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
 
         osDelay(10);
     }

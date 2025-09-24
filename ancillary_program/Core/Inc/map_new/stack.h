@@ -24,13 +24,13 @@ void stack_destroy(Stack* s);
 
 // push/pop/peek
 // 回傳 0 表示成功，-1 表示失敗（例如記憶體不足或空棧）
-int  stack_push(Stack* s, const void* elem);
-int  stack_pop(Stack* s, void* out_elem); // 若 out_elem 為 NULL 則表示僅移除（不回傳）
-int  stack_peek(const Stack* s, void* out_elem); // 複製頂元素到 out_elem
+int stack_push(Stack* s, const void* elem);
+int stack_pop(Stack* s, void* out_elem); // 若 out_elem 為 NULL 則表示僅移除（不回傳）
+int stack_peek(const Stack* s, void* out_elem); // 複製頂元素到 out_elem
 
 // 資訊函式
 size_t stack_size(const Stack* s);
-bool   stack_is_empty(const Stack* s);
+bool stack_is_empty(const Stack* s);
 
 // 清空（會呼叫 free_fn 釋放元素內部資源），但不釋放 stack 結構本身
 void stack_clear(Stack* s);

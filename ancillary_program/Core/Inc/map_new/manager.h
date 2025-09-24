@@ -4,5 +4,5 @@
 
 
 
-void map_bulid(MapIdF, MapIdF);
+bool map_bulid(MapIdF, MapIdF);
 void delete_locations_t_data(MapIdF, MapDirF);

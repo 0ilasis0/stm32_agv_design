@@ -36,23 +36,19 @@ static void decide_map_id_and_direction(int from, int to)
     final_node_count = count;
 }
 
-void map_bulid(MapIdF from, MapIdF to)
+bool map_bulid(MapIdF from, MapIdF to)
 {
     from = get_index_by_id(from);
     to   = get_index_by_id(to);
 
     // 確認起點合法、圖上有路可走
-    if (from == NO_DATA || to == NO_DATA|| graph[from][to] == INF) {
-        ERROR_STOP_MAP_RETURN(map_error.no_path, RESULT_ERROR(RES_ERR_FAIL));
-        map_enable = false;
-        return;
-    }
+    if (from == NO_DATA || to == NO_DATA|| graph[from][to] == INF) return false;
 
     map_data_all = init_map_data();
 
     decide_map_id_and_direction(from, to);
 
-    for (uint8_t i = 0; i <= final_node_count; i++)
+    for (size_t i = 0; i <= final_node_count; i++)
     {
         map_data_all.map_data[i].mode = decide_map_mode_and_speed(i, NO_DATA);
 
@@ -77,6 +73,8 @@ void map_bulid(MapIdF from, MapIdF to)
     map_data_all.map_data[0].mode = decide_map_mode_and_speed(0, map_data_start.direction);
 
     agv_state = map_data_all.map_data[0];
+
+    return true;
 }
 
 void delete_locations_t_data(MapIdF id, MapDirF dir)
