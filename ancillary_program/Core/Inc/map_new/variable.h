@@ -12,6 +12,7 @@
 #define NO_DATA 0xFF
 #define TIME_INIT 1500
 
+// 三個速度不可相同
 #define MAP_SETPOINT_TRACK     20   // 循跡速度目標
 #define MAP_SETPOINT_ROTATE    15   // 原地旋轉速度目標
 #define MAP_SETPOINT_FALL_BACK 13   // 倒退速度目標
