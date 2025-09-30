@@ -140,11 +140,13 @@ VehicleMotion decide_map_vehicle_motion(MapDirF start_dir, MapDirF end_dir)
 
 }
 
+int text_a = 0;
 void enforce_stop (void)
 {
     agv_state = map_data_init;
     map_trans(&agv_state);
     map_enable = false;
+    text_a = 1;
 }
 
 void map_data_renew_direction_and_address (

@@ -10,12 +10,12 @@
 #define INF 99999
 #define MAX_NODE 10
 #define NO_DATA 0xFF
-#define TIME_INIT 1500
+#define TIME_INIT 0
 
 // 三個速度不可相同
 #define MAP_SETPOINT_TRACK     20   // 循跡速度目標
-#define MAP_SETPOINT_ROTATE    15   // 原地旋轉速度目標
-#define MAP_SETPOINT_FALL_BACK 13   // 倒退速度目標
+#define MAP_SETPOINT_ROTATE    19   // 原地旋轉速度目標
+#define MAP_SETPOINT_FALL_BACK 18   // 倒退速度目標
 #define MAP_SETPOINT_STOP      0    // 倒退速度目標
 
 

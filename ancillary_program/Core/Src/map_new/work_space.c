@@ -7,13 +7,12 @@
 static MapIdF current_map_id;
 
 MapIdF init_map_id = 0;
-Stack* map_stack;
-
+Queue* map_queue;
 
 
 void work_space_set (void)
 {
-    map_stack = stack_create(sizeof(MapIdF), 0, NULL, NULL);
+    map_queue = queue_create();
 }
 
 void run_map (MapIdF from, MapIdF to)
@@ -35,17 +34,18 @@ void run_map (MapIdF from, MapIdF to)
 }
 
 
+
 void main_work_space (void)
 {
-    MapIdF next_map_id;
-
     // 先檢查 map_stack 是否為 NULL
-    if (map_stack == NULL || stack_is_empty(map_stack)) {
+    if (map_queue == NULL) {
         enforce_stop();
         return;
     }
+
     // 檢測是否還有工作
-    if( stack_pop(map_stack, &next_map_id) != 0)
+    MapIdF next_map_id;
+    if(!dequeue(map_queue, &next_map_id))
     {
         enforce_stop();
         return;

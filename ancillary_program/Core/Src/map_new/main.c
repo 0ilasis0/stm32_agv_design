@@ -6,11 +6,9 @@
 #include "map_new/window.h"
 
 
-
 static uint32_t tick_time = 0;
 static uint32_t now;
-
-
+int text2 = 0;
 
 void StartDefaultTask(void *argument)
 {
@@ -26,11 +24,14 @@ void StartDefaultTask(void *argument)
     // text
     map_window_init_work(locations_t_inner[0].local_id, 0);
 
-    map_window_add_work(locations_t_inner[1].local_id);
+    map_window_add_work(locations_t_inner[3].local_id);
     map_window_add_work(locations_t_inner[2].local_id);
     map_window_add_work(locations_t_inner[1].local_id);
+    map_window_add_work(locations_t_inner[3].local_id);
+    map_window_add_work(locations_t_inner[0].local_id);
 
     map_window_start_work();
+
     // text
 
     for(;;)
@@ -41,6 +42,7 @@ void StartDefaultTask(void *argument)
         // map flag
         if (new_card == 1 && (now - last_edge_time) >= TIME_INIT && !map_toggle)
         {
+            text2 ++;
             last_edge_time = now;
             map_toggle = true;
         }

@@ -1,13 +1,11 @@
 #pragma once
 
 #include "map_new/variable.h"
-#include "map_new/stack.h"
+#include "map_new/queue.h"
 
 
-
-extern Stack* map_stack;
 extern MapIdF init_map_id;
-
+extern Queue* map_queue;
 
 
 void run_map (MapIdF, MapIdF);
