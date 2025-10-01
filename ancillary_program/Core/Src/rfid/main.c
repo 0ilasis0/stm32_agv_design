@@ -87,12 +87,16 @@ void StartRfidTask(void *argument)
                 spi2_rfid.state = CARD_STATE_EXIST;
                 spi2_rfid.err_count = 0;
                 memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
-                spi2_rfid.uid32 =
+                uint32_t new_id =
                       ((uint32_t)spi2_rfid.uid.uidByte[0] << 24)
                     | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
                     | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
                     | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
-                new_card = 1;
+                if (spi2_rfid.uid32 != new_id)
+                {
+                    new_card = 1;
+                    spi2_rfid.uid32 = new_id;
+                }
                 RC522_PICC_HaltA(&spi2_rfid.const_h);
                 // simple_point_select(spi2_rfid.uid32);
                 // VecByte vec_byte;

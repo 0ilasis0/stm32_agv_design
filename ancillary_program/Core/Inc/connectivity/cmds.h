@@ -91,6 +91,7 @@
 
 #define CMD_RFID_B1_SELECT          (uint8_t)0x00
 #define CMD_RFID_B1_INP_DATA        (uint8_t)0x01
+#define CMD_RFID_B1_RESET_ID        (uint8_t)0xFF
 
 //      CMD_RFID_B2_SECTOR                          // 扇區選擇 0-15
 //      CMD_RFID_B2_NUMBER                          // DATA號碼 0-3

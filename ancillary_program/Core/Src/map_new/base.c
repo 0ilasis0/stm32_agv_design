@@ -3,9 +3,11 @@
 #include "connectivity/fdcan/main.h"
 #include "connectivity/fdcan/pkt_write.h"
 
+MapData text_trans;
 void map_trans (const MapData* trans_map)
 {
     FdcanPkt *pkt;
+    text_trans = *trans_map;
     pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     RESULT_CHECK_HANDLE(pkt_vehi_set_speed(pkt, trans_map->speed_setpoint));
     RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
@@ -44,7 +46,7 @@ VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
             map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
             return VEHICLE_MODE_TRACK;
         }
-        else if (map_data_all.map_data[count].direction == NO_DATA)
+        else if (map_data_all.map_data[count].end_flag == ENABLE)
         {
             map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
             return VEHICLE_MODE_END;
@@ -57,15 +59,15 @@ VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
     }
 
 
-    if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
-    {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
-        return VEHICLE_MODE_TRACK;
-    }
-    else if (map_data_all.map_data[count].direction == NO_DATA)
+    if (map_data_all.map_data[count].end_flag == ENABLE)
     {
         map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
         return VEHICLE_MODE_END;
+    }
+    else if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
+    {
+        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+        return VEHICLE_MODE_TRACK;
     }
     else
     {
@@ -140,13 +142,11 @@ VehicleMotion decide_map_vehicle_motion(MapDirF start_dir, MapDirF end_dir)
 
 }
 
-int text_a = 0;
 void enforce_stop (void)
 {
     agv_state = map_data_init;
     map_trans(&agv_state);
     map_enable = false;
-    text_a = 1;
 }
 
 void map_data_renew_direction_and_address (

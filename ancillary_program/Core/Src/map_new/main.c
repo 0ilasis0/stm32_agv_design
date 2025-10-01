@@ -8,7 +8,8 @@
 
 static uint32_t tick_time = 0;
 static uint32_t now;
-int text2 = 0;
+static bool map_toggle = false;
+static uint8_t debug_map_main_count = 0;
 
 void StartDefaultTask(void *argument)
 {
@@ -19,15 +20,18 @@ void StartDefaultTask(void *argument)
     work_space_set();
     map_set();
 
-    uint32_t last_edge_time = HAL_GetTick();
-
     // text
-    map_window_init_work(locations_t_inner[0].local_id, 0);
+    // map_window_init_work(locations_t_inner[0].local_id, 0);
 
-    map_window_add_work(locations_t_inner[3].local_id);
-    map_window_add_work(locations_t_inner[2].local_id);
+    // map_window_add_work(locations_t_inner[1].local_id);
+    // map_window_add_work(locations_t_inner[2].local_id);
+    // map_window_add_work(locations_t_inner[3].local_id);
+    // map_window_add_work(locations_t_inner[1].local_id);
+    // map_window_add_work(locations_t_inner[0].local_id);
+
+    map_window_init_work(locations_t_inner[3].local_id, 4);
+
     map_window_add_work(locations_t_inner[1].local_id);
-    map_window_add_work(locations_t_inner[3].local_id);
     map_window_add_work(locations_t_inner[0].local_id);
 
     map_window_start_work();
@@ -39,17 +43,16 @@ void StartDefaultTask(void *argument)
         tick_time++;
         now = HAL_GetTick();
 
-        // map flag
-        if (new_card == 1 && (now - last_edge_time) >= TIME_INIT && !map_toggle)
+        // map toggle
+        if (new_card == 1 && !map_toggle)
         {
-            text2 ++;
-            last_edge_time = now;
+            new_card = 0;
             map_toggle = true;
         }
-        // if (spi2_rfid.state == CARD_STATE_NONE && map_toggle && map_enable) map_toggle = false;
 
         if(map_enable && map_toggle)
         {
+            debug_map_main_count ++;
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
@@ -60,7 +63,7 @@ void StartDefaultTask(void *argument)
                     map_data_renew_direction_and_address(
                         &map_data_start,
                         map_data_all.map_data[final_node_count].address_id,
-                        map_data_all.map_data[final_node_count - 1].direction
+                        map_data_all.map_data[final_node_count].direction
                         );
 
                     main_work_space();
@@ -69,49 +72,49 @@ void StartDefaultTask(void *argument)
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            // else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
-            // {
+            else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
+            {
 
-            //     // 先傳送停止動作，等地圖計算完畢
-            //     main_work_space();
+                // 先傳送停止動作，等地圖計算完畢
+                main_work_space();
 
-            //     MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
-            //     MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
+                MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
+                MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
 
-            //     delete_locations_t_data(
-            //         map_data_all.map_data[map_data_all.current_count].address_id,
-            //         map_data_all.map_data[map_data_all.current_count].direction
-            //         );
-            //     delete_locations_t_data(
-            //         map_data_all.map_data[map_data_all.current_count + 1].address_id,
-            //         opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
-            //         );
+                delete_locations_t_data(
+                    map_data_all.map_data[map_data_all.current_count].address_id,
+                    map_data_all.map_data[map_data_all.current_count].direction
+                    );
+                delete_locations_t_data(
+                    map_data_all.map_data[map_data_all.current_count + 1].address_id,
+                    opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
+                    );
 
-            //     map_set();
-            //     map_data_renew_direction_and_address(
-            //         &map_data_start,
-            //         map_data_temp.address_id,
-            //         map_data_temp.direction
-            //         );
+                map_set();
+                map_data_renew_direction_and_address(
+                    &map_data_start,
+                    map_data_temp.address_id,
+                    map_data_temp.direction
+                    );
 
-                // if (!(map_bulid(map_data_temp.address_id, target_id);))
-                // {
-                //     enforce_stop();
-                    // continue;
-                // }
+                if (!(map_bulid(map_data_temp.address_id, target_id)))
+                {
+                    enforce_stop();
+                    continue;
+                }
 
-            //     map_trans(&agv_state);
-            // }
+                map_trans(&agv_state);
+            }
             // 只知道現在位置不知道方向，所以停止動作，目前測試所以槓掉
             // else
             // {
-                // enforce_stop();
-                // continue;
+            //     enforce_stop();
+            //     continue;
             // }
         }
 
         // map flag
-        if (spi2_rfid.state == CARD_STATE_NONE && map_toggle) map_toggle = false;
+        if (map_toggle) map_toggle = false;
 
         osDelay(10);
     }

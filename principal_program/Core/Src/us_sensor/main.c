@@ -1,6 +1,8 @@
 #include "us_sensor/main.h"
 #include "vehicle/basic.h"
 #include "tim.h"
+#include "connectivity/fdcan/main.h"
+#include "connectivity/fdcan/pkt_write.h"
 
 USSensor us_sensor_head = {
     .const_h = {
@@ -8,69 +10,86 @@ USSensor us_sensor_head = {
         .trig_GPIO_Pin_x = GPIO_PIN_5,
         .echo_GPIOx = GPIOC,
         .echo_GPIO_Pin_x = GPIO_PIN_6,
-        .warning = 400.0f,
-        .danger = 200.0f,
+        .warning = 800.0f,
+        .danger = 550.0f,
     },
     .state = USS_STATE_STOP,
 };
 
-Result us_sensor_enable(USSensor* self)
-{
-    if (self->state != USS_STATE_STOP) return RESULT_ERROR(RES_ERR_BUSY);
-    self->state = USS_STATE_WAITING;
-    return RESULT_OK(self);
-}
+uint32_t hyrun[5] = {0};
 
-static Result uss_start_inner(USSensor* self)
+Result us_sensor_start(void)
 {
+    USSensor *self = &us_sensor_head;
     if (self->state != USS_STATE_WAITING) return RESULT_ERROR(RES_ERR_INVALID);
-    self->state = USS_STATE_TRIGGER;
+    hyrun[0]++;
+    self->state = USS_STATE_RUNNING;
     HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_SET);
     return RESULT_OK(self);
 }
 
-static Result uss_tri_off_inner(USSensor* self)
+Result us_sensor_enable(void)
 {
-    if (self->state != USS_STATE_TRIGGER) return RESULT_ERROR(RES_ERR_INVALID);
-    self->state = USS_STATE_RUNNING;
+    USSensor *self = &us_sensor_head;
+    if (self->state != USS_STATE_STOP) return RESULT_ERROR(RES_ERR_BUSY);
+    HAL_TIM_Base_Start_IT(US_SENSOR_HTIM);
+    HAL_TIM_PWM_Start_IT(US_SENSOR_HTIM, US_SENSOR_TIM_CH);
+    self->state = USS_STATE_WAITING;
+    us_sensor_start();
+    return RESULT_OK(self);
+}
+
+Result us_sensor_tri_off(void)
+{
+    USSensor *self = &us_sensor_head;
+    if (self->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
+    hyrun[1]++;
     HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
     return RESULT_OK(self);
 }
 
-static Result uss_overflow_inner(USSensor* self)
+Result us_sensor_overflow(void)
 {
+    USSensor *self = &us_sensor_head;
+    if (self->state == USS_STATE_RUNNING)
+    {
+        hyrun[3]++;
+        self->state = USS_STATE_WAITING;
+        HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
+        self->time = UINT32_MAX;
+        self->distance = UINT32_MAX;
+        us_sensor_start();
+        return RESULT_OK(self);
+    }
+    else if (self->state == USS_STATE_STOP)
+    {
+        hyrun[4]++;
+        self->state = USS_STATE_WAITING;
+        HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
+        us_sensor_start();
+        return RESULT_OK(self);
+    }
+    else return RESULT_ERROR(RES_ERR_INVALID);
+}
+
+Result us_sensor_echo(void)
+{
+    USSensor *self = &us_sensor_head;
     if (self->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
-    self->state = USS_STATE_STOP;
-    HAL_GPIO_WritePin(self->const_h.trig_GPIOx, self->const_h.trig_GPIO_Pin_x, GPIO_PIN_RESET);
-    self->time = UINT16_MAX;
-    self->distance = FLT_MAX;
-    return RESULT_OK(self);
-}
-
-void us_sensor_start(void)
-{
-    uss_start_inner(&us_sensor_head);
-}
-
-void us_sensor_tri_off(void)
-{
-    uss_tri_off_inner(&us_sensor_head);
-}
-
-void us_sensor_overflow(void)
-{
-    uss_overflow_inner(&us_sensor_head);
-}
-
-Result us_sensor_stop(USSensor* self)
-{
-    if (self->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
+    hyrun[2]++;
     self->state = USS_STATE_STOP;
     const USSConst *const_h = &self->const_h;
     HAL_GPIO_WritePin(const_h->trig_GPIOx, const_h->trig_GPIO_Pin_x, GPIO_PIN_RESET);
     self->time = __HAL_TIM_GET_COUNTER(US_SENSOR_HTIM);
-    self->distance = (float)self->time * 0.343f / 2.0f;  // uint:mm
-    if      (self->distance <= const_h->danger ) self->status = USS_STATUS_DANGER;
+    self->distance = (uint32_t)((float)self->time * 0.343f / 2.0f);  // uint:mm
+    if (self->distance <= const_h->danger)
+    {
+        self->status = USS_STATUS_DANGER;
+        FdcanPkt* pkt;
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_rfid_reset(pkt);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    }
     else if (self->distance <= const_h->warning) self->status = USS_STATUS_WARNING;
     else self->status = USS_STATUS_SAVE;
     return RESULT_OK(self);

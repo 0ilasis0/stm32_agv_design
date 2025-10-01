@@ -30,7 +30,8 @@ static void decide_map_id_and_direction(int from, int to)
     }
 
     map_data_all.map_data[count].address_id = locations_t[to].local_id;
-    map_data_all.map_data[count].direction = NO_DATA;
+    map_data_all.map_data[count].direction = map_data_all.map_data[count - 1].direction;
+    map_data_all.map_data[count].end_flag = ENABLE;
 
     // 紀錄路徑節點數（不含終點）
     final_node_count = count;

@@ -68,9 +68,9 @@ static void motion_update(void)
 bool vehicle_ready = false;
 void StartVehicleUpdateTask(void *argument)
 {
+    us_sensor_enable();
     for(;;)
     {
-        us_sensor_enable(&us_sensor_head);
         motion_update();
         osDelay(50);
         vehicle_ready = true;
@@ -143,6 +143,10 @@ void StartVehicleTask(void *argument)
 
     for(;;)
     {
+        // text
+
+        // text
+
         switch (vehicle_h.mode)
         {
             case VEHICLE_MODE_END:

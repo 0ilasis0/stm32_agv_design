@@ -10,7 +10,10 @@
 #define INF 99999
 #define MAX_NODE 10
 #define NO_DATA 0xFF
-#define TIME_INIT 0
+#define TIME_INIT 500
+
+#define ENABLE      1
+#define DISENABLE   0
 
 // 三個速度不可相同
 #define MAP_SETPOINT_TRACK     20   // 循跡速度目標
@@ -42,6 +45,7 @@ typedef struct MapData{
     MapCountF     need_rotate_count;
     VehicleMode   mode;
     Percentage    speed_setpoint;
+    bool          end_flag;
 } MapData;
 
 typedef struct MapDataAll{
@@ -65,7 +69,6 @@ extern int graph[MAX_NODE][MAX_NODE];
 extern int path[MAX_NODE][MAX_NODE];
 
 extern bool map_enable;
-extern bool map_toggle;
 
 extern MapDataAll map_data_all;
 extern MapData agv_state;

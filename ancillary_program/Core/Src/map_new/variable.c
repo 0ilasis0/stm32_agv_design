@@ -3,7 +3,6 @@
 uint8_t final_node_count = 0;
 
 bool    map_enable = false;
-bool    map_toggle = false;
 
 int graph[MAX_NODE][MAX_NODE];
 int path[MAX_NODE][MAX_NODE];
@@ -24,6 +23,7 @@ MapData map_data_init = {
     .vehicle_motion     = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_FREE,
     .speed_setpoint     = 0,
+    .end_flag           = DISABLE,
 };
 
 MapData map_data_start = {
@@ -33,6 +33,7 @@ MapData map_data_start = {
     .vehicle_motion     = VEHICLE_MOTION_STOP,
     .mode               = VEHICLE_MODE_ROTATE,
     .speed_setpoint     = MAP_SETPOINT_ROTATE,
+    .end_flag           = DISABLE,
 };
 
 

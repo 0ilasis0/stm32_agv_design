@@ -33,14 +33,14 @@ typedef struct USSensor
     const USSConst const_h;
     USSState state;
     uint32_t time;
-    float distance;
+    uint32_t distance;
     USSStatus status;
 } USSensor;
 
 extern USSensor us_sensor_head;
 
-Result us_sensor_enable(USSensor* us_sensor);
-void us_sensor_start(void);
-void us_sensor_tri_off(void);
-void us_sensor_overflow(void);
-Result us_sensor_stop(USSensor* us_sensor);
+Result us_sensor_enable(void);
+Result us_sensor_start(void);
+Result us_sensor_tri_off(void);
+Result us_sensor_overflow(void);
+Result us_sensor_echo(void);

@@ -18,16 +18,15 @@ void USER_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
         motor_tick++;
     }
-    else if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
+    else if (htim == US_SENSOR_HTIM)
     {
         us_sensor_overflow();
-        us_sensor_start();
     }
 }
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == US_SENSOR_HTIM)
+    if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
     {
         us_sensor_tri_off();
     }
@@ -51,7 +50,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
     else if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x) // 6
     {
-        us_sensor_stop(&us_sensor_head);
+        us_sensor_echo();
     }
 }
 

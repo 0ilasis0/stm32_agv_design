@@ -27,15 +27,15 @@
 #define STM32_DEVICE
 #define PRINCIPAL_PROGRAM
 
-#define TIM1_PSC                17000
+#define TIM1_PSC                17000-1
 #define TIM1_ARR                5000
-#define MOTOR_PSC               170
+#define MOTOR_PSC               170-1
 #define MOTOR_ARR               100
 #define TIM2_PSC                MOTOR_PSC   // 170
 #define TIM2_ARR                MOTOR_ARR   // 100 MAX 2147483647
 #define TIM3_PSC                MOTOR_PSC   // 170
 #define TIM3_ARR                MOTOR_ARR   // 100 MAX 65535
-#define TIM4_PSC                170
+#define TIM4_PSC                170-1
 #define TIM4_ARR                50000       // MAX 65535
 #define TIM4_CH1_CCR            10          // 10us
 
@@ -73,6 +73,7 @@
 #define FDCAN_TRCV_BUF_CAP      10
 #define FDCAN_TEST_ID           0x001
 #define FDCAN_DATA_ID           0x011
+#define FDCAN_MAP_ID            0x031
 #define FDCAN_PKT_POOL_CAP      20
 #define FDCAN_TRSM_BUF_CAP      10
 #define FDCAN_RECV_BUF_CAP      10

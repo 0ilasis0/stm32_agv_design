@@ -523,6 +523,11 @@ static Result recv_pkt_proc_inner(FdcanPkt* pkt)
                     if (pkt->len < 7) return RESULT_ERROR(RES_ERR_EMPTY);
                     return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + 3, 4);
                 }
+                case CMD_RFID_B1_RESET_ID:
+                {
+                    spi2_rfid.uid32 = 0;
+                    return RESULT_OK(NULL);
+                }
                 default: break;
             }
             break;
