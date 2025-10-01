@@ -412,6 +412,20 @@ Result instant_recv_proc(FdcanPkt* pkt)
             }
             break;
         }
+        case CMD_RFID_B0_CONTROL:
+        {
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
+            switch (code)
+            {
+                case CMD_RFID_B1_RESET_ID:
+                {
+                    spi2_rfid.uid32 = 0;
+                    return RESULT_OK(NULL);
+                }
+                default: break;
+            }
+            break;
+        }
         #endif
         default: break;
     }
@@ -522,11 +536,6 @@ static Result recv_pkt_proc_inner(FdcanPkt* pkt)
                     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     if (pkt->len < 7) return RESULT_ERROR(RES_ERR_EMPTY);
                     return rfid_trcv_buf_setdata(&rfid_trsm_buf, code * 4, pkt->data + 3, 4);
-                }
-                case CMD_RFID_B1_RESET_ID:
-                {
-                    spi2_rfid.uid32 = 0;
-                    return RESULT_OK(NULL);
                 }
                 default: break;
             }

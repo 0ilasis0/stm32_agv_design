@@ -31,6 +31,10 @@ typedef enum DataType
 
 Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type);
 
+#ifdef PRINCIPAL_PROGRAM
+Result fdcan_rfid_reset(FdcanPkt* pkt);
+#endif
+
 #ifdef ANCILLARY_PROGRAM
 Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist);
 Result pkt_vehi_set_mode(FdcanPkt* pkt, VehicleMode mode, uint8_t value);

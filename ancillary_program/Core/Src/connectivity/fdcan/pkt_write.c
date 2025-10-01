@@ -140,6 +140,17 @@ Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
+#ifdef PRINCIPAL_PROGRAM
+Result fdcan_rfid_reset(FdcanPkt* pkt)
+{
+    pkt->id = FDCAN_MAP_ID;
+    pkt->data[0] = CMD_RFID_B0_CONTROL;
+    pkt->data[1] = CMD_RFID_B1_RESET_ID;
+    pkt->len = 2;
+    return RESULT_OK(pkt);
+}
+#endif
+
 #ifdef ANCILLARY_PROGRAM
 Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist)
 {
