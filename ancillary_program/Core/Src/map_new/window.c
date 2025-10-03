@@ -1,5 +1,4 @@
 #include "map_new/window.h"
-#include "map_new/queue.h"
 #include "map_new/base.h"
 #include "map_new/work_space.h"
 
@@ -23,11 +22,8 @@ void map_window_clear_work (void)
     clear_queue(map_queue);
 }
 
-MapIdF queue_debug[MAX_SIZE];
 void map_window_start_work (void)
 {
-    get_all_data(map_queue, queue_debug); // q1 的資料
-
     map_enable = true;
-    main_work_space();
+    main_work_space(NO_DATA, NO_DATA);
 }

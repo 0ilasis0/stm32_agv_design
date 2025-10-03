@@ -3,9 +3,10 @@
 #include "connectivity/fdcan/main.h"
 #include "connectivity/fdcan/pkt_write.h"
 
-MapData text_trans;
-void map_trans (const MapData* trans_map)
+MapDataNode text_trans;
+void map_trans (const MapDataNode* trans_map)
 {
+    dbg.log[6]++;
     FdcanPkt *pkt;
     text_trans = *trans_map;
     pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
@@ -51,28 +52,34 @@ VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
             map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
             return VEHICLE_MODE_END;
         }
+        else if (map_data_all.map_data[count].need_rotate_count != NO_DATA)
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
+            return VEHICLE_MODE_ROTATE;
+        }
+        else
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            return VEHICLE_MODE_TRACK;
+        }
+    }
+    else
+    {
+        if (map_data_all.map_data[count].end_flag == ENABLE)
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
+            return VEHICLE_MODE_END;
+        }
+        else if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
+        {
+            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            return VEHICLE_MODE_TRACK;
+        }
         else
         {
             map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
             return VEHICLE_MODE_ROTATE;
         }
-    }
-
-
-    if (map_data_all.map_data[count].end_flag == ENABLE)
-    {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
-        return VEHICLE_MODE_END;
-    }
-    else if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
-    {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
-        return VEHICLE_MODE_TRACK;
-    }
-    else
-    {
-        map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
-        return VEHICLE_MODE_ROTATE;
     }
 }
 
@@ -150,7 +157,7 @@ void enforce_stop (void)
 }
 
 void map_data_renew_direction_and_address (
-    MapData *map_new,
+    MapDataNode *map_new,
     MapIdF address_id,
     MapDirF direction
 ) {

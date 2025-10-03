@@ -21,6 +21,7 @@
 #define MAP_SETPOINT_FALL_BACK 18   // 倒退速度目標
 #define MAP_SETPOINT_STOP      0    // 倒退速度目標
 
+#define MAX_DBG_LOG 10
 
 
 typedef uint32_t   MapIdF;
@@ -38,7 +39,7 @@ typedef struct Location{
     Connection connect[8];
 } Location;
 
-typedef struct MapData{
+typedef struct MapDataNode{
     MapIdF        address_id;
     MapDirF       direction;
     VehicleMotion vehicle_motion;
@@ -46,11 +47,11 @@ typedef struct MapData{
     VehicleMode   mode;
     Percentage    speed_setpoint;
     bool          end_flag;
-} MapData;
+} MapDataNode;
 
 typedef struct MapDataAll{
-    MapCountF  current_count;
-    MapData    map_data[MAX_NODE];
+    MapCountF   current_count;
+    MapDataNode map_data[MAX_NODE];
 } MapDataAll;
 
 typedef struct MapError{
@@ -58,6 +59,11 @@ typedef struct MapError{
     Result no_path;
     Result input_start_id_err;
 } MapError;
+
+typedef struct Debug{
+    uint8_t log[MAX_DBG_LOG];
+    uint8_t map_main_count;
+} Debug;
 
 
 
@@ -71,10 +77,12 @@ extern int path[MAX_NODE][MAX_NODE];
 extern bool map_enable;
 
 extern MapDataAll map_data_all;
-extern MapData agv_state;
+extern MapDataNode agv_state;
 
-extern MapData map_data_init;
-extern MapData map_data_start;
+extern MapDataNode map_data_init;
+extern MapDataNode map_data_start;
+
+extern Debug dbg;
 
 
 extern Location locations_t[MAX_NODE];

@@ -5,7 +5,7 @@
 
 
 
-static void decide_map_id_and_direction(int from, int to)
+static void decide_map_id_and_direction(MapIdF from, MapIdF to)
  {
     uint8_t count = 0;
 

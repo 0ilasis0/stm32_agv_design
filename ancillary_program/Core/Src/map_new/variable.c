@@ -10,13 +10,13 @@ int path[MAX_NODE][MAX_NODE];
 MapError map_error = {0};
 
 MapDataAll map_data_all;
-MapData agv_state;
+MapDataNode agv_state;
 
-MapData map_data_init;
-MapData map_data_start;
+MapDataNode map_data_init;
+MapDataNode map_data_start;
 
 
-MapData map_data_init = {
+MapDataNode map_data_init = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
@@ -26,7 +26,7 @@ MapData map_data_init = {
     .end_flag           = DISABLE,
 };
 
-MapData map_data_start = {
+MapDataNode map_data_start = {
     .address_id         = NO_DATA,
     .direction          = NO_DATA,
     .need_rotate_count  = NO_DATA,
@@ -36,11 +36,16 @@ MapData map_data_start = {
     .end_flag           = DISABLE,
 };
 
+Debug dbg = {
+    .log = {},
+    .map_main_count = 0,
+};
 
-// 1505360132 -> 0
-// 858788143  -> 51 48 17 47
-// 592978984  -> 33 88 86 40
-// 3623155971 -> 45 249 244 3
+
+//0 1505360132 -> 0
+//1 858788143  -> 51 48 17 47
+//2 592978984  -> 33 88 86 40
+//3 3623155971 -> 45 249 244 3
 Location locations_t[MAX_NODE];
 
 const Location locations_t_inner[MAX_NODE] = {

@@ -29,6 +29,7 @@ void enqueue(Queue* q, uint32_t *val){
 // pop，將值存入 *val，成功回傳 1，空隊列回傳 0
 bool dequeue(Queue* q, uint32_t* val){
     if(!q->front) return 0; // 空隊列
+
     Node* temp = q->front;
     *val = temp->val;       // 將值存入傳入變數
     q->front = q->front->next;

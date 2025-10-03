@@ -72,6 +72,7 @@ Result us_sensor_overflow(void)
     else return RESULT_ERROR(RES_ERR_INVALID);
 }
 
+static bool uss_danger_flag = false;
 Result us_sensor_echo(void)
 {
     USSensor *self = &us_sensor_head;
@@ -85,12 +86,24 @@ Result us_sensor_echo(void)
     if (self->distance <= const_h->danger)
     {
         self->status = USS_STATUS_DANGER;
-        FdcanPkt* pkt;
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_rfid_reset(pkt);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        if (!uss_danger_flag)
+        {
+            uss_danger_flag = true;
+            FdcanPkt* pkt;
+            pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+            fdcan_rfid_reset(pkt);
+            fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        }
     }
-    else if (self->distance <= const_h->warning) self->status = USS_STATUS_WARNING;
-    else self->status = USS_STATUS_SAVE;
+    else if (self->distance <= const_h->warning)
+    {
+        self->status = USS_STATUS_WARNING;
+        uss_danger_flag = false;
+    }
+    else
+    {
+        self->status = USS_STATUS_SAVE;
+        uss_danger_flag = false;
+    }
     return RESULT_OK(self);
 }

@@ -9,7 +9,6 @@
 static uint32_t tick_time = 0;
 static uint32_t now;
 static bool map_toggle = false;
-static uint8_t debug_map_main_count = 0;
 
 void StartDefaultTask(void *argument)
 {
@@ -52,7 +51,8 @@ void StartDefaultTask(void *argument)
 
         if(map_enable && map_toggle)
         {
-            debug_map_main_count ++;
+            dbg.map_main_count++;
+
             if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
@@ -66,7 +66,7 @@ void StartDefaultTask(void *argument)
                         map_data_all.map_data[final_node_count].direction
                         );
 
-                    main_work_space();
+                    main_work_space(NO_DATA, NO_DATA);
                 }
 
                 map_trans(&agv_state);
@@ -74,11 +74,12 @@ void StartDefaultTask(void *argument)
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
             else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
             {
+                main_work_space(
+                    map_data_all.map_data[map_data_all.current_count].address_id,
+                    map_data_all.map_data[map_data_all.current_count + 1].address_id
+                );
 
-                // 先傳送停止動作，等地圖計算完畢
-                main_work_space();
-
-                MapData map_data_temp = map_data_all.map_data[map_data_all.current_count];
+                MapDataNode map_data_temp = map_data_all.map_data[map_data_all.current_count];
                 MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
 
                 delete_locations_t_data(
@@ -91,15 +92,23 @@ void StartDefaultTask(void *argument)
                     );
 
                 map_set();
+                // 正常使用下面這個
+                // map_data_renew_direction_and_address(
+                //     &map_data_start,
+                //     map_data_temp.address_id,
+                //     map_data_temp.direction
+                //     );
+                // text 因為沒有自動循跡倒退所以先人工原地旋轉後循跡，因此需要+4
                 map_data_renew_direction_and_address(
                     &map_data_start,
                     map_data_temp.address_id,
-                    map_data_temp.direction
+                    (map_data_temp.direction + 4) % 8
                     );
 
                 if (!(map_bulid(map_data_temp.address_id, target_id)))
                 {
                     enforce_stop();
+                    dbg.log[0]++;
                     continue;
                 }
 
