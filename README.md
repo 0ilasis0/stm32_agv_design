@@ -1,10 +1,24 @@
 # AGV 自動導引車（專題）
+---
+## 專案結構
 
-> 此專案主要由兩份 STM32 專案組成 `principal_program` 與 `ancillary_program`
-> 其中自主撰寫的部分在
-> principal_program\Core\Inc 與 principal_program\Core\Src
-> ancillary_program\Core\Inc 與 ancillary_program\Core\Src
-> 其他code則是藉由 `STM32CubeMX` 進行stm32的設定控制生成的
+此專案主要由兩份 STM32 專案組成：
+- **principal_program**
+- **ancillary_program**
+
+### principal_program
+- **自主撰寫程式位置**
+  - `principal_program/Core/Inc`
+  - `principal_program/Core/Src`
+
+### ancillary_program
+- **自主撰寫程式位置**
+  - `ancillary_program/Core/Inc`
+  - `ancillary_program/Core/Src`
+---
+### 備註
+- 自主撰寫程式：負責專案的主要邏輯與功能實現
+- STM32CubeMX 生成程式：提供硬體初始化與底層設定
 
 ## 簡介
 本專題為一套基於磁條+多感測器導引的 AGV（自動導引車）系統。此 repo 包含示範影片，以及控制/模擬程式結構範例。
