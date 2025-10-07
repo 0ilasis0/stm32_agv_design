@@ -51,7 +51,7 @@ typedef struct MapDataNode{
 
 typedef struct MapDataAll{
     MapCountF   current_count;
-    MapDataNode map_data[MAX_NODE];
+    MapDataNode map_node[MAX_NODE];
 } MapDataAll;
 
 typedef struct MapError{
@@ -88,5 +88,3 @@ extern Debug dbg;
 extern Location locations_t[MAX_NODE];
 
 extern const Location locations_t_inner[MAX_NODE];
-// extern const Location locations_t_inner[MAX_NODE];
-// extern const Location locations_t_inner[MAX_NODE];

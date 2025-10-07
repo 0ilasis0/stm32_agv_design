@@ -5,8 +5,6 @@
 typedef struct AdcHallConst
 {
     uint8_t id;
-    uint16_t magnetic_value_0;
-    // uint16_t magnetic_value_1;
 } AdcHallConst;
 
 typedef enum AdcHallState
@@ -18,6 +16,7 @@ typedef enum AdcHallState
 typedef struct AdcHall
 {
     const AdcHallConst const_h;
+    uint16_t gate;
     uint16_t value;
     uint16_t max;
     uint16_t min;

@@ -12,7 +12,7 @@ static void decide_map_id_and_direction(MapIdF from, MapIdF to)
     // 根據 path 矩陣追蹤從 from 到 to 的節點路徑
     while (from != to && count < MAX_NODE) {
         int next_node = path[from][to];
-        map_data_all.map_data[count].address_id = locations_t[from].local_id;
+        map_data_all.map_node[count].address_id = locations_t[from].local_id;
 
         MapIdF direction_index = NO_DATA;
 
@@ -24,14 +24,14 @@ static void decide_map_id_and_direction(MapIdF from, MapIdF to)
             }
         }
 
-        map_data_all.map_data[count].direction = direction_index;
+        map_data_all.map_node[count].direction = direction_index;
         from = next_node;
         count++;
     }
 
-    map_data_all.map_data[count].address_id = locations_t[to].local_id;
-    map_data_all.map_data[count].direction = map_data_all.map_data[count - 1].direction;
-    map_data_all.map_data[count].end_flag = ENABLE;
+    map_data_all.map_node[count].address_id = locations_t[to].local_id;
+    map_data_all.map_node[count].direction = map_data_all.map_node[count - 1].direction;
+    map_data_all.map_node[count].end_flag = ENABLE;
 
     // 紀錄路徑節點數（不含終點）
     final_node_count = count;
@@ -51,29 +51,29 @@ bool map_bulid(MapIdF from, MapIdF to)
 
     for (size_t i = 0; i <= final_node_count; i++)
     {
-        map_data_all.map_data[i].mode = decide_map_mode_and_speed(i, NO_DATA);
+        map_data_all.map_node[i].mode = decide_map_mode_and_speed(i, NO_DATA);
 
         if(i >= final_node_count - 1) continue;
 
-        map_data_all.map_data[i + 1].vehicle_motion = decide_map_vehicle_motion(
-            map_data_all.map_data[i].direction,
-            map_data_all.map_data[i + 1].direction
+        map_data_all.map_node[i + 1].vehicle_motion = decide_map_vehicle_motion(
+            map_data_all.map_node[i].direction,
+            map_data_all.map_node[i + 1].direction
         );
 
-        map_data_all.map_data[i + 1].need_rotate_count = decide_need_rotate_count(
-            map_data_all.map_data[i + 1].vehicle_motion,
-            map_data_all.map_data[i + 1].address_id,
-            map_data_all.map_data[i].direction,
-            map_data_all.map_data[i + 1].direction
+        map_data_all.map_node[i + 1].need_rotate_count = decide_need_rotate_count(
+            map_data_all.map_node[i + 1].vehicle_motion,
+            map_data_all.map_node[i + 1].address_id,
+            map_data_all.map_node[i].direction,
+            map_data_all.map_node[i + 1].direction
         );
     }
 
     map_adjust_start();
 
     // 決定map 0的mode
-    map_data_all.map_data[0].mode = decide_map_mode_and_speed(0, map_data_start.direction);
+    map_data_all.map_node[0].mode = decide_map_mode_and_speed(0, map_data_start.direction);
 
-    agv_state = map_data_all.map_data[0];
+    agv_state = map_data_all.map_node[0];
 
     return true;
 }

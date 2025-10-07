@@ -42,10 +42,10 @@ MapDataAll init_map_data (void)
 
     map_new.current_count = 0;
     for (uint8_t i = 0; i < MAX_NODE; i++) {
-        map_new.map_data[i] = map_data_init;
+        map_new.map_node[i] = map_data_init;
     }
 
-    map_new.map_data[0].vehicle_motion = VEHICLE_MOTION_FORWARD;
+    map_new.map_node[0].vehicle_motion = VEHICLE_MOTION_FORWARD;
 
     return map_new;
 }

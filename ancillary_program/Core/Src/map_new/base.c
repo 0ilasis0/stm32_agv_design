@@ -44,40 +44,40 @@ VehicleMode decide_map_mode_and_speed(uint8_t count, MapDirF start_dir)
     {
         if (start_dir == NO_DATA)
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_TRACK;
             return VEHICLE_MODE_TRACK;
         }
-        else if (map_data_all.map_data[count].end_flag == ENABLE)
+        else if (map_data_all.map_node[count].end_flag == ENABLE)
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_STOP;
             return VEHICLE_MODE_END;
         }
-        else if (map_data_all.map_data[count].need_rotate_count != NO_DATA)
+        else if (map_data_all.map_node[count].need_rotate_count != NO_DATA)
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_ROTATE;
             return VEHICLE_MODE_ROTATE;
         }
         else
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_TRACK;
             return VEHICLE_MODE_TRACK;
         }
     }
     else
     {
-        if (map_data_all.map_data[count].end_flag == ENABLE)
+        if (map_data_all.map_node[count].end_flag == ENABLE)
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_STOP;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_STOP;
             return VEHICLE_MODE_END;
         }
-        else if (map_data_all.map_data[count].direction == map_data_all.map_data[count - 1].direction)
+        else if (map_data_all.map_node[count].direction == map_data_all.map_node[count - 1].direction)
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_TRACK;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_TRACK;
             return VEHICLE_MODE_TRACK;
         }
         else
         {
-            map_data_all.map_data[count].speed_setpoint = MAP_SETPOINT_ROTATE;
+            map_data_all.map_node[count].speed_setpoint = MAP_SETPOINT_ROTATE;
             return VEHICLE_MODE_ROTATE;
         }
     }
@@ -92,18 +92,18 @@ MapCountF decide_need_rotate_count(
     MapDirF from_dir,
     MapDirF to_dir
 ) {
-    if (current_id_input == map_data_all.map_data[final_node_count].address_id) return 0;
+    if (current_id_input == map_data_all.map_node[final_node_count].address_id) return 0;
 
     uint8_t count = 0;
 
-    // 取得目前節點（node）在 locations_t 中的索引值
+    // 取得目前節點（node）在 locations_t_inner 中的索引值
     MapIdF current_id = get_index_by_id(current_id_input);
 
     if (rotate_direction_mode == VEHICLE_MOTION_CLOCKWISE)
     {
         for (int8_t i = (from_dir + 1) % 8; i != (to_dir + 1) % 8; i = (i + 1) % 8)
         {
-            if (locations_t[current_id].connect[i].distance != 0)
+            if (locations_t_inner[current_id].connect[i].distance != 0)
             {
                 count++;
             }
@@ -113,7 +113,7 @@ MapCountF decide_need_rotate_count(
     {
         for (int8_t i = (from_dir - 1 + 8) % 8; i != (to_dir - 1 + 8) % 8; i = (i - 1 + 8) % 8)
         {
-            if (locations_t[current_id].connect[i].distance != 0)
+            if (locations_t_inner[current_id].connect[i].distance != 0)
             {
                 count++;
             }

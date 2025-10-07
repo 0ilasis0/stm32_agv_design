@@ -9,6 +9,7 @@
 static uint32_t tick_time = 0;
 static uint32_t now;
 static bool map_toggle = false;
+uint32_t text_id[7] = {};
 
 void StartDefaultTask(void *argument)
 {
@@ -20,18 +21,12 @@ void StartDefaultTask(void *argument)
     map_set();
 
     // text
-    // map_window_init_work(locations_t_inner[0].local_id, 0);
+    map_window_init_work(locations_t[0].local_id, 0);
+    map_window_add_work(locations_t[3].local_id);
+    map_window_add_work(locations_t[0].local_id);
 
-    // map_window_add_work(locations_t_inner[1].local_id);
-    // map_window_add_work(locations_t_inner[2].local_id);
-    // map_window_add_work(locations_t_inner[3].local_id);
-    // map_window_add_work(locations_t_inner[1].local_id);
-    // map_window_add_work(locations_t_inner[0].local_id);
-
-    map_window_init_work(locations_t_inner[3].local_id, 4);
-
-    map_window_add_work(locations_t_inner[1].local_id);
-    map_window_add_work(locations_t_inner[0].local_id);
+    // map_window_init_work(locations_t[3].local_id, 0);
+    // map_window_add_work(locations_t[1].local_id);
 
     map_window_start_work();
 
@@ -53,17 +48,17 @@ void StartDefaultTask(void *argument)
         {
             dbg.map_main_count++;
 
-            if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count + 1].address_id)
+            if (spi2_rfid.uid32 == map_data_all.map_node[map_data_all.current_count + 1].address_id)
             {
                 map_data_all.current_count ++;
-                agv_state = map_data_all.map_data[map_data_all.current_count];
+                agv_state = map_data_all.map_node[map_data_all.current_count];
 
                 if (agv_state.mode == VEHICLE_MODE_END)
                 {
                     map_data_renew_direction_and_address(
                         &map_data_start,
-                        map_data_all.map_data[final_node_count].address_id,
-                        map_data_all.map_data[final_node_count].direction
+                        map_data_all.map_node[final_node_count].address_id,
+                        map_data_all.map_node[final_node_count].direction
                         );
 
                     main_work_space(NO_DATA, NO_DATA);
@@ -72,45 +67,39 @@ void StartDefaultTask(void *argument)
                 map_trans(&agv_state);
             }
             // 如果循跡應該往前結果讀到原本的rfid而非下一個rfid，代表遇上障礙，進行地圖重製
-            else if (spi2_rfid.uid32 == map_data_all.map_data[map_data_all.current_count].address_id)
+            else if (spi2_rfid.uid32 == map_data_all.map_node[map_data_all.current_count].address_id)
             {
-                main_work_space(
-                    map_data_all.map_data[map_data_all.current_count].address_id,
-                    map_data_all.map_data[map_data_all.current_count + 1].address_id
-                );
+                dbg.log[7]++;
 
-                MapDataNode map_data_temp = map_data_all.map_data[map_data_all.current_count];
-                MapIdF  target_id     = map_data_all.map_data[final_node_count].address_id;
+                MapIdF  map_data_temp_id    = map_data_all.map_node[map_data_all.current_count].address_id;
+                MapDirF map_data_temp_dir   = map_data_all.map_node[map_data_all.current_count + 1].direction;
+                MapIdF  target_id           = map_data_all.map_node[final_node_count].address_id;
+
+                text_id[0] = map_data_all.map_node[map_data_all.current_count].address_id;
+                text_id[1] = map_data_all.map_node[map_data_all.current_count + 1].direction;
+                text_id[2] = map_data_all.map_node[map_data_all.current_count + 1].address_id;
+                text_id[3] = opposite_direction(map_data_all.map_node[map_data_all.current_count + 1].direction);
+                text_id[4] = map_data_all.current_count;
+                text_id[5] = map_data_all.map_node[0].address_id;
+                text_id[6] = map_data_all.map_node[1].address_id;
 
                 delete_locations_t_data(
-                    map_data_all.map_data[map_data_all.current_count].address_id,
-                    map_data_all.map_data[map_data_all.current_count].direction
+                    map_data_all.map_node[map_data_all.current_count].address_id,
+                    map_data_all.map_node[map_data_all.current_count + 1].direction
                     );
                 delete_locations_t_data(
-                    map_data_all.map_data[map_data_all.current_count + 1].address_id,
-                    opposite_direction(map_data_all.map_data[map_data_all.current_count].direction)
+                    map_data_all.map_node[map_data_all.current_count + 1].address_id,
+                    opposite_direction(map_data_all.map_node[map_data_all.current_count + 1].direction)
                     );
 
                 map_set();
-                // 正常使用下面這個
-                // map_data_renew_direction_and_address(
-                //     &map_data_start,
-                //     map_data_temp.address_id,
-                //     map_data_temp.direction
-                //     );
-                // text 因為沒有自動循跡倒退所以先人工原地旋轉後循跡，因此需要+4
                 map_data_renew_direction_and_address(
                     &map_data_start,
-                    map_data_temp.address_id,
-                    (map_data_temp.direction + 4) % 8
+                    map_data_temp_id,
+                    map_data_temp_dir
                     );
 
-                if (!(map_bulid(map_data_temp.address_id, target_id)))
-                {
-                    enforce_stop();
-                    dbg.log[0]++;
-                    continue;
-                }
+                main_work_space(map_data_temp_id, target_id);
 
                 map_trans(&agv_state);
             }

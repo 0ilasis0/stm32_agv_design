@@ -44,7 +44,7 @@
 程式把節點加入 FIFO 的 Queue，AGV 會依序前往並在到達節點執行相應動作。
 
 <a href="https://youtube.com/shorts/Torc2boiYbU?feature=share" target="_blank" rel="noopener noreferrer">
-  <img src="img/img1.jpg" alt="AGV Queue 任務序列示範縮圖" title="點此在 YouTube 觀看：AGV 正常工作行走" style="max-width:100%;height:auto;">
+  <img src="img/img1.jpg" alt="AGV 正常工作行走" title="點此在 YouTube 觀看：AGV 正常工作行走" style="max-width:100%;height:auto;">
 </a>
 
 影片連結（若點圖沒反應，請直接複製貼上）：
@@ -63,7 +63,57 @@ https://youtube.com/shorts/Torc2boiYbU?feature=share
 補充說明：
 - 影片展示：使用者輸入節點序列 → 程式建置 Queue → AGV 依序取出節點並前往 → 到達後執行停靠/報到等動作 → 重複直到 Queue 空。
 
-### 影片 B — AGV 自主回到磁條並繼續工作行走（脫離尋回示範）
+
+
+### 影片 B-1 — AGV 遇到障礙時倒退並重新工作
+簡短說明：示範 AGV 在執行任務（ID：3 → 0）過程中，遇到障礙物時能自動後退至前一個節點，重新計算行進路徑，並將包含障礙物的路段從地圖中移除，之後繼續依預定計畫執行任務。
+
+<a href="https://youtube.com/shorts/M4vMD_Uq-8M?feature=share" target="_blank" rel="noopener noreferrer">
+  <img src="img/避障1.jpg" alt="AGV 遇到障礙時倒退並重新工作1" title="點此在 YouTube 觀看：AGV 遇到障礙時倒退並重新工作1" style="max-width:100%;height:auto;">
+</a>
+
+影片連結（若點圖沒反應，請直接複製貼上）：
+https://youtube.com/shorts/M4vMD_Uq-8M?feature=share
+
+---
+**時間軸**：
+- 00:04 — 進入節點1
+- 00:10 — AGV `遇上障礙物` 自行停下並準備倒退
+- 00:13 — 確認進入節點1，告知AGV發生突發情況，請求重新計算地圖
+- 00:14 — 完成地圖計算並繼續執行預定任務
+- 00:34 — 進入節點2
+- 01:10 — 完成任務並停下
+---
+
+補充說明：
+- 影片展示：使用者輸入節點序列 → 遇上障礙 → 停止並到退 → 重新計算地圖 → 繼續執行任務。
+
+
+
+### 影片 B-2 — AGV 能夠記憶過去遇上障礙的路徑，避免下次走相同的路，
+簡短說明：示範 AGV 在執行任務（ID：0 → 3 → 2）過程中，遇到障礙物時能自動後退至前一個節點，重新計算行進路徑，並將包含障礙物的路段從地圖中移除，之後繼續依預定計畫執行任務。
+
+
+<a href="https://youtube.com/shorts/zKK78Ezg5OA?feature=share" target="_blank" rel="noopener noreferrer">
+  <img src="img/避障2.jpg" alt="AGV 遇到障礙時倒退並重新工作2" title="點此在 YouTube 觀看：AGV 遇到障礙時倒退並重新工作2" style="max-width:100%;height:auto;">
+</a>
+
+影片連結（若點圖沒反應，請直接複製貼上）：
+https://youtube.com/shorts/zKK78Ezg5OA?feature=share
+
+---
+**時間軸**：
+- 00:09 — AGV `遇上障礙物` 自行停下並準備倒退
+- 00:11 — 確認進入節點1，告知AGV發生突發情況，請求重新計算地圖
+- 00:12 — 完成地圖計算並繼續執行預定任務
+- 00:29 — 進入節點2
+- 00:45 — 完成第一份工作，準備執行第二分工作
+- 01:02 — 完成第二份工作後停下
+---
+
+
+
+### 影片 C — AGV 自主回到磁條並繼續工作行走（脫離尋回示範）
 簡短說明：示範 AGV 在脫離磁條時啟動尋回策略：**先右轉 80°** 掃描 → **再左轉 160°** 掃描，找到磁條後微調回到磁條中心並繼續原任務。
 
 <!-- 點擊縮圖在新分頁開啟 YouTube -->
@@ -90,4 +140,5 @@ https://youtube.com/shorts/myp7lJjNSJw?feature=share
 
 補充說明：
 - 影片展示：脫離偵測 → 右轉 80° 掃描(若還未感應到軌道，則執行左轉 160° 掃描) → 偵測到後對齊回歸並繼續行駛。
+
 

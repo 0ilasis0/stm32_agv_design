@@ -12,18 +12,18 @@ void map_adjust_start (void)
 
     map_data_start.vehicle_motion = decide_map_vehicle_motion(
         map_data_start.direction,
-        map_data_all.map_data[0].direction
+        map_data_all.map_node[0].direction
         );
 
     map_data_start.need_rotate_count = decide_need_rotate_count(
         map_data_start.vehicle_motion,
-        map_data_all.map_data[0].address_id,
+        map_data_all.map_node[0].address_id,
         map_data_start.direction,
-        map_data_all.map_data[0].direction
+        map_data_all.map_node[0].direction
         );
 
-    if (map_data_start.direction != map_data_all.map_data[0].direction)
+    if (map_data_start.direction != map_data_all.map_node[0].direction)
     {
-        map_data_all.map_data[0] = map_data_start;
+        map_data_all.map_node[0] = map_data_start;
     }
 }
