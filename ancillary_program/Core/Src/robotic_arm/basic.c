@@ -3,7 +3,7 @@
 ArmMotorParameter arm_bottom = {
     .const_h = {
         .id = 0,
-        // PB0(L34)
+        // PB0(L34) blue
         .htimx = &htim3,
         .TIM_CHANNEL_x = TIM_CHANNEL_3,
         .tim_min = ARM_TIM_MIN,
@@ -17,7 +17,7 @@ ArmMotorParameter arm_bottom = {
 ArmMotorParameter arm_shoulder = {
     .const_h = {
         .id = 1,
-        // PA4(L32)
+        // PA4(L32) green
         .htimx = &htim3,
         .TIM_CHANNEL_x = TIM_CHANNEL_2,
         .tim_min = ARM_TIM_MIN,
@@ -31,7 +31,7 @@ ArmMotorParameter arm_shoulder = {
 ArmMotorParameter arm_elbow_btm = {
     .const_h = {
         .id = 2,
-        // PA1(L30)
+        // PA1(L30) yello
         .htimx = &htim2,
         .TIM_CHANNEL_x = TIM_CHANNEL_2,
         .tim_min = ARM_TIM_MIN,
@@ -45,7 +45,7 @@ ArmMotorParameter arm_elbow_btm = {
 ArmMotorParameter arm_elbow_top = {
     .const_h = {
         .id = 3,
-        // PB10(R25)
+        // PB10(R25) gray
         .htimx = &htim2,
         .TIM_CHANNEL_x = TIM_CHANNEL_3,
         .tim_min = ARM_TIM_MIN,
@@ -59,7 +59,7 @@ ArmMotorParameter arm_elbow_top = {
 ArmMotorParameter arm_wrist = {
     .const_h = {
         .id = 4,
-        // PA6(R13)
+        // PA6(R13) purple
         .htimx = &htim3,
         .TIM_CHANNEL_x = TIM_CHANNEL_1,
         .tim_min = ARM_TIM_MIN,
@@ -73,7 +73,7 @@ ArmMotorParameter arm_wrist = {
 ArmMotorParameter arm_finger = {
     .const_h = {
         .id = 5,
-        // PA0(L28) 
+        // PA0(L28) orange
         .htimx = &htim2,
         .TIM_CHANNEL_x = TIM_CHANNEL_1,
         .tim_min = ARM_TIM_MIN,
