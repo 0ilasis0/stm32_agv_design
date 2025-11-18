@@ -12,7 +12,8 @@ static uint32_t tick_time = 0;
 static uint32_t now;
 static bool map_toggle = false;
 uint32_t text_id[7] = {};
-
+uint16_t adc_raw = 0;
+size_t defalt_running = 0;
 void StartDefaultTask(void *argument)
 {
     // osThreadExit();
@@ -34,6 +35,7 @@ void StartDefaultTask(void *argument)
 
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
     HAL_ADC_Start(&hadc1);
+    adc_raw = 1;
 
     // text
 
@@ -43,7 +45,8 @@ void StartDefaultTask(void *argument)
         now = HAL_GetTick();
         if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK)
         {
-            uint16_t adc_raw = HAL_ADC_GetValue(&hadc1);
+            defalt_running++;
+            adc_raw = HAL_ADC_GetValue(&hadc1);
             // 每完成一筆，就會進來一次
         }
 

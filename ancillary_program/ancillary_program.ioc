@@ -1,13 +1,15 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_15
 ADC1.CommonPathInternal=null|null|null|null
+ADC1.ContinuousConvMode=ENABLE
 ADC1.EnableInjectedConversion=DISABLE
-ADC1.IPParameters=Rank-0\#ChannelRegularConversion,master,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,EnableInjectedConversion,Rank1_Channel,CommonPathInternal
+ADC1.IPParameters=Rank-0\#ChannelRegularConversion,master,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,EnableInjectedConversion,Rank1_Channel,ContinuousConvMode,Overrun,CommonPathInternal
 ADC1.NbrOfConversionFlag=1
 ADC1.OffsetNumber-0\#ChannelRegularConversion=ADC_OFFSET_NONE
+ADC1.Overrun=ADC_OVR_DATA_OVERWRITTEN
 ADC1.Rank-0\#ChannelRegularConversion=1
 ADC1.Rank1_Channel=ADC_CHANNEL_15
-ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_2CYCLES_5
+ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_640CYCLES_5
 ADC1.master=1
 BSP_IP_NAME=NUCLEO-G431RB
 CAD.formats=
@@ -208,7 +210,7 @@ ProjectManager.ToolChainLocation=
 ProjectManager.UAScriptAfterPath=
 ProjectManager.UAScriptBeforePath=
 ProjectManager.UnderRoot=true
-ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-MX_DMA_Init-DMA-false-HAL-true,3-MX_TIM2_Init-TIM2-false-HAL-true,4-MX_TIM3_Init-TIM3-false-HAL-true,5-SystemClock_Config-RCC-false-HAL-false,6-MX_FDCAN1_Init-FDCAN1-false-HAL-true,7-MX_USART1_UART_Init-USART1-false-HAL-true,8-MX_SPI2_Init-SPI2-false-HAL-true,false-0--NUCLEO-G431RB-true-HAL-true
+ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-MX_DMA_Init-DMA-false-HAL-true,2-MX_TIM2_Init-TIM2-false-HAL-true,3-MX_TIM3_Init-TIM3-false-HAL-true,4-SystemClock_Config-RCC-false-HAL-false,5-MX_FDCAN1_Init-FDCAN1-false-HAL-true,7-MX_USART1_UART_Init-USART1-false-HAL-true,6-MX_SPI2_Init-SPI2-false-HAL-true,false-0--NUCLEO-G431RB-true-HAL-true
 RCC.ADC12Freq_Value=170000000
 RCC.AHBFreq_Value=170000000
 RCC.APB1Freq_Value=170000000
