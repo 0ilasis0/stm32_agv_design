@@ -1,9 +1,11 @@
 #include "rfid/main.h"
+#include "main/config.h"
 #include "map_new/base.h"
 #include "map_new/init.h"
 #include "map_new/manager.h"
 #include "map_new/work_space.h"
 #include "map_new/window.h"
+#include "adc.h"
 
 
 static uint32_t tick_time = 0;
@@ -30,12 +32,20 @@ void StartDefaultTask(void *argument)
 
     map_window_start_work();
 
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+    HAL_ADC_Start(&hadc1);
+
     // text
 
     for(;;)
     {
         tick_time++;
         now = HAL_GetTick();
+        if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK)
+        {
+            uint16_t adc_raw = HAL_ADC_GetValue(&hadc1);
+            // 每完成一筆，就會進來一次
+        }
 
         // map toggle
         if (new_card == 1 && !map_toggle)

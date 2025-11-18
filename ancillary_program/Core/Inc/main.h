@@ -70,8 +70,6 @@ void Error_Handler(void);
 #define SPI2_IRQ_Pin GPIO_PIN_1
 #define SPI2_IRQ_GPIO_Port GPIOB
 #define SPI2_IRQ_EXTI_IRQn EXTI1_IRQn
-#define SPI2_SDA_Pin GPIO_PIN_2
-#define SPI2_SDA_GPIO_Port GPIOB
 #define SPI2_RST_Pin GPIO_PIN_9
 #define SPI2_RST_GPIO_Port GPIOA
 #define T_SWDIO_Pin GPIO_PIN_13
