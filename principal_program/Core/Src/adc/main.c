@@ -5,33 +5,30 @@
 
 static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0}; // adc儲存位置
 
-// 2345 1820
 AdcHall adchall_track_left = {
     .const_h = {
         // PB11(R18)
         .id = 2,
     },
-    .gate = 1890,
+    .gate = 1820,
     .min = 4095,
 };
 
-// 2330 1815
 AdcHall adchall_track_right = {
     .const_h = {
         // PB1(R24)
         .id = 1,
     },
-    .gate = 1870,
+    .gate = 1800,
     .min = 4095,
 };
 
-// 2195 1735
 AdcHall adchall_direction = {
     .const_h = {
         // PB12(R16)
         .id = 0,
     },
-    .gate = 1785,
+    .gate = 1750,
     .min = 4095,
 };
 
