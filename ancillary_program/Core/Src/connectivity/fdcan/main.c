@@ -363,6 +363,16 @@ Result instant_recv_proc(FdcanPkt* pkt)
                     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
                     switch (code)
                     {
+                        case 0x01:
+                        {
+                            arm_motion_set(ARM_MOTION_IDLE);
+                            break;
+                        }
+                        case 0x02:
+                        {
+                            arm_motion_set(ARM_MOTION_00);
+                            break;
+                        }
                         case CMD_ARM_B2_STOP:
                         {
                             arm_motion_set(ARM_MOTION_UNKNOWN);

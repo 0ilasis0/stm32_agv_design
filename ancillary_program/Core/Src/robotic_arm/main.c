@@ -6,17 +6,24 @@ static const ArmMotionData motion_data_idle = {
     .total_step = 3,
     .data = {
         {50, 50, 50, 50, 50, 50},
-        {25, 35, 25, 25, 50, 50},
-        {25, 80, 25,  0, 50, 50},
-        // {50, 50, 50, 50, 50, 50},
+        {25, 50, 25, 25, 50, 25},
+        {25, 75, 00,  0, 50,  0},
     },
 };
 
 static const ArmMotionData motion_data_catch_o = {
-    .total_step = 2,
+    .total_step = 10,
     .data = {
         {50, 50, 50, 50, 50, 50},
-        {75, 50, 50, 50, 50, 50},
+        {75, 58, 25, 28, 50, 25},
+        {75, 58, 00, 28, 50, 00},
+        {75, 58, 00, 28, 50, 00},
+        {75, 58, 00, 28, 50, 50},
+        {75, 75, 00, 30, 50, 50},
+        {50, 75, 00, 30, 50, 50},
+        {26, 75, 00, 30, 50, 50},
+        {26, 75, 00, 26, 50, 50},
+        {26, 75, 00, 26, 50, 00},
     },
 };
 
@@ -61,9 +68,12 @@ void StartArmMotorTask(void *argument)
         arm_turn(&arm_elbow_top);
         arm_turn(&arm_wrist);
         arm_turn(&arm_finger);
-        osDelay(50);
+        osDelay(20);
     }
 }
+
+void arm_motion_switch(const ArmMotionData *motion_h)
+{}
 
 void arm_motion_set(ArmMotion motion)
 {
@@ -82,6 +92,11 @@ void arm_motion_set(ArmMotion motion)
             motion_h = &motion_data_idle;
             break;
         }
+        case ARM_MOTION_00:
+        {
+            motion_h = &motion_data_catch_o;
+            break;
+        }
         default: return;
     }
     robotic_arm_h.motion = motion;
@@ -96,6 +111,11 @@ static void motion_set_inner(ArmMotion motion, uint8_t step)
         case ARM_MOTION_IDLE:
         {
             motion_h = &motion_data_idle;
+            break;
+        }
+        case ARM_MOTION_00:
+        {
+            motion_h = &motion_data_catch_o;
             break;
         }
         default: return;

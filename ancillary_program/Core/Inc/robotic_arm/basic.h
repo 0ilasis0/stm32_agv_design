@@ -9,7 +9,7 @@
 typedef uint8_t ArmTim;
 #define ARM_TIM_MIN    50
 #define ARM_TIM_MAX   250
-#define ARM_TIM_STEP    5
+#define ARM_TIM_STEP    1
 
 typedef struct ArmMotorConst
 {

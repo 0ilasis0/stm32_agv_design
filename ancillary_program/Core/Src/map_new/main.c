@@ -24,10 +24,15 @@ void StartDefaultTask(void *argument)
     map_set();
 
     // text
-    map_window_init_work(locations_t[0].local_id, 0);
-    map_window_add_work(locations_t[3].local_id);
+    map_window_init_work(locations_t[1].local_id, 4);
+    // map_window_add_work(locations_t[3].local_id);
+    map_window_add_work(locations_t[0].local_id);
     map_window_add_work(locations_t[1].local_id);
-    map_window_add_work(locations_t[2].local_id);
+    map_window_add_work(locations_t[0].local_id);
+    map_window_add_work(locations_t[1].local_id);
+    map_window_add_work(locations_t[0].local_id);
+    map_window_add_work(locations_t[1].local_id);
+    // map_window_add_work(locations_t[2].local_id);
 
     // map_window_init_work(locations_t[3].local_id, 0);
     // map_window_add_work(locations_t[1].local_id);

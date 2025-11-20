@@ -12,7 +12,7 @@ typedef enum ArmMotion
 {
     ARM_MOTION_UNKNOWN = -1,
     ARM_MOTION_IDLE,
-
+    ARM_MOTION_00,
 } ArmMotion;
 
 typedef struct ArmParameter

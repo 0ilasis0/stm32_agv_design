@@ -10,7 +10,7 @@ AdcHall adchall_track_left = {
         // PB11(R18)
         .id = 2,
     },
-    .gate = 1820,
+    .gate = 1860,
     .min = 4095,
 };
 
@@ -19,7 +19,7 @@ AdcHall adchall_track_right = {
         // PB1(R24)
         .id = 1,
     },
-    .gate = 1800,
+    .gate = 1850,
     .min = 4095,
 };
 
@@ -28,7 +28,7 @@ AdcHall adchall_direction = {
         // PB12(R16)
         .id = 0,
     },
-    .gate = 1750,
+    .gate = 1780,
     .min = 4095,
 };
 
